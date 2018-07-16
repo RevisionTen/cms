@@ -2,7 +2,7 @@
 
 namespace RevisionTen\CMS\Security;
 
-use Google\Authenticator\GoogleAuthenticator;
+use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;

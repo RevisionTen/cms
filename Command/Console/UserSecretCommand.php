@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Command\Console;
 use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
-use Google\Authenticator\GoogleAuthenticator;
+use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
