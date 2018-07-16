@@ -1,0 +1,16 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block main %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% include '@cms/Security/login-form.html.twig' %}
+{% endblock %}
+
+{# Hide the Sidebar #}
+{% block sidebar %}{% endblock %}

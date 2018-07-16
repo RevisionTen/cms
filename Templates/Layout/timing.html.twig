@@ -1,0 +1,15 @@
+{% set laterThanStartDate = element.data.startDate ? ('now'|date('U') >= element.data.startDate) : true %}
+{% set earlierThanEndDate = element.data.endDate ? ('now'|date('U') <= element.data.endDate) : true %}
+{% set visible = laterThanStartDate and earlierThanEndDate %}
+{% if edit or visible %}
+    {% if edit %}<div data-uuid="{{ element.uuid }}" data-visible="{{ visible ? '1' : '0' }}" data-enabled="{{ (element.enabled ?? true) ? '1' : '0' }}" data-children="{{ config.page_elements[element.elementName].children|join(',') }}" data-label="{{ element.elementName|trans }}" data-bg="bg-warning">{% endif %}
+        {% if edit %}
+            <div class="small mb-0 alert alert-warning">{{ 'This element appears from %start% to %end%.'|trans({'%start%': element.data.startDate|date, '%end%': element.data.endDate|date}) }}</div>
+        {% endif %}
+        {% if element.elements is defined %}
+            {% for element in element.elements %}
+                {% include config.page_elements[element.elementName].template %}
+            {% endfor %}
+        {% endif %}
+    {% if edit %}</div>{% endif %}
+{% endif %}

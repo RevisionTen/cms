@@ -1,0 +1,24 @@
+{% set hours = ((date().timestamp - value.timestamp)/60/60)|round(0) %}
+{% if hours < 1 %}
+    {% set minutes = ((date().timestamp - event.created.timestamp)/60)|round(0) %}
+    {% if minutes < 1 %}
+        {{ 'Event happened just now'|trans }}
+    {% elseif minutes == 1 %}
+        {{ 'Event happened 1 minute ago'|trans }}
+    {% else %}
+        {{ 'Event happened %minutes% minutes ago'|trans({'%minutes%': minutes}) }}
+    {% endif %}
+{% elseif hours < 24 %}
+    {% if hours == 1 %}
+        {{ 'Event happened 1 hour ago'|trans }}
+    {% else %}
+        {{ 'Event happened %hours% hours ago'|trans({'%hours%': hours}) }}
+    {% endif %}
+{% else %}
+    {% set days = (hours/24)|round(0) %}
+    {% if days == 1 %}
+        {{ 'Event happened 1 day ago'|trans }}
+    {% else %}
+        {{ 'Event happened %days% days ago'|trans({'%days%': days}) }}
+    {% endif %}
+{% endif %}

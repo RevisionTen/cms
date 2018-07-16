@@ -1,0 +1,9 @@
+{% if value %}
+    {% if value.deleted %}<span class="text-danger" title="{{ 'Deleted'|trans }}"><span class="fas fa-trash"></span> {% endif %}
+    {% if value.deleted == false %}<a href="{{ path('cms_edit_aggregate', {id: value.id}) }}"><span title="{{ (value.published ? 'Published' : 'Unpublished')|trans }}"><span class="fas fa-circle {{ value.published ? 'text-success' : 'text-danger'}}"></span> {% endif %}
+        {{ value.title }}
+    {% if value.deleted == false %}</span></a>{% endif %}
+    {% if value.deleted %}</span>{% endif %}
+{% else %}
+    {{ 'Redirect only'|trans }}
+{% endif %}

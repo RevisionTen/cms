@@ -1,0 +1,32 @@
+#index:
+#    path: /index
+#    defaults: { _controller: 'RevisionTen\CMS\Controller\PageController::index' }
+
+revisionTen_cms_controller_security:
+    resource: "@CmsBundle/Controller/SecurityController.php"
+    type: annotation
+
+easy_admin_bundle:
+    resource: '@EasyAdminBundle/Controller/AdminController.php'
+    prefix: /admin
+    type: annotation
+
+revisionTen_cms_controller_admin:
+    resource: "@CmsBundle/Controller/AdminController.php"
+    type: annotation
+
+revisionTen_cms_controller_api:
+    resource: "@CmsBundle/Controller/ApiController.php"
+    type: annotation
+
+revisionTen_cms_controller_menu:
+    resource: "@CmsBundle/Controller/MenuController.php"
+    type: annotation
+
+revisionTen_cms_controller_page:
+    resource: "@CmsBundle/Controller/PageController.php"
+    type: annotation
+
+revisionTen_forms:
+    resource: "@FormsBundle/Resources/config/routes.yaml"
+    prefix:   /

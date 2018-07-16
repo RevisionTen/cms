@@ -1,0 +1,28 @@
+{% if item.enabled %}
+    {% if item.items is defined and item.items %}
+        <div class="dropdown d-inline-block">
+            <span class="{{ itemClasses|join(' ') }} dropdown-toggle" data-toggle="dropdown">
+                {{ item.data.title|raw }}
+            </span>
+            <ul class="dropdown-menu">
+                {% set level = level + 1 %}
+                {% for item in item.items %}
+                    <li>
+                        {% include config.menu_items[item.itemName].template %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        {% if menu.paths[item.data.alias] is defined %}
+            {% set path = menu.paths[item.data.alias] %}
+            <a
+                    target="{{ item.data.targetBlank is defined and item.data.targetBlank ? '_blank' : '_self' }}"
+                    class="{{ itemClasses|join(' ') }}"
+                    href="{{ path }}"
+            >
+                {{ item.data.title|raw }}
+            </a>
+        {% endif %}
+    {% endif %}
+{% endif %}

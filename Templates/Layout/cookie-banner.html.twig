@@ -1,0 +1,30 @@
+
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/cms/css/cookieconsent.min.css') }}" />
+<script src="{{ asset('bundles/cms/libs/dist/cookieconsent.min.js') }}"></script>
+<script>
+    window.addEventListener("load", function(){
+        window.consentCallback = function (status) {
+            if ('dismiss' === status) {
+                // User has given consent.
+                // Code...
+            }
+        };
+        window.cookieconsent.initialise({
+            "palette": {
+                "popup": {
+                    "background": "#fff"
+                }
+            },
+            "showLink": false,
+            "position": "bottom-right",
+            "content": {
+                "message": "<strong>{{ 'Use of Cookies'|trans }}</strong><br/>{{ 'By continuing your visit to this site, you accept the use of cookies to make visitor statistics.'|trans|raw }} <a href=\"#\">{{ 'Privacy Policy'|trans|raw }}</a>",
+                "dismiss": "{{ 'Accept'|trans }}"
+            },
+            "onInitialise": function(status) { window.consentCallback(status); },
+            "onStatusChange": function(status, chosenBefore) { window.consentCallback(status); },
+            "elements": {
+                "dismiss": '<a aria-label="dismiss cookie message" tabindex="0" class="btn-primary cc-btn cc-dismiss">{% verbatim %}{{dismiss}}{% endverbatim %}</a>'
+            }
+        })});
+</script>

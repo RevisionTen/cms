@@ -1,0 +1,7 @@
+{% form_theme form '@cms/Form/form_theme.html.twig' %}
+
+{{ app.request.session.get('cd') }}
+
+<div class="mt-5 mb-5">
+    {{ form(form) }}
+</div>

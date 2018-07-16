@@ -1,0 +1,29 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}{{ 'Menues'|trans }}{% endblock %}
+
+{% block main %}
+
+    <div class="container-fluid" style="margin-bottom: 1em;">
+        <div class="row">
+            <div class="col-12">
+                {% for name, menu in missingMenues %}
+                    <a class="btn btn-primary" href="{{ path('cms_menu_create', {name: name}) }}">
+                        {{ 'Create %menu%'|trans({'%menu%': name|trans}) }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                {% for menu in menues %}
+                    {% include '@cms/Admin/edit-menu.html.twig' %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

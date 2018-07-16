@@ -1,0 +1,27 @@
+{% if edit %}
+    <div class="editor button-group bg-info p-1">
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <span class="btn btn-sm text-white"><span class="{{ config.page_elements.Column.icon }}"></span> {{ 'Column'|trans }}</span>
+                <span class="btn btn-sm text-white d-inline d-sm-none">
+                    {{ element.data.widthXS is defined and element.data.widthXS ? 'Width'|trans~'-'~element.data.widthXS : '' }}
+                </span>
+                <span class="btn btn-sm text-white d-none d-sm-inline d-md-none">
+                    {{ element.data.widthSM is defined and element.data.widthSM ? 'Width'|trans~'-'~element.data.widthSM : '' }}
+                </span>
+                <span class="btn btn-sm text-white d-none d-md-inline d-lg-none">
+                    {{ element.data.widthMD is defined and element.data.widthMD ? 'Width'|trans~'-'~element.data.widthMD : '' }}
+                </span>
+                <span class="btn btn-sm text-white d-none d-lg-inline d-xl-none">
+                    {{ element.data.widthLG is defined and element.data.widthLG ? 'Width'|trans~'-'~element.data.widthLG : '' }}
+                </span>
+                <span class="btn btn-sm text-white d-none d-xl-inline">
+                    {{ element.data.widthXL is defined and element.data.widthXL ? 'Width'|trans~'-'~element.data.widthXL : '' }}
+                </span>
+            </div>
+            <div class="col-auto">
+                {% include '@cms/Admin/Frontend/general-buttons.html.twig' %}
+            </div>
+        </div>
+    </div>
+{% endif %}

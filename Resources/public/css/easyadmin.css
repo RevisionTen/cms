@@ -1,0 +1,276 @@
+/*
+
+text: #54667a
+text_muted: #8fa5bf
+blue: #41b3f9
+green: #7ace4c
+red: #f33155
+yellow: #fb4
+light: #edf1f5
+lightborder: #e1e9f2
+dark: #2f323e
+info: #41b3f9
+odd: #e5f7ff
+even: #f7f7f7
+
+ */
+.main-header .logo,
+html,
+body {
+    font-family: Arial, sans-serif;
+}
+.dropdown-menu > li > a,
+body,
+legend {
+    color: #54667a;
+}
+.text-muted {
+    color: #8fa5bf;
+}
+.edit-page .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+.edit-page .content-wrapper > .container-fluid {
+    width: 100%;
+}
+.edit-page .content-wrapper > .content-header {
+    flex: 0 1 auto;
+}
+.edit-page .content-wrapper > .content {
+    flex: 1 1 auto;
+    width: 100%;
+    display: flex;
+}
+.edit-page .content-wrapper > .content > * {
+    width: 100%;
+}
+.edit-page .content-wrapper > .content iframe {
+    margin: 0 auto;
+    height: auto;
+    border: 0;
+    width: 100%;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.0);
+}
+.dropdown-versions .btn {
+    background: none;
+}
+.dropdown-versions .btn:hover {
+    background: #edf1f5;
+}
+.dropdown-versions,
+.dropdown-previewsize {
+    display: inline-block;
+}
+.dropdown-menu > li {
+    margin: 0;
+}
+.main-header .navbar .sidebar-toggle {
+    display: none;
+}
+.main-header .navbar .sidebar-toggle.sidebar-toggle-editor {
+    display: block;
+    color: #fff;
+}
+.main-header .navbar .sidebar-toggle.sidebar-toggle-editor::before {
+    display: none;
+}
+.sidebar-mini.sidebar-collapse .main-header .logo {
+    padding-left: 0;
+}
+.sidebar-mini.sidebar-collapse .main-header .navbar .sidebar-toggle.sidebar-toggle-editor {
+    margin-right: 15px;
+}
+.appicon {
+    font-size: 1.4em;
+    margin-bottom: -2px;
+}
+body.list .pagination > li > a,
+body.list table tbody tr {
+}
+body.list table thead th,
+body.list table tbody td.actions a,
+.sidebar-menu > li > a, .sidebar-menu .treeview-menu > li > a,
+.btn-primary, .btn-danger, .btn-success, .btn-info {
+    font-weight: normal;
+}
+.main-sidebar {
+    box-shadow: 1px 0 20px rgba(0, 0, 0, 0.08);
+}
+.sidebar-menu {
+}
+.sidebar-menu li.header {
+    border-bottom: 1px solid #e1e9f2;
+    color: #54667a;
+    text-transform: none;
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+    border-color: #e1e9f2;
+}
+.svg-inline--fa,
+.svg-inline--fas,
+.svg-inline--fab,
+.sidebar-menu svg {
+    margin-right: 5px;
+}
+.btn-success.btn-tertiary,
+.btn-danger.btn-tertiary,
+.btn-warning.btn-tertiary,
+.btn-info.btn-tertiary,
+.btn-tertiary {
+    background: none;
+    color: #54667a;
+}
+.btn-tertiary .label-text {
+    display: none;
+}
+.btn-label-fade .svg-inline--fa,
+.btn-label-fade .svg-inline--fas,
+.btn-label-fade .svg-inline--fab,
+.btn-label-fade .sidebar-menu svg {
+    margin-right: 0;
+}
+.btn-label-fade .label-text {
+    /*display: none;*/
+}
+.btn-label-fade:hover .label-text {
+    /*display: inline;*/
+}
+.sidebar-menu > li:hover > a, .sidebar-menu .treeview-menu > li:hover > a,
+.sidebar-menu > li.active > a, .sidebar-menu .treeview-menu > li.active > a,
+.sidebar-collapse .sidebar-menu > li.active.submenu-active > a,
+.sidebar-collapse .sidebar-menu > li:hover .treeview-menu > li.active > a {
+    border-left-color: #41b3f9;
+    background: #fff;
+    font-weight: bold;
+}
+.sidebar-menu > li > a, .sidebar-menu .treeview-menu > li > a {
+    color: #54667a;
+}
+.alerts {
+    margin: 0 -5px;
+}
+.alert-sm {
+    padding: 5px 10px;
+    margin: 5px;
+}
+.alert-dark {
+    background: #CCC;
+    color: #222222;
+}
+.alert-dark .alert-link {
+    color: #222222;
+}
+.alert-warning {
+    background: #fb4;
+    color: #fff;
+}
+.alert-warning .alert-link {
+    color: #fff;
+    margin-left: 5px;
+}
+.content {
+    padding: 20px;
+}
+.content-header {
+    padding: 20px 20px 0 20px;
+}
+body.easyadmin h1.title {
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+.editor-userinfo {
+    padding: 30px 15px;
+}
+.sidebar-collapse .editor-userinfo {
+    display: none;
+}
+.editor-title {
+    padding-top: 5px;
+}
+.editor-avatar {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    position: relative;
+}
+.editor-avatar-small {
+    width: 1em;
+}
+.editor-avatar-color {
+    text-align: center;
+    width: 60px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    position: relative;
+    height: 60px;
+    line-height: 60px;
+    font-size: 30px;
+    color: #fff;
+    border-radius: 100%;
+}
+.editor-avatar-color-small {
+    text-align: center;
+    width: 14px;
+    margin: 0 5px 0 0;
+    height: 14px;
+    line-height: 14px;
+    font-size: 10px;
+    color: #fff;
+    border-radius: 100%;
+    display: inline-block;
+}
+#admin-bar {
+    background: #fff;
+    padding: 15px 20px;
+    margin: -20px -20px 5px -20px;
+}
+.panel-default {
+    background: #fff;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+.panel-body {
+    padding: 15px;
+}
+.panel-default > .panel-heading {
+    background: #fff;
+    text-transform: uppercase;
+    color: #54667a;
+    border-color: #e1e9f2;
+}
+.panel-default .list-group {
+    margin: 0;
+}
+.list-group-item {
+    border-color: #e1e9f2;
+}
+.panel-default .table > tbody > tr > td,
+.panel-default .table > tbody > tr > th,
+.panel-default .table > tfoot > tr > td,
+.panel-default .table > tfoot > tr > th,
+.panel-default .table > thead > tr > td,
+.panel-default .table > thead > tr > th {
+    padding: 10px 15px;
+}
+.col-flexed,
+.row-flexed {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.col-flexed {
+    flex-direction: column;
+}
+.col-flexed > *,
+.row-flexed > * {
+    flex: 1 1 auto;
+}

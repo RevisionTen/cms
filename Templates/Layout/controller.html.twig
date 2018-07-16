@@ -1,0 +1,5 @@
+<div {% if edit %}data-uuid="{{ element.uuid }}" data-enabled="{{ (element.enabled ?? true) ? '1' : '0' }}" data-label="{{ element.elementName|trans }}"{% endif %}>
+    {% if element.data.controller is defined and element.data.controller %}
+        {{ render(controller(element.data.controller)) }}
+    {% endif %}
+</div>

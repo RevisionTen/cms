@@ -1,0 +1,15 @@
+{% macro render(sectionName, defaultSectionTemplate, page, edit, config) %}
+
+    {% set bodyExists = false %}
+    {% for element in page.elements %}
+        {% if element.data.section is defined and element.data.section == sectionName %}
+            {% set bodyExists = true %}
+            {% include config.page_elements[element.elementName].template %}
+        {% endif %}
+    {% endfor %}
+
+    {% if bodyExists == false %}
+        {% include defaultSectionTemplate %}
+    {% endif %}
+
+{% endmacro %}

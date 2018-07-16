@@ -1,0 +1,52 @@
+{% extends ['bootstrap_3_layout.html.twig'] %}
+
+{#% use 'bootstrap_4_layout.html.twig' %#}
+
+{% block upload_widget %}
+    {% set file = (value.file is defined and value.file) ? value.file : value %}
+    {% if file %}
+        <img class="img-responsive" src="{{ file }}" style="margin-bottom: 1em;">
+        {{ block('form_widget') }}
+    {% else %}
+        {{ block('form_widget') }}
+    {% endif %}
+{% endblock upload_widget %}
+
+{% block form_widget %}
+    {% if compound %}
+        {{- block('form_widget_compound') -}}
+    {% else %}
+        {{- block('form_widget_simple') -}}
+    {% endif %}
+
+    {% if form.parent.vars.allow_delete|default(false) %}
+        {% set remove_item_javascript %}
+            $(function() {
+            if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
+
+            var containerDiv = $('#{{ id }}').parents('.form-group:first');
+            var parentDiv = containerDiv.parents('[data-prototype]:first');
+            containerDiv.remove();
+            parentDiv.trigger('easyadmin.collection.item-deleted');
+
+            var hasCountAttr = parentDiv.data('count');
+
+            if (hasCountAttr === undefined) {
+            var numItems = parentDiv.children('div.form-group').length;
+            parentDiv.data('count', ++numItems)
+            }
+
+            if (0 == parentDiv.children().length && 'undefined' !== parentDiv.attr('data-empty-collection')) {
+            $(parentDiv.attr('data-empty-collection')).insertBefore(parentDiv);
+            }
+            });
+        {% endset %}
+
+        <div class="text-right field-collection-item-action">
+            <a href="#" onclick="{{ remove_item_javascript|raw }}" class="text-danger">
+                <i class="fas fa-trash"></i>
+                {{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock form_widget %}

@@ -1,0 +1,12 @@
+{% if edit %}
+    <div class="editor button-group bg-secondary p-1">
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <span class="btn btn-sm text-white"><span class="{{ config.page_elements.Row.icon }}"></span> {{ 'Row'|trans }}</span>
+            </div>
+            <div class="col-auto">
+                {% include '@cms/Admin/Frontend/general-buttons.html.twig' %}
+            </div>
+        </div>
+    </div>
+{% endif %}

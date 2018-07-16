@@ -1,0 +1,6 @@
+{% if edit %}
+    <script>
+        window.pageElements = {{ pageElements|json_encode|raw }};
+        window.translations = {{ translations|json_encode|raw }}
+    </script>
+{% endif %}

@@ -1,0 +1,9 @@
+{% if menu.data.items is defined and menu.data.items is iterable %}
+    {% for item in menu.data.items %}
+        {% set level = 0 %}
+        {% set itemClasses = [
+            'btn'
+        ] %}
+        {% include config.menu_items[item.itemName].template %}
+    {% endfor %}
+{% endif %}

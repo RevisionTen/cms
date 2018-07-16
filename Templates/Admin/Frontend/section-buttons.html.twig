@@ -1,0 +1,13 @@
+{% if edit %}
+    <div class="editor button-group bg-dark p-1">
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <span class="btn btn-sm text-white"><span class="{{ config.page_elements.Section.icon }}"></span> {{ 'Section'|trans }}</span>
+            </div>
+            <div class="col-auto">
+                <a class="btn btn-sm text-white" target="_top" href="{{ path('cms_delete_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fas fa-times"></span></a>
+                <a data-target="parent" class="btn btn-sm text-white" target="_top" href="{{ path('cms_edit_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fa fa-edit"></span></a>
+            </div>
+        </div>
+    </div>
+{% endif %}

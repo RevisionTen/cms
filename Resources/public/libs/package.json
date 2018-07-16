@@ -1,0 +1,23 @@
+{
+  "name": "libs",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.6",
+    "@fortawesome/fontawesome-free-brands": "^5.0.11",
+    "@fortawesome/fontawesome-free-regular": "^5.0.11",
+    "@fortawesome/fontawesome-free-solid": "^5.0.11",
+    "cookieconsent": "^3.0.6"
+  },
+  "devDependencies": {
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.1.2"
+  },
+  "scripts": {
+    "build": "webpack && cp -v ./node_modules/cookieconsent/build/cookieconsent.min.js ./dist/cookieconsent.min.js && cp -v ./node_modules/cookieconsent/build/cookieconsent.min.css ./../css/cookieconsent.min.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

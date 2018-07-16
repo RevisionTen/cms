@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <meta charset="utf-8" />
+
+        {% block metatags %}
+            {% if page.robots %}<meta name="robots" content="{{ page.robots|join(', ') }}" />{% endif %}
+            {% if page.description %}<meta name="description" content="{{ page.description }}" />{% endif %}
+            {% if page.meta.keywords %}<meta name="keywords" content="{{ page.meta.keywords }}" />{% endif %}
+            {% if page.image %}<meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ page.image }}">{% endif %}
+        {% endblock %}
+
+        {% block styles %}
+            <!-- Full Bootstrap -->
+            <!-- IMPORTANT: REPLACE WITH LOCAL VERSION -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+            {% if edit %}
+                <!-- FontAwesome 5 -->
+                <script defer src="{{ asset('bundles/cms/libs/dist/main.js') }}"></script>
+            {% endif %}
+
+            {% include '@cms/Admin/admin-styles.html.twig' %}
+        {% endblock %}
+    </head>
+    <body>
+    {% set created = page.created.date is defined ? date(page.created.date) : page.created %}
+    {% set modified = page.modified.date is defined ? date(page.modified.date) : page.modified %}
+
+        {% if page is defined %}
+            <script type="application/ld+json">
+              {
+                "@context": "http://schema.org",
+                "@type": "Article",
+                "headline": "{{ page.title }}",
+                "name": "{{ page.title }}",
+                {% if created %}"datePublished": "{{ created|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
+                {% if modified %}"dateModified": "{{ modified|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
+                "description": "{{ page.description }}"{% if page.image %},
+                "image": {
+                  "@type": "ImageObject",
+                  "url": "{{ app.request.getSchemeAndHttpHost() ~ page.image }}"
+                }{% endif %}
+              }
+            </script>
+        {% endif %}
+
+        {% block body %}{% endblock %}
+
+        {% block scripts %}
+            <!-- Full Bootstrap and jQuery -->
+            <!-- IMPORTANT: REPLACE WITH LOCAL VERSION -->
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+            {% include '@cms/Admin/admin-scripts.html.twig' %}
+        {% endblock %}
+
+        {% include '@cms/Layout/cookie-banner.html.twig' %}
+    </body>
+</html>

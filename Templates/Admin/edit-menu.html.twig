@@ -1,0 +1,32 @@
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            {{ menu.name|trans }}
+        </h4>
+    </div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% for item in menu.items %}
+                {% set level = 0 %}
+                {% include '@cms/Admin/edit-menu-item.html.twig' %}
+            {% endfor %}
+        </div>
+
+        <div>
+            <p>&nbsp;</p>
+            <p>
+                <a class="btn btn-secondary" href="{{ path('cms_menu_clearmenucache', {name: menu.name}) }}">
+                    {{ 'Clear menu cache'|trans }}
+                </a>
+
+                {% for itemName, itemConfig in config.menu_items %}
+                    <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+                        {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+                    </a>
+                {% endfor %}
+            </p>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace RevisionTen\CMS\Event;
+
+use RevisionTen\CMS\Command\MenuRemoveItemCommand;
+use RevisionTen\CMS\Listener\MenuRemoveItemListener;
+use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CQRS\Interfaces\EventInterface;
+
+final class MenuRemoveItemEvent extends Event implements EventInterface
+{
+    /**
+     * {@inheritdoc}
+     */
+    public static function getCommandClass(): string
+    {
+        return MenuRemoveItemCommand::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getListenerClass(): string
+    {
+        return MenuRemoveItemListener::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMessage(): string
+    {
+        return 'Menu item removed from Menu';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getCode(): int
+    {
+        return CODE_OK;
+    }
+}

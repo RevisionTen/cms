@@ -1,0 +1,13 @@
+<div {% if edit %}data-uuid="{{ element.uuid }}" data-enabled="{{ (element.enabled ?? true) ? '1' : '0' }}" data-label="{{ element.elementName|trans }}" data-children="{{ config.page_elements[element.elementName].children|join(',') }}" data-bg="bg-info"{% endif %} class="{{ element.data.styles is defined ? element.data.styles|join(' ') : '' }} {% spaceless %}
+{{ element.data.widthXS is defined and element.data.widthXS ? ' col-'~element.data.widthXS : '' }}
+{{ element.data.widthSM is defined and element.data.widthSM ? ' col-sm-'~element.data.widthSM : '' }}
+{{ element.data.widthMD is defined and element.data.widthMD ? ' col-md-'~element.data.widthMD : '' }}
+{{ element.data.widthLG is defined and element.data.widthLG ? ' col-lg-'~element.data.widthLG : '' }}
+{{ element.data.widthXL is defined and element.data.widthXL ? ' col-xl-'~element.data.widthXL : '' }}
+{% endspaceless %} {{ edit ? 'no-outline': '' }}">
+    {% if element.elements is defined %}
+        {% for element in element.elements %}
+            {% include config.page_elements[element.elementName].template %}
+        {% endfor %}
+    {% endif %}
+</div>

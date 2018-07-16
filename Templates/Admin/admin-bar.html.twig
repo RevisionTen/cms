@@ -1,0 +1,97 @@
+<div id="admin-bar">
+    <div class="row">
+        <div class="col-sm-4">
+            {% if edit %}
+                <h1 class="title editor-title">{{ 'Page'|trans }} <a data-target="parent" target="_top" href="{{ path('cms_change_pagesettings', {pageUuid: page.uuid, version: page.version}) }}" class="text-muted" style="text-transform: none;">{{ page.title }} &nbsp;<span class="fa fa-edit"></span></a></h1>
+            {% else %}
+                <h1 class="title editor-title">{{ 'Preview Page'|trans }} <span class="text-muted">{{ page.title }}</span></h1>
+            {% endif %}
+        </div>
+        {% if edit %}
+            <div class="col-sm-8">
+                <form class="form-inline pull-right">
+                    <div class="button-group">
+
+                        <div class="dropdown dropdown-versions">
+                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="text-muted">Version</span> {{ page.version }}
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a data-target="parent" href="{{ path('cms_rollback_aggregate', {pageUuid: page.uuid, version: page.version}) }}">{{ 'Rollback'|trans }}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {% if previewSize is defined %}
+                            {% set deviceIcons = {
+                            'AutoWidth': 'fas fa-expand',
+                            'xs': 'fas fa-mobile-alt',
+                            'sm': 'fas fa-mobile-alt',
+                            'md': 'fas fa-tablet-alt',
+                            'lg': 'fas fa-laptop',
+                            'xl': 'fas fa-desktop'
+                            } %}
+                            <div class="dropdown dropdown-previewsize">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="{{ deviceIcons[previewSize] }}"></i> {{ previewSize|trans }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% set route = app.request.attributes.get('_route') %}
+                                    {% set queries = app.request.query.all %}
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'AutoWidth'|trans }}</a></li>
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'xs'|trans }}</a></li>
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'sm'|trans }}</a></li>
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'md'|trans }}</a></li>
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'lg'|trans }}</a></li>
+                                    <li><a href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'xl'|trans }}</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {#<span class="btn btn-sm text-white">
+                            {% if page.version != page.streamVersion %}
+                                <span class="text-info">{{ page.version ? 'My Version %version%'|trans({'%version%' : page.version}) : '' }}</span> |
+                            {% endif %}
+                            {{ page.version ? 'Version %version%'|trans({'%version%' : page.streamVersion}) : '' }} |
+                            {{ page.version ? 'Snapshot %version%'|trans({'%version%' : page.snapshotVersion}) : '' }} |
+                            {% if page.version == (publishedVersion+1) %}
+                                <span class="text-success">{{ 'Page is up to date!'|trans }}</span>
+                            {% else %}
+                                <span class="text-warning">{{ publishedVersion ? 'Published %version%'|trans({'%version%' : publishedVersion}) : '' }}</span>
+                            {% endif %}
+                        </span>#}
+                        {% if page.shouldTakeSnapshot() %}
+                            <a class="btn btn-success btn-sm" target="_top" href="{{ path('cms_save_snapshot', {pageUuid: page.uuid}) }}"><span class="fas fa-sync"></span> {{ 'Optimize'|trans }}</a>
+                        {% endif %}
+                        {% if page.version == page.streamVersion %}
+                            {% if publishedVersion == null or page.version != (publishedVersion+1) %}
+                                <a title="{{ 'Pending changes of other users will be lost.'|trans }}" class="btn btn-success btn-sm" target="_top" href="{{ path('cms_publish_page', {pageUuid: page.uuid, version: page.streamVersion}) }}"><span class="fas fa-bullhorn"></span> {{ 'Publish'|trans }}</a>
+                            {% else %}
+                                <a class="btn btn-primary btn-sm" target="_blank" href="{{ path('cms_page_show', {pageUuid: page.uuid}) }}"><span class="fas fa-eye"></span> {{ 'View'|trans }}</a>
+                                <a title="{{ 'Pending changes of other users will be lost.'|trans }}" class="btn btn-danger btn-sm" target="_top" href="{{ path('cms_unpublish_page', {pageUuid: page.uuid}) }}"><span class="fas fa-eye-slash"></span> {{ 'Unpublish'|trans }}</a>
+                            {% endif %}
+                        {% else %}
+                            <a class="btn btn-sm text-white" target="_top" href="{{ path('cms_undo_change', {pageUuid: page.uuid, version: page.version}) }}"><span class="fas fa-undo"></span> {{ 'Undo last change'|trans }}</a>
+                            <a data-target="parent" class="btn btn-primary btn-sm" target="_top" href="{{ path('cms_submit_changes', {pageUuid: page.uuid, version: page.version, qeueUser: user.id}) }}"><span class="fas fa-check-circle"></span> {{ 'Submit changes'|trans }}</a>
+                            <a class="btn btn-default btn-sm" target="_top" href="{{ path('cms_discard_changes', {pageUuid: page.uuid}) }}"><span class="fa fa-trash"></span> {{ 'Discard changes'|trans }}</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alerts">
+    {% for qeueUser in users %}
+        {% if qeueUser.user.id != user.id and qeueUser.user.id != app.user.id %}
+            {% set lastQeueVersion = qeueUser.events|last.version %}
+            <div class="alert alert-sm alert-warning pull-left">
+                {{ '<strong>%username%</strong> has proposed %changes% changes.'|trans({'%username%': qeueUser.user.username, '%changes%': qeueUser.events|length})|raw }}
+                <a target="_top" href="{{ path('cms_edit_aggregate', {id: pageStreamRead.id, user: qeueUser.user.id}) }}" class="alert-link">{{ 'Preview changes'|trans }}</a>
+                <a target="_top" href="{{ path('cms_submit_changes', {pageUuid: page.uuid, version: lastQeueVersion, qeueUser: qeueUser.user.id}) }}" class="alert-link">{{ 'Approve changes'|trans }}</a>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

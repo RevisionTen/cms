@@ -1,0 +1,57 @@
+<div id="page-info">
+    <div class="row">
+        <div class="col-sm-4">
+            <h1 class="title editor-title">
+                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">Version {{ version }}</small>
+            </h1>
+        </div>
+        <div class="col-sm-8">
+            <form class="form-inline pull-right">
+
+                <div class="button-group">
+
+                    <div class="dropdown dropdown-versions">
+                        {% set historyActions = [
+                        actions.undo_change,
+                        actions.rollback_aggregate,
+                        actions.discard_changes
+                        ] %}
+                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="fas fa-history"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for action in historyActions %}
+                                {% if action.display %}
+                                    <li>
+                                        <a class="text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                            <span class="{{ action.icon }}"></span> {{ action.label }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% set buttonActions = [
+                    actions.show,
+                    actions.change_pagesettings,
+                    actions.publish,
+                    actions.unpublish,
+                    actions.optimize,
+                    actions.submit_changes,
+                    actions.clone_aggregate,
+                    actions.delete_aggregate
+                    ] %}
+
+                    {% for action in buttonActions %}
+                        {% if action.display %}
+                        <a title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                            <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
