@@ -9,18 +9,7 @@ Add the bundle and its repositories to your composer.json
 "minimum-stability": "dev",
 "require": {
     "revision-ten/cms": "@dev",
-    ...
 },
-"repositories": [{
-    "type": "vcs",
-    "url": "git@bitbucket.org:DirtballMonkey/revisionTen-cqrs.git"
-}, {
-    "type": "vcs",
-    "url": "git@bitbucket.org:DirtballMonkey/revisionTen-cms.git"
-}, {
-    "type": "vcs",
-    "url": "git@bitbucket.org:DirtballMonkey/revisionTen-forms.git"
-}],
 ```
 
 
