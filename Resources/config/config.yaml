@@ -31,9 +31,9 @@ forms:
 
 twig:
     paths:
-        '%kernel.project_dir%/vendor/revisionTen/cms/Templates': cms
+        '%kernel.project_dir%/vendor/revision-ten/cms/Templates': cms
         '%kernel.project_dir%/vendor/easycorp/easyadmin-bundle/src/Resources/views': EasyAdminBase
-        '%kernel.project_dir%/vendor/revisionTen/cms/Templates/EasyAdmin': EasyAdmin
+        '%kernel.project_dir%/vendor/revision-ten/cms/Templates/EasyAdmin': EasyAdmin
     form_themes:
           - '@cms/Form/form_theme.html.twig'
 
@@ -100,7 +100,7 @@ services:
 framework:
     translator:
         paths:
-            - '%kernel.project_dir%/vendor/revisionTen/cms/Resources/translations'
+            - '%kernel.project_dir%/vendor/revision-ten/cms/Resources/translations'
     session:
         # The native PHP session handler will be used
         handler_id: ~
