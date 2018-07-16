@@ -1,4 +1,4 @@
-#revision-ten/cms
+# revision-ten/cms
 
 ## Installation
 
@@ -51,4 +51,4 @@ Start your web-server and login at `/admin`.
 
 ## Configuration
 
-You can find the full configuration in /vendor/revisionTen/cms/Resources/config/cms.yaml.
+You can find the full configuration in /vendor/revision-ten/cms/Resources/config/cms.yaml.
