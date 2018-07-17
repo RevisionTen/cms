@@ -63,4 +63,4 @@ Start your web-server and login at `/admin`.
 
 ## Configuration
 
-You can find the full configuration in /vendor/revision-ten/cms/Resources/config/cms.yaml.
+You can find the full configuration in `/vendor/revision-ten/cms/Resources/config/cms.yaml`.
