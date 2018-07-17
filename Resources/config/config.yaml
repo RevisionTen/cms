@@ -110,46 +110,6 @@ framework:
     templating:
         engines: ['twig']
 
-security:
-    session_fixation_strategy: none
-    erase_credentials: false
-    encoders:
-        RevisionTen\CMS\Model\User:
-            algorithm: bcrypt
-    providers:
-        db_provider:
-            entity:
-                class: RevisionTen\CMS\Model\User
-                property: username
-    firewalls:
-        # Protect the Admin Area with the Code Authenticator.
-        admin:
-            methods: [GET, POST, PUT, PATCH, DELETE]
-            pattern:    ^/admin
-            stateless: false
-            provider: db_provider
-            guard:
-                authenticators:
-                    - RevisionTen\CMS\Security\CodeAuthenticator
-            logout:
-                path:   /logout
-                target: /
-                invalidate_session: true
-        # Protect the Code Authenticator with the Basic Authenticator.
-        code:
-            methods: [GET, POST, PUT, PATCH, DELETE]
-            pattern:    ^/code
-            stateless: false
-            provider: db_provider
-            guard:
-                authenticators:
-                    - RevisionTen\CMS\Security\BasicAuthenticator
-            logout:
-                path:   /logout
-                target: /
-                invalidate_session: true
-
-
 doctrine:
     orm:
         mappings:
@@ -162,7 +122,7 @@ doctrine:
                 is_bundle: true
 
 gregwar_image:
-    web_dir: "%kernel.root_dir%/../public"
+    web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
     site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="offcanvas" role="button"><img class="svg-inline--fa appicon" src="/bundles/cms/icons/drop.svg"></span> CMS'
