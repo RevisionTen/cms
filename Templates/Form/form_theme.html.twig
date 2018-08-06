@@ -50,3 +50,39 @@
         </div>
     {% endif %}
 {% endblock form_widget %}
+
+{% block collection_row %}
+    {{ block('form_row') }}
+
+    {% if allow_add|default(false) %}
+        {% set js_add_item %}
+            $(function() {
+            if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
+
+            var collection = $('#{{ id }}');
+            // Use a counter to avoid having the same index more than once
+            var numItems = collection.data('count') || collection.children('div.form-group').length;
+
+            collection.prev('.collection-empty').remove();
+
+            var newItem = collection.attr('data-prototype')
+            .replace(/\>__name__label__\</g, '>' + numItems + '<')
+            .replace(/_{{ name }}___name__/g, '_{{ name }}_' + numItems)
+            .replace(/{{ name }}\]\[__name__\]/g, '{{ name }}][' + numItems + ']')
+            ;
+
+            // Increment the counter and store it in the collection
+            collection.data('count', ++numItems);
+
+            collection.append(newItem).trigger('easyadmin.collection.item-added');
+            });
+        {% endset %}
+
+        <div class="text-right field-collection-action">
+            <a href="#" onclick="{{ js_add_item|raw }}" class="text-primary">
+                <i class="fa fa-plus-square"></i>
+                {{ (form|length == 0 ? 'action.add_new_item' : 'action.add_another_item')|trans({}, 'EasyAdminBundle') }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock collection_row %}
