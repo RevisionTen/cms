@@ -1,6 +1,6 @@
 {% if item.enabled %}
     {% set isActive = item.data.alias is defined and alias.id is defined and alias.id == item.data.alias %}
-    
+
     {% if item.items is defined and item.items %}
         <div class="dropdown d-inline-block">
             <span class="{{ itemClasses|join(' ') }} dropdown-toggle {{ isActive ? 'active' : '' }}" data-toggle="dropdown">

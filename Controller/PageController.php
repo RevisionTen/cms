@@ -876,6 +876,7 @@ class PageController extends Controller
         }, $translations);
 
         return $this->render($template, [
+            'alias' => null,
             'page' => $page,
             'publishedVersion' => $publishedPage ? $publishedPage->getVersion() : null,
             'edit' => $edit,
