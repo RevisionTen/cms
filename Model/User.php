@@ -48,7 +48,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $color;
 
@@ -230,9 +230,7 @@ class User implements UserInterface, \Serializable
      */
     public function setAvatarUrl(string $avatarUrl = null): self
     {
-        if (null == $avatarUrl) {
-            $this->color = $this->getColorFromUsername();
-        }
+        $this->color = $this->getColorFromUsername();
         $this->avatarUrl = $avatarUrl;
 
         return $this;
