@@ -31,6 +31,7 @@ use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -679,14 +680,17 @@ class MenuController extends Controller
     /**
      * Renders a menu.
      *
+     * @param RequestStack           $requestStack
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param string                 $name
+     * @param Alias                  $alias
      *
      * @return Response
      */
-    public function renderMenu(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name): Response
+    public function renderMenu(RequestStack $requestStack, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null): Response
     {
+        $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
         if (!isset($config['page_menues'][$name])) {
             return new Response('Menu '.$name.' does not exist.');
@@ -719,6 +723,8 @@ class MenuController extends Controller
         }
 
         return $this->render($menuData['template'], [
+            'request' => $request,
+            'alias' => $alias,
             'menu' => $menuData,
             'config' => $config,
         ]);

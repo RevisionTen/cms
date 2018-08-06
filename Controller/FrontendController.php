@@ -60,10 +60,11 @@ class FrontendController extends Controller
      *
      * @param EntityManagerInterface $em
      * @param string                 $pageUuid
+     * @param Alias|null             $alias
      *
      * @return Response
      */
-    private function renderPage(EntityManagerInterface $em, string $pageUuid): Response
+    private function renderPage(EntityManagerInterface $em, string $pageUuid, Alias $alias = null): Response
     {
         $config = $this->getParameter('cms');
         $cacheEnabled = extension_loaded('apcu') && ini_get('apc.enabled');
@@ -104,6 +105,7 @@ class FrontendController extends Controller
         $template = $config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
 
         return $this->render($template, [
+            'alias' => $alias,
             'page' => $pageData,
             'edit' => false,
             'config' => $config,
@@ -144,7 +146,11 @@ class FrontendController extends Controller
         $pageStreamRead = $alias ? $alias->getPageStreamRead() : null;
         $pageUuid = $pageStreamRead ? $pageStreamRead->getUuid() : null;
 
-        return $this->renderPage($em, $pageUuid);
+        if (null === $pageUuid || null === $alias) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->renderPage($em, $pageUuid, $alias);
     }
 
     /**
@@ -189,6 +195,6 @@ class FrontendController extends Controller
 
         $pageUuid = $pageStreamRead->getUuid();
 
-        return $this->renderPage($em, $pageUuid);
+        return $this->renderPage($em, $pageUuid, $alias);
     }
 }
