@@ -49,6 +49,10 @@ Run `bin/console doctrine:schema:update --force` to update your database schema.
 
 Delete your security configuration file (`config/packages/security.yaml`) to use the default security configuration that comes with this bundle, or copy the contents of `/vendor/revision-ten/cms/Resources/config/security.yaml` to your own security config.
 
+#### Update your assets
+
+Run `bin/console assets:install --symlink` to install the bundle assets.
+
 ## Setup
 
 Make sure your website is able to send emails first. [Use gmail If you can't send emails locally](https://symfony.com/doc/current/email.html#using-gmail-to-send-emails).
