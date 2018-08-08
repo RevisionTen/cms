@@ -77,3 +77,43 @@ All editor events are triggered on the body element of the page.
 |---|---|---|
 | `refreshElement` | event, elementUuid | Occurs before an element is refreshed. |
 | `bindElement` | event, elementUuid | Occurs after an element is refreshed. |
+
+
+## Form Types
+
+#### DoctrineType
+
+Use this form type to reference a doctrine entity in your element. Example:
+
+```PHP
+$builder->add('Link', DoctrineType::class, [
+    'required' => false,
+    'label' => 'Link',
+    'entityClass' => Alias::class,
+]);
+```
+
+You can then use the entity in your twig template. Dumping it will print something like this:
+
+```
+array:1 [▼
+  "doctrineEntity" => Alias {#1107 ▼
+    -id: 1
+    -path: "/"
+    -pageStreamRead: PageStreamRead {#1147 ▶}
+    -redirect: null
+    -priority: 0.6
+  }
+]
+```
+
+#### UploadType
+
+use this form type to upload files. Example:
+
+```PHP
+$builder->add('image', UploadType::class, [
+    'label' => 'Please select the image file you want to upload.',
+    'required' => false,
+]);
+```
