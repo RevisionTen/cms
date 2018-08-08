@@ -27,6 +27,7 @@ use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -801,6 +802,7 @@ class PageController extends Controller
      *
      * @Route("/edit/{pageUuid}/{user}", name="cms_page_edit")
      *
+     * @param PageService            $pageService
      * @param EntityManagerInterface $em
      * @param AggregateFactory       $aggregateFactory
      * @param EventStore             $eventStore
@@ -810,7 +812,7 @@ class PageController extends Controller
      *
      * @return Response
      */
-    public function pageEdit(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
+    public function pageEdit(PageService $pageService, EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
     {
         $config = $this->getParameter('cms');
 
@@ -875,9 +877,14 @@ class PageController extends Controller
             return $translator->trans($value);
         }, $translations);
 
+        // Convert the page aggregate to a json payload.
+        $pageData = json_decode(json_encode($page), true);
+        // Hydrate the page with doctrine entities.
+        $pageData = $pageService->hydratePage($pageData);
+
         return $this->render($template, [
             'alias' => null,
-            'page' => $page,
+            'page' => $pageData,
             'publishedVersion' => $publishedPage ? $publishedPage->getVersion() : null,
             'edit' => $edit,
             'user' => $user,

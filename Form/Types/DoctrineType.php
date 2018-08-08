@@ -9,6 +9,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DoctrineType extends AbstractType
@@ -53,6 +55,35 @@ class DoctrineType extends AbstractType
             'data' => $options['entityClass'],
             'empty_data' => $options['entityClass'],
         ]);
+
+        // Write a compound attribute for easy hydration.
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            if (isset($data['entityId']) && isset($data['entityClass'])) {
+                $data['doctrineEntity'] = $data['entityClass'].':'.$data['entityId'];
+                // Remove unneeded data.
+                unset($data['entityId']);
+                unset($data['entityClass']);
+            } else {
+                $data['doctrineEntity'] = null;
+            }
+
+            $event->setData($data);
+        });
+
+        // Parse hydrationId.
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $data = $event->getData();
+            $form = $event->getForm();
+            if (null !== $data) {
+                if (isset($data['doctrineEntity'])) {
+                    $data['entityId'] = explode(':', $data['doctrineEntity'])[1];
+                }
+                $event->setData($data);
+            }
+        });
     }
 
     /**

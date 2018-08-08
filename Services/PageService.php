@@ -248,4 +248,57 @@ class PageService
         $this->em->persist($pageStream);
         $this->em->flush();
     }
+
+    public function hydratePage(array $pageData): array
+    {
+        $matches = [];
+        preg_match_all("/\"doctrineEntity\":\"(.+)\"/U", json_encode($pageData), $matches);
+        $hydrationIds = $matches[1] ?? false;
+
+        if ($hydrationIds) {
+            $groups = [];
+            foreach ($hydrationIds as $hydrationId) {
+                $parsedHydrationId = $this->parseHydrationId($hydrationId);
+                if (!isset($groups[$parsedHydrationId['class']])) {
+                    $groups[$parsedHydrationId['class']] = [];
+                }
+                $groups[$parsedHydrationId['class']][$parsedHydrationId['id']] = $parsedHydrationId['id'];
+            }
+
+            // Get doctrine entities.
+            foreach ($groups as $class => $ids) {
+                $class = str_replace('\\\\', '\\', $class);
+                $entities = $this->em->getRepository($class)->findById($ids);
+                foreach ($entities as $entity) {
+                    $groups[$class][$entity->getId()] = $entity;
+                }
+            }
+
+            array_walk_recursive($pageData, function(&$value, $key) use($groups) {
+                if ('doctrineEntity' === $key) {
+                    $parsedHydrationId = $this->parseHydrationId($value);
+                    $value = $groups[$parsedHydrationId['class']][$parsedHydrationId['id']] ?? null;
+                }
+            });
+        }
+
+        return $pageData;
+    }
+
+    /**
+     * Explodes a hydrationId string into its id and class components.
+     *
+     * @param string $hydrationId
+     *
+     * @return array
+     */
+    private function parseHydrationId(string $hydrationId): array
+    {
+        $hydrationId = explode(':', $hydrationId);
+
+        return [
+            'class' => $hydrationId[0],
+            'id' => $hydrationId[1],
+        ];
+    }
 }
