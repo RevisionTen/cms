@@ -74,6 +74,11 @@ services:
         arguments:
             $project_dir: '%kernel.project_dir%'
         tags: [form.type]
+    RevisionTen\CMS\Form\Types\DoctrineType:
+        autoconfigure: true
+        autowire: true
+        public: true
+        tags: [form.type]
     RevisionTen\CMS\Form\Elements\Form:
         autoconfigure: true
         autowire: true
