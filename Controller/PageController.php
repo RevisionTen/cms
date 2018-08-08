@@ -148,8 +148,9 @@ class PageController extends Controller
     /**
      * Creates a new section on a Page Aggregate.
      *
-     * @Route("/create-section/{pageUuid}/{onVersion}/{section}", name="cms_create_section")
+     * @Route("/page/create-section/{pageUuid}/{onVersion}/{section}", name="cms_create_section")
      *
+     * @param Request    $request
      * @param CommandBus $commandBus
      * @param string     $pageUuid
      * @param int        $onVersion
@@ -157,7 +158,7 @@ class PageController extends Controller
      *
      * @return Response
      */
-    public function createSection(CommandBus $commandBus, string $pageUuid, int $onVersion, string $section)
+    public function createSection(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $section)
     {
         $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Section',
@@ -169,6 +170,13 @@ class PageController extends Controller
 
         if (!$success) {
             return $this->errorResponse();
+        }
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => null, // Refreshes whole page.
+            ]);
         }
 
         return $this->redirectToPage($pageUuid);
@@ -765,6 +773,7 @@ class PageController extends Controller
                 if ($request->get('ajax')) {
                     return new JsonResponse([
                         'success' => $success,
+                        'refresh' => null, // Refreshes whole page.
                     ]);
                 }
 

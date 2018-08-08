@@ -1,6 +1,6 @@
 {% if edit %}
     <div class="jumbotron text-center">
         <h2>{{ sectionName }}</h2>
-        <a class="btn btn-primary" target="_top" href="{{ path('cms_create_section', {pageUuid: page.uuid, onVersion: page.version, section: sectionName}) }}"><span class="fa fa-th-large"></span> {{ 'Add Section'|trans }}</a>
+        <a class="btn-create-section btn btn-primary" data-section="{{ sectionName }}" target="_top" href="#"><span class="fa fa-th-large"></span> {{ 'Add Section'|trans }}</a>
     </div>
 {% endif %}

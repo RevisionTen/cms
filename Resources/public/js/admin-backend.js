@@ -157,14 +157,14 @@ $(document).ready(function () {
         let onVersion = window.pageData.version;
         let elementUuid = data.uuid;
         let direction = data.direction;
-        let url = `/admin/page/shift-element/${pageUuid}/${onVersion}/${elementUuid}/${direction}?ajax=1`;
+        let url = `/admin/page/shift-element/${pageUuid}/${onVersion}/${elementUuid}/${direction}`;
         $('body').trigger('openAjax', url);
     });
     body.on('deleteElement', function (event, data) {
         let pageUuid = window.pageData.uuid;
         let onVersion = window.pageData.version;
         let elementUuid = data.uuid;
-        let url = `/admin/page/delete-element/${pageUuid}/${onVersion}/${elementUuid}?ajax=1`;
+        let url = `/admin/page/delete-element/${pageUuid}/${onVersion}/${elementUuid}`;
         $('body').trigger('openAjax', url);
     });
     body.on('createElement', function (event, data) {
@@ -179,21 +179,28 @@ $(document).ready(function () {
         let pageUuid = window.pageData.uuid;
         let onVersion = window.pageData.version;
         let elementUuid = data.uuid;
-        let url = `/admin/page/disable-element/${pageUuid}/${onVersion}/${elementUuid}?ajax=1`;
+        let url = `/admin/page/disable-element/${pageUuid}/${onVersion}/${elementUuid}`;
         $('body').trigger('openAjax', url);
     });
     body.on('enableElement', function (event, data) {
         let pageUuid = window.pageData.uuid;
         let onVersion = window.pageData.version;
         let elementUuid = data.uuid;
-        let url = `/admin/page/enable-element/${pageUuid}/${onVersion}/${elementUuid}?ajax=1`;
+        let url = `/admin/page/enable-element/${pageUuid}/${onVersion}/${elementUuid}`;
         $('body').trigger('openAjax', url);
     });
     body.on('duplicateElement', function (event, data) {
         let pageUuid = window.pageData.uuid;
         let onVersion = window.pageData.version;
         let elementUuid = data.uuid;
-        let url = `/admin/page/duplicate-element/${pageUuid}/${onVersion}/${elementUuid}?ajax=1`;
+        let url = `/admin/page/duplicate-element/${pageUuid}/${onVersion}/${elementUuid}`;
+        $('body').trigger('openAjax', url);
+    });
+    body.on('createSection', function (event, data) {
+        let pageUuid = window.pageData.uuid;
+        let onVersion = window.pageData.version;
+        let section = data.section;
+        let url = `/admin/page/create-section/${pageUuid}/${onVersion}/${section}`;
         $('body').trigger('openAjax', url);
     });
 

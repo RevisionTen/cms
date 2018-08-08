@@ -147,6 +147,11 @@
             let element = $(this);
             bindElement(element, false);
         });
+
+        $('.btn-create-section').on('click', function (event) {
+            event.preventDefault();
+            parent.$('body').trigger('createSection', {'section': $(this).data('section')});
+        });
     });
 
     // Refresh element called from iframe parent.
