@@ -67,7 +67,9 @@ class DoctrineType extends AbstractType
                 unset($data['entityId']);
                 unset($data['entityClass']);
             } else {
-                $data['doctrineEntity'] = null;
+                unset($data['entityId']);
+                unset($data['entityClass']);
+                unset($data['doctrineEntity']);
             }
 
             $event->setData($data);
