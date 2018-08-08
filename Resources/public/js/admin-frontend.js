@@ -129,6 +129,9 @@
             parent.$('body').trigger('duplicateElement', {'uuid': element.data('uuid')});
         });
 
+        // Trigger event after element is initialized.
+        $('body').trigger('bindElement', element.data('uuid'));
+
         if (bindChildren) {
             element.find('[data-uuid]').each(function() {
                 let subElement = $(this);

@@ -68,3 +68,12 @@ Start your web-server and login at `/admin`.
 ## Configuration
 
 You can find the full configuration in `/vendor/revision-ten/cms/Resources/config/cms.yaml`.
+
+## Editor Javascript Events
+
+All editor events are triggered on the body element of the page.
+
+| Event | Parameters | Description |
+|---|---|---|
+| `refreshElement` | event, elementUuid | Occurs before an element is refreshed. |
+| `bindElement` | event, elementUuid | Occurs after an element is refreshed. |
