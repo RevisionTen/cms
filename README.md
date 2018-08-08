@@ -93,6 +93,19 @@ $builder->add('Link', DoctrineType::class, [
 ]);
 ```
 
+You can also pass a findBy parameter to filter your choice list.
+
+```PHP
+$builder->add('Link', DoctrineType::class, [
+    'required' => false,
+    'label' => 'Link',
+    'entityClass' => Alias::class,
+    'findBy' => [
+        'priority' => 0.5,
+    ],
+]);
+```
+
 You can then use the entity in your twig template. Dumping it will print something like this:
 
 ```
@@ -109,7 +122,7 @@ array:1 [▼
 
 #### UploadType
 
-use this form type to upload files. Example:
+Use this form type to upload files. Example:
 
 ```PHP
 $builder->add('image', UploadType::class, [
