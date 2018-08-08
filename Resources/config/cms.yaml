@@ -86,3 +86,8 @@ cms:
             template: '@cms/Layout/anchor.html.twig'
             public: true
             icon: 'fas fa-anchor'
+        Card:
+            class: RevisionTen\CMS\Form\Elements\Card
+            template: '@cms/Layout/card.html.twig'
+            public: true
+            icon: 'fas fa-id-card'
