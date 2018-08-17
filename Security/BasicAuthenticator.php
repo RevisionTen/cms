@@ -149,9 +149,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         }
         $flashBag->add('danger', $message);
 
-        $requestUrl = $request->getPathInfo().'?'.http_build_query($request->query->all());
-
-        return new RedirectResponse('/login?redirectTo='.urlencode($requestUrl));
+        return new RedirectResponse('/login');
     }
 
     /**
@@ -164,9 +162,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        $requestUrl = $request->getPathInfo().'?'.http_build_query($request->query->all());
-
-        return new RedirectResponse('/login?redirectTo='.urlencode($requestUrl));
+        return new RedirectResponse('/login');
     }
 
     /**

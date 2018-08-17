@@ -34,7 +34,7 @@ class SecurityController extends Controller
         $formBuilder = $formFactory->createNamedBuilder(null);
 
         $formBuilder->setMethod('POST');
-        $formBuilder->setAction($request->get('redirectTo') ?? '/admin/');
+        $formBuilder->setAction('/admin/dashboard');
 
         $session = $request->getSession();
 
@@ -73,7 +73,7 @@ class SecurityController extends Controller
         $formBuilder = $formFactory->createNamedBuilder(null);
 
         $formBuilder->setMethod('POST');
-        $formBuilder->setAction($request->get('redirectTo') ?? '/admin/');
+        $formBuilder->setAction('/code');
 
         $formBuilder->add('username', TextType::class, [
             'label' => 'Username',
