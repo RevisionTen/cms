@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class BasicAuthenticator extends AbstractGuardAuthenticator
 {
@@ -28,14 +29,21 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     private $session;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * BasicAuthenticator constructor.
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
+     * @param TranslatorInterface          $translator
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack)
+    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator)
     {
         $this->encoder = $encoder;
+        $this->translator = $translator;
         $this->session = $this->getSession($requestStack);
     }
 
@@ -141,7 +149,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
+        $message = $this->translator->trans('Error during login');
         $flashBag = $this->session->getFlashBag();
         if (!$flashBag) {
             $flashBag = new FlashBag('login_errors');

@@ -222,3 +222,4 @@ background dark: "Hintergrund Dunkel"
 text center: 'Text zentriert'
 text right: 'Text rechtsbündig'
 text white: 'Text weiß'
+Error during login: "Fehler beim einloggen"
