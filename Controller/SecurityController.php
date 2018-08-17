@@ -85,6 +85,9 @@ class SecurityController extends Controller
             'label' => 'Password',
             'required' => true,
             'constraints' => new NotBlank(),
+            'attr' => [
+                'autocomplete' => 'off',
+            ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
