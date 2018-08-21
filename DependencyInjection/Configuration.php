@@ -14,6 +14,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('cms');
         $rootNode
             ->children()
+                ->scalarNode('site_name')->end()
                 ->scalarNode('mailer_from')->end()
                 ->scalarNode('mailer_sender')->end()
                 ->scalarNode('mailer_return_path')->end()

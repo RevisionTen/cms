@@ -41,7 +41,9 @@ class SecretService
 
     public function sendSecret(string $secret, string $username, string $mail): void
     {
-        $qrCode = GoogleQrUrl::generate($username, $secret, 'revisionTen', 200);
+        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+
+        $qrCode = GoogleQrUrl::generate($username, $secret, $issuer, 200);
 
         $subject = $this->translator->trans('Google Authenticator Code for %username%', [
             '%username%' => $username,

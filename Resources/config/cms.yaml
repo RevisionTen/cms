@@ -1,5 +1,6 @@
 # Default cms bundle config.
 cms:
+    site_name: 'CMS'
     page_metatype: RevisionTen\CMS\Form\PageMetaType
     page_templates:
         Simple Page:
