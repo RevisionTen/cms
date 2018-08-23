@@ -1,0 +1,5 @@
+{% if value %}
+<div class="badge badge-primary" title="{{ value }}">
+    {{ value|split('::')|last }}
+</div>
+{% endif %}

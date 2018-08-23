@@ -3,7 +3,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     {% for alias in aliases %}
-        {% if alias.pageStreamRead %}
+        {% if alias.pageStreamRead or alias.controller %}
             <url>
                 <loc>{{ alias.path }}</loc>
                 {#<lastmod>2005-01-01</lastmod>

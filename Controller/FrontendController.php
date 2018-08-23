@@ -183,25 +183,40 @@ class FrontendController extends Controller
         }
 
         $pageStreamRead = $alias->getPageStreamRead();
+        $controller = $alias->getController();
 
-        // Page not set or page unpublished.
-        if (null === $pageStreamRead || !$pageStreamRead->isPublished()) {
-            $redirect = $alias->getRedirect();
-            if ($redirect) {
-                // Redirect request.
-                $redirectResponse = $this->redirect($redirect);
-                // Redirect expires immediately to prevent browser caching.
-                $redirectResponse->setExpires(new \DateTime());
+        if (null !== $pageStreamRead) {
+            // Page not set or page unpublished.
+            if (!$pageStreamRead->isPublished()) {
+                $redirect = $alias->getRedirect();
+                if ($redirect) {
+                    // Redirect request.
+                    $redirectResponse = $this->redirect($redirect);
+                    // Redirect expires immediately to prevent browser caching.
+                    $redirectResponse->setExpires(new \DateTime());
 
-                return $redirectResponse;
+                    return $redirectResponse;
+                } else {
+                    // Show not found.
+                    throw $this->createNotFoundException();
+                }
+            }
+
+            // Render PageStreamRead Entity.
+            $pageUuid = $pageStreamRead->getUuid();
+            return $this->renderPage($pageService, $em, $pageUuid, $alias);
+        } elseif (null !== $controller) {
+            // Forward request to controller.
+            $parts = explode('::', $controller);
+            $class = $parts[0];
+            $method = $parts[1];
+            if (class_exists($class) && method_exists($class, $method)) {
+                return $this->forward($controller);
             } else {
-                // Show not found.
                 throw $this->createNotFoundException();
             }
+        } else {
+            throw $this->createNotFoundException();
         }
-
-        $pageUuid = $pageStreamRead->getUuid();
-
-        return $this->renderPage($pageService, $em, $pageUuid, $alias);
     }
 }

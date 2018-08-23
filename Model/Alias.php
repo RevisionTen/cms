@@ -38,6 +38,12 @@ class Alias
      * @var string
      * @ORM\Column(type="string", nullable=true)
      */
+    private $controller;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
     private $redirect;
 
     /**
@@ -45,6 +51,12 @@ class Alias
      * @ORM\Column(type="float", options={"default":0.5})
      */
     private $priority;
+
+    /**
+     * @var array
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $meta;
 
     /**
      * @return string
@@ -143,6 +155,26 @@ class Alias
     }
 
     /**
+     * @return string
+     */
+    public function getController(): ?string
+    {
+        return $this->controller;
+    }
+
+    /**
+     * @param string|null $controller
+     *
+     * @return Alias
+     */
+    public function setController(string $controller = null): self
+    {
+        $this->controller = $controller;
+
+        return $this;
+    }
+
+    /**
      * @return float
      */
     public function getPriority(): float
@@ -158,6 +190,26 @@ class Alias
     public function setPriority(float $priority): self
     {
         $this->priority = $priority;
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getMeta(): ?array
+    {
+        return is_string($this->meta) ? json_decode($this->meta, true) : $this->meta;
+    }
+
+    /**
+     * @param array|null $meta
+     *
+     * @return Alias
+     */
+    public function setMeta(array $meta = null): self
+    {
+        $this->meta = json_encode($meta);
 
         return $this;
     }
