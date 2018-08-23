@@ -162,12 +162,13 @@ easy_admin:
             label: 'Paths'
             class: RevisionTen\CMS\Model\Alias
             list:
+                dql_filter: 'entity.controller IS NULL'
                 fields:
                     #- 'uuid'
                     - 'id'
                     - { property: 'path', template: '@cms/Admin/alias_path_column.html.twig' }
                     - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/alias_pagestreamred_column.html.twig' }
-                    - { property: 'controller', template: '@cms/Admin/alias_controller_column.html.twig' }
+                    #- { property: 'controller', template: '@cms/Admin/alias_controller_column.html.twig' }
                     - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/alias_redirect_column.html.twig' }
                     - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/alias_priority_column.html.twig' }
             form:
