@@ -211,7 +211,9 @@ class FrontendController extends Controller
             $class = $parts[0];
             $method = $parts[1];
             if (class_exists($class) && method_exists($class, $method)) {
-                return $this->forward($controller);
+                return $this->forward($controller, [
+                    'alias' => $alias,
+                ]);
             } else {
                 throw $this->createNotFoundException();
             }
