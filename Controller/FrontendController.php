@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Services\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -156,7 +158,12 @@ class FrontendController extends Controller
             throw $this->createNotFoundException();
         }
 
-        return $this->renderPage($pageService, $em, $pageUuid, $alias);
+        $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
+
+        // Add tracking cookies.
+        $response = $this->addTrackingCookies($request, $response);
+
+        return $response;
     }
 
     /**
@@ -166,12 +173,14 @@ class FrontendController extends Controller
      * })
      * @Route("/{path}", name="cms_page_alias", requirements={"path"=".+"})
      *
+     * @param Request                $request
+     * @param string                 $path
      * @param EntityManagerInterface $em
      * @param PageService            $pageService
      *
      * @return Response
      */
-    public function alias(string $path, PageService $pageService, EntityManagerInterface $em): Response
+    public function alias(Request $request, string $path, PageService $pageService, EntityManagerInterface $em): Response
     {
         /** @var Alias|null $alias */
         $alias = $em->getRepository(Alias::class)->findOneBy([
@@ -185,9 +194,15 @@ class FrontendController extends Controller
         $pageStreamRead = $alias->getPageStreamRead();
         $controller = $alias->getController();
 
+        $response = null;
+
         if (null !== $pageStreamRead) {
-            // Page not set or page unpublished.
-            if (!$pageStreamRead->isPublished()) {
+            if ($pageStreamRead->isPublished()) {
+                // Render PageStreamRead Entity.
+                $pageUuid = $pageStreamRead->getUuid();
+                $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
+            } else {
+                // Page not set or page unpublished.
                 $redirect = $alias->getRedirect();
                 if ($redirect) {
                     // Redirect request.
@@ -195,23 +210,19 @@ class FrontendController extends Controller
                     // Redirect expires immediately to prevent browser caching.
                     $redirectResponse->setExpires(new \DateTime());
 
-                    return $redirectResponse;
+                    $response = $redirectResponse;
                 } else {
                     // Show not found.
                     throw $this->createNotFoundException();
                 }
             }
-
-            // Render PageStreamRead Entity.
-            $pageUuid = $pageStreamRead->getUuid();
-            return $this->renderPage($pageService, $em, $pageUuid, $alias);
         } elseif (null !== $controller) {
             // Forward request to controller.
             $parts = explode('::', $controller);
             $class = $parts[0];
             $method = $parts[1];
             if (class_exists($class) && method_exists($class, $method)) {
-                return $this->forward($controller, [
+                $response = $this->forward($controller, [
                     'alias' => $alias,
                 ]);
             } else {
@@ -220,5 +231,43 @@ class FrontendController extends Controller
         } else {
             throw $this->createNotFoundException();
         }
+
+        // Add tracking cookies.
+        $response = $this->addTrackingCookies($request, $response);
+
+        return $response;
+    }
+
+    /**
+     * @param Request  $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    private function addTrackingCookies(Request $request, Response $response): Response
+    {
+        $expire = strtotime('now + 1 year');
+        $utm_source = $request->get('utm_source');
+        if ($utm_source) {
+            $response->headers->setCookie(new Cookie('cms_utm_source', $utm_source, $expire));
+        }
+        $utm_medium = $request->get('utm_medium');
+        if ($utm_medium) {
+            $response->headers->setCookie(new Cookie('cms_utm_medium', $utm_medium, $expire));
+        }
+        $utm_campaign = $request->get('utm_campaign');
+        if ($utm_campaign) {
+            $response->headers->setCookie(new Cookie('cms_utm_campaign', $utm_campaign, $expire));
+        }
+        $utm_term = $request->get('utm_term');
+        if ($utm_term) {
+            $response->headers->setCookie(new Cookie('cms_utm_term', $utm_term, $expire));
+        }
+        $utm_content = $request->get('utm_content');
+        if ($utm_content) {
+            $response->headers->setCookie(new Cookie('cms_utm_content', $utm_content, $expire));
+        }
+
+        return $response;
     }
 }
