@@ -29,21 +29,23 @@
     {% set modified = page.modified.date is defined ? date(page.modified.date) : page.modified %}
 
         {% if page is defined %}
-            <script type="application/ld+json">
-              {
-                "@context": "http://schema.org",
-                "@type": "Article",
-                "headline": "{{ page.title }}",
-                "name": "{{ page.title }}",
-                {% if created %}"datePublished": "{{ created|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
-                {% if modified %}"dateModified": "{{ modified|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
-                "description": "{{ page.description }}"{% if page.image %},
-                "image": {
-                  "@type": "ImageObject",
-                  "url": "{{ app.request.getSchemeAndHttpHost() ~ page.image }}"
-                }{% endif %}
-              }
-            </script>
+            {% block jsonld %}
+                <script type="application/ld+json">
+                  {
+                    "@context": "http://schema.org",
+                    "@type": "Article",
+                    "headline": "{{ page.title }}",
+                    "name": "{{ page.title }}",
+                    {% if created %}"datePublished": "{{ created|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
+                    {% if modified %}"dateModified": "{{ modified|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
+                    "description": "{{ page.description }}"{% if page.image %},
+                    "image": {
+                      "@type": "ImageObject",
+                      "url": "{{ app.request.getSchemeAndHttpHost() ~ page.image }}"
+                    }{% endif %}
+                  }
+                </script>
+            {% endblock %}
         {% endif %}
 
         {% block body %}{% endblock %}
