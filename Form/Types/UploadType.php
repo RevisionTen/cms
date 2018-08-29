@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Form\Types;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -44,17 +45,26 @@ class UploadType extends AbstractType
 
         // Store the uploaded file on submit and save the filename in the data.
         $public_dir = $this->project_dir.'/public';
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($public_dir) {
+        $upload_dir = $options['upload_dir'];
+        $keep_deleted_file = $options['keep_deleted_file'];
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($public_dir, $upload_dir, $keep_deleted_file) {
             $data = $event->getData();
             $form = $event->getForm();
 
             if (isset($data['delete']) && $data['delete']) {
+                // Set the file name property to null.
                 $event->setData(null);
+                if (!$keep_deleted_file) {
+                    // Delete the actual file.
+                    $filePath = $public_dir.$data['file'];
+                    $filesystem = new Filesystem();
+                    if ($filesystem->exists($filePath)) {
+                        $filesystem->remove($filePath);
+                    }
+                }
             } elseif (isset($data['file']) && null !== $data['file']) {
                 if (is_object($data['file'])) {
                     // Save the image and set the field to the upload path.
-                    $upload_dir = '/uploads/files/';
-
                     /** @var File $image */
                     $image = $data['file'];
 
@@ -75,7 +85,7 @@ class UploadType extends AbstractType
             }
         });
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($public_dir) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $data = $event->getData();
             $form = $event->getForm();
             if (null !== $data) {
@@ -102,6 +112,8 @@ class UploadType extends AbstractType
             'required' => false,
             'label' => false,
             'attr' => [],
+            'upload_dir' => '/uploads/files/',
+            'keep_deleted_file' => true,
         ]);
     }
 }

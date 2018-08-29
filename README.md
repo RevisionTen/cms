@@ -128,5 +128,7 @@ Use this form type to upload files. Example:
 $builder->add('image', UploadType::class, [
     'label' => 'Please select the image file you want to upload.',
     'required' => false,
+    'upload_dir' => '/uploads/files/', // Optional, where the files are stored in the public folder.
+    'keep_deleted_file' => true, // Optional, "false" deletes the file.
 ]);
 ```
