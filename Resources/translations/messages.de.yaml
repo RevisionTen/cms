@@ -224,3 +224,18 @@ text center: 'Text zentriert'
 text right: 'Text rechtsbündig'
 text white: 'Text weiß'
 Error during login: "Fehler beim einloggen"
+Opening Hours: "Öffnungszeiten"
+Monday: "Montag"
+Tuesday: "Dienstag"
+Wednesday: "Mittwoch"
+Thursday: "Donnerstag"
+Friday: "Freitag"
+Saturday: "Samstag"
+Sunday: "Sonntag"
+Mo: "Mo"
+Tu: "Di"
+We: "Mi"
+Th: "Do"
+Fr: "Fr"
+Sa: "Sa"
+Su: "So"

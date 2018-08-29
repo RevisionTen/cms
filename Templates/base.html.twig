@@ -41,6 +41,7 @@
                                 "url": "{{ app.request.getSchemeAndHttpHost() ~ page.meta.image }}"
                             },{% endif %}
                             "@id": "{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}",
+                            "url": "{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}",
                             "name": "{{ page.meta.name }}",
                             {% if page.meta.address.streetAddress is defined and page.meta.address.streetAddress %}"address":{
                                 "@type": "PostalAddress",
