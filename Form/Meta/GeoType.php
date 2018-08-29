@@ -22,6 +22,7 @@ class GeoType extends AbstractType
                 'placeholder' => 'The latitude of the business location. The precision should be at least 5 decimal places.',
             ],
         ]);
+
         $builder->add('longitude', NumberType::class, [
             'label' => 'Longitude',
             'required' => false,
