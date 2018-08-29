@@ -59,6 +59,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('template')->end()
+                            ->scalarNode('metatype')->end()
                         ->end()
                     ->end()
                 ->end()

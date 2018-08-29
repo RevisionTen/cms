@@ -33,7 +33,7 @@ function bindLinks()
 {
     $('[data-target=parent]').on('click', function (event) {
         event.preventDefault();
-        let linkSrc = $(this).attr('href') + '?ajax=1';
+        let linkSrc = $(this).attr('href');
         parent.$('body').trigger('openModal', linkSrc);
     });
 
@@ -94,7 +94,82 @@ const ckeditorConfig = {
     stylesSet: 'bootstrap4styles'
 };
 
+function bindPageSettingsForm(linkSrc = false) {
+    let formSelector = 'form[name=page]';
+    let pageForm = $(formSelector);
+    if (pageForm.length > 0) {
+        pageForm.find('select#page_template').on('change', function (event) {
+            // Reload the form with new template.
+
+            // Update CKEditor Textarea Element.
+            for(let i in CKEDITOR.instances) {
+                CKEDITOR.instances[i].updateElement();
+            }
+
+            let formData = new FormData(pageForm[0]);
+            formData.set('ignore_validation', 1);
+            $.ajax({
+                type: pageForm.attr('method'),
+                url: pageForm.attr('action'),
+                data: formData,
+                success: function (data) {
+                    newForm = $(data).find(formSelector);
+                    if (newForm.length > 0) {
+                        pageForm.replaceWith(newForm);
+                        if (linkSrc) {
+                            bindModal(linkSrc);
+                        } else {
+                            bindPageSettingsForm();
+                        }
+                    }
+                },
+                error: function (data) {
+                    // Failed.
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+    }
+}
+
+function bindModal(linkSrc) {
+    let editorModal = $('#editor-modal');
+    let modalBody = editorModal.find('.modal-body');
+
+    // Remove content wrapper css class.
+    modalBody.find('.content-wrapper').removeClass('content-wrapper');
+    // Set the action on the form.
+    let form = modalBody.find('form').first();
+    form.attr('action', linkSrc);
+    // Ajaxify the form.
+    form.postAjax(function(data, type) {
+        if ('success' === type && data.success) {
+            editorModal.modal('hide');
+            updateElement(data);
+        }
+    });
+    // Copy the page title.
+    let pageTitle = modalBody.find('.content-header .title').html();
+    $('#editor-modal-title').html(pageTitle);
+    // Remove the original title from modal body.
+    modalBody.find('.content-header').remove();
+    // Show the modal.
+    editorModal.modal('show');
+    // Enable CKEditor.
+    modalBody.find('.ckeditor').each(function () {
+        let textArea = $(this)[0];
+        CKEDITOR.replace(textArea, ckeditorConfig);
+    });
+    // Ajaxify if its the page settings form.
+    bindPageSettingsForm(linkSrc);
+}
+
 $(document).ready(function () {
+    // Ajaxify if its the page settings form.
+    bindPageSettingsForm();
+
     let body = $('body');
 
     if (!body.hasClass('edit-page')) {
@@ -114,33 +189,8 @@ $(document).ready(function () {
     // Event that opens a bootstrap modal with dynamic content.
     body.on('openModal', function (event, linkSrc) {
         linkSrc = linkSrc + '?ajax=1';
-        let editorModal = $('#editor-modal');
-
-        editorModal.find('.modal-body').load(linkSrc + ' .content-wrapper', [], function () {
-            // Remove content wrapper css class.
-            $(this).find('.content-wrapper').removeClass('content-wrapper');
-            // Set the action on the form.
-            let form = $(this).find('form').first();
-            form.attr('action', linkSrc);
-            // Ajaxify the form.
-            form.postAjax(function(data, type) {
-                if ('success' === type && data.success) {
-                    editorModal.modal('hide');
-                    updateElement(data);
-                }
-            });
-            // Copy the page title.
-            let pageTitle = $(this).find('.content-header .title').html();
-            $('#editor-modal-title').html(pageTitle);
-            // Remove the original title from modal body.
-            $(this).find('.content-header').remove();
-            // Show the modal.
-            editorModal.modal('show');
-            // Enable CKEditor.
-            $(this).find('.ckeditor').each(function () {
-                let textArea = $(this)[0];
-                CKEDITOR.replace(textArea, ckeditorConfig);
-            });
+        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper', [], function () {
+            bindModal(linkSrc);
         });
     });
 

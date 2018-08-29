@@ -211,7 +211,7 @@ easy_admin:
                     - 'language'
                     - { property: 'website', template: '@cms/Admin/website_column.html.twig' }
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         PageStreamReadArchive:
@@ -230,7 +230,7 @@ easy_admin:
                     - 'version'
                     - 'language'
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         EventStreamObject:

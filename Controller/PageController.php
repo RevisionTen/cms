@@ -119,24 +119,116 @@ class PageController extends Controller
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
 
-        $form = $this->createForm(PageType::class, [], [
+        $data = $request->get('page');
+        $ignore_validation = $request->get('ignore_validation');
+
+        $form = $this->createForm(PageType::class, $data, [
             'page_websites' => $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
         ]);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+        if (!$ignore_validation) {
+            $form->handleRequest($request);
 
-            $aggregateUuid = Uuid::uuid1()->toString();
-            $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $aggregateUuid, 0);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
 
-            if ($success) {
-                return $this->redirectToPage($aggregateUuid);
-            } else {
-                return $this->errorResponse();
+                $aggregateUuid = Uuid::uuid1()->toString();
+                $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $aggregateUuid, 0);
+
+                if ($success) {
+                    return $this->redirectToPage($aggregateUuid);
+                } else {
+                    return $this->errorResponse();
+                }
+            }
+        }
+
+        return $this->render('@cms/Form/form.html.twig', array(
+            'form' => $form->createView(),
+        ));
+    }
+
+    /**
+     * Displays the page settings form.
+     *
+     * @Route("/change-page-settings/{pageUuid}/{version}/", name="cms_change_pagesettings")
+     *
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param TranslatorInterface    $translator
+     * @param EntityManagerInterface $em
+     * @param string                 $pageUuid
+     * @param int                    $version
+     *
+     * @return JsonResponse|Response
+     */
+    public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $em, string $pageUuid, int $version)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $ignore_validation = $request->get('ignore_validation');
+
+        if (!$ignore_validation) {
+            // Convert Aggregate to data array for form and remove properties we don't want changed.
+            $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
+            $aggregateData = json_decode(json_encode($aggregate), true);
+            unset($aggregateData['uuid']);
+            unset($aggregateData['elements']);
+        } else {
+            $aggregateData = $request->get('page');
+        }
+
+        $config = $this->getParameter('cms');
+
+        $pageWebsites = [];
+        /** @var Website[] $websites */
+        $websites = $em->getRepository(Website::class)->findAll();
+        foreach ($websites as $website) {
+            $pageWebsites[$website->getTitle()] = $website->getId();
+        }
+
+        $form = $this->createForm(PageType::class, $aggregateData, [
+            'page_websites' => $pageWebsites,
+            'page_templates' => $config['page_templates'] ?? null,
+            'page_languages' => $config['page_languages'] ?? null,
+            'page_metatype' => $config['page_metatype'] ?? null,
+        ]);
+
+        if (!$ignore_validation) {
+            $form->handleRequest($request);
+
+            // Get differences in data and check if data has changed.
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+
+                // Remove data that hasn't changed.
+                $data = $this->diff($aggregateData, $data);
+
+                if (empty($data)) {
+                    $form->addError(new FormError($translator->trans('Data has not changed.')));
+                }
+
+                if ($form->isValid()) {
+                    $success = $this->runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
+
+                    if ($request->get('ajax')) {
+                        return new JsonResponse([
+                            'success' => $success,
+                            'refresh' => null, // Refreshes whole page.
+                        ]);
+                    }
+
+                    if ($success) {
+                        return $this->redirectToPage($pageUuid);
+                    } else {
+                        return $this->errorResponse();
+                    }
+                }
             }
         }
 
@@ -710,84 +802,6 @@ class PageController extends Controller
         }
 
         return $diff;
-    }
-
-    /**
-     * Displays the page settings form.
-     *
-     * @Route("/change-page-settings/{pageUuid}/{version}/", name="cms_change_pagesettings")
-     *
-     * @param Request                $request
-     * @param CommandBus             $commandBus
-     * @param AggregateFactory       $aggregateFactory
-     * @param TranslatorInterface    $translator
-     * @param EntityManagerInterface $em
-     * @param string                 $pageUuid
-     * @param int                    $version
-     *
-     * @return JsonResponse|Response
-     */
-    public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $em, string $pageUuid, int $version)
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
-
-        // Convert Aggregate to data array for form and remove properties we don't want changed.
-        $aggregateData = json_decode(json_encode($aggregate), true);
-        unset($aggregateData['uuid']);
-        unset($aggregateData['elements']);
-
-        $config = $this->getParameter('cms');
-
-        $pageWebsites = [];
-        /** @var Website[] $websites */
-        $websites = $em->getRepository(Website::class)->findAll();
-        foreach ($websites as $website) {
-            $pageWebsites[$website->getTitle()] = $website->getId();
-        }
-
-        $form = $this->createForm(PageType::class, $aggregateData, [
-            'page_websites' => $pageWebsites,
-            'page_templates' => $config['page_templates'] ?? null,
-            'page_languages' => $config['page_languages'] ?? null,
-            'page_metatype' => $config['page_metatype'] ?? null,
-        ]);
-        $form->handleRequest($request);
-
-        // Get differences in data and check if data has changed.
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-
-            // Remove data that hasn't changed.
-            $data = $this->diff($aggregateData, $data);
-
-            if (empty($data)) {
-                $form->addError(new FormError($translator->trans('Data has not changed.')));
-            }
-
-            if ($form->isValid()) {
-                $success = $this->runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
-
-                if ($request->get('ajax')) {
-                    return new JsonResponse([
-                        'success' => $success,
-                        'refresh' => null, // Refreshes whole page.
-                    ]);
-                }
-
-                if ($success) {
-                    return $this->redirectToPage($pageUuid);
-                } else {
-                    return $this->errorResponse();
-                }
-            }
-        }
-
-        return $this->render('@cms/Form/form.html.twig', array(
-            'form' => $form->createView(),
-        ));
     }
 
     /**

@@ -102,6 +102,7 @@ Pending changes of other users will be lost.: "Ausstehende Änderungen anderer B
 Simple Page: "Einfache Seite"
 Version: "Version"
 Template: "Vorlage"
+Page Template: "Seitenvorlage"
 Choose the controller action to render.: "Wähle die Controller Aktion die du ausgeben willst."
 Login Form: "Login Formular"
 Menues: "Menüs"
