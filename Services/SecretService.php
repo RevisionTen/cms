@@ -43,7 +43,7 @@ class SecretService
     {
         $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
 
-        $qrCode = GoogleQrUrl::generate($username, $secret, $issuer, 200);
+        $qrCode = GoogleQrUrl::generate(rawurlencode($username), $secret, rawurlencode($issuer), 200);
 
         $subject = $this->translator->trans('Google Authenticator Code for %username%', [
             '%username%' => $username,
