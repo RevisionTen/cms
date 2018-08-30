@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Meta;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class GeoType extends AbstractType
@@ -15,7 +15,7 @@ class GeoType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('latitude', NumberType::class, [
+        $builder->add('latitude', TextType::class, [
             'label' => 'Latitude',
             'required' => false,
             'attr' => [
@@ -23,7 +23,7 @@ class GeoType extends AbstractType
             ],
         ]);
 
-        $builder->add('longitude', NumberType::class, [
+        $builder->add('longitude', TextType::class, [
             'label' => 'Longitude',
             'required' => false,
             'attr' => [
