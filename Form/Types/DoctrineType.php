@@ -32,13 +32,8 @@ class DoctrineType extends AbstractType
 
         $choices = [];
 
-        if ($options['findBy']) {
-            /** @var array $entities */
-            $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy']);
-        } else {
-            /** @var array $entities */
-            $entities = $this->entityManager->getRepository($options['entityClass'])->findAll();
-        }
+        /** @var array $entities */
+        $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy'], $options['orderBy']);
 
         if ($entities) {
             foreach ($entities as $entity) {
@@ -96,7 +91,8 @@ class DoctrineType extends AbstractType
         $resolver->setDefaults([
             'required' => true,
             'entityClass' => null,
-            'findBy' => false,
+            'findBy' => [],
+            'orderBy' => [],
         ]);
     }
 }

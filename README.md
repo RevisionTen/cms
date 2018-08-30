@@ -93,7 +93,7 @@ $builder->add('Link', DoctrineType::class, [
 ]);
 ```
 
-You can also pass a findBy parameter to filter your choice list.
+You can also pass a findBy and orderBy parameter to filter your choice list.
 
 ```PHP
 $builder->add('Link', DoctrineType::class, [
@@ -102,6 +102,9 @@ $builder->add('Link', DoctrineType::class, [
     'entityClass' => Alias::class,
     'findBy' => [
         'priority' => 0.5,
+    ],
+    'orderBy' => [
+        'path' => 'DESC',
     ],
 ]);
 ```
