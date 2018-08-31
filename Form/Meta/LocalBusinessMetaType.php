@@ -71,5 +71,23 @@ class LocalBusinessMetaType extends AbstractType
                 'class' => 'well',
             ],
         ]);
+
+        $builder->add('department', CollectionType::class, [
+            'required' => false,
+            'label' => 'Departments',
+            'entry_type' => DepartmentType::class,
+            'entry_options' => [
+                'label' => false,
+                'required' => false,
+                'attr' => [
+                    'class' => 'well',
+                ],
+            ],
+            'allow_add' => true,
+            'allow_delete' => true,
+            'attr' => [
+                'class' => 'well',
+            ],
+        ]);
     }
 }
