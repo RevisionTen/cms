@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Form\Meta;
 
 use RevisionTen\CMS\Form\Types\UploadType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -17,6 +18,22 @@ class DepartmentType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $builder->add('type', ChoiceType::class, [
+            'label' => 'Department type',
+            'required' => false,
+            'choices' => [
+                'AutoDealer' => 'AutoDealer',
+                'AutoPartsStore' => 'AutoPartsStore',
+                'AutoRepair' => 'AutoRepair',
+                'AutoBodyShop' => 'AutoBodyShop',
+                'AutoRental' => 'AutoRental',
+                'GasStation' => 'GasStation',
+                'AutoWash' => 'AutoWash',
+                'MotorcycleDealer' => 'MotorcycleDealer',
+                'MotorcycleRepair' => 'MotorcycleRepair',
+            ],
+        ]);
+
         $builder->add('name', TextType::class, [
             'label' => 'Department name',
             'required' => false,

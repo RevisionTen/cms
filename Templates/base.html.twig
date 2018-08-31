@@ -67,6 +67,30 @@
                                 }
                                 {% endfor %}
                             ],{% endif %}
+
+                            {% if page.meta.department is defined and page.meta.department is not empty %}"department": [
+                                {% for departmentEntry in page.meta.department %}
+                                        {% if loop.first %}{% else %},{% endif %}{
+                                        "@type": "{{ departmentEntry.type is defined and departmentEntry.type ? departmentEntry.type : 'LocalBusiness' }}",
+                                        {% if departmentEntry.image %}"image": {
+                                            "@type": "ImageObject",
+                                            "url": "{{ app.request.getSchemeAndHttpHost() ~ departmentEntry.image }}"
+                                        },{% endif %}
+                                        {% if departmentEntry.openingHoursSpecification is defined and departmentEntry.openingHoursSpecification is not empty %}"openingHoursSpecification": [
+                                            {% for openingHours in departmentEntry.openingHoursSpecification %}
+                                        {% if loop.first %}{% else %},{% endif %}{
+                                                    "@type": "OpeningHoursSpecification",
+                                                    "dayOfWeek": {{ openingHours.dayOfWeek|json_encode|raw }},
+                                                    "opens": "{{ openingHours.opens }}",
+                                                    "closes": "{{ openingHours.closes }}"
+                                                }
+                                            {% endfor %}
+                                        ],{% endif %}
+                                        "name": "{{ departmentEntry.name }}"
+                                    }
+                                {% endfor %}
+                            ],{% endif %}
+
                             "telephone": "{{ page.meta.telephone }}"
                         }
                     </script>
