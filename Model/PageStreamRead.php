@@ -95,6 +95,11 @@ class PageStreamRead
     private $website;
 
     /**
+     * @ORM\OneToMany(targetEntity="Alias", mappedBy="pageStreamRead")
+     */
+    private $aliases;
+
+    /**
      * @return string
      */
     public function __toString(): string
@@ -332,5 +337,13 @@ class PageStreamRead
         $this->website = $website;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAliases()
+    {
+        return $this->aliases;
     }
 }

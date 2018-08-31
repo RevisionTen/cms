@@ -30,7 +30,7 @@ class Alias
 
     /**
      * @var PageStreamRead
-     * @ORM\ManyToOne(targetEntity="PageStreamRead")
+     * @ORM\ManyToOne(targetEntity="PageStreamRead", inversedBy="aliases")
      */
     private $pageStreamRead;
 
