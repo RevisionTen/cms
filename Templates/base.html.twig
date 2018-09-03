@@ -38,18 +38,18 @@
                             "@type": "LocalBusiness",
                             {% if page.meta.image %}"image": {
                                 "@type": "ImageObject",
-                                "url": "{{ app.request.getSchemeAndHttpHost() ~ page.meta.image }}"
+                                "url": {{ (app.request.getSchemeAndHttpHost() ~ page.meta.image)|json_encode|raw }}
                             },{% endif %}
-                            "@id": "{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}",
-                            "url": "{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}",
-                            "name": "{{ page.meta.name }}",
+                            "@id": {{ (app.request.schemeAndHttpHost ~ app.request.requestUri)|json_encode|raw }},
+                            "url": {{ (app.request.schemeAndHttpHost ~ app.request.requestUri)|json_encode|raw }},
+                            "name": {{ page.meta.name|json_encode|raw }},
                             {% if page.meta.address.streetAddress is defined and page.meta.address.streetAddress %}"address":{
                                 "@type": "PostalAddress",
-                                "addressLocality": "{{ page.meta.address.addressLocality }}",
-                                {% if page.meta.address.addressRegion %}"addressRegion": "{{ page.meta.address.addressRegion }}",{% endif %}
-                                "postalCode": "{{ page.meta.address.postalCode }}",
-                                "addressCountry": "{{ page.meta.address.addressCountry }}",
-                                "streetAddress": "{{ page.meta.address.streetAddress }}"
+                                "addressLocality": {{ page.meta.address.addressLocality|json_encode|raw }},
+                                {% if page.meta.address.addressRegion %}"addressRegion": {{ page.meta.address.addressRegion|json_encode|raw }},{% endif %}
+                                "postalCode": {{ page.meta.address.postalCode|json_encode|raw }},
+                                "addressCountry": {{ page.meta.address.addressCountry|json_encode|raw }},
+                                "streetAddress": {{ page.meta.address.streetAddress|json_encode|raw }}
                             },{% endif %}
                             {% if page.meta.geo.latitude is defined and page.meta.geo.latitude and page.meta.geo.longitude is defined and page.meta.geo.longitude %}"geo":{
                                 "@type": "GeoCoordinates",
@@ -71,10 +71,10 @@
                             {% if page.meta.department is defined and page.meta.department is not empty %}"department": [
                                 {% for departmentEntry in page.meta.department %}
                                         {% if loop.first %}{% else %},{% endif %}{
-                                        "@type": "{{ departmentEntry.type is defined and departmentEntry.type ? departmentEntry.type : 'LocalBusiness' }}",
+                                        "@type": {{ (departmentEntry.type is defined and departmentEntry.type ? departmentEntry.type : 'LocalBusiness')|json_encode|raw }},
                                         {% if departmentEntry.image %}"image": {
                                             "@type": "ImageObject",
-                                            "url": "{{ app.request.getSchemeAndHttpHost() ~ departmentEntry.image }}"
+                                            "url": {{ (app.request.getSchemeAndHttpHost() ~ departmentEntry.image)|json_encode|raw }}
                                         },{% endif %}
                                         {% if departmentEntry.openingHoursSpecification is defined and departmentEntry.openingHoursSpecification is not empty %}"openingHoursSpecification": [
                                             {% for openingHours in departmentEntry.openingHoursSpecification %}
@@ -86,12 +86,12 @@
                                                 }
                                             {% endfor %}
                                         ],{% endif %}
-                                        "name": "{{ departmentEntry.name }}"
+                                        "name": {{ departmentEntry.name|json_encode|raw }}
                                     }
                                 {% endfor %}
                             ],{% endif %}
 
-                            "telephone": "{{ page.meta.telephone }}"
+                            "telephone": {{ page.meta.telephone|json_encode|raw }}
                         }
                     </script>
                 {% else %}
@@ -100,14 +100,14 @@
                       {
                         "@context": "http://schema.org",
                         "@type": "Article",
-                        "headline": "{{ page.title }}",
-                        "name": "{{ page.title }}",
+                        "headline": {{ page.title|json_encode|raw }},
+                        "name": {{ page.title|json_encode|raw }},
                         {% if created %}"datePublished": "{{ created|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
                         {% if modified %}"dateModified": "{{ modified|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
-                        "description": "{{ page.description }}"{% if page.image %},
+                        "description": {{ page.description|json_encode|raw }}{% if page.image %},
                         "image": {
                           "@type": "ImageObject",
-                          "url": "{{ app.request.getSchemeAndHttpHost() ~ page.image }}"
+                          "url": {{ (app.request.getSchemeAndHttpHost() ~ page.image)|json_encode|raw }}
                         }{% endif %}
                       }
                     </script>
