@@ -14,6 +14,12 @@ odd: #e5f7ff
 even: #f7f7f7
 
  */
+.title-truncate {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 240px;
+    overflow: hidden;
+}
 .main-header .logo,
 html,
 body {

@@ -130,7 +130,7 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
-    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="offcanvas" role="button"><img class="svg-inline--fa appicon" src="/bundles/cms/icons/drop.svg"></span> CMS'
+    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="offcanvas" role="button"><img class="svg-inline--fa appicon" src="/bundles/cms/icons/drop.svg"></span> %cms.site_name%'
     design:
         color_scheme: 'light'
         brand_color: '#2f323e'
@@ -206,7 +206,7 @@ easy_admin:
                     - '-delete'
                 fields:
                     #- 'uuid'
-                    - 'title'
+                    - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
                     - { property: 'website', template: '@cms/Admin/website_column.html.twig' }
@@ -226,7 +226,7 @@ easy_admin:
                     - '-delete'
                 fields:
                     #- 'uuid'
-                    - 'title'
+                    - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
                     - { property: 'published', type: 'boolean' }
