@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
-use Google\Authenticator\GoogleQrUrl;
+use Sonata\GoogleAuthenticator\GoogleQrUrl;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
