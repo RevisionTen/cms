@@ -51,6 +51,15 @@ class SecretService
 
         $messageText = $this->translator->trans('Please keep this Code.');
 
+        $messageBody = <<<EOT
+$messageText<br/><br/>
+User: $username<br/>
+Secret: $secret<br/><br/>
+<img src="$qrCode"><br/><br/>
+<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=de">Google Authenticator (Android)</a><br/>
+<a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>
+EOT;
+
         $senderConfigExists = isset($this->config['mailer_from']) && $this->config['mailer_from'] && isset($this->config['mailer_sender']) && $this->config['mailer_sender'] && isset($this->config['mailer_return_path']) && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
@@ -59,19 +68,13 @@ class SecretService
                 ->setSender($this->config['mailer_sender'])
                 ->setReturnPath($this->config['mailer_return_path'])
                 ->setTo($mail)
-                ->setBody(
-                    $messageText.'<br/><br/>User: '.$username.'<br/>Secret: '.$secret.'<br/><br/><img src="'.$qrCode.'"><br/><br/><a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=de">Google Authenticator (Android)</a><br/><a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>',
-                    'text/html'
-                )
+                ->setBody($messageBody, 'text/html')
             ;
         } else {
             // Attempt to send without explicitly setting the sender.
             $message = (new \Swift_Message($subject))
                 ->setTo($mail)
-                ->setBody(
-                    $messageText.'<br/><br/>User: '.$username.'<br/>Secret: '.$secret.'<br/><br/><img src="'.$qrCode.'"><br/><br/><a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=de">Google Authenticator (Android)</a><br/><a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>',
-                    'text/html'
-                )
+                ->setBody($messageBody, 'text/html')
             ;
         }
 
