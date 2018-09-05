@@ -25,6 +25,9 @@ forms:
         MarkupItem:
             class: RevisionTen\Forms\Form\Items\MarkupItem
             icon: 'fa-code'
+        HiddenItem:
+            class: RevisionTen\Forms\Form\Items\HiddenItem
+            icon: 'fa-eye-slash'
         SubmitItem:
             class: RevisionTen\Forms\Form\Items\SubmitItem
             icon: 'fa-paper-plane'
