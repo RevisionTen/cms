@@ -685,10 +685,11 @@ class MenuController extends Controller
      * @param AggregateFactory       $aggregateFactory
      * @param string                 $name
      * @param Alias                  $alias
+     * @param string                 $template
      *
      * @return Response
      */
-    public function renderMenu(RequestStack $requestStack, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null): Response
+    public function renderMenu(RequestStack $requestStack, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null): Response
     {
         $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
@@ -722,7 +723,7 @@ class MenuController extends Controller
             $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
         }
 
-        return $this->render($menuData['template'], [
+        return $this->render($template ? $template : $menuData['template'], [
             'request' => $request,
             'alias' => $alias,
             'menu' => $menuData,
