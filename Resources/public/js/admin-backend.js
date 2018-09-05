@@ -162,6 +162,18 @@ function bindModal(linkSrc) {
         let textArea = $(this)[0];
         CKEDITOR.replace(textArea, ckeditorConfig);
     });
+    // Initialize select2.
+    modalBody.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2({
+        theme: 'bootstrap',
+        language: 'de'
+    });
+    modalBody.on('easyadmin.collection.item-added', function () {
+        // Initialize select2.
+        modalBody.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2({
+            theme: 'bootstrap',
+            language: 'de'
+        });
+    });
     // Ajaxify if its the page settings form.
     bindPageSettingsForm(linkSrc);
 }

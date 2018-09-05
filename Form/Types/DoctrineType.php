@@ -45,6 +45,9 @@ class DoctrineType extends AbstractType
             'required' => $options['required'],
             'label' => false,
             'choices' => $choices,
+            'attr' => [
+                'data-widget' => 'select2',
+            ],
         ]);
         $builder->add('entityClass', HiddenType::class, [
             'data' => $options['entityClass'],
