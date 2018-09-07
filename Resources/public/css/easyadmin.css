@@ -280,3 +280,6 @@ body.easyadmin h1.title {
 .row-flexed > * {
     flex: 1 1 auto;
 }
+.select2-results__option {
+    margin: 0!important;
+}

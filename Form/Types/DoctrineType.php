@@ -41,14 +41,17 @@ class DoctrineType extends AbstractType
             }
         }
 
-        $builder->add('entityId', ChoiceType::class, [
+        $choiceOptions = [
             'required' => $options['required'],
             'label' => false,
             'choices' => $choices,
-            'attr' => [
-                'data-widget' => 'select2',
-            ],
-        ]);
+        ];
+
+        if ($options['placeholder']) {
+            $choiceOptions['placeholder'] = $options['placeholder'];
+        }
+
+        $builder->add('entityId', ChoiceType::class, $choiceOptions);
         $builder->add('entityClass', HiddenType::class, [
             'data' => $options['entityClass'],
             'empty_data' => $options['entityClass'],
@@ -93,6 +96,7 @@ class DoctrineType extends AbstractType
     {
         $resolver->setDefaults([
             'required' => true,
+            'placeholder' => false,
             'entityClass' => null,
             'findBy' => [],
             'orderBy' => [],

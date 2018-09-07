@@ -162,17 +162,12 @@ function bindModal(linkSrc) {
         let textArea = $(this)[0];
         CKEDITOR.replace(textArea, ckeditorConfig);
     });
-    // Initialize select2.
-    modalBody.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2({
-        theme: 'bootstrap',
-        language: 'de'
-    });
+    // Initialize selects.
+    let selectsSelector = 'select[data-widget="select2"]:not(.select2-hidden-accessible)';
+    modalBody.find(selectsSelector).select2();
     modalBody.on('easyadmin.collection.item-added', function () {
-        // Initialize select2.
-        modalBody.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2({
-            theme: 'bootstrap',
-            language: 'de'
-        });
+        // Initialize selects.
+        modalBody.find(selectsSelector).select2();
     });
     // Ajaxify if its the page settings form.
     bindPageSettingsForm(linkSrc);
