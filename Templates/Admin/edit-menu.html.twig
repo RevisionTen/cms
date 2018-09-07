@@ -6,12 +6,12 @@
         </h4>
     </div>
     <div class="panel-body">
-        <div class="list-group">
+        <ul class="cms-admin-menu cms-admin-menu-root">
             {% for item in menu.items %}
                 {% set level = 0 %}
                 {% include '@cms/Admin/edit-menu-item.html.twig' %}
             {% endfor %}
-        </div>
+        </ul>
 
         <div>
             <p>&nbsp;</p>

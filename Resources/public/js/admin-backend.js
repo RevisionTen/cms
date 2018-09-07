@@ -179,6 +179,11 @@ $(document).ready(function () {
 
     let body = $('body');
 
+    $('.cms-admin-menu-root').sortable({
+        containerSelector: '.cms-admin-menu',
+        handle: '.cms-admin-menu-item-move'
+    });
+
     if (!body.hasClass('edit-page')) {
         return;
     }

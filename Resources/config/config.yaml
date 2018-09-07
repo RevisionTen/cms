@@ -142,6 +142,7 @@ easy_admin:
                 - 'bundles/cms/css/easyadmin.css'
             js:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
+                - 'bundles/cms/libs/dist/jquery-sortable-min.js'
                 - 'bundles/cms/js/admin-backend.js'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
