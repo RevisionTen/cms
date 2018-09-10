@@ -179,9 +179,39 @@ $(document).ready(function () {
 
     let body = $('body');
 
-    $('.cms-admin-menu-root').sortable({
-        containerSelector: '.cms-admin-menu',
-        handle: '.cms-admin-menu-item-move'
+    // Menu sorting and saving.
+    $('.cms-admin-menu-root').each(function () {
+        let menu = $(this);
+        let menuUuid = menu.data('uuid');
+        let onVersion = menu.data('version');
+
+        // Make menu sortable.
+        menu.sortable({
+            group: 'serialization',
+            containerSelector: '.cms-admin-menu',
+            handle: '.cms-admin-menu-item-move'
+        });
+
+        // Make menu savable.
+        $('.btn-save-order[data-uuid='+menuUuid+']').on('click', function (event) {
+            var data = menu.sortable('serialize').get();
+            var jsonString = JSON.stringify(data, null, ' ');
+            // Submit menu sort data.
+            $.ajax({
+                type: 'post',
+                url: `/admin/menu/save-order/${menuUuid}/${onVersion}`,
+                data: jsonString,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (data) {
+                    // Failed.
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
     });
 
     if (!body.hasClass('edit-page')) {

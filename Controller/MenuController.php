@@ -771,4 +771,49 @@ class MenuController extends Controller
 
         return $this->redirectToRoute('cms_list_menues');
     }
+
+    /**
+     * @Route("/menu/save-order/{menuUuid}/{onVersion}", name="cms_menu_create")
+     *
+     * @param Request          $request
+     * @param CommandBus       $commandBus
+     * @param AggregateFactory $aggregateFactory
+     * @param string           $menuUuid
+     * @param int              $onVersion
+     *
+     * @return JsonResponse
+     */
+    public function saveMenuOrder(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion): JsonResponse
+    {
+        $order = json_decode($request->getContent(), true);
+
+        if ($order && isset($order[0])) {
+            $order = $order[0];
+            $order = $this->cleanOrderTree($order);
+        }
+
+        return new JsonResponse([
+            'menuUuid' => $menuUuid,
+            'onVersion' => $onVersion,
+            'order' => $order,
+        ]);
+    }
+
+    /**
+     * @param array $order
+     *
+     * @return array
+     */
+    private function cleanOrderTree(array $order): array
+    {
+        $orderTree = [];
+
+        foreach ($order as $orderNode) {
+            if (isset($orderNode['uuid'])) {
+                $orderTree[$orderNode['uuid']] = isset($orderNode['children'][0]) ? $this->cleanOrderTree($orderNode['children'][0]) : [];
+            }
+        }
+
+        return $orderTree;
+    }
 }

@@ -6,16 +6,19 @@
         </h4>
     </div>
     <div class="panel-body">
-        <ul class="cms-admin-menu cms-admin-menu-root">
+        <ul data-uuid="{{ menu.uuid }}" data-version="{{ menu.version }}" class="cms-admin-menu cms-admin-menu-root">
             {% for item in menu.items %}
                 {% set level = 0 %}
                 {% include '@cms/Admin/edit-menu-item.html.twig' %}
             {% endfor %}
         </ul>
 
+
         <div>
             <p>&nbsp;</p>
             <p>
+                <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
+
                 <a class="btn btn-secondary" href="{{ path('cms_menu_clearmenucache', {name: menu.name}) }}">
                     {{ 'Clear menu cache'|trans }}
                 </a>
