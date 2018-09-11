@@ -199,13 +199,13 @@ $(document).ready(function () {
             // Submit menu sort data.
             $.ajax({
                 type: 'post',
-                url: `/admin/menu/save-order/${menuUuid}/${onVersion}`,
+                url: `/admin/menu/save-order/${menuUuid}/${onVersion}?ajax=1`,
                 data: jsonString,
                 success: function (data) {
-                    console.log(data);
+                    window.location.reload();
                 },
                 error: function (data) {
-                    // Failed.
+                    window.location.reload();
                 },
                 cache: false,
                 contentType: false,

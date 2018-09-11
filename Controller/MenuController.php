@@ -10,6 +10,7 @@ use RevisionTen\CMS\Command\MenuDisableItemCommand;
 use RevisionTen\CMS\Command\MenuEditItemCommand;
 use RevisionTen\CMS\Command\MenuEnableItemCommand;
 use RevisionTen\CMS\Command\MenuRemoveItemCommand;
+use RevisionTen\CMS\Command\MenuSaveOrderCommand;
 use RevisionTen\CMS\Command\MenuShiftItemCommand;
 use RevisionTen\CMS\Form\ElementType;
 use RevisionTen\CMS\Form\Page;
@@ -773,18 +774,22 @@ class MenuController extends Controller
     }
 
     /**
-     * @Route("/menu/save-order/{menuUuid}/{onVersion}", name="cms_menu_create")
+     * @Route("/menu/save-order/{menuUuid}/{onVersion}", name="cms_menu_saveorder")
      *
-     * @param Request          $request
-     * @param CommandBus       $commandBus
-     * @param AggregateFactory $aggregateFactory
-     * @param string           $menuUuid
-     * @param int              $onVersion
+     * @param Request             $request
+     * @param TranslatorInterface $translator
+     * @param CommandBus          $commandBus
+     * @param AggregateFactory    $aggregateFactory
+     * @param string              $menuUuid
+     * @param int                 $onVersion
      *
-     * @return JsonResponse
+     * @return JsonResponse|RedirectResponse
      */
-    public function saveMenuOrder(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion): JsonResponse
+    public function saveMenuOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {
@@ -792,11 +797,28 @@ class MenuController extends Controller
             $order = $this->cleanOrderTree($order);
         }
 
-        return new JsonResponse([
-            'menuUuid' => $menuUuid,
-            'onVersion' => $onVersion,
+        $success = $this->runCommand($commandBus, MenuSaveOrderCommand::class, [
             'order' => $order,
-        ]);
+        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+
+        if (!$success) {
+            return $this->errorResponse();
+        } else {
+            $this->addFlash(
+                'success',
+                $translator->trans('Menu order saved')
+            );
+
+            if ($request->get('ajax')) {
+
+                return new JsonResponse([
+                    'success' => $success,
+                    'refresh' => null,
+                ]);
+            }
+        }
+
+        return $this->redirectToMenu($menuUuid);
     }
 
     /**
@@ -815,5 +837,26 @@ class MenuController extends Controller
         }
 
         return $orderTree;
+    }
+
+    private static function array_diff_recursive($arrayOriginal, $arrayNew) {
+        $arrayDiff = [];
+
+        foreach ($arrayOriginal as $key => $value) {
+            if (array_key_exists($key, $arrayNew)) {
+                if (is_array($value)) {
+                    $arrayRecursiveDiff = self::array_diff_recursive($value, $arrayNew[$key]);
+                    if (count($arrayRecursiveDiff)) {
+                        $arrayDiff[$key] = $arrayRecursiveDiff;
+                    }
+                } elseif ($value != $arrayNew[$key]) {
+                    $arrayDiff[$key] = $value;
+                }
+            } else {
+                $arrayDiff[$key] = $value;
+            }
+        }
+
+        return $arrayDiff;
     }
 }

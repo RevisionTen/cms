@@ -310,6 +310,9 @@ body.easyadmin h1.title {
     margin: 0 0 -1px 0;
     border: 1px solid #e1e9f2;
 }
+.cms-admin-menu li > div:hover {
+    background: #f8f8f8;
+}
 .cms-admin-menu-item-move {
     cursor: pointer;
 }
