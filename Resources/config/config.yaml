@@ -46,6 +46,12 @@ services:
         autoconfigure: true
         resource: '../../Controller'
         tags: ['controller.service_arguments']
+    RevisionTen\CMS\Twig\CmsExtension:
+        autowire: true
+        public: true
+        tags: [twig.extension]
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Security\CodeAuthenticator:
         autowire: true
         public: false

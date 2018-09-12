@@ -23,8 +23,8 @@
 .no-outline[data-uuid]:hover {
   background: none;
 }
-[data-visible="0"],
-[data-enabled="0"] {
+[data-visible="0"]:not(.carousel-item),
+[data-enabled="0"]:not(.carousel-item) {
   position: relative;
 }
 [data-visible="0"]::after,

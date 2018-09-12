@@ -1,3 +1,3 @@
-<div {% if edit %}data-uuid="{{ element.uuid }}" data-enabled="{{ (element.enabled ?? true) ? '1' : '0' }}" data-label="{{ element.elementName|trans }}"{% endif %}>
+<div {{ editorAttr(element, edit) }}>
     {{ element.data.text|raw }}
 </div>

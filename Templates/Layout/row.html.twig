@@ -1,4 +1,4 @@
-<div {% if edit %}data-uuid="{{ element.uuid }}" data-enabled="{{ (element.enabled ?? true) ? '1' : '0' }}" data-label="{{ element.elementName|trans }}" data-bg="bg-secondary" data-children="{{ config.page_elements[element.elementName].children|join(',') }}"{% endif %} class="row {{ element.data.styles|join(' ') }} {{ edit ? 'no-outline': '' }}">
+<div {{ editorAttr(element, edit, 'bg-secondary') }} class="row {{ element.data.styles|join(' ') }} {{ edit ? 'no-outline': '' }}">
     {% if element.elements is defined %}
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}

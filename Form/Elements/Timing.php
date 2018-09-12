@@ -21,6 +21,7 @@ class Timing extends Element
             'input' => 'timestamp',
             'date_widget' => 'single_text',
             'html5' => true,
+            'required' => false,
         ]);
 
         $builder->add('endDate', DateTimeType::class, [
@@ -28,6 +29,7 @@ class Timing extends Element
             'input' => 'timestamp',
             'date_widget' => 'single_text',
             'html5' => true,
+            'required' => false,
         ]);
     }
 }
