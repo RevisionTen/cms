@@ -61,6 +61,9 @@ class Card extends Element
                 'required' => false,
                 'label' => 'Page',
                 'entityClass' => Alias::class,
+                'findBy' => [
+                    'controller' => null,
+                ],
             ])
         ;
     }
