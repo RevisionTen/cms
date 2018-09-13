@@ -12,6 +12,18 @@
     {% endif %}
 {% endblock upload_widget %}
 
+{% block managed_upload_widget %}
+    {% set file = (value.file is defined and value.file) ? value.file : value %}
+    {% if file and file.uuid is defined and file.path is defined %}
+        <p>
+            <a href="{{ file.path }}" target="_blank">{{ value.title }}</a> ({{ file.mimeType }})
+        </p>
+        {{ block('form_widget') }}
+    {% else %}
+        {{ block('form_widget') }}
+    {% endif %}
+{% endblock managed_upload_widget %}
+
 {% block form_widget %}
     {% if compound %}
         {{- block('form_widget_compound') -}}

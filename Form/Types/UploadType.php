@@ -95,7 +95,7 @@ class UploadType extends AbstractType
                     'file' => $data,
                 ];
                 $form->add('delete', CheckboxType::class, [
-                    'label' => 'delete the existing file',
+                    'label' => 'delete the existing image',
                     'required' => false,
                 ]);
             }

@@ -73,6 +73,11 @@ cms:
             template: '@cms/Layout/image.html.twig'
             public: true
             icon: 'fa fa-image'
+        File:
+            class: RevisionTen\CMS\Form\Elements\File
+            template: '@cms/Layout/file.html.twig'
+            public: true
+            icon: 'fa fa-file'
         Controller:
             class: RevisionTen\CMS\Form\Elements\Controller
             template: '@cms/Layout/controller.html.twig'
