@@ -171,6 +171,19 @@ function bindModal(linkSrc) {
     });
     // Ajaxify if its the page settings form.
     bindPageSettingsForm(linkSrc);
+    // Bind file chooser.
+    modalBody.find('.btn-file-select').on('click', function (event) {
+        event.preventDefault();
+        let btn = $(this);
+        modalBody.find('.btn-file-select').not(btn).removeClass('text-success');
+        btn.addClass('text-success');
+        let uuid = btn.data('uuid');
+        let version = btn.data('version');
+        let title = btn.data('title');
+        btn.parentsUntil('.tab-content').parent().find('input.existing-file-uuid').val(uuid);
+        btn.parentsUntil('.tab-content').parent().find('input.existing-file-version').val(version);
+        btn.parentsUntil('form').parent().find('input.file-title').val(title);
+    });
 }
 
 $(document).ready(function () {

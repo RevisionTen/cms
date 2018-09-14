@@ -18,6 +18,7 @@ class File extends Element
 
         $builder
             ->add('managedFile', ManagedUploadType::class, [
+                'required' => true,
                 'label' => false,
             ])
         ;

@@ -14,14 +14,33 @@
 
 {% block managed_upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
-    {% if file and file.uuid is defined and file.path is defined %}
-        <p>
-            <a href="{{ file.path }}" target="_blank">{{ value.title }}</a> ({{ file.mimeType }})
-        </p>
-        {{ block('form_widget') }}
+    {% set hasFile = file and file.uuid is defined and file.path is defined %}
+
+    {{ form_row(form.title) }}
+
+    {% if hasFile %}
+        <div class="well">
+            <a href="{{ file.path }}" target="_blank">{{ value.title }}</a> <span class="text-muted pull-right">{{ file.mimeType }} {{ file.size ? ((file.size / 1000)|number_format(2)) ~ ' KB' : '' }}</span>
+        </div>
     {% else %}
-        {{ block('form_widget') }}
+        <ul class="nav nav-tabs" role="tablist" style="margin: 0 0 1em 0;">
+            <li role="presentation" class="active"><a href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Upload File'|trans }}</a></li>
+            <li role="presentation"><a href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'Choose File'|trans }}</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="file_upload">
+                {{ form_row(form.file) }}
+            </div>
+            <div role="tabpanel" class="tab-pane" id="file_chooser">
+                {{ form_row(form.existingFileUuid) }}
+                {{ form_row(form.existingFileVersion) }}
+                {{ render(controller('RevisionTen\\CMS\\Controller\\FileController::fileList')) }}
+            </div>
+        </div>
     {% endif %}
+
+    {{ block('form_widget') }}
+
 {% endblock managed_upload_widget %}
 
 {% block form_widget %}

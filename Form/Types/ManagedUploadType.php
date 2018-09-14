@@ -41,6 +41,10 @@ class ManagedUploadType extends AbstractType
         $builder->add('title', TextType::class, [
             'label' => 'Title',
             'constraints' => new NotBlank(),
+            'required' => true,
+            'attr' => [
+                'class' => 'file-title',
+            ],
         ]);
         
         $builder->add('file', FileType::class, [
@@ -57,6 +61,13 @@ class ManagedUploadType extends AbstractType
                 // Request to delete, set the file property to null.
                 $data['file'] = $this->fileService->deleteFile($data['file']);
                 $data['delete'] = null;
+            } elseif (isset($data['existingFileUuid']) && null !== $data['existingFileUuid'] && isset($data['existingFileVersion']) && null !== $data['existingFileVersion']) {
+                $existingFileUuid = $data['existingFileUuid'];
+                $existingFileVersion = intval($data['existingFileVersion']);
+
+                $data['file'] = $this->fileService->getFile($existingFileUuid, $existingFileVersion);
+                $data['existingFileUuid'] = null;
+                $data['existingFileVersion'] = null;
             } elseif (isset($data['replaceFile']) && null !== $data['replaceFile']) {
 
                 if (is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
@@ -85,8 +96,22 @@ class ManagedUploadType extends AbstractType
             $data = $event->getData();
             $form = $event->getForm();
 
-            // File exists, display delete form.
-            if (null !== $data) {
+
+            if (null === $data['file']) {
+                $form->add('existingFileUuid', HiddenType::class, [
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'existing-file-uuid',
+                    ],
+                ]);
+                $form->add('existingFileVersion', HiddenType::class, [
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'existing-file-version',
+                    ],
+                ]);
+            } else {
+                // File exists, display delete and replace form.
                 $form->remove('file');
 
                 $form->add('replaceFile', FileType::class, [

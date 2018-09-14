@@ -16,4 +16,7 @@ final class File extends Aggregate
 
     /** @var string */
     public $mimeType;
+
+    /** @var int */
+    public $size;
 }
