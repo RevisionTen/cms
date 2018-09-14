@@ -8,7 +8,7 @@
         </tr>
         {% for file in files %}
             <tr>
-                <td>{{ file.title }}</td>
+                <td><a href="{{ file.path }}" target="_blank">{{ file.title }}</a></td>
                 <td>
                     {{ file.mimeType ? file.mimeType : '' }}
                 </td>
