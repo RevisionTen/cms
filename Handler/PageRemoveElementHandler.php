@@ -46,6 +46,8 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
         };
         self::onElement($aggregate, $uuid, $removeElementFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

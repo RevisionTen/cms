@@ -23,6 +23,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
         $aggregate->published = true;
+        $aggregate->state = Page::STATE_PUBLISHED;
 
         return $aggregate;
     }

@@ -8,6 +8,12 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class Page extends Aggregate
 {
+    const STATE_PUBLISHED = 'published';
+    const STATE_UNPUBLISHED = 'unpublished';
+    const STATE_STAGED = 'staged';
+    const STATE_DELETED = 'deleted';
+    const STATE_DRAFT = 'draft';
+
     /** @var string */
     public $title;
 
@@ -43,4 +49,7 @@ final class Page extends Aggregate
 
     /** @var array */
     public $meta;
+
+    /** @var string */
+    public $state;
 }

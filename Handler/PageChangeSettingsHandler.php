@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Command\PageChangeSettingsCommand;
 use RevisionTen\CMS\Event\PageChangeSettingsEvent;
+use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
@@ -29,6 +30,8 @@ final class PageChangeSettingsHandler extends PageBaseHandler implements Handler
                 $aggregate->{$propertyName} = $payload[$propertyName];
             }
         }
+
+        $aggregate->state = Page::STATE_DRAFT;
 
         return $aggregate;
     }

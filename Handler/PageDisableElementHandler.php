@@ -31,6 +31,8 @@ final class PageDisableElementHandler extends PageBaseHandler implements Handler
         };
         self::onElement($aggregate, $uuid, $disableElementFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

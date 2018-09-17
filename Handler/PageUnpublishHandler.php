@@ -22,6 +22,7 @@ final class PageUnpublishHandler extends PageBaseHandler implements HandlerInter
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
         $aggregate->published = false;
+        $aggregate->state = Page::STATE_UNPUBLISHED;
 
         return $aggregate;
     }

@@ -61,6 +61,7 @@ class PageType extends AbstractType
             ],
             'multiple' => true,
             'expanded' => true,
+            'required' => false,
         ]);
 
         $builder->add('language', ChoiceType::class, [

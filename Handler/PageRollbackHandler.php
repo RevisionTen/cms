@@ -41,6 +41,8 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
             $aggregate = $previousAggregate;
         }
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

@@ -34,6 +34,8 @@ final class PageEditElementHandler extends PageBaseHandler implements HandlerInt
         };
         self::onElement($aggregate, $uuid, $updateDataFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

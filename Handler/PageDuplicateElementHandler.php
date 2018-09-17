@@ -75,6 +75,8 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
 
         self::onElement($aggregate, $uuid, $duplicateFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

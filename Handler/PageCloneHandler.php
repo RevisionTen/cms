@@ -48,6 +48,8 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
             $aggregate = $baseAggregate;
         }
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

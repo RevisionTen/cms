@@ -93,6 +93,8 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
 
         self::onElement($aggregate, $uuid, $shiftFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

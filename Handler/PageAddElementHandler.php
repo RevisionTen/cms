@@ -50,6 +50,8 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
             $aggregate->elements[] = $newElement;
         }
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

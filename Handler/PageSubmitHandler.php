@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Command\PageSubmitCommand;
 use RevisionTen\CMS\Event\PageSubmitEvent;
+use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
@@ -19,6 +20,8 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
+        $aggregate->state = Page::STATE_STAGED;
+
         return $aggregate;
     }
 

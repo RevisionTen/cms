@@ -724,7 +724,7 @@ class MenuController extends Controller
             $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
         }
 
-        return $this->render($template ? $template : $menuData['template'], [
+        return $this->render($template ? $template : $config['page_menues'][$name]['template'], [
             'request' => $request,
             'alias' => $alias,
             'menu' => $menuData,

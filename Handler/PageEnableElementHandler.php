@@ -31,6 +31,8 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
         };
         self::onElement($aggregate, $uuid, $enableElementFunction);
 
+        $aggregate->state = Page::STATE_DRAFT;
+
         return $aggregate;
     }
 

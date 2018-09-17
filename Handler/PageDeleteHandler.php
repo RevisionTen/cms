@@ -24,6 +24,7 @@ final class PageDeleteHandler extends PageBaseHandler implements HandlerInterfac
         // Change Aggregate state.
         $aggregate->deleted = true;
         $aggregate->published = false;
+        $aggregate->state = Page::STATE_DELETED;
 
         return $aggregate;
     }
