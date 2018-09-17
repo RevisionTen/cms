@@ -47,7 +47,7 @@ Run `bin/console doctrine:schema:update --force` to update your database schema.
 
 #### Choose your security configuration
 
-Delete your security configuration file (`config/packages/security.yaml`) to use the default security configuration that comes with this bundle, or copy the contents of `/vendor/revision-ten/cms/Resources/config/security.yaml` to your own security config.
+**Delete your security configuration file** (`config/packages/security.yaml`) to use the default security configuration that comes with this bundle, or copy the contents of `/vendor/revision-ten/cms/Resources/config/security.yaml` to your own security config.
 
 #### Update your assets
 
