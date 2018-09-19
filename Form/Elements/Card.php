@@ -34,6 +34,8 @@ class Card extends Element
                 'choices' => [
                     'Top' => 'top',
                     'Bottom' => 'bottom',
+                    'Left' => 'left',
+                    'Right' => 'right',
                     'Background' => 'background',
                     'Background fitted' => 'background-fitted',
                 ],

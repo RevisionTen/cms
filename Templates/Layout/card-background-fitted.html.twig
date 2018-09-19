@@ -1,0 +1,20 @@
+<div
+    {{ editorAttr(element, edit, 'bg-warning') }}
+    class="card card-imageposition-{{ imagePosition }} {{ element.data.styles is defined ? element.data.styles|join(' ') : '' }}"
+    style="background-image: url({{ web_image(element.data.image).cropResize(1920, 1920) }}); background-size: cover;"
+>
+    <div class="card-body">
+        {% if element.data.title %}
+            <h5 class="card-title">{{ element.data.title }}</h5>
+        {% endif %}
+
+        {{ element.data.text|raw }}
+
+        {% if element.data.buttonText is defined %}
+            {% if element.data.page.doctrineEntity is defined  %}
+                {% set path = element.data.page.doctrineEntity.path %}
+                <a class="btn btn-primary" href="{{ path }}">{{ element.data.buttonText }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
