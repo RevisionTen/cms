@@ -196,27 +196,12 @@ class FrontendController extends Controller
         $controller = $alias->getController();
 
         $response = null;
+        $redirect = $alias->getRedirect();
 
-        if (null !== $pageStreamRead) {
-            if ($pageStreamRead->isPublished()) {
-                // Render PageStreamRead Entity.
-                $pageUuid = $pageStreamRead->getUuid();
-                $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
-            } else {
-                // Page not set or page unpublished.
-                $redirect = $alias->getRedirect();
-                if ($redirect) {
-                    // Redirect request.
-                    $redirectResponse = $this->redirect($redirect);
-                    // Redirect expires immediately to prevent browser caching.
-                    $redirectResponse->setExpires(new \DateTime());
-
-                    $response = $redirectResponse;
-                } else {
-                    // Show not found.
-                    throw $this->createNotFoundException();
-                }
-            }
+        if (null !== $pageStreamRead && $pageStreamRead->isPublished()) {
+            // Render PageStreamRead Entity.
+            $pageUuid = $pageStreamRead->getUuid();
+            $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
         } elseif (null !== $controller) {
             // Forward request to controller.
             $parts = explode('::', $controller);
@@ -229,7 +214,14 @@ class FrontendController extends Controller
             } else {
                 throw $this->createNotFoundException();
             }
+        } elseif ($redirect) {
+            // Redirect request.
+            $redirectResponse = $this->redirect($redirect);
+            // Redirect expires immediately to prevent browser caching.
+            $redirectResponse->setExpires(new \DateTime());
+            $response = $redirectResponse;
         } else {
+            // Show not found.
             throw $this->createNotFoundException();
         }
 
