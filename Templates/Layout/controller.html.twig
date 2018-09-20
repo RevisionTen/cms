@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit) }}>
+<div {{ editorAttr(element, edit) }} class="{{ elementClasses(element) }}">
     {% if element.data.controller is defined and element.data.controller %}
         {{ render(controller(element.data.controller)) }}
     {% endif %}

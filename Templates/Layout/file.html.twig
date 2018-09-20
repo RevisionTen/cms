@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit, 'bg-warning') }}>
+<div {{ editorAttr(element, edit, 'bg-warning') }} class="{{ elementClasses(element) }}">
     {% if element.data.managedFile.file.uuid is defined and element.data.managedFile.file.path is defined %}
         <a class="btn btn-primary" href="{{ element.data.managedFile.file.path }}">{{ element.data.managedFile.title }}</a>
     {% endif %}

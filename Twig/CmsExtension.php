@@ -39,6 +39,7 @@ class CmsExtension extends AbstractExtension
             new TwigFunction('editorAttr', [$this, 'editorAttr'], [
                 'is_safe' => ['html'],
             ]),
+            new TwigFunction('elementClasses', [$this, 'elementClasses']),
         );
     }
 
@@ -48,6 +49,69 @@ class CmsExtension extends AbstractExtension
         $earlierThanEndDate = isset($element['data']['endDate']) ? (time() <= $element['data']['endDate']) : true;
 
         return $laterThanStartDate && $earlierThanEndDate;
+    }
+
+    /**
+     * Returns an array of bootstrap spacing css classes.
+     *
+     * @param $spacing    The amount of spacing.
+     * @param $properyAbr The type of spacing ('m' = margin, 'p' = padding).
+     *
+     * @return array
+     */
+    private static function getSpacing($spacing, $properyAbr)
+    {
+        $classes = [];
+
+        $breakpoint = $spacing['breakpoint'] ? '-'.$spacing['breakpoint'] : '';
+        $top = $spacing['top'] ?? null;
+        $right = $spacing['right'] ?? null;
+        $bottom = $spacing['bottom'] ?? null;
+        $left = $spacing['left'] ?? null;
+        if ($top) {
+            $key = $properyAbr.'t'.$breakpoint;
+            $classes[$key] = $key.'-'.$top;
+        }
+        if ($right) {
+            $key = $properyAbr.'r'.$breakpoint;
+            $classes[$key] = $key.'-'.$right;
+        }
+        if ($bottom) {
+            $key = $properyAbr.'b'.$breakpoint;
+            $classes[$key] = $key.'-'.$bottom;
+        }
+        if ($left) {
+            $key = $properyAbr.'l'.$breakpoint;
+            $classes[$key] = $key.'-'.$left;
+        }
+
+        return $classes;
+    }
+
+    public function elementClasses(array $element)
+    {
+        $classes = [];
+
+        // Add style classes.
+        if (isset($element['data']['styles']) && is_array($element['data']['styles'])) {
+            $classes = $element['data']['styles'];
+        }
+
+        // Add margin classes.
+        if (isset($element['data']['settings']['margins']) && is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
+            foreach ($element['data']['settings']['margins'] as $spacing) {
+                $classes += self::getSpacing($spacing, 'm');
+            }
+        }
+
+        // Add padding classes.
+        if (isset($element['data']['settings']['paddings']) && is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
+            foreach ($element['data']['settings']['paddings'] as $spacing) {
+                $classes += self::getSpacing($spacing, 'p');
+            }
+        }
+
+        return implode(' ', $classes);
     }
 
     public function editorAttr(array $element, bool $edit, string $bg = null, bool $visible = null): string

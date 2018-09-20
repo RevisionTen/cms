@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit) }}>
+<div {{ editorAttr(element, edit) }} class="{{ elementClasses(element) }}">
     {% if element.data.formUuid is defined and element.data.formUuid %}
         {{ render(controller('FormsBundle:Form:renderForm', {formUuid: element.data.formUuid, defaultData: []})) }}
     {% endif %}

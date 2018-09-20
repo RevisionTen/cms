@@ -1,6 +1,6 @@
 <div
     {{ editorAttr(element, edit, 'bg-warning') }}
-    class="card card-imageposition-{{ imagePosition }} {{ element.data.styles is defined ? element.data.styles|join(' ') : '' }}"
+    class="card card-imageposition-{{ imagePosition }} {{ elementClasses(element) }}"
 >
     <img class="card-img-top" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ web_image(element.data.image).cropResize(1920, 1920) }}">
 

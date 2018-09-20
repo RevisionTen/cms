@@ -1,6 +1,6 @@
 <div
     {{ editorAttr(element, edit, 'bg-warning') }}
-    class="card card-imageposition-{{ imagePosition }} {{ element.data.styles is defined ? element.data.styles|join(' ') : '' }}"
+    class="card card-imageposition-{{ imagePosition }} {{ elementClasses(element) }}"
 >
     <div class="card-body">
         {% if element.data.title %}

@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit, 'bg-dark') }} class="{{ element.data.section }}">
+<div {{ editorAttr(element, edit, 'bg-dark') }} class="{{ element.data.section }} {{ elementClasses(element) }}">
     {% if element.elements is defined %}
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}

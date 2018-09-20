@@ -480,7 +480,7 @@ class PageController extends Controller
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function createElementForm(Request $request, CommandBus $commandBus, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = '@cms/Form/form.html.twig')
+    public function createElementForm(Request $request, CommandBus $commandBus, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
     {
         $config = $this->getParameter('cms');
 
@@ -489,6 +489,10 @@ class PageController extends Controller
 
             /** @var string $formClass */
             $formClass = $elementConfig['class'];
+
+            if (null === $form_template) {
+                $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
+            }
 
             // Instantiate the form only to check if it implements FormTypeInterface.
             try {
@@ -568,7 +572,7 @@ class PageController extends Controller
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = '@cms/Form/form.html.twig')
+    public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -592,6 +596,10 @@ class PageController extends Controller
             if (isset($config['page_elements'][$elementName])) {
                 $elementConfig = $config['page_elements'][$elementName];
                 $formClass = $elementConfig['class'];
+
+                if (null === $form_template) {
+                    $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
+                }
 
                 // Instantiate the form only to check if it implements FormTypeInterface.
                 try {

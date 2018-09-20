@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit, 'bg-secondary') }} class="row {{ element.data.styles|join(' ') }} {{ edit ? 'no-outline': '' }}">
+<div {{ editorAttr(element, edit, 'bg-secondary') }} class="row {{ elementClasses(element) }} {{ edit ? 'no-outline': '' }}">
     {% if element.elements is defined %}
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}

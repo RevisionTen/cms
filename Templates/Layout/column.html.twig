@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ element.data.styles is defined ? element.data.styles|join(' ') : '' }} {% spaceless %}
+<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }} {% spaceless %}
 {{ element.data.widthXS is defined and element.data.widthXS ? ' col-'~element.data.widthXS : '' }}
 {{ element.data.widthSM is defined and element.data.widthSM ? ' col-sm-'~element.data.widthSM : '' }}
 {{ element.data.widthMD is defined and element.data.widthMD ? ' col-md-'~element.data.widthMD : '' }}

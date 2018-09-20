@@ -1,6 +1,6 @@
 <div
     {{ editorAttr(element, edit, 'bg-warning') }}
-    class="card card-imageposition-{{ imagePosition }} {{ element.data.styles is defined ? element.data.styles|join(' ') : '' }}"
+    class="card card-imageposition-{{ imagePosition }} {{ elementClasses(element) }}"
 >
     <div class="row no-gutters h-100">
         <div class="col-12 col-md-5">

@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('class')->end()
                             ->scalarNode('template')->end()
+                            ->scalarNode('form_template')->end()
                             ->scalarNode('icon')->end()
                             ->booleanNode('public')->end()
                             ->arrayNode('children')
