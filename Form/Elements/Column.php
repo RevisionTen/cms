@@ -21,13 +21,6 @@ class Column extends Element
         $this->widthForm($builder, 'md', 'like sm', 'widthMD');
         $this->widthForm($builder, 'lg', 'like md', 'widthLG');
         $this->widthForm($builder, 'xl', 'like lg', 'widthXL');
-
-        $builder->add('styles', ChoiceType::class, [
-            'label' => 'Choose how the column is displayed.',
-            'choices' => $options['elementConfig']['styles'],
-            'multiple' => true,
-            'expanded' => true,
-        ]);
     }
 
     private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null)

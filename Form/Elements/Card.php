@@ -22,12 +22,7 @@ class Card extends Element
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('styles', ChoiceType::class, [
-                'label' => 'Choose how this card is displayed.',
-                'choices' => $options['elementConfig']['styles'],
-                'multiple' => true,
-                'expanded' => true,
-            ])
+        $builder
             ->add('imagePosition', ChoiceType::class, [
                 'label' => 'Image position',
                 'constraints' => new NotBlank(),

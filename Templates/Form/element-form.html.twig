@@ -12,6 +12,9 @@
                 </ul>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane" id="element_settings">
+                        {% if form.data.styles is defined %}
+                            {{ form_row(form.data.styles) }}
+                        {% endif %}
                         {{ form_widget(form.data.settings) }}
                     </div>
                     <div role="tabpanel" class="tab-pane active" id="element_content">
