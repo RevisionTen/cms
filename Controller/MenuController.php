@@ -18,6 +18,7 @@ use RevisionTen\CMS\Handler\MenuBaseHandler;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -25,7 +26,6 @@ use RevisionTen\CQRS\Services\MessageBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
@@ -682,6 +682,7 @@ class MenuController extends Controller
      * Renders a menu.
      *
      * @param RequestStack           $requestStack
+     * @param CacheService           $cacheService
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param string                 $name
@@ -690,7 +691,7 @@ class MenuController extends Controller
      *
      * @return Response
      */
-    public function renderMenu(RequestStack $requestStack, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null): Response
+    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null): Response
     {
         $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
@@ -698,30 +699,15 @@ class MenuController extends Controller
             return new Response('Menu '.$name.' does not exist.');
         }
 
-        $cacheEnabled = extension_loaded('apcu') && ini_get('apc.enabled');
+        $menuData = $cacheService->get($name);
 
-        if ($cacheEnabled) {
-            // Cache is enabled.
-            $cache = new ApcuAdapter();
-            $menu = $cache->getItem($name);
-
-            if ($menu->isHit()) {
-                // Get Menu from cache.
-                $menuData = $menu->get();
-            } else {
-                // Get Menu.
-                $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
-
-                // Visitor triggers a write to cache.
-                if ($menuData) {
-                    // Persist Menu to cache.
-                    $menu->set($menuData);
-                    $cache->save($menu);
-                }
-            }
-        } else {
-            // Get Menu.
+        if (null === $menuData) {
             $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
+
+            if ($menuData) {
+                // Populate cache.
+                $cacheService->put($name, 1, $menuData);
+            }
         }
 
         return $this->render($template ? $template : $config['page_menues'][$name]['template'], [
@@ -738,13 +724,14 @@ class MenuController extends Controller
      * @Route("/menu/clear-cache/{name}", name="cms_menu_clearmenucache")
      *
      * @param TranslatorInterface $translator
+     * @param CacheService        $cacheService
      * @param string              $name
      *
      * @return RedirectResponse
      *
      * @throws \Exception
      */
-    public function clearMenuCache(TranslatorInterface $translator, string $name): RedirectResponse
+    public function clearMenuCache(TranslatorInterface $translator, CacheService $cacheService, string $name): RedirectResponse
     {
         $config = $this->getParameter('cms');
 
@@ -752,13 +739,7 @@ class MenuController extends Controller
             throw new \Exception('Menu does not exist.');
         }
 
-        $cacheEnabled = extension_loaded('apcu') && ini_get('apc.enabled');
-
-        if ($cacheEnabled) {
-            // Cache is enabled.
-            $cache = new ApcuAdapter();
-            $cache->deleteItem($name);
-
+        if ($cacheService->delete($name, 1)) {
             $this->addFlash(
                 'success',
                 $translator->trans('Menu cache cleared.')
