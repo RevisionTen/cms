@@ -22,6 +22,31 @@ class CacheService
     private $issuer;
 
     /**
+     * @var int
+     */
+    private $shmKey;
+
+    /**
+     * @var int
+     */
+    private $shmSize;
+
+    /**
+     * @var resource
+     */
+    private $shmSegment;
+
+    /**
+     * @var int
+     */
+    private $shmVarKey;
+
+    /**
+     * @var array
+     */
+    private $uuidStore = [];
+
+    /**
      * @var null|ApcuAdapter
      */
     private $cache = null;
@@ -30,31 +55,95 @@ class CacheService
     {
         $this->config = $config;
         $this->issuer = isset($config['site_name']) ? $config['site_name'] : 'revisionTen';
+        $this->shmKey = isset($config['shm_key']) ? (int) $config['shm_key'] : 1;
+        $this->shmSize = 10485760; // Reserve 10MB for UuidStore.
+        $this->shmSegment = shm_attach($this->shmKey, $this->shmSize, 0666);
+        $this->shmVarKey = 1;
 
         if (extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
         }
     }
 
+    private function getUuidStore()
+    {
+        if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
+            // UuidStore exists.
+            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+        } else {
+            // Create UuidStore.
+            if (shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore)) {
+                $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+            }
+        }
+
+        return $this->uuidStore;
+    }
+
+    private function saveUuidStore(): array
+    {
+        shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
+
+        return $this->uuidStore;
+    }
+
+    /**
+     * Save the version for this uuid in memory and return the version.
+     *
+     * @param string $uuid
+     * @param int    $version
+     *
+     * @return int|null
+     */
     private function setVersion(string $uuid, int $version): ?int
     {
-        // Todo: Save the version for this uuid in memory and return the version.
+        $this->uuidStore[$uuid] = $version;
 
-        return 1;
+        $this->shmSize = 1;
+
+        $this->saveUuidStore();
+
+        return $version;
     }
 
+    /**
+     * Get the version for this uuid from memory.
+     *
+     * @param string $uuid
+     *
+     * @return int|null
+     */
     private function getVersion(string $uuid): ?int
     {
-        // Todo: Get the version for this uuid from memory.
+        if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
+            // UuidStore exists.
+            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+        }
 
-        return 1;
+        $version = $this->uuidStore[$uuid] ?? null;
+
+        return $version;
     }
 
-    private function deleteVersion(string $uuid): ?int
+    /**
+     * Delete the version for this uuid in memory and return the deleted version.
+     *
+     * @param string $uuid
+     * @param int    $version
+     *
+     * @return int|null
+     */
+    private function deleteVersion(string $uuid, int $version): ?int
     {
-        // Todo: Delete the version for this uuid in memory and return the deleted version.
+        if (isset($this->uuidStore[$uuid])) {
+            // Todo: Optional check if version matches.
 
-        return 1;
+            $version = $this->uuidStore[$uuid];
+            unset($this->uuidStore[$uuid]);
+            $this->saveUuidStore();
+        }
+
+        return $version;
     }
 
     public function put(string $uuid, int $version, array $data): ?bool
@@ -67,7 +156,7 @@ class CacheService
         $version = $this->setVersion($uuid, $version);
 
         // Save data to apc cache.
-        $entry = $this->cache->getItem($this->issuer.$uuid.'v'.$version);
+        $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$version);
         $entry->set($data);
 
         return $this->cache->save($entry);
@@ -86,7 +175,7 @@ class CacheService
 
         if ($version) {
             // Get data from apc cache.
-            $entry = $this->cache->getItem($this->issuer.$uuid.'v'.$version);
+            $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$version);
 
             if ($entry->isHit()) {
                 $data = $entry->get();
@@ -99,8 +188,8 @@ class CacheService
     public function delete(string $uuid, int $version): ?bool
     {
         // Delete the version from memory and return the deleted version.
-        $version = $this->deleteVersion($uuid);
+        $version = $this->deleteVersion($uuid, $version);
 
-        return $this->cache->deleteItem($this->issuer.$uuid.'v'.$version);
+        return $this->cache->deleteItem($this->issuer.'_'.$uuid.'_v'.$version);
     }
 }
