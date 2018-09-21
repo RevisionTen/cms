@@ -2,7 +2,7 @@
     {{ editorAttr(element, edit, 'bg-warning') }}
     class="card card-imageposition-{{ imagePosition }} {{ elementClasses(element) }}"
 >
-    <img class="card-img-top" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ web_image(element.data.image).cropResize(1920, 1920) }}">
+    <img class="card-img-top h-auto" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ web_image(element.data.image).cropResize(1920, 1920) }}">
 
     <div class="card-body">
         {% if element.data.title %}
