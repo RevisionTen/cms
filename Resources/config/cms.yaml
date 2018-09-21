@@ -1,9 +1,10 @@
 # Default cms bundle config.
 cms:
+    shm_key: 1
+    site_name: 'CMS'
     mailer_return_path: 'postmaster@some-website.com'
     mailer_from: 'info@some-website.com'
     mailer_sender: 'info@some-website.com'
-    site_name: 'CMS'
     page_metatype: RevisionTen\CMS\Form\PageMetaType
     page_templates:
         Simple Page:

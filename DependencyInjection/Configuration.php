@@ -15,6 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('site_name')->end()
+                ->integerNode('shm_key')->end()
                 ->scalarNode('mailer_from')->end()
                 ->scalarNode('mailer_sender')->end()
                 ->scalarNode('mailer_return_path')->end()
