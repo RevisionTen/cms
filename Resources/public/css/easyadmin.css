@@ -306,7 +306,6 @@ body.easyadmin h1.title {
     margin: 0;
 }
 .cms-admin-menu li > div {
-    overflow: hidden;
     margin: 0 0 -1px 0;
     border: 1px solid #e1e9f2;
 }

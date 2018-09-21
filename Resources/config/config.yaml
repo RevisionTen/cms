@@ -159,7 +159,7 @@ easy_admin:
             js:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
-                - 'bundles/cms/js/admin-backend.js?v=0'
+                - 'bundles/cms/js/admin-backend.js?v=1.0.1'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
