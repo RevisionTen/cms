@@ -13,7 +13,6 @@ use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
 use RevisionTen\CQRS\Services\EventStore;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 
 /**
  * Class PageService.
@@ -43,17 +42,19 @@ class PageService
     /**
      * PageService constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface   $em
+     * @param \Doctrine\ORM\EntityManagerInterface        $em
      * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
      * @param \RevisionTen\CQRS\Services\EventStore       $eventStore
      * @param \RevisionTen\CQRS\Services\EventBus         $eventBus
+     * @param \RevisionTen\CMS\Services\CacheService      $cacheService
      */
-    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, EventBus $eventBus)
+    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, EventBus $eventBus, CacheService $cacheService)
     {
         $this->em = $em;
         $this->aggregateFactory = $aggregateFactory;
         $this->eventStore = $eventStore;
         $this->eventBus = $eventBus;
+        $this->cacheService = $cacheService;
     }
 
     /**
@@ -125,12 +126,7 @@ class PageService
             $this->em->flush();
 
             // Persist to cache.
-            if (extension_loaded('apcu') && ini_get('apc.enabled')) {
-                $cache = new ApcuAdapter();
-                $page = $cache->getItem($pageUuid);
-                $page->set($pageData);
-                $cache->save($page);
-            }
+            $this->cacheService->put($pageUuid, $version, $pageData);
         }
 
         // Remove all other qeued Events for this Page.
@@ -148,16 +144,18 @@ class PageService
     public function unpublishPage(string $pageUuid): void
     {
         // Remove read model.
+        /** @var PageRead $pageRead */
         $pageRead = $this->em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+
         if ($pageRead) {
+            $version = $pageRead->getVersion();
+
+            // Remove from database.
             $this->em->remove($pageRead);
             $this->em->flush();
-        }
 
-        // Remove from cache.
-        if (extension_loaded('apcu') && ini_get('apc.enabled')) {
-            $cache = new ApcuAdapter();
-            $cache->deleteItem($pageUuid);
+            // Remove from cache.
+            $this->cacheService->delete($pageUuid, $version);
         }
 
         // Remove all other qeued Events for this Page.

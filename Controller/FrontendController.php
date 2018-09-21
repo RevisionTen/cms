@@ -7,9 +7,9 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Services\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,42 +62,29 @@ class FrontendController extends Controller
      * Render a page by a given uuid.
      *
      * @param PageService            $pageService
+     * @param CacheService           $cacheService
      * @param EntityManagerInterface $em
      * @param string                 $pageUuid
      * @param Alias|null             $alias
      *
      * @return Response
      */
-    private function renderPage(PageService $pageService, EntityManagerInterface $em, string $pageUuid, Alias $alias = null): Response
+    private function renderPage(PageService $pageService, CacheService $cacheService, EntityManagerInterface $em, string $pageUuid, Alias $alias = null): Response
     {
         $config = $this->getParameter('cms');
-        $cacheEnabled = extension_loaded('apcu') && ini_get('apc.enabled');
 
-        if ($cacheEnabled) {
-            // Cache is enabled.
-            $cache = new ApcuAdapter();
-            $page = $cache->getItem($pageUuid);
+        // Get page from cache.
+        $pageData = $cacheService->get($pageUuid);
 
-            if ($page->isHit()) {
-                // Get Page from cache.
-                $pageData = $page->get();
-            } else {
-                // Get Page from read model.
-                $pageRead = $this->getPageRead($em, $pageUuid);
-                $pageData = $pageRead ? $pageRead->getPayload() : false;
-
-                // Visitor triggers a write to cache.
-                // TODO: Replace with function in backend that warms up the apc cache.
-                if ($pageData) {
-                    // Persist Page to cache.
-                    $page->set($pageData);
-                    $cache->save($page);
-                }
-            }
-        } else {
+        if (null === $pageData) {
             // Get Page from read model.
             $pageRead = $this->getPageRead($em, $pageUuid);
             $pageData = $pageRead ? $pageRead->getPayload() : false;
+
+            if ($pageData) {
+                // Populate cache.
+                $cacheService->put($pageUuid, $pageRead->getVersion(), $pageData);
+            }
         }
 
         if (!$pageData) {
@@ -124,14 +111,16 @@ class FrontendController extends Controller
      *
      * @Route("/admin/show/{pageUuid}", name="cms_page_show")
      *
+     * @param PageService            $pageService
+     * @param CacheService           $cacheService
      * @param EntityManagerInterface $em
      * @param string                 $pageUuid
      *
      * @return Response
      */
-    public function page(PageService $pageService, EntityManagerInterface $em, string $pageUuid): Response
+    public function page(PageService $pageService, CacheService $cacheService, EntityManagerInterface $em, string $pageUuid): Response
     {
-        return $this->renderPage($pageService, $em, $pageUuid);
+        return $this->renderPage($pageService, $cacheService, $em, $pageUuid);
     }
 
     /**
@@ -142,11 +131,12 @@ class FrontendController extends Controller
      *
      * @param Request                $request
      * @param PageService            $pageService
+     * @param CacheService           $cacheService
      * @param EntityManagerInterface $em
      *
      * @return Response
      */
-    public function frontpage(Request $request, PageService $pageService, EntityManagerInterface $em): Response
+    public function frontpage(Request $request, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
         /** @var Alias $alias */
         $alias = $em->getRepository(Alias::class)->findOneBy([
@@ -159,7 +149,7 @@ class FrontendController extends Controller
             throw $this->createNotFoundException();
         }
 
-        $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
+        $response = $this->renderPage($pageService, $cacheService, $em, $pageUuid, $alias);
 
         // Add tracking cookies.
         $response = $this->addTrackingCookies($request, $response);
@@ -176,12 +166,13 @@ class FrontendController extends Controller
      *
      * @param Request                $request
      * @param string                 $path
-     * @param EntityManagerInterface $em
      * @param PageService            $pageService
+     * @param CacheService           $cacheService
+     * @param EntityManagerInterface $em
      *
      * @return Response
      */
-    public function alias(Request $request, string $path, PageService $pageService, EntityManagerInterface $em): Response
+    public function alias(Request $request, string $path, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
         /** @var Alias|null $alias */
         $alias = $em->getRepository(Alias::class)->findOneBy([
@@ -201,7 +192,7 @@ class FrontendController extends Controller
         if (null !== $pageStreamRead && $pageStreamRead->isPublished()) {
             // Render PageStreamRead Entity.
             $pageUuid = $pageStreamRead->getUuid();
-            $response = $this->renderPage($pageService, $em, $pageUuid, $alias);
+            $response = $this->renderPage($pageService, $cacheService, $em, $pageUuid, $alias);
         } elseif (null !== $controller) {
             // Forward request to controller.
             $parts = explode('::', $controller);
