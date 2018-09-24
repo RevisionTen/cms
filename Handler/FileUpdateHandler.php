@@ -12,7 +12,6 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class FileUpdateHandler extends Handler implements HandlerInterface
 {

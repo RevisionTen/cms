@@ -46,7 +46,7 @@ class ManagedUploadType extends AbstractType
                 'class' => 'file-title',
             ],
         ]);
-        
+
         $builder->add('file', FileType::class, [
             'required' => false,
             'label' => 'Please select the file you want to upload.',
@@ -69,14 +69,12 @@ class ManagedUploadType extends AbstractType
                 $data['existingFileUuid'] = null;
                 $data['existingFileVersion'] = null;
             } elseif (isset($data['replaceFile']) && null !== $data['replaceFile']) {
-
                 if (is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->replaceFile($data['file'], $data['replaceFile'], $data['title'], $options['upload_dir']);
                     $data['replaceFile'] = null;
                 }
             } elseif (isset($data['file']) && null !== $data['file']) {
-
                 if (is_object($data['file'])) {
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->createFile(null, $data['file'], $data['title'], $options['upload_dir']);
@@ -95,7 +93,6 @@ class ManagedUploadType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
             $data = $event->getData();
             $form = $event->getForm();
-
 
             if (null === $data['file']) {
                 $form->add('existingFileUuid', HiddenType::class, [

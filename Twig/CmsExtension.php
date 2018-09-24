@@ -6,7 +6,6 @@ namespace RevisionTen\CMS\Twig;
 
 use Symfony\Component\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class CmsExtension extends AbstractExtension
@@ -54,8 +53,8 @@ class CmsExtension extends AbstractExtension
     /**
      * Returns an array of bootstrap spacing css classes.
      *
-     * @param $spacing    The amount of spacing.
-     * @param $properyAbr The type of spacing ('m' = margin, 'p' = padding).
+     * @param $spacing    the amount of spacing
+     * @param $properyAbr the type of spacing ('m' = margin, 'p' = padding)
      *
      * @return array
      */

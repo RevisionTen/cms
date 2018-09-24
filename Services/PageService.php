@@ -250,7 +250,7 @@ class PageService
     public function hydratePage(array $pageData): array
     {
         $matches = [];
-        preg_match_all("/\"doctrineEntity\":\"(.+)\"/U", json_encode($pageData), $matches);
+        preg_match_all('/"doctrineEntity":"(.+)"/U', json_encode($pageData), $matches);
         $hydrationIds = $matches[1] ?? false;
 
         if ($hydrationIds) {
@@ -272,7 +272,7 @@ class PageService
                 }
             }
 
-            array_walk_recursive($pageData, function(&$value, $key) use($groups) {
+            array_walk_recursive($pageData, function (&$value, $key) use ($groups) {
                 if ('doctrineEntity' === $key) {
                     $parsedHydrationId = $this->parseHydrationId($value);
                     $value = $groups[$parsedHydrationId['class']][$parsedHydrationId['id']] ?? null;

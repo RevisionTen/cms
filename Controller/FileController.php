@@ -10,11 +10,10 @@ use RevisionTen\CMS\Model\File;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class FileController
+ * Class FileController.
  */
 class FileController extends Controller
 {
-
     /**
      * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
      *

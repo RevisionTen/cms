@@ -791,7 +791,6 @@ class MenuController extends Controller
             );
 
             if ($request->get('ajax')) {
-
                 return new JsonResponse([
                     'success' => $success,
                     'refresh' => null,
@@ -820,7 +819,8 @@ class MenuController extends Controller
         return $orderTree;
     }
 
-    private static function array_diff_recursive($arrayOriginal, $arrayNew) {
+    private static function array_diff_recursive($arrayOriginal, $arrayNew)
+    {
         $arrayDiff = [];
 
         foreach ($arrayOriginal as $key => $value) {

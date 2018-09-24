@@ -8,13 +8,8 @@ use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Model\User;
-use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
-use RevisionTen\CQRS\Services\EventBus;
-use RevisionTen\CQRS\Services\EventStore;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -112,7 +107,7 @@ class FileService
         $mimeType = $file->getMimeType();
         $size = $file->getSize();
 
-        $filePath = $this->saveUploadedFile($file, $upload_dir, $uuid.'-v'.($version+1));
+        $filePath = $this->saveUploadedFile($file, $upload_dir, $uuid.'-v'.($version + 1));
 
         // Create file aggregate.
         $success = $this->runCommand(FileCreateCommand::class, [
@@ -120,7 +115,7 @@ class FileService
             'path' => $filePath,
             'mimeType' => $mimeType,
             'size' => $size,
-        ], $uuid,0);
+        ], $uuid, 0);
 
         if (!$success) {
             return null;
@@ -130,7 +125,7 @@ class FileService
             'uuid' => $uuid,
             'path' => $filePath,
             'mimeType' => $mimeType,
-            'version' => ($version+1),
+            'version' => ($version + 1),
             'size' => $size,
         ];
     }
@@ -150,7 +145,7 @@ class FileService
         $aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
         $version = $aggregate->getVersion();
 
-        $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version+1));
+        $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
 
         // Update file aggregate.
         $commandData = [];
@@ -177,7 +172,7 @@ class FileService
             'uuid' => $uuid,
             'path' => $filePath,
             'mimeType' => $mimeType,
-            'version' => ($version+1),
+            'version' => ($version + 1),
             'size' => $size,
         ];
     }
@@ -186,26 +181,26 @@ class FileService
     {
         // Never update only the title.
 
-        #// Update the file.
-        #$uuid = $file['uuid'];
-        #/**
-        # * Get Aggregate newest version.
-        # *
-        # * @var \RevisionTen\CMS\Model\File $aggregate
-        # */
-        #$aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
-        #$version = $aggregate->getVersion();
-        #// Update file aggregate.
-        #$commandData = [];
-        #if ($title !== $aggregate->title) {
-        #    $commandData['title'] = $title;
-        #}
-        #if (!empty($commandData)) {
-        #    $success = $this->runCommand(FileUpdateCommand::class, $commandData, $uuid, $version);
-        #    if ($success) {
-        #        $file['version'] = ($version+1);
-        #    }
-        #}
+        //// Update the file.
+        //$uuid = $file['uuid'];
+        ///**
+        // * Get Aggregate newest version.
+        // *
+        // * @var \RevisionTen\CMS\Model\File $aggregate
+        // */
+        //$aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
+        //$version = $aggregate->getVersion();
+        //// Update file aggregate.
+        //$commandData = [];
+        //if ($title !== $aggregate->title) {
+        //    $commandData['title'] = $title;
+        //}
+        //if (!empty($commandData)) {
+        //    $success = $this->runCommand(FileUpdateCommand::class, $commandData, $uuid, $version);
+        //    if ($success) {
+        //        $file['version'] = ($version+1);
+        //    }
+        //}
 
         return $file;
     }

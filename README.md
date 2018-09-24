@@ -135,3 +135,17 @@ $builder->add('image', UploadType::class, [
     'keep_deleted_file' => true, // Optional, "false" deletes the file.
 ]);
 ```
+
+## Caching
+
+The cms uses a shared memory segment to keep the cache consistent across multiple apcu processes.
+This makes it necessary to set a `shm_key` Parameter in the cms config. This key must be an integer and must differ between sites on the same virtual host.
+
+You can list the shared memory segment with the command: `ipcs -m`
+It will output something like this:
+`
+------ Shared Memory Segments --------
+key        shmid      owner      perms      bytes      nattch     status                         
+0x00000001 2752520    automb     666        10485760   0   
+`
+The key is the shm_key we set in the cms config. You can delete shared memory segments with the command: `ipcrm -m [shmid]`
