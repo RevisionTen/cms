@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2018-09-24
+### Changed
+- Code cleanup
+### Added
+- Added caching infos to docs
+
 ## [1.0.4] - 2018-09-21
 ### Added
 - Added `shm_key` config parameter to cms config. This key must be an integer and must differ between sites on the same virtual host.

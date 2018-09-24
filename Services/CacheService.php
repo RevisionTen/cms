@@ -22,16 +22,6 @@ class CacheService
     private $issuer;
 
     /**
-     * @var int
-     */
-    private $shmKey;
-
-    /**
-     * @var int
-     */
-    private $shmSize;
-
-    /**
      * @var resource
      */
     private $shmSegment;
@@ -55,17 +45,22 @@ class CacheService
     {
         $this->config = $config;
         $this->issuer = isset($config['site_name']) ? $config['site_name'] : 'revisionTen';
-        $this->shmKey = isset($config['shm_key']) ? (int) $config['shm_key'] : 1;
-        $this->shmSize = 10485760; // Reserve 10MB for UuidStore.
-        $this->shmSegment = shm_attach($this->shmKey, $this->shmSize, 0666);
+
+        // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
+        $key = isset($config['shm_key']) ? $config['shm_key'] : 1;
+        $key = (int) $key;
+        $memsize = 2000000; // Reserve 2MB for UuidStore.
+        $this->shmSegment = shm_attach($key, $memsize, 0666);
         $this->shmVarKey = 1;
+
+        $this->initUuidStore();
 
         if (extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
         }
     }
 
-    private function getUuidStore()
+    private function initUuidStore(): void
     {
         if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
             // UuidStore exists.
@@ -76,15 +71,11 @@ class CacheService
                 $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
             }
         }
-
-        return $this->uuidStore;
     }
 
-    private function saveUuidStore(): array
+    private function saveUuidStore(): void
     {
         shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
-
-        return $this->uuidStore;
     }
 
     /**
@@ -98,8 +89,6 @@ class CacheService
     private function setVersion(string $uuid, int $version): ?int
     {
         $this->uuidStore[$uuid] = $version;
-
-        $this->shmSize = 1;
 
         $this->saveUuidStore();
 
@@ -115,11 +104,6 @@ class CacheService
      */
     private function getVersion(string $uuid): ?int
     {
-        if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
-            // UuidStore exists.
-            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-        }
-
         $version = $this->uuidStore[$uuid] ?? null;
 
         return $version;
@@ -137,9 +121,9 @@ class CacheService
     {
         if (isset($this->uuidStore[$uuid])) {
             // Todo: Optional check if version matches.
-
             $version = $this->uuidStore[$uuid];
             unset($this->uuidStore[$uuid]);
+
             $this->saveUuidStore();
         }
 
