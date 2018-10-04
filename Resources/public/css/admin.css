@@ -10,6 +10,7 @@
   padding: 4px;
   cursor: pointer;
 }
+/*
 [data-uuid]:hover {
   background: rgba(255, 0, 255, 0.05);
   outline: 1px dashed rgba(255, 0, 255, 1);
@@ -23,6 +24,7 @@
 .no-outline[data-uuid]:hover {
   background: none;
 }
+*/
 [data-visible="0"]:not(.carousel-item),
 [data-enabled="0"]:not(.carousel-item) {
   position: relative;

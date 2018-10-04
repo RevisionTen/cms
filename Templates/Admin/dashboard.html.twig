@@ -12,15 +12,14 @@
         <div class="col-sm-6 col-flexed">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">{{ 'Latest Events'|trans }}</h3>
+                    <h3 class="panel-title">{{ 'Latest Commits'|trans }}</h3>
                 </div>
-                {#<div class="panel-body"></div>#}
                 <table class="table">
-                    {% for event in eventStreamObjects %}
+                    {% for event in latestCommits %}
                         <tr>
-                            <td>{% set value = event.user %}{% include '@cms/Admin/user_column.html.twig' %}</td>
+                            <td style="width: 4rem;">{% set value = event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
                             <td>
-                                {{ event.message|trans }}<br/>
+                                {{ event.payload.message|trans }}<br/>
                                 <span class="text-muted">
                                     {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
                                 </span>
@@ -80,5 +79,57 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="row row-flexed">
+        <div class="col-sm-6 col-flexed">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ 'Latest Events'|trans }}</h3>
+                </div>
+                <table class="table">
+                    {% for event in eventStreamObjects %}
+                        <tr>
+                            <td style="width: 4rem;">{% set value = event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                            <td>
+                                {{ event.message|trans }}<br/>
+                                <span class="text-muted">
+                                    {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-flexed">
+            {% if eventQeueObjects|length > 0 %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ 'Latest Draft Events'|trans }}</h3>
+                </div>
+                <table class="table">
+                    {% for event in eventQeueObjects %}
+                        <tr>
+                            <td style="width: 4rem;">{% set value = event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                            <td>
+                                {{ event.message|trans }}<br/>
+                                <span class="text-muted">
+                                    {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
