@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
-use RevisionTen\CMS\Model\Page;
+use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Model\Website;
+use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
-use RevisionTen\CQRS\Services\AggregateFactory;
-use RevisionTen\CQRS\Services\EventStore;
 use RevisionTen\Forms\Model\FormRead;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
@@ -55,11 +54,12 @@ class AdminController extends Controller
     /**
      * Get the username from the user id.
      *
-     * @param int $userId
+     * @param int    $userId
+     * @param string $template
      *
      * @return Response
      */
-    public function userName(int $userId): Response
+    public function userName(int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
     {
         /** @var EntityManager $em */
         $em = $this->getDoctrine()->getManager();
@@ -67,7 +67,7 @@ class AdminController extends Controller
         /** @var User $user */
         $user = $em->getRepository(User::class)->find($userId);
 
-        return $this->render('@cms/Admin/user_info.html.twig', [
+        return $this->render($template, [
             'user' => $user ?? [
                 'username' => 'anonymous',
                 'avatarUrl' => null,
@@ -110,18 +110,27 @@ class AdminController extends Controller
      * @Route("/", name="cms_admin_slash")
      * @Route("/dashboard", name="cms_dashboard")
      *
-     * @param Request                $request
      * @param EntityManagerInterface $em
      *
      * @return Response
      */
-    public function dashboardAction(Request $request, EntityManagerInterface $em): Response
+    public function dashboardAction(EntityManagerInterface $em): Response
     {
         /** @var EventStreamObject[]|null $eventStreamObjects */
         $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findby([], ['id' => Criteria::DESC], 6);
 
+        /** @var EventQeueObject[]|null $eventQeueObjects */
+        $eventQeueObjects = $em->getRepository(EventQeueObject::class)->findby([], ['id' => Criteria::DESC], 6);
+
+        /** @var EventStreamObject[]|null $latestCommits */
+        $latestCommits = $em->getRepository(EventStreamObject::class)->findby([
+            'event' => PageSubmitEvent::class,
+        ], ['id' => Criteria::DESC], 6);
+
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'eventStreamObjects' => $eventStreamObjects,
+            'eventQeueObjects' => $eventQeueObjects,
+            'latestCommits' => $latestCommits,
             'symfony_version' => Kernel::VERSION,
             'php_version' => phpversion(),
             'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
@@ -139,12 +148,10 @@ class AdminController extends Controller
      *
      * @param Request                $request
      * @param EntityManagerInterface $em
-     * @param AggregateFactory       $aggregateFactory
-     * @param EventStore             $eventStore
      *
      * @return Response
      */
-    public function editAggregateAction(Request $request, EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore): Response
+    public function editAggregateAction(Request $request, EntityManagerInterface $em): Response
     {
         $cookies = [];
         if ($previewSize = $request->get('previewSize')) {

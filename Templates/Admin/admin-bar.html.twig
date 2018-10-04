@@ -1,6 +1,6 @@
 <div id="admin-bar">
-    <div class="row">
-        <div class="col-sm-4">
+    <div class="admin-row">
+        <div class="admin-col-left">
             {% if edit %}
                 <h1 class="title editor-title">{{ 'Page'|trans }} <a data-target="parent" target="_top" href="{{ path('cms_change_pagesettings', {pageUuid: page.uuid, version: page.version}) }}" class="text-muted" style="text-transform: none;">{{ page.title }} &nbsp;<span class="fa fa-edit"></span></a></h1>
             {% else %}
@@ -8,7 +8,7 @@
             {% endif %}
         </div>
         {% if edit %}
-            <div class="col-sm-8">
+            <div class="admin-col-right">
                 <form class="form-inline pull-right">
                     <div class="button-group">
 

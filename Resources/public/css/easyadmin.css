@@ -14,6 +14,29 @@ odd: #e5f7ff
 even: #f7f7f7
 
  */
+
+.admin-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+.admin-col-right,
+.admin-col-left {
+    width: auto;
+}
+.admin-col-right {
+    margin-left: auto;
+}
+@media screen and (max-width: 767px) {
+    .admin-row {
+        flex-wrap: wrap;
+    }
+    .admin-col-right,
+    .admin-col-left {
+        width: 100%;
+    }
+}
+
 .title-truncate {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -102,7 +125,7 @@ body.list table tbody td.actions a,
     font-weight: normal;
 }
 .main-sidebar {
-    box-shadow: 1px 0 20px rgba(0, 0, 0, 0.08);
+    /*box-shadow: 1px 0 20px rgba(0, 0, 0, 0.08);*/
 }
 .sidebar-menu {
 }
@@ -210,28 +233,42 @@ body.easyadmin h1.title {
 .editor-avatar-small {
     width: 1em;
 }
-.editor-avatar-color {
+.editor-avatar-color,
+.editor-avatar-color-small,
+.editor-avatar-color-medium {
     text-align: center;
-    width: 60px;
-    margin: 0 auto;
-    margin-bottom: 10px;
+    color: #fff;
+    border-radius: 100%;
     position: relative;
+}
+.editor-avatar-color {
+    width: 60px;
+    margin: 0 auto 10px auto;
     height: 60px;
     line-height: 60px;
     font-size: 30px;
-    color: #fff;
-    border-radius: 100%;
 }
 .editor-avatar-color-small {
-    text-align: center;
     width: 14px;
     margin: 0 5px 0 0;
     height: 14px;
     line-height: 14px;
     font-size: 10px;
-    color: #fff;
-    border-radius: 100%;
     display: inline-block;
+}
+.editor-avatar-color-medium {
+    height: 4rem;
+    width: 4rem;
+    line-height: 4rem;
+    font-size: 2rem;
+    margin: 0;
+    display: inline-block;
+}
+.editor-avatar-medium {
+    position: relative;
+    height: 4rem;
+    width: 4rem;
+    margin: 0;
 }
 #admin-bar {
     background: #fff;
