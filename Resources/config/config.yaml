@@ -161,7 +161,9 @@ easy_admin:
         assets:
             css:
                 - 'bundles/cms/css/easyadmin.css?v=1.0.2'
+                - 'bundles/cms/libs/dist/trix.css'
             js:
+                - 'bundles/cms/libs/dist/trix.js'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
                 - 'bundles/cms/js/admin-backend.js?v=1.0.2'

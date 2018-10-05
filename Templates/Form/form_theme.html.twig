@@ -2,6 +2,12 @@
 
 {#% use 'bootstrap_4_layout.html.twig' %#}
 
+{%- block trix_widget -%}
+    {%- set type = type|default('hidden') -%}
+    {{ block('form_widget_simple') }}
+    <trix-editor input="{{ id }}"></trix-editor>
+{%- endblock trix_widget -%}
+
 {% block upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% if file %}
