@@ -2,7 +2,7 @@
     <div class="admin-row">
         <div class="admin-col-left">
             <h1 class="title editor-title">
-                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">Version {{ version }}</small>
+                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">Version {{ version }} {% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
             </h1>
         </div>
         <div class="admin-col-right">
@@ -10,27 +10,29 @@
 
                 <div class="button-group">
 
-                    <div class="dropdown dropdown-versions">
-                        {% set historyActions = [
-                        actions.undo_change,
-                        actions.rollback_aggregate,
-                        actions.discard_changes
-                        ] %}
-                        <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <span class="fas fa-history"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            {% for action in historyActions %}
-                                {% if action.display %}
-                                    <li>
-                                        <a class="text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                            <span class="{{ action.icon }}"></span> {{ action.label }}
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
+                    {% if actions.rollback_aggregate.display %}
+                        <div class="dropdown dropdown-versions">
+                            {% set historyActions = [
+                            actions.undo_change,
+                            actions.rollback_aggregate,
+                            actions.discard_changes
+                            ] %}
+                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="fas fa-history"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for action in historyActions %}
+                                    {% if action.display %}
+                                        <li>
+                                            <a class="text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                                <span class="{{ action.icon }}"></span> {{ action.label }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
 
                     {% set buttonActions = [
                     actions.show,
@@ -55,3 +57,19 @@
         </div>
     </div>
 </div>
+
+<div class="qeued">
+    {% for userData in users %}
+        {% set user = userData.user %}
+        {% set count = userData.events|length %}
+        <a class="qeued-user" href="{{ path('cms_edit_aggregate', {user: user.id, id: id}) }}">
+            <div class="qeued-user-icon">
+                {% include '@cms/Admin/user_info_medium.html.twig' %} <span class="badge label-danger">{{ count }}</span>
+            </div>
+            <div class="qeued-user-text">
+                {{ 'User <strong>%username%</strong> <br/>has <strong>%count%</strong> qeued events'|trans({'%username%': user.username, '%count%': count})|raw }}
+            </div>
+        </a>
+    {% endfor %}
+</div>
+

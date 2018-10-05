@@ -275,6 +275,45 @@ body.easyadmin h1.title {
     padding: 15px 20px;
     margin: -20px -20px 5px -20px;
 }
+.qeued {
+    position: fixed;
+    bottom: 0;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+.qeued-user {
+    color: #54667a;
+    background: #fff;
+    box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+}
+.qeued-user:active,
+.qeued-user:hover {
+    color: #54667a;
+    background: #edf1f5;
+}
+.qeued-user-icon {
+    position: relative;
+    display: inline-block;
+    height: 4rem;
+    width: 4rem;
+}
+.qeued-user-icon .badge {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+}
+.qeued-user-text {
+    display: inline-block;
+    white-space: normal;
+    line-height: 2rem;
+    font-size: 1.5rem;
+    text-align: left;
+    margin-left: 1rem;
+}
 .panel-default {
     background: #fff;
     border: 0;
