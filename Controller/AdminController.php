@@ -188,23 +188,6 @@ class AdminController extends Controller
             return $this->redirect('/admin');
         }
 
-        /*
-        // Get all qeued Events for this page.
-
-        /** @var User[] $adminUsers * /
-        $adminUsers = $em->getRepository(User::class)->findAll();
-        $users = [];
-        foreach ($adminUsers as $key => $adminUser) {
-            $eventStreamObjects = $eventStore->findQeued($pageStreamRead->getUuid(), null, $pageStreamRead->getVersion() + 1, $adminUser->getId());
-            if ($eventStreamObjects) {
-                $users[$adminUser->getId()] = [
-                    'events' => $eventStreamObjects,
-                    'user' => $adminUser,
-                ];
-            }
-        }
-        */
-
         $response = $this->render('@cms/Admin/edit-aggregate.html.twig', [
             'pageStreamRead' => $pageStreamRead,
             'user' => $user,

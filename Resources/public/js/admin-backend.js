@@ -47,8 +47,9 @@ function getPageInfo()
 {
     // Get Page Info.
     let pageUuid = $('#pageUuid').val();
+    let userId = $('#userId').val();
     $.ajax({
-        url: '/admin/api/page-info/' + pageUuid,
+        url: '/admin/api/page-info/' + pageUuid + '/' + userId,
         context: document.body
     }).done(function(data) {
         window.pageData = data;

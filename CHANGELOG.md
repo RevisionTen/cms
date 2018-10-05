@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2018-10-05
+### Added
+- Improved collaboration on pages by allowing users to see and commit the qeued changes of other users
+
 ## [1.0.8] - 2018-10-05
 ### Added
 - Added trix wysiwyg editor form type (RevisionTen\CMS\Form\Types\TrixType)
