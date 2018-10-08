@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED 1.1.0] - 2018-10-08
+### Added
+- **DATABASE UPDATE REQUIRED** Added website and language fields to aliases
+- TODO: Add ADD-ALIAS-DIALOG
+- TODO: Add ADD-ALIAS-DIALOG on first page publish
+
 ## [1.0.9] - 2018-10-05
 ### Added
 - Improved collaboration on pages by allowing users to see and commit the qeued changes of other users

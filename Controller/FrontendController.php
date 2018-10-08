@@ -139,9 +139,7 @@ class FrontendController extends Controller
     public function frontpage(Request $request, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
         /** @var Alias $alias */
-        $alias = $em->getRepository(Alias::class)->findOneBy([
-            'path' => '/',
-        ]);
+        $alias = $em->getRepository(Alias::class)->findMatchingAlias('/', $request->get('website'), $request->getLocale());
         $pageStreamRead = $alias ? $alias->getPageStreamRead() : null;
         $pageUuid = $pageStreamRead ? $pageStreamRead->getUuid() : null;
 
@@ -175,9 +173,7 @@ class FrontendController extends Controller
     public function alias(Request $request, string $path, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
         /** @var Alias|null $alias */
-        $alias = $em->getRepository(Alias::class)->findOneBy([
-            'path' => '/'.$path,
-        ]);
+        $alias = $em->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('website'), $request->getLocale());
 
         if (null === $alias) {
             throw $this->createNotFoundException();

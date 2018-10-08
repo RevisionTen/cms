@@ -8,6 +8,7 @@ use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
@@ -121,6 +122,20 @@ class PageService
             $pageData = json_decode(json_encode($aggregate), true);
             $pageData = $this->filterPayload($pageData);
             $pageRead->setPayload($pageData);
+
+            // Update the language and website of associated aliases.
+            $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+            if (null !== $pageStreamRead) {
+                $aliases = $pageStreamRead->getAliases();
+                if (null !== $aliases) {
+                    foreach ($aliases as $alias) {
+                        /** @var \RevisionTen\CMS\Model\Alias $alias */
+                        $alias->setLanguage($aggregate->language);
+                        $alias->setWebsite($this->em->getReference(Website::class, $aggregate->website));
+                        $this->em->persist($alias);
+                    }
+                }
+            }
 
             $this->em->persist($pageRead);
             $this->em->flush();
