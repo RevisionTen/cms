@@ -17,7 +17,7 @@
                 <table class="table">
                     {% for event in latestCommits %}
                         <tr>
-                            <td style="width: 4rem;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
                             <td>
                                 {{ event.payload.message|trans }}<br/>
                                 <span class="text-muted">
@@ -90,7 +90,7 @@
                 <table class="table">
                     {% for event in eventStreamObjects %}
                         <tr>
-                            <td style="width: 4rem;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
                             <td>
                                 {{ event.message|trans }}<br/>
                                 <span class="text-muted">
@@ -115,7 +115,7 @@
                 <table class="table">
                     {% for event in eventQeueObjects %}
                         <tr>
-                            <td style="width: 4rem;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
                             <td>
                                 {{ event.message|trans }}<br/>
                                 <span class="text-muted">

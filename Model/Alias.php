@@ -87,6 +87,22 @@ class Alias
         $this->priority = 0.5;
     }
 
+    public function getHost(): ?string
+    {
+        if (null !== $this->getWebsite() && count($this->getWebsite()->getDomains()) !== 0) {
+            // Append locale prefix if it differs from the websites default language.
+            $locale = '';
+            if ($this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
+                $locale = '/'.$this->getLanguage();
+            }
+            /** @var Domain $domain */
+            $domain = $this->getWebsite()->getDomains()->first();
+            return $domain->getDomain().$locale;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * @return int
      */

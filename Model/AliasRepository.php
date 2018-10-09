@@ -47,7 +47,6 @@ class AliasRepository extends EntityRepository
                 $qb->expr()->eq('a.language', ':language'),
                 $qb->expr()->isNull('a.language')
             ))
-            ->setParameter('path', $path)
             ->setParameter('website', $website)
             ->setParameter('language', $locale)
             ->getQuery();

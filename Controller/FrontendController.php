@@ -25,13 +25,14 @@ class FrontendController extends Controller
      * @Route("/sitemap.xml", name="cms_page_sitemap")
      *
      * @param EntityManagerInterface $em
+     * @param Request                $request
      *
      * @return Response
      */
-    public function sitemap(EntityManagerInterface $em): Response
+    public function sitemap(EntityManagerInterface $em, Request $request): Response
     {
         /** @var Alias[] $aliases */
-        $aliases = $em->getRepository(Alias::class)->findAll();
+        $aliases = $em->getRepository(Alias::class)->findAllMatchingAlias($request->get('website'), $request->getLocale());
 
         $response = $this->render('@cms/sitemap.xml.twig', [
             'aliases' => $aliases,

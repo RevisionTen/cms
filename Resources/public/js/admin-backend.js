@@ -68,6 +68,9 @@ function updateElement(data)
     } else if (typeof data.refresh !== 'undefined' && data.refresh == null) {
         // Reload the full page if refresh isset and is null.
         window.location.reload();
+    } else if (typeof data.modal !== 'undefined' && data.modal) {
+        // Open a modal.
+        $('body').trigger('openModal', data.modal);
     }
 }
 

@@ -20,6 +20,7 @@ use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Form\ElementType;
 use RevisionTen\CMS\Form\PageType;
 use RevisionTen\CMS\Handler\PageBaseHandler;
+use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Command\PageChangeSettingsCommand;
 use RevisionTen\CMS\Command\PageCreateCommand;
@@ -40,6 +41,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,6 +49,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
+use Cocur\Slugify\Slugify;
 
 /**
  * Class PageController.
@@ -376,19 +379,114 @@ class PageController extends Controller
     }
 
     /**
+     * Create an alias for a specific page.
+     *
+     * @Route("/create-alias/{pageUuid}", name="cms_create_alias")
+     *
+     * @param Request                $request
+     * @param string                 $pageUuid
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return JsonResponse|Response
+     */
+    public function createAlias(Request $request, string $pageUuid, EntityManagerInterface $entityManager)
+    {
+        /** @var PageStreamRead|null $pageStreamRead */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+
+        if (null === $pageStreamRead) {
+            return $this->errorResponse();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        /** @var Website $website */
+        $website = $entityManager->getRepository(Website::class)->find($pageStreamRead->getWebsite());
+        if (null === $website) {
+            return $this->errorResponse();
+        }
+
+        if ($website->getDomains()) {
+            /** @var \RevisionTen\CMS\Model\Domain $domain */
+            $domain = $website->getDomains()->first();
+            $websiteUrl = $request->getScheme().'://'.$domain->getDomain();
+        } else {
+            $websiteUrl = null;
+        }
+        $slugify = new Slugify();
+        $pathSuggestion = '/'.$slugify->slugify($pageStreamRead->getTitle());
+
+        $form = $this->createFormBuilder(['path' => $pathSuggestion])
+            ->add('path', TextType::class, [
+                'label' => 'Path',
+                'required' => true,
+                'attr' => [
+                    'placeholder' => $pathSuggestion,
+                ],
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => 'Create alias',
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $path = $data['path'];
+
+            // Create new alias.
+            $alias = new Alias();
+            $alias->setPath($path);
+            $alias->setLanguage($pageStreamRead->getLanguage());
+            $alias->setWebsite($website);
+            $alias->setPageStreamRead($pageStreamRead);
+
+            // Persist alias.
+            $entityManager->persist($alias);
+            $entityManager->flush($alias);
+            $entityManager->clear();
+
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => true,
+                ]);
+            } else {
+                return $this->redirectToPage($pageUuid);
+            }
+        }
+
+        return $this->render('@cms/Form/alias-form.html.twig', array(
+            'form' => $form->createView(),
+            'contentTitle' => 'Create alias',
+            'websiteUrl' => $websiteUrl,
+        ));
+    }
+
+    /**
      * Publishes a Page Aggregate.
      *
      * @Route("/publish-page/{pageUuid}/{version}", name="cms_publish_page")
      *
-     * @param CommandBus       $commandBus
-     * @param AggregateFactory $aggregateFactory
-     * @param string           $pageUuid
-     * @param int              $version
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param string                 $pageUuid
+     * @param int                    $version
+     * @param EntityManagerInterface $entityManager
      *
      * @return JsonResponse|Response
      */
-    public function publishPage(CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $version)
+    public function publishPage(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $version, EntityManagerInterface $entityManager)
     {
+        /** @var PageStreamRead|null $pageStreamRead */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+
+        if (null === $pageStreamRead) {
+            return $this->errorResponse();
+        }
+
         /**
          * Get latest Page version first.
          *
@@ -405,7 +503,30 @@ class PageController extends Controller
             return $this->errorResponse();
         }
 
-        return $this->redirectToPage($pageUuid);
+        // Check if aliases exist for this page.
+        $aliases = $pageStreamRead->getAliases();
+        if (null === $aliases || empty($aliases) || count($aliases) === 0) {
+            // The page has no aliases, show modal or page with alias create form.
+            $url = $this->generateUrl('cms_create_alias', [
+                'pageUuid' => $pageUuid,
+            ]);
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                    'modal' => $url,
+                ]);
+            } else {
+                return $this->redirect($url);
+            }
+        } else {
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                ]);
+            } else {
+                return $this->redirectToPage($pageUuid);
+            }
+        }
     }
 
     /**
