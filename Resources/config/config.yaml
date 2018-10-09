@@ -41,6 +41,10 @@ twig:
           - '@cms/Form/form_theme.html.twig'
 
 services:
+    RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
+        autowire: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
     RevisionTen\CMS\Controller\:
         autowire: true
         autoconfigure: true
@@ -160,13 +164,13 @@ easy_admin:
         brand_color: '#2f323e'
         assets:
             css:
-                - 'bundles/cms/css/easyadmin.css?v=1.0.9'
+                - 'bundles/cms/css/easyadmin.css?v=1.1.0'
                 - 'bundles/cms/libs/dist/trix.css'
             js:
                 - 'bundles/cms/libs/dist/trix.js'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
-                - 'bundles/cms/js/admin-backend.js?v=1.0.9'
+                - 'bundles/cms/js/admin-backend.js?v=1.1.0'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
@@ -194,6 +198,8 @@ easy_admin:
                     #- 'uuid'
                     - 'id'
                     - { property: 'path', template: '@cms/Admin/alias_path_column.html.twig' }
+                    - { property: 'language', template: '@cms/Admin/alias_language_column.html.twig' }
+                    - { property: 'website', template: '@cms/Admin/alias_website_column.html.twig' }
                     - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/alias_pagestreamred_column.html.twig' }
                     #- { property: 'controller', template: '@cms/Admin/alias_controller_column.html.twig' }
                     - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/alias_redirect_column.html.twig' }
@@ -201,6 +207,8 @@ easy_admin:
             form:
                 fields:
                     - 'path'
+                    - { property: 'language', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
+                    - 'website'
                     - 'pageStreamRead'
                     - 'redirect'
                     - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 } } }
@@ -211,10 +219,13 @@ easy_admin:
                 fields:
                     #- 'uuid'
                     - 'title'
+                    - 'defaultLanguage'
                     - 'domains'
+                    - 'aliases'
             form:
                 fields:
                     - 'title'
+                    - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
                     - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
         PageStreamRead:
             label: 'Pages'

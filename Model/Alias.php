@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Class Alias.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="RevisionTen\CMS\Model\AliasRepository")
  * @ORM\Table(name="alias")
  */
 class Alias
@@ -59,6 +59,19 @@ class Alias
     private $meta;
 
     /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $language;
+
+    /**
+     * @var Website
+     * @ORM\ManyToOne(targetEntity="Website", inversedBy="aliases")
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=true)
+     */
+    private $website;
+
+    /**
      * @return string
      */
     public function __toString(): string
@@ -72,6 +85,22 @@ class Alias
     public function __construct()
     {
         $this->priority = 0.5;
+    }
+
+    public function getHost(): ?string
+    {
+        if (null !== $this->getWebsite() && count($this->getWebsite()->getDomains()) !== 0) {
+            // Append locale prefix if it differs from the websites default language.
+            $locale = '';
+            if ($this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
+                $locale = '/'.$this->getLanguage();
+            }
+            /** @var Domain $domain */
+            $domain = $this->getWebsite()->getDomains()->first();
+            return $domain->getDomain().$locale;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -210,6 +239,46 @@ class Alias
     public function setMeta(array $meta = null): self
     {
         $this->meta = json_encode($meta);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): ?string
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return Alias
+     */
+    public function setLanguage(string $language = null): self
+    {
+        $this->language = $language;
+
+        return $this;
+    }
+
+    /**
+     * @return Website
+     */
+    public function getWebsite(): ?Website
+    {
+        return $this->website;
+    }
+
+    /**
+     * @param Website|null $website
+     *
+     * @return Alias
+     */
+    public function setWebsite(Website $website = null): self
+    {
+        $this->website = $website;
 
         return $this;
     }

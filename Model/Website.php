@@ -31,10 +31,22 @@ class Website
     private $title;
 
     /**
+     * @var string
+     * @ORM\Column(type="string", options={"default":"de"})
+     */
+    private $defaultLanguage;
+
+    /**
      * @var Domain[]
      * @ORM\OneToMany(targetEntity="Domain", mappedBy="website", cascade={"persist"}, orphanRemoval=true)
      */
     private $domains;
+
+    /**
+     * @var Alias[]
+     * @ORM\OneToMany(targetEntity="Alias", mappedBy="website")
+     */
+    private $aliases;
 
     /**
      * Website constructor.
@@ -94,6 +106,26 @@ class Website
     }
 
     /**
+     * @return string
+     */
+    public function getDefaultLanguage(): string
+    {
+        return $this->defaultLanguage;
+    }
+
+    /**
+     * @param string $defaultLanguage
+     *
+     * @return PageStreamRead
+     */
+    public function setDefaultLanguage(string $defaultLanguage): self
+    {
+        $this->defaultLanguage = $defaultLanguage;
+
+        return $this;
+    }
+
+    /**
      * @return Domain[]
      */
     public function getDomains(): Collection
@@ -144,5 +176,13 @@ class Website
         }
 
         return $this;
+    }
+
+    /**
+     * @return Alias[]
+     */
+    public function getAliases()
+    {
+        return $this->aliases;
     }
 }
