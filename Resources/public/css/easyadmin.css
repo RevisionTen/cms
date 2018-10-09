@@ -43,10 +43,11 @@ even: #f7f7f7
     max-width: 240px;
     overflow: hidden;
 }
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
 .main-header .logo,
 html,
 body {
-    font-family: Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
 }
 .dropdown-menu > li > a,
 body,
@@ -82,14 +83,13 @@ legend {
     width: 100%;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.0);
 }
-.dropdown-versions .btn {
+.dropdown-inline .btn {
     background: none;
 }
-.dropdown-versions .btn:hover {
+.dropdown-inline .btn:hover {
     background: #edf1f5;
 }
-.dropdown-versions,
-.dropdown-previewsize {
+.dropdown-inline {
     display: inline-block;
 }
 .dropdown-menu > li {
@@ -221,7 +221,7 @@ body.easyadmin h1.title {
     display: none;
 }
 .editor-title {
-    padding-top: 5px;
+    padding-top: 4px;
 }
 .editor-avatar {
     width: 60px;
@@ -324,7 +324,7 @@ body.easyadmin h1.title {
     padding: 15px;
 }
 .panel-default > .panel-heading {
-    background: #fff;
+    background: #e1e9f2;
     text-transform: uppercase;
     color: #54667a;
     border-color: #e1e9f2;

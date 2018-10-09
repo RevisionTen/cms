@@ -191,6 +191,7 @@ class ApiController extends Controller
         $dataInfo = $data;
         $dataInfo['users'] = $users;
         $dataInfo['user'] = $user;
+        $dataInfo['aliases'] = $pageStreamRead->getAliases();
 
         $data['html'] = $this->render('@cms/Admin/page-info.html.twig', $dataInfo)->getContent();
 

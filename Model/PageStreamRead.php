@@ -95,6 +95,7 @@ class PageStreamRead
     private $website;
 
     /**
+     * @var Alias[]
      * @ORM\OneToMany(targetEntity="Alias", mappedBy="pageStreamRead")
      */
     private $aliases;

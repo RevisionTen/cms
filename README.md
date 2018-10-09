@@ -149,3 +149,15 @@ key        shmid      owner      perms      bytes      nattch     status
 0x00000001 2752520    automb     666        10485760   0   
 ```
 The key is the shm_key we set in the cms config. You can delete shared memory segments with the command: `ipcrm -m [shmid]`
+
+## Access to Pages
+
+Page access is determined by the alias that is visited, not by the properties of the page.
+The language and website of the alias must match the locale and host of the request.
+
+## Multi-site and multi-language Menues
+
+Menues are language neutral and show all of their items regardless If the items language or website matches the request.
+To support language/website specific menues just create mutiple menues, and only show the menu that matches the requests language and website.
+
+Hint: `{{ app.request.get('website') }}` returns the current website id in twig templates.

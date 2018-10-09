@@ -44,6 +44,13 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         $config = self::mergeCMSConfig($configs);
         $siteName = $config['site_name'] ?? 'CMS';
         $container->setParameter('cms.site_name', $siteName);
+        // Get configured languages and set the cms.page_languages parameter.
+        $pageLanguages = $config['page_languages'] ?? [
+            'English' => 'en',
+            'German' => 'de',
+            'French' => 'fr',
+        ];
+        $container->setParameter('cms.page_languages', $pageLanguages);
 
         // Load the cms bundle config.
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
