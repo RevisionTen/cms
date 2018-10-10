@@ -92,7 +92,7 @@ class Alias
         if (null !== $this->getWebsite() && count($this->getWebsite()->getDomains()) !== 0) {
             // Append locale prefix if it differs from the websites default language.
             $locale = '';
-            if ($this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
+            if (null !== $this->getLanguage() && $this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
                 $locale = '/'.$this->getLanguage();
             }
             /** @var Domain $domain */
