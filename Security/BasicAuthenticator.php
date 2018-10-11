@@ -2,6 +2,7 @@
 
 namespace RevisionTen\CMS\Security;
 
+use RevisionTen\CMS\Model\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -19,6 +20,11 @@ use Symfony\Component\Translation\TranslatorInterface;
 class BasicAuthenticator extends AbstractGuardAuthenticator
 {
     /**
+     * @var \Swift_Mailer
+     */
+    private $swift_Mailer;
+
+    /**
      * @var UserPasswordEncoderInterface $encoder
      */
     private $encoder;
@@ -34,17 +40,26 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     private $translator;
 
     /**
+     * @var array
+     */
+    private $config;
+
+    /**
      * BasicAuthenticator constructor.
      *
+     * @param \Swift_Mailer                $swift_Mailer
      * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
      * @param TranslatorInterface          $translator
+     * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator)
+    public function __construct(\Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config)
     {
+        $this->swift_Mailer = $swift_Mailer;
         $this->encoder = $encoder;
         $this->translator = $translator;
         $this->session = $this->getSession($requestStack);
+        $this->config = $config;
     }
 
     /**
@@ -140,8 +155,75 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         // Remember the username in the session for the Code Authenticator.
         $this->session->set('username', $request->get('username'));
 
+        // Sent a mail with the PIN code.
+        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+
+        if ($useMailCodes) {
+            $user = $token->getUser();
+            $code = $this->generateCode();
+            $codeExpires = time() + 330;
+
+            $this->session->set('mailCode', $code);
+            $this->session->set('mailCodeExpires', $codeExpires);
+            $this->sendCodeMail($user, $code);
+        }
+
         // On success, let the request continue.
         return null;
+    }
+
+    private function generateCode(): string
+    {
+        $length = 6;
+        $x = '0123456789';
+
+        return substr(str_shuffle(str_repeat($x, ceil($length/strlen($x)))),1, $length);
+    }
+
+    /**
+     * Sends a mail with a login code.
+     *
+     * @param User   $user
+     * @param string $code
+     */
+    private function sendCodeMail(User $user, string $code): void
+    {
+        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+
+        $subject = $this->translator->trans('Login Code for %username%', [
+            '%username%' => $user->getUsername(),
+        ]);
+
+        $yourlogin = $this->translator->trans('Your login code is');
+        $validfor = $this->translator->trans('This code is valid for 5 minutes.');
+
+        $messageBody = <<<EOT
+$yourlogin:
+<pre style="font-size: 3em;font-weight: bold;">$code</pre>
+$validfor
+EOT;
+
+        $mail = $user->getEmail();
+
+        $senderConfigExists = isset($this->config['mailer_from']) && $this->config['mailer_from'] && isset($this->config['mailer_sender']) && $this->config['mailer_sender'] && isset($this->config['mailer_return_path']) && $this->config['mailer_return_path'];
+
+        if ($senderConfigExists) {
+            $message = (new \Swift_Message($subject))
+                ->setFrom($this->config['mailer_from'])
+                ->setSender($this->config['mailer_sender'])
+                ->setReturnPath($this->config['mailer_return_path'])
+                ->setTo($mail)
+                ->setBody($messageBody, 'text/html')
+            ;
+        } else {
+            // Attempt to send without explicitly setting the sender.
+            $message = (new \Swift_Message($subject))
+                ->setTo($mail)
+                ->setBody($messageBody, 'text/html')
+            ;
+        }
+
+        $this->swift_Mailer->send($message);
     }
 
     /**

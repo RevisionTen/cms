@@ -29,15 +29,21 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     private $session;
 
     /**
+     * @var array
+     */
+    private $config;
+
+    /**
      * BasicAuthenticator constructor.
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack)
+    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, array $config)
     {
         $this->encoder = $encoder;
         $this->session = $this->getSession($requestStack);
+        $this->config = $config;
     }
 
     /**
@@ -114,9 +120,18 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
 
     private function isCodeValid(string $secret, string $code): bool
     {
-        $googleAuthenticator = new GoogleAuthenticator();
+        $useMailCodes = $this->config['use_mail_codes'] ?? false;
 
-        return $googleAuthenticator->checkCode($secret, $code);
+        if ($useMailCodes) {
+            $mailCode = $this->session->get('mailCode');
+            $mailCodeExpires = $this->session->get('mailCodeExpires');
+            $validCode = ($mailCode === $code) && (time() < $mailCodeExpires);
+        } else {
+            $googleAuthenticator = new GoogleAuthenticator();
+            $validCode = $googleAuthenticator->checkCode($secret, $code);
+        }
+
+        return $validCode;
     }
 
     /**
