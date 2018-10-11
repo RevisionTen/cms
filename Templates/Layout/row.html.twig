@@ -1,7 +1,9 @@
 <div {{ editorAttr(element, edit, 'bg-secondary') }} class="row {{ elementClasses(element) }} {{ edit ? 'no-outline': '' }}">
-    {% if element.elements is defined %}
+    {% if element.elements is defined and element.elements|length > 0 %}
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}
         {% endfor %}
+    {% else %}
+        {% include '@cms/Layout/element-empty.html.twig' %}
     {% endif %}
 </div>

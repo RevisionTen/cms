@@ -10,6 +10,10 @@
   padding: 4px;
   cursor: pointer;
 }
+.editor-border-dashed {
+  border-style: dashed;
+  border-width: 3px;
+}
 /*
 [data-uuid]:hover {
   background: rgba(255, 0, 255, 0.05);
@@ -44,4 +48,8 @@
 }
 [data-visible="0"]::after {
   background-image: linear-gradient(45deg, rgba(255, 255, 0, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, .5) 50%, rgba(255, 255, 0, .5) 75%, transparent 75%, transparent 100%);
+}
+
+[data-uuid] {
+
 }

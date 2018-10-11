@@ -30,7 +30,9 @@ class SecretService
     /**
      * SecretService constructor.
      *
-     * @param \Swift_Mailer $swift_Mailer
+     * @param \Swift_Mailer       $swift_Mailer
+     * @param array               $config
+     * @param TranslatorInterface $translator
      */
     public function __construct(\Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator)
     {
