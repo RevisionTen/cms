@@ -41,6 +41,27 @@ class SecretService
         $this->translator = $translator;
     }
 
+    public function sendLoginInfo(string $username, string $password, string $mail): void
+    {
+        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+
+        $subject = $this->translator->trans('Login data for %username%', [
+            '%username%' => $username,
+        ]);
+
+        $messageText = $this->translator->trans('Your login data for %site_name%', [
+            '%site_name%' => $issuer,
+        ]);
+
+        $messageBody = <<<EOT
+$messageText:<br/><br/>
+User: $username<br/>
+Password: $password
+EOT;
+
+        $this->sendMail($subject, $messageBody, $mail);
+    }
+
     public function sendSecret(string $secret, string $username, string $mail): void
     {
         $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
@@ -62,6 +83,11 @@ Secret: $secret<br/><br/>
 <a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>
 EOT;
 
+        $this->sendMail($subject, $messageBody, $mail);
+    }
+
+    private function sendMail(string $subject, string $messageBody, string $mail): void
+    {
         $senderConfigExists = isset($this->config['mailer_from']) && $this->config['mailer_from'] && isset($this->config['mailer_sender']) && $this->config['mailer_sender'] && isset($this->config['mailer_return_path']) && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {

@@ -9,9 +9,11 @@ use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -32,17 +34,24 @@ class UserCreateCommand extends ContainerAwareCommand
     private $secretService;
 
     /**
+     * @var array
+     */
+    private $config;
+
+    /**
      * UserCreateCommand constructor.
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param EntityManagerInterface       $entityManager
      * @param SecretService                $secretService
+     * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService)
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService, array $config)
     {
         $this->entityManager = $entityManager;
         $this->encoder = $encoder;
         $this->secretService = $secretService;
+        $this->config = $config;
 
         parent::__construct();
     }
@@ -59,6 +68,7 @@ class UserCreateCommand extends ContainerAwareCommand
             ->addArgument('password', InputArgument::OPTIONAL, 'The users password.')
             ->addArgument('email', InputArgument::OPTIONAL, 'The users email.')
             ->addArgument('avatarUrl', InputArgument::OPTIONAL, 'The users avatar url.')
+            ->addOption('sendLoginMail', null, InputOption::VALUE_REQUIRED,'Whether or not to send a mail with the login info to the user.')
         ;
     }
 
@@ -127,6 +137,31 @@ class UserCreateCommand extends ContainerAwareCommand
             $avatarUrl = $helper->ask($input, $output, $avatarUrlQuestion);
         }
 
+        // Ask If the login data should be sent via mail.
+        $sendLoginMail = $input->getOption('sendLoginMail');
+        if (!$sendLoginMail) {
+            $sendLoginMailQuestion = new ChoiceQuestion('Do you want to send a mail with the login info to the user? ', [
+                'Yes',
+                'No',
+            ]);
+            $sendLoginMailQuestion->setErrorMessage('Answer %s is invalid. Please answer Yes or No.');
+            $sendLoginMailQuestion->setAutocompleterValues([
+                'Yes',
+                'No',
+            ]);
+            $sendLoginMailQuestion->setValidator(function ($answer) {
+                if ($answer !== 'Yes' && $answer !== 'No') {
+                    throw new \RuntimeException('Yes or No?');
+                }
+
+                return $answer;
+            });
+            $sendLoginMailQuestion->setMaxAttempts(5);
+
+            $sendLoginMail = $helper->ask($input, $output, $sendLoginMailQuestion);
+            $sendLoginMail = ($sendLoginMail === 'Yes');
+        }
+
         // Create the User.
         $user = new User();
         $user->setUsername($username);
@@ -145,8 +180,17 @@ class UserCreateCommand extends ContainerAwareCommand
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+
         // Send the secret QRCode via mail.
-        $this->secretService->sendSecret($secret, $user->getUsername(), $user->getEmail());
+        if (!$useMailCodes) {
+            $this->secretService->sendSecret($secret, $user->getUsername(), $user->getEmail());
+        }
+
+        // Send email with login data to new user.
+        if ($sendLoginMail) {
+            $this->secretService->sendLoginInfo($user->getUsername(), $password, $user->getEmail());
+        }
 
         // Return info about the new user.
         $output->writeln('User saved.');
@@ -154,6 +198,9 @@ class UserCreateCommand extends ContainerAwareCommand
         $output->writeln('Password: '.$password);
         $output->writeln('Avatar url: '.$avatarUrl);
         $output->writeln('Email: '.$email);
+        if ($sendLoginMail) {
+            $output->writeln('Email with login info was sent to '.$email);
+        }
     }
 
     /**
