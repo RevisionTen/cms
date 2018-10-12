@@ -71,6 +71,8 @@ services:
         autowire: true
         public: false
         tags: [console.command]
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Command\Console\UserSecretCommand:
         autoconfigure: true
         autowire: true

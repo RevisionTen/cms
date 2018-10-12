@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2018-10-12
+### Changed
+- Send optional email with login data upon registration
+- Do not send qrcode when "use_mail_codes" is true
+
 ## [1.1.3] - 2018-10-11
 ### Added
 - Added "use_mail_codes" option to config, when set to true users will receive login codes via mail
