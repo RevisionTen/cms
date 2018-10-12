@@ -12,9 +12,17 @@ dark: #2f323e
 info: #41b3f9
 odd: #e5f7ff
 even: #f7f7f7
-
  */
-
+.well {
+    background-color: #edf1f5;
+    border-color: #e1e9f2;
+}
+.modal {
+    background: rgba(237, 241, 245, 0.8);
+}
+.modal-dialog .modal-content {
+    border-radius: 10px;
+}
 .admin-row {
     display: flex;
     flex-direction: row;
@@ -271,9 +279,9 @@ body.easyadmin h1.title {
     margin: 0;
 }
 #admin-bar {
-    background: #fff;
-    padding: 15px 20px;
-    margin: -20px -20px 5px -20px;
+    background: none;
+    padding: 15px 20px 0 20px;
+    margin: -20px -20px 0 -20px;
 }
 .qeued {
     position: fixed;
