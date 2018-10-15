@@ -59,6 +59,11 @@ class User implements UserInterface, \Serializable
     private $avatarUrl;
 
     /**
+     * @var bool
+     */
+    private $imposter = false;
+
+    /**
      * {@inheritdoc}
      */
     public function getRoles()
@@ -262,5 +267,25 @@ class User implements UserInterface, \Serializable
     private function hue(string $string)
     {
         return unpack('L', hash('adler32', $string, true))[1];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isImposter(): bool
+    {
+        return $this->imposter;
+    }
+
+    /**
+     * @param bool $imposter
+     *
+     * @return User
+     */
+    public function setImposter(bool $imposter): self
+    {
+        $this->imposter = $imposter;
+
+        return $this;
     }
 }

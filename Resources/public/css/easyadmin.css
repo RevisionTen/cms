@@ -283,6 +283,32 @@ body.easyadmin h1.title {
     padding: 15px 20px 0 20px;
     margin: -20px -20px 0 -20px;
 }
+#page_tree {
+    width: auto;
+    flex-shrink: 0;
+    min-width: 200px;
+    background: #2f323e;
+    color: #edf1f5;
+    overflow-y: auto;
+    padding: 1em;
+    padding-left: 0;
+}
+.tree {
+    padding-left: 1em;
+}
+.tree-node {
+
+}
+.tree-node-item {
+    white-space: nowrap;
+}
+.tree-node-item:hover {
+    background: #515462;
+    cursor: pointer;
+}
+#page_tree.hidden {
+    display: none;
+}
 .qeued {
     position: fixed;
     bottom: 0;

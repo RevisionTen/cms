@@ -50,6 +50,7 @@
                     {% endif %}
 
                     {% set buttonActions = [
+                    actions.toggle_tree,
                     actions.show,
                     actions.change_pagesettings,
                     actions.publish,
@@ -88,3 +89,4 @@
     {% endfor %}
 </div>
 
+{% include '@cms/Admin/tree.html.twig' %}

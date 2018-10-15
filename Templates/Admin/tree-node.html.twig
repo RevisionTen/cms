@@ -1,0 +1,8 @@
+<div class="tree-node">
+    <div class="tree-node-item" data-uuid="{{ element.uuid }}" data-element-name="{{ element.elementName }}" data-children="{{ element.supportChildTypes|join(',') }}">
+        <i class="{{ config.page_elements[element.elementName] is defined ? config.page_elements[element.elementName].icon : 'fas fa-file' }}"></i> {{ element.title ? element.title ~ '-' ~ element.elementName|trans : element.elementName|trans }}
+    </div>
+
+    {% set tree = element.elements %}
+    {% include '@cms/Admin/tree.html.twig' %}
+</div>
