@@ -1,0 +1,7 @@
+{% if tree is defined and tree|length > 0 %}
+    <div class="tree">
+        {% for element in tree %}
+            {% include '@cms/Admin/tree-node.html.twig' %}
+        {% endfor %}
+    </div>
+{% endif %}

@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\EventStore;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -36,22 +37,11 @@ class ApiController extends Controller
      */
     public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $em, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        $previewUser = false;
-
-        if ($userId !== $user->getId()) {
-            $previewUser = true;
-            /**
-             * Load Preview User.
-             *
-             * @var User $user
-             */
-            $user = $em->getRepository(User::class)->find($userId);
-            if (null === $user) {
-                return new JsonResponse(false, 404);
-            }
+        $user = $this->getApiUser($userId);
+        if (null === $user) {
+            return new JsonResponse(false, 404);
         }
+        $previewUser = $user->isImposter();
 
         /** @var PageStreamRead $pageStreamRead */
         $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
@@ -67,6 +57,14 @@ class ApiController extends Controller
         $publishedPage = $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
         $actions = [
+            'toggle_tree' => [
+                'css_class' => ' btn-tertiary toggle-tree',
+                'icon' => 'fas fa-layer-group',
+                'label' => $translator->trans('Layers'),
+                'url' => '#',
+                'display' => ($previewUser === false),
+                'type' => 'link',
+            ],
             'show' => [
                 'css_class' => ' btn-tertiary',
                 'icon' => 'fas fa-eye',
@@ -196,5 +194,72 @@ class ApiController extends Controller
         $data['html'] = $this->render('@cms/Admin/page-info.html.twig', $dataInfo)->getContent();
 
         return new JsonResponse($data);
+    }
+
+
+    /**
+     * @Route("/page-tree/{pageUuid}/{userId}", name="cms_api_page_tree")
+     *
+     * @param string           $pageUuid
+     * @param int|NULL         $userId
+     * @param AggregateFactory $aggregateFactory
+     *
+     * @return Response
+     */
+    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory): Response
+    {
+        $user = $this->getApiUser($userId);
+        if (null === $user) {
+            return new JsonResponse(false, 404);
+        }
+
+        /** @var Page $page */
+        $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
+
+        $config = $this->getParameter('cms');
+
+        return $this->render('@cms/Admin/tree.html.twig', [
+            'tree' => $this->getChildren($page->elements, $config),
+            'config' => $config,
+        ]);
+    }
+
+    private function getApiUser(int $userId = null): ?User
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $imposter = ($userId !== $user->getId());
+
+        if ($imposter) {
+            /**
+             * Load Preview User.
+             *
+             * @var User $user
+             */
+            $user = $em->getRepository(User::class)->find($userId);
+            $user->setImposter(true);
+        }
+
+        return $user;
+    }
+
+    private function getChildren($elements = null, array $config): array
+    {
+        $children = [];
+
+        if ($elements) {
+            foreach ($elements as $element) {
+                $children[] = [
+                    'elementName' => $element['elementName'],
+                    'title' => $element['elementName'] === 'Section' ? $element['data']['section'] : '',
+                    'uuid' => $element['uuid'],
+                    'elements' => isset($element['elements']) ? $this->getChildren($element['elements'], $config) : [],
+                    'supportChildTypes' => $config['page_elements'][$element['elementName']]['children'] ?? [],
+                ];
+            }
+        }
+
+        return $children;
     }
 }

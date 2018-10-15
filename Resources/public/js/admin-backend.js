@@ -41,13 +41,36 @@ function bindLinks()
         event.preventDefault();
         $('body').trigger('openAjax', $(this).attr('href'));
     });
+
+    $('.toggle-tree').on('click', function (event) {
+        event.preventDefault();
+        $('#page_tree').toggleClass('hidden');
+    });
+}
+
+function bindTree() {
+    $('.tree-node-item').on('click', function (event) {
+        event.preventDefault();
+        let uuid = $(this).data('uuid');
+        $('body').trigger('editElement', {'uuid': uuid});
+    });
+    $('.tree-node-item').hover(function (event) {
+        let uuid = $(this).data('uuid');
+        let elementSelector = `[data-uuid="${uuid}"]`;
+        $('#page-frame')[0].contentWindow.$(elementSelector).addClass('editor-highlight');
+    }, function (event) {
+        let uuid = $(this).data('uuid');
+        let elementSelector = `[data-uuid="${uuid}"]`;
+        $('#page-frame')[0].contentWindow.$(elementSelector).removeClass('editor-highlight');
+    });
 }
 
 function getPageInfo()
 {
-    // Get Page Info.
     let pageUuid = $('#pageUuid').val();
     let userId = $('#userId').val();
+
+    // Get Page Info.
     $.ajax({
         url: '/admin/api/page-info/' + pageUuid + '/' + userId,
         context: document.body
@@ -55,6 +78,15 @@ function getPageInfo()
         window.pageData = data;
         $('#admin-bar').html(data.html);
         bindLinks();
+    });
+
+    // Update tree.
+    $.ajax({
+        url: '/admin/api/page-tree/' + pageUuid + '/' + userId,
+        context: document.body
+    }).done(function(html) {
+        $('#page_tree').html(html);
+        bindTree();
     });
 }
 

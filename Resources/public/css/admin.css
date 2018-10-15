@@ -49,7 +49,11 @@
 [data-visible="0"]::after {
   background-image: linear-gradient(45deg, rgba(255, 255, 0, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, .5) 50%, rgba(255, 255, 0, .5) 75%, transparent 75%, transparent 100%);
 }
-
 [data-uuid] {
 
+}
+[data-uuid].editor-highlight > .editor.button-group,
+[data-uuid].editor-highlight > .editor .editor.button-group,
+[data-uuid].editor-highlight > .editor .btn {
+  background: #da00ba!important;
 }
