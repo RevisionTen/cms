@@ -51,6 +51,7 @@ even: #f7f7f7
     max-width: 240px;
     overflow: hidden;
 }
+.main-header .sidebar-toggle,
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
 .main-header .logo,
 html,
@@ -120,8 +121,9 @@ legend {
     margin-right: 15px;
 }
 .appicon {
-    font-size: 1.4em;
-    margin-bottom: -2px;
+    font-size: 1em;
+    margin: 0;
+    height: 1em;
 }
 body.list .pagination > li > a,
 body.list table tbody tr {
