@@ -164,20 +164,20 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
-    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="offcanvas" role="button"><img class="svg-inline--fa appicon" src="/bundles/cms/icons/drop.svg"></span> %cms.site_name%'
+    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="offcanvas" role="button"><!--<img class="appicon" src="/bundles/cms/icons/drop.svg">--><i class="fas fa-pencil-ruler"></i></span> <span class="text-muted">%cms.site_name%</span>'
     design:
         color_scheme: 'light'
         brand_color: '#2f323e'
         assets:
             css:
-                - 'bundles/cms/css/easyadmin.css?v=1.1.9'
+                - 'bundles/cms/css/easyadmin.css?v=1.1.11'
                 - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
                 - 'bundles/cms/css/trix.css'
             js:
                 - 'bundles/cms/libs/dist/trix.js'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
-                - 'bundles/cms/js/admin-backend.js?v=1.1.9'
+                - 'bundles/cms/js/admin-backend.js?v=1.1.11'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
@@ -186,9 +186,9 @@ easy_admin:
             - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
             - { entity: Alias, icon: 'nope fas fa-link' }
             - { label: 'Structure' }
-            - { entity: Website, icon: 'nope fas fa-compass' }
+            - { entity: Website, icon: 'nope fas fa-globe-africa' }
             - { label: 'Menues', route: 'cms_list_menues', icon: 'bars' }
-            - { label: 'Forms', entity: 'FormRead', icon: 'nope fab fa-wpforms' }
+            - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
             - { entity: EventStreamObject, icon: 'clock' }
     formats:
