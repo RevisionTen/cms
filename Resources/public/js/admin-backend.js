@@ -44,23 +44,70 @@ function bindLinks()
 
     $('.toggle-tree').on('click', function (event) {
         event.preventDefault();
-        $('#page_tree').toggleClass('hidden');
+        $('#page-tree').toggleClass('hidden');
     });
 }
 
 function bindTree() {
-    $('.tree-node-item').on('click', function (event) {
-        event.preventDefault();
-        let uuid = $(this).data('uuid');
-        $('body').trigger('editElement', {'uuid': uuid});
+    $('#page-tree > .tree').sortable({
+        containerSelector: '.tree',
+        nested: true,
+        itemSelector: '.tree-node',
+        placeholder: '<div class="placeholder"><i class="fas fa-arrow-right"></i></div>',
+        isValidTarget: function ($item, container) {
+            if (container.el.hasClass('valid-target-tree')) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        onCancel: function ($item, container, _super, event) {
+            // Clear valid trees.
+            $('#page-tree .tree').removeClass('valid-target-tree');
+            $('#page-tree .tree-node-item').removeClass('valid-target');
+        },
+        onDrop: function ($item, container, _super, event) {
+            // Clear valid trees.
+            $('#page-tree .tree').removeClass('valid-target-tree');
+            $('#page-tree .tree-node-item').removeClass('valid-target');
+        },
+        onDragStart: function ($item, container, _super, event) {
+            let elementName = $item.data('elementName');
+
+            // Sections are not draggable.
+            if ('Section' === elementName) {
+                return false;
+            }
+
+            // Look at every tree and see If this item is allowed.
+            $('#page-tree .tree').each(function () {
+                let isChild = $.contains($item[0], $(this)[0]); // True if this is a child of the items beeing dragged.
+                let acceptedTypes = typeof $(this).data('children') !== 'undefined' ? $(this).data('children') : '';
+
+                if (isChild === false && ('all' === acceptedTypes || acceptedTypes.split(',').indexOf(elementName) !== -1)) {
+                    $(this).addClass('valid-target-tree');
+                    $(this).siblings('.tree-node-item').addClass('valid-target');
+                } else {
+                    $(this).removeClass('valid-target-tree');
+                    $(this).siblings('.tree-node-item').removeClass('valid-target');
+                }
+            });
+        }
     });
+
     $('.tree-node-item').hover(function (event) {
-        let uuid = $(this).data('uuid');
+        // Hover.
+        let uuid = $(this).parent().data('uuid');
         let elementSelector = `[data-uuid="${uuid}"]`;
+
+        // Highlight element on page.
         $('#page-frame')[0].contentWindow.$(elementSelector).addClass('editor-highlight');
     }, function (event) {
-        let uuid = $(this).data('uuid');
+        // Unhover.
+        let uuid = $(this).parent().data('uuid');
         let elementSelector = `[data-uuid="${uuid}"]`;
+
+        // Un-highlight element on page.
         $('#page-frame')[0].contentWindow.$(elementSelector).removeClass('editor-highlight');
     });
 }
@@ -85,7 +132,7 @@ function getPageInfo()
         url: '/admin/api/page-tree/' + pageUuid + '/' + userId,
         context: document.body
     }).done(function(html) {
-        $('#page_tree').html(html);
+        $('#page-tree').html(html);
         bindTree();
     });
 }

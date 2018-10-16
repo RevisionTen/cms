@@ -1119,11 +1119,15 @@ class PageController extends Controller
      * @param Request                $request
      * @param CommandBus             $commandBus
      * @param EntityManagerInterface $em
+     * @param EventStore             $eventStore
      *
      * @return Response
      */
-    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em): Response
+    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em, EventStore $eventStore): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
         /** @var int $id FormRead Id. */
         $id = $request->get('id');
 
@@ -1134,7 +1138,13 @@ class PageController extends Controller
             return $this->redirect('/admin');
         }
 
-        $success = $this->runCommand($commandBus, PageDeleteCommand::class, [], $pageStreamRead->getUuid(), $pageStreamRead->getVersion());
+        $pageUuid = $pageStreamRead->getUuid();
+        $version = $pageStreamRead->getVersion();
+
+        // Discard this users qeued changes before attempting to delete the aggregate.
+        $eventStore->discardQeued($pageUuid, $user->getId());
+
+        $success = $this->runCommand($commandBus, PageDeleteCommand::class, [], $pageUuid, $version);
 
         if (!$success) {
             return $this->errorResponse();
