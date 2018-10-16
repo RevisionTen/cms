@@ -170,14 +170,14 @@ easy_admin:
         brand_color: '#2f323e'
         assets:
             css:
-                - 'bundles/cms/css/easyadmin.css?v=1.1.8'
+                - 'bundles/cms/css/easyadmin.css?v=1.1.9'
                 - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
                 - 'bundles/cms/css/trix.css'
             js:
                 - 'bundles/cms/libs/dist/trix.js'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
-                - 'bundles/cms/js/admin-backend.js?v=1.1.8'
+                - 'bundles/cms/js/admin-backend.js?v=1.1.9'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
