@@ -49,6 +49,7 @@ function bindLinks()
 }
 
 function bindTree() {
+    /*
     $('#page-tree > .tree').sortable({
         containerSelector: '.tree',
         nested: true,
@@ -93,7 +94,7 @@ function bindTree() {
                 }
             });
         }
-    });
+    });*/
 
     $('.tree-node-item').hover(function (event) {
         // Hover.
