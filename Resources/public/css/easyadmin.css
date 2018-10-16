@@ -283,7 +283,7 @@ body.easyadmin h1.title {
     padding: 15px 20px 0 20px;
     margin: -20px -20px 0 -20px;
 }
-#page_tree {
+#page-tree {
     width: auto;
     flex-shrink: 0;
     min-width: 200px;
@@ -299,14 +299,30 @@ body.easyadmin h1.title {
 .tree-node {
 
 }
+.tree-node[draggable] {
+    border: 1px solid red;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}
 .tree-node-item {
     white-space: nowrap;
 }
 .tree-node-item:hover {
     background: #515462;
-    cursor: pointer;
+    cursor: move;
 }
-#page_tree.hidden {
+.tree-node-item.valid-target {
+    background: green!important;
+}
+.tree.valid-target-tree {
+
+}
+#page-tree.hidden {
     display: none;
 }
 .qeued {

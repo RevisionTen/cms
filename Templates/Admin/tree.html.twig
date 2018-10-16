@@ -1,7 +1,12 @@
-{% if tree is defined and tree|length > 0 %}
-    <div class="tree">
+<div class="tree"
+    {% if element.uuid is defined %}
+        data-uuid="{{ element.uuid }}"
+        data-children="{{ element.supportChildTypes|join(',') }}"
+    {% endif %}
+>
+    {% if tree is defined and tree|length > 0 %}
         {% for element in tree %}
             {% include '@cms/Admin/tree-node.html.twig' %}
         {% endfor %}
-    </div>
-{% endif %}
+    {% endif %}
+</div>
