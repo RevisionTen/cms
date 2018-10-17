@@ -34,7 +34,7 @@ class Website
      * @var string
      * @ORM\Column(type="string", options={"default":"de"})
      */
-    private $defaultLanguage;
+    private $defaultLanguage = 'de';
 
     /**
      * @var Domain[]
