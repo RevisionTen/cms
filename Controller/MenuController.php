@@ -19,6 +19,7 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Services\CacheService;
+use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -731,7 +732,7 @@ class MenuController extends Controller
      *
      * @throws \Exception
      */
-    public function clearMenuCache(TranslatorInterface $translator, CacheService $cacheService, string $name): RedirectResponse
+    public function clearCache(TranslatorInterface $translator, CacheService $cacheService, string $name): RedirectResponse
     {
         $config = $this->getParameter('cms');
 
@@ -766,7 +767,7 @@ class MenuController extends Controller
      *
      * @return JsonResponse|RedirectResponse
      */
-    public function saveMenuOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
+    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -775,7 +776,7 @@ class MenuController extends Controller
 
         if ($order && isset($order[0])) {
             $order = $order[0];
-            $order = $this->cleanOrderTree($order);
+            $order = ArrayHelpers::cleanOrderTree($order);
         }
 
         $success = $this->runCommand($commandBus, MenuSaveOrderCommand::class, [
@@ -799,24 +800,6 @@ class MenuController extends Controller
         }
 
         return $this->redirectToMenu($menuUuid);
-    }
-
-    /**
-     * @param array $order
-     *
-     * @return array
-     */
-    private function cleanOrderTree(array $order): array
-    {
-        $orderTree = [];
-
-        foreach ($order as $orderNode) {
-            if (isset($orderNode['uuid'])) {
-                $orderTree[$orderNode['uuid']] = isset($orderNode['children'][0]) ? $this->cleanOrderTree($orderNode['children'][0]) : [];
-            }
-        }
-
-        return $orderTree;
     }
 
     private static function array_diff_recursive($arrayOriginal, $arrayNew)

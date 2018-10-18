@@ -23,13 +23,14 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
         $payload = $command->getPayload();
+        $user = $command->getUser();
 
         $previousVersion = $payload['previousVersion'];
 
         if ($this->aggregateFactory) {
             // Build original aggregate and use its state as a starting point.
             /** @var Page $previousAggregate */
-            $previousAggregate = $this->aggregateFactory->build($aggregate->getUuid(), Page::class, intval($previousVersion));
+            $previousAggregate = $this->aggregateFactory->build($aggregate->getUuid(), Page::class, intval($previousVersion), $user);
 
             // Override aggregate meta info.
             $previousAggregate->setVersion($aggregate->getVersion());

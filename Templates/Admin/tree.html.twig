@@ -1,5 +1,7 @@
+{% set root = element.uuid is not defined %}
+
 <div class="tree"
-    {% if element.uuid is defined %}
+    {% if root == false %}
         data-uuid="{{ element.uuid }}"
         data-children="{{ element.supportChildTypes|join(',') }}"
     {% endif %}
@@ -8,5 +10,11 @@
         {% for element in tree %}
             {% include '@cms/Admin/tree-node.html.twig' %}
         {% endfor %}
+    {% endif %}
+
+    {% if root %}
+        <input type="hidden" id="tree-pageUuid" value="{{ pageUuid }}">
+        <input type="hidden" id="tree-onVersion" value="{{ onVersion }}">
+        <button class="hidden btn-tree-save btn-success btn btn-block btn-sm">{{ 'Save element order'|trans }}</button>
     {% endif %}
 </div>

@@ -1,3 +1,11 @@
+{% macro attributes(attributes) %}
+    {% for attr, value in attributes %}
+        {{ attr }}="{{ value }}"
+    {% endfor %}
+{% endmacro %}
+
+{% import _self as helper %}
+
 <div id="page-info">
     <div class="admin-row">
         <div class="admin-col-left admin-row">
@@ -63,7 +71,7 @@
 
                     {% for action in buttonActions %}
                         {% if action.display %}
-                        <a title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                        <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
                             <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
                         </a>
                         {% endif %}
@@ -88,5 +96,3 @@
         </a>
     {% endfor %}
 </div>
-
-{% include '@cms/Admin/tree.html.twig' %}
