@@ -14,6 +14,7 @@ use RevisionTen\CMS\Command\PageEnableElementCommand;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageRemoveElementCommand;
 use RevisionTen\CMS\Command\PageRollbackCommand;
+use RevisionTen\CMS\Command\PageSaveOrderCommand;
 use RevisionTen\CMS\Command\PageShiftElementCommand;
 use RevisionTen\CMS\Command\PageSubmitCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
@@ -29,6 +30,7 @@ use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\PageService;
+use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -138,11 +140,11 @@ class PageController extends Controller
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
 
-                $aggregateUuid = Uuid::uuid1()->toString();
-                $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $aggregateUuid, 0);
+                $pageUuid = Uuid::uuid1()->toString();
+                $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
 
                 if ($success) {
-                    return $this->redirectToPage($aggregateUuid);
+                    return $this->redirectToPage($pageUuid);
                 } else {
                     return $this->errorResponse();
                 }
@@ -1072,6 +1074,9 @@ class PageController extends Controller
     }
 
     /**
+     * Clones a page.
+     * Must ignore qeued events on page because they might not exist in the future.
+     *
      * @Route("/clone-aggregate", name="cms_clone_aggregate")
      *
      * @param Request                $request
@@ -1097,9 +1102,9 @@ class PageController extends Controller
             'originalUuid' => $pageStreamRead->getUuid(),
             'originalVersion' => $pageStreamRead->getVersion(),
         ];
-        $aggregateUuid = Uuid::uuid1()->toString();
+        $pageUuid = Uuid::uuid1()->toString();
 
-        $success = $this->runCommand($commandBus, PageCloneCommand::class, $data, $aggregateUuid, 0);
+        $success = $this->runCommand($commandBus, PageCloneCommand::class, $data, $pageUuid, 0);
 
         if (!$success) {
             return $this->errorResponse();
@@ -1110,7 +1115,7 @@ class PageController extends Controller
             $translator->trans('Page Cloned')
         );
 
-        return $this->redirectToPage($aggregateUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -1120,10 +1125,11 @@ class PageController extends Controller
      * @param CommandBus             $commandBus
      * @param EntityManagerInterface $em
      * @param EventStore             $eventStore
+     * @param TranslatorInterface    $translator
      *
      * @return Response
      */
-    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em, EventStore $eventStore): Response
+    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em, EventStore $eventStore, TranslatorInterface $translator): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -1149,6 +1155,11 @@ class PageController extends Controller
         if (!$success) {
             return $this->errorResponse();
         }
+
+        $this->addFlash(
+            'success',
+            $translator->trans('Page Deleted')
+        );
 
         return $this->redirect('/admin/?entity=PageStreamRead&action=list');
     }
@@ -1198,6 +1209,13 @@ class PageController extends Controller
             $success = $this->runCommand($commandBus, PageRollbackCommand::class, [
                 'previousVersion' => $data['previousVersion'],
             ], $pageUuid, $version, true);
+
+            if ($success) {
+                $this->addFlash(
+                    'success',
+                    $translator->trans('Page rolled back')
+                );
+            }
 
             if ($request->get('ajax')) {
                 return new JsonResponse([
@@ -1354,6 +1372,53 @@ class PageController extends Controller
 
         if (!$success) {
             return $this->errorResponse();
+        }
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * @Route("/page/save-order/{pageUuid}/{onVersion}", name="cms_page_saveorder")
+     *
+     * @param Request             $request
+     * @param TranslatorInterface $translator
+     * @param CommandBus          $commandBus
+     * @param AggregateFactory    $aggregateFactory
+     * @param string              $pageUuid
+     * @param int                 $onVersion
+     *
+     * @return JsonResponse|RedirectResponse
+     */
+    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $order = json_decode($request->getContent(), true);
+
+        if ($order && isset($order[0])) {
+            $order = $order[0];
+            $order = ArrayHelpers::cleanOrderTree($order);
+        }
+
+        $success = $this->runCommand($commandBus, PageSaveOrderCommand::class, [
+            'order' => $order,
+        ], $pageUuid, $onVersion, true);
+
+        if (!$success) {
+            return $this->errorResponse();
+        } else {
+            $this->addFlash(
+                'success',
+                $translator->trans('Page element order saved')
+            );
+
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                    'refresh' => null,
+                ]);
+            }
         }
 
         return $this->redirectToPage($pageUuid);

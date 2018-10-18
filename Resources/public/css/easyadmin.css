@@ -158,6 +158,9 @@ body.list table tbody td.actions a,
 .sidebar-menu svg {
     margin-right: 5px;
 }
+.btn {
+    font-weight: bold;
+}
 .btn-success.btn-tertiary,
 .btn-danger.btn-tertiary,
 .btn-warning.btn-tertiary,
@@ -194,6 +197,13 @@ body.list table tbody td.actions a,
 }
 .alerts {
     margin: 0 -5px;
+}
+.alert {
+    border-radius: 0;
+    border: 0;
+}
+.edit-page .alert {
+    margin-bottom: 0;
 }
 .alert-sm {
     padding: 5px 10px;
@@ -294,9 +304,17 @@ body.easyadmin h1.title {
     overflow-y: auto;
     padding: 1em;
     padding-left: 0;
+    display: flex;
+    flex-direction: column;
+}
+.btn-tree-save {
+    margin-top: auto;
 }
 .tree {
     padding-left: 1em;
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
 }
 .tree-node {
 

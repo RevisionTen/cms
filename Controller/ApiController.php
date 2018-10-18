@@ -144,6 +144,9 @@ class ApiController extends Controller
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
                 'display' => ($previewUser === false && false === $pageStreamRead->getDeleted()),
                 'type' => 'link',
+                'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
+                    'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
+                ] : [],
             ],
             'delete_aggregate' => [
                 'css_class' => 'danger btn-tertiary',
@@ -152,6 +155,9 @@ class ApiController extends Controller
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),
                 'display' => ($previewUser === false && false === $pageStreamRead->getDeleted()),
                 'type' => 'link',
+                'attributes' => [
+                    'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
+                ],
             ],
         ];
 
@@ -219,6 +225,8 @@ class ApiController extends Controller
         $config = $this->getParameter('cms');
 
         return $this->render('@cms/Admin/tree.html.twig', [
+            'pageUuid' => $pageUuid,
+            'onVersion' => $page->getVersion(),
             'tree' => $this->getChildren($page->elements, $config),
             'config' => $config,
         ]);

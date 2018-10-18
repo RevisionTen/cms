@@ -50,7 +50,8 @@ function bindLinks()
 
 function bindTree() {
 
-    $('#page-tree > .tree').sortable({
+    let pageTree = $('#page-tree > .tree').sortable({
+        group: 'serialization',
         containerSelector: '.tree',
         nested: true,
         itemSelector: '.tree-node',
@@ -93,9 +94,37 @@ function bindTree() {
                     $(this).siblings('.tree-node-item').removeClass('valid-target');
                 }
             });
+        },
+        afterMove: function () {
+            $('.btn-tree-save.hidden').removeClass('hidden');
         }
     });
 
+    // Save page tree on button click.
+    $('.btn-tree-save').on('click', function () {
+        let pageUuid = $('#tree-pageUuid').val();
+        let onVersion = $('#tree-onVersion').val();
+
+        let data = pageTree.sortable('serialize').get();
+        let jsonString = JSON.stringify(data, null, ' ');
+        // Submit page tree sort data.
+        $.ajax({
+            type: 'post',
+            url: `/admin/page/save-order/${pageUuid}/${onVersion}?ajax=1`,
+            data: jsonString,
+            success: function (data) {
+                window.location.reload();
+            },
+            error: function (data) {
+                window.location.reload();
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+
+    // Highlight elements on page when hovering them in page tree.
     $('.tree-node-item').hover(function (event) {
         // Hover.
         let uuid = $(this).parent().data('uuid');
@@ -291,8 +320,8 @@ $(document).ready(function () {
 
         // Make menu savable.
         $('.btn-save-order[data-uuid='+menuUuid+']').on('click', function (event) {
-            var data = menu.sortable('serialize').get();
-            var jsonString = JSON.stringify(data, null, ' ');
+            let data = menu.sortable('serialize').get();
+            let jsonString = JSON.stringify(data, null, ' ');
             // Submit menu sort data.
             $.ajax({
                 type: 'post',
