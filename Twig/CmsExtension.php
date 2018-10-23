@@ -123,6 +123,7 @@ class CmsExtension extends AbstractExtension
             'data-uuid' => $element['uuid'],
             'data-label' => $this->translator->trans($element['elementName']),
             'data-enabled' => ($element['enabled'] ?? true) ? '1' : '0',
+            'data-type' => $this->config['page_elements'][$element['elementName']]['type'] ?? $element['elementName'],
         ];
 
         if (isset($this->config['page_elements'][$element['elementName']]['children'])) {
