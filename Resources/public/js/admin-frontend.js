@@ -83,16 +83,25 @@
         }
 
         // Build child controls.
-        if (children.constructor === Object && Object.keys(children).length > 0) {
+        let childCount = Object.keys(children).length;
+        if (children.constructor === Object && childCount > 0) {
             let childControlsHtml = '';
+            let addButton = '';
 
-            Object.keys(children).forEach(key => {
-                let child = children[key];
-                childControlsHtml += `<span data-element-name="${child.name}" class="btn-add dropdown-item"><span class="${child.icon}"></span> ${child.label}</span>`;
-            });
+            if (childCount === 1) {
+                // Only one possible child type.
+                let child = children[Object.keys(children)[0]];
+                addButton = `<span data-element-name="${child.name}" class="btn-add btn btn-block btn-sm text-white"><i class="fa fa-plus"></i> ${child.label}</span>`;
+            } else {
+                // Multiple child types.
+                Object.keys(children).forEach(key => {
+                    let child = children[key];
+                    childControlsHtml += `<span data-element-name="${child.name}" class="btn-add dropdown-item"><span class="${child.icon}"></span> ${child.label}</span>`;
+                });
+                addButton = `<div class="dropup"><button class="btn ${bg} btn-block btn-sm text-white" type="button" data-toggle="dropdown"><i class="fa fa-plus"></i> ${translations.addElement}</button><div class="dropdown-menu">${childControlsHtml}</div>`;
+            }
 
-            let addDropdown = `<div class="dropup"><button class="btn ${bg} btn-block btn-sm text-white" type="button" data-toggle="dropdown"><i class="fa fa-plus"></i> ${translations.addElement}</button><div class="dropdown-menu">${childControlsHtml}</div>`;
-            childControlsHtml = `<div class="editor button-group ${bg} p-1 w-100 align-self-end">${addDropdown}</div>`;
+            childControlsHtml = `<div class="editor button-group ${bg} p-1 w-100 align-self-end">${addButton}</div>`;
 
             // Wrap the controls in a column if the element is a row.
             if (element.hasClass('row')) {

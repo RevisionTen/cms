@@ -65,13 +65,16 @@ class ApiController extends Controller
                 'display' => ($previewUser === false),
                 'type' => 'link',
             ],
-            'show' => [
+            'preview' => [
                 'css_class' => ' btn-tertiary',
                 'icon' => 'fas fa-eye',
-                'label' => $translator->trans('View'),
-                'url' => $this->generateUrl('cms_page_show', ['pageUuid' => $pageUuid]),
+                'label' => $translator->trans('Preview'),
+                'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
                 'display' => ($previewUser === false),
                 'type' => 'link',
+                'attributes' => [
+                    'target' => '_blank',
+                ],
             ],
             'change_pagesettings' => [
                 'css_class' => 'info btn-tertiary',

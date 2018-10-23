@@ -1050,6 +1050,48 @@ class PageController extends Controller
     }
 
     /**
+     * Display a frontend page.
+     *
+     * @Route("/page/preview/{pageUuid}", name="cms_page_preview")
+     *
+     * @param PageService            $pageService
+     * @param AggregateFactory       $aggregateFactory
+     * @param EntityManagerInterface $em
+     * @param string                 $pageUuid
+     *
+     * @return Response
+     */
+    public function page(PageService $pageService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, string $pageUuid): Response
+    {
+        $config = $this->getParameter('cms');
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        /** @var PageStreamRead $pageStreamRead */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
+
+        /** @var Page $page */
+        $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
+        // Convert the page aggregate to a json payload.
+        $pageData = json_decode(json_encode($page), true);
+        // Hydrate the page with doctrine entities.
+        $pageData = $pageService->hydratePage($pageData);
+
+        // Get the page template from the template name.
+        $templateName = $pageData['template'];
+        $template = $config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
+
+        return $this->render($template, [
+            'alias' => $alias,
+            'page' => $pageData,
+            'edit' => false,
+            'config' => $config,
+        ]);
+    }
+
+    /**
      * Redirects to the edit page of a Page Aggregate by its uuid.
      *
      * @param string $pageUuid
