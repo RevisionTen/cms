@@ -107,22 +107,7 @@ class FrontendController extends Controller
         ]);
     }
 
-    /**
-     * Display a frontend page.
-     *
-     * @Route("/admin/show/{pageUuid}", name="cms_page_show")
-     *
-     * @param PageService            $pageService
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $em
-     * @param string                 $pageUuid
-     *
-     * @return Response
-     */
-    public function page(PageService $pageService, CacheService $cacheService, EntityManagerInterface $em, string $pageUuid): Response
-    {
-        return $this->renderPage($pageService, $cacheService, $em, $pageUuid);
-    }
+
 
     /**
      * @Route("/", name="cms_page_frontpage")
