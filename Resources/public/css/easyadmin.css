@@ -56,7 +56,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
 .main-header .logo,
 html,
 body {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Rubik', Helvetica, Arial, sans-serif;
 }
 .dropdown-menu > li > a,
 body,
@@ -136,13 +136,25 @@ body.list table tbody td.actions a,
 }
 .main-sidebar {
     /*box-shadow: 1px 0 20px rgba(0, 0, 0, 0.08);*/
+    /*background: #edf1f5;*/
 }
 .sidebar-menu {
 }
 .sidebar-menu li.header {
-    border-bottom: 1px solid #e1e9f2;
+    /*border-bottom: 1px solid #e1e9f2;
+    text-transform: none;*/
     color: #54667a;
-    text-transform: none;
+}
+.sidebar-menu li.header {
+    padding: 30px 15px 5px 30px;
+}
+.sidebar-menu > li > a {
+    padding: 5px 15px 5px 30px;
+}
+.sidebar-menu > li > a > .fa,
+.sidebar-menu > li > a > .glyphicon,
+.sidebar-menu > li > a > .icon {
+    width: 20px;
 }
 .table > thead > tr > th,
 .table > tbody > tr > th,
@@ -190,6 +202,7 @@ body.list table tbody td.actions a,
 .sidebar-collapse .sidebar-menu > li:hover .treeview-menu > li.active > a {
     border-left-color: #41b3f9;
     background: #fff;
+    background: none;
     font-weight: bold;
 }
 .sidebar-menu > li > a, .sidebar-menu .treeview-menu > li > a {

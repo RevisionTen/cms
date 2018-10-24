@@ -1,0 +1,26 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}
+    {{ 'Files'|trans }}
+{% endblock %}
+
+{% block body_class %}files{% endblock %}
+
+{% block main %}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>
+                {{ 'Your file "%title%" has been uploaded!'|trans({'%title%': title}) }}
+            </h4>
+            <p>
+                <code>{{ file.path }}</code>
+            </p>
+        </div>
+    </div>
+
+    <p>
+        <a class="btn btn-primary" href="{{ path('cms_file_list') }}">{{ 'Back to file list'|trans }}</a>
+    </p>
+
+{% endblock %}

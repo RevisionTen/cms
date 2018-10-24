@@ -170,6 +170,7 @@ easy_admin:
         brand_color: '#2f323e'
         assets:
             css:
+                - 'https://fonts.googleapis.com/css?family=Rubik'
                 - 'bundles/cms/css/easyadmin.css?v=1.1.13'
                 - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
                 - 'bundles/cms/css/trix.css'
@@ -182,9 +183,10 @@ easy_admin:
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
             - { label: 'Contents' }
-            - { entity: PageStreamRead, icon: 'file' }
+            - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
             - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
             - { entity: Alias, icon: 'nope fas fa-link' }
+            - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
             - { entity: Website, icon: 'nope fas fa-globe-africa' }
             - { label: 'Menues', route: 'cms_list_menues', icon: 'bars' }

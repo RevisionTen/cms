@@ -96,6 +96,15 @@
 [data-uuid].editor-highlight > .editor .btn {
   background: #da00ba!important;
 }
+/* ----------------- Gutterless ----------------- */
+[data-type="Row"].no-gutters::before {
+  left: 0;
+  right: 0;
+}
+[data-type="Row"].no-gutters > [data-type="Column"]::before {
+  left: 0;
+  right: 0;
+}
 /* ----------------- Special Element States ----------------- */
 [data-visible="0"]:not(.carousel-item),
 [data-enabled="0"]:not(.carousel-item) {
