@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('class')->end()
+                            ->scalarNode('type')->end()
                             ->scalarNode('template')->end()
                             ->scalarNode('form_template')->end()
                             ->scalarNode('icon')->end()

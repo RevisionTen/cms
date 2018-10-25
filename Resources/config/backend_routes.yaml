@@ -15,6 +15,10 @@ revision_ten_cms_controller_admin:
     resource: "@CmsBundle/Controller/AdminController.php"
     type: annotation
 
+revision_ten_cms_controller_file:
+    resource: "@CmsBundle/Controller/FileController.php"
+    type: annotation
+
 revision_ten_cms_controller_api:
     resource: "@CmsBundle/Controller/ApiController.php"
     type: annotation
