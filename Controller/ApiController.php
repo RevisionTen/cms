@@ -28,23 +28,23 @@ class ApiController extends Controller
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
      *
      * @param string                 $pageUuid
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator
      * @param EventStore             $eventStore
      *
      * @return JsonResponse
      */
-    public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $em, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
+    public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
     {
-        $user = $this->getApiUser($userId);
+        $user = $this->getApiUser($userId, $entityManager);
         if (null === $user) {
             return new JsonResponse(false, 404);
         }
         $previewUser = $user->isImposter();
 
         /** @var PageStreamRead $pageStreamRead */
-        $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
         if (null === $pageStreamRead) {
             return new JsonResponse(false, 404);
@@ -54,7 +54,7 @@ class ApiController extends Controller
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
         /** @var PageRead $publishedPage */
-        $publishedPage = $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
         $actions = [
             'toggle_tree' => [
@@ -180,7 +180,7 @@ class ApiController extends Controller
         $users = [];
         if ($previewUser === false) {
             /** @var User[] $adminUsers */
-            $adminUsers = $em->getRepository(User::class)->findAll();
+            $adminUsers = $entityManager->getRepository(User::class)->findAll();
             foreach ($adminUsers as $key => $adminUser) {
                 if ($adminUser->getId() === $user->getId()) {
                     continue;
@@ -209,15 +209,16 @@ class ApiController extends Controller
     /**
      * @Route("/page-tree/{pageUuid}/{userId}", name="cms_api_page_tree")
      *
-     * @param string           $pageUuid
-     * @param int|NULL         $userId
-     * @param AggregateFactory $aggregateFactory
+     * @param string                 $pageUuid
+     * @param int|NULL               $userId
+     * @param AggregateFactory       $aggregateFactory
+     * @param EntityManagerInterface $entityManager
      *
      * @return Response
      */
-    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory): Response
+    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
-        $user = $this->getApiUser($userId);
+        $user = $this->getApiUser($userId, $entityManager);
         if (null === $user) {
             return new JsonResponse(false, 404);
         }
@@ -235,7 +236,7 @@ class ApiController extends Controller
         ]);
     }
 
-    private function getApiUser(int $userId = null): ?User
+    private function getApiUser(int $userId = null, EntityManagerInterface $entityManager): ?User
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -248,7 +249,7 @@ class ApiController extends Controller
              *
              * @var User $user
              */
-            $user = $em->getRepository(User::class)->find($userId);
+            $user = $entityManager->getRepository(User::class)->find($userId);
             $user->setImposter(true);
         }
 
