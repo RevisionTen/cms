@@ -9,7 +9,5 @@
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}
         {% endfor %}
-    {% else %}
-        {% include '@cms/Layout/element-empty.html.twig' %}
     {% endif %}
 </div>

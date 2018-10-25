@@ -44,7 +44,14 @@ function bindLinks()
 
     $('.toggle-tree').on('click', function (event) {
         event.preventDefault();
+        $(this).toggleClass('active');
         $('#page-tree').toggleClass('hidden');
+    });
+
+    $('.toggle-editor').on('click', function (event) {
+        event.preventDefault();
+        $(this).toggleClass('active');
+        $('#page-frame')[0].contentWindow.$('body').toggleClass('hide-editor');
     });
 }
 

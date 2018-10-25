@@ -14,6 +14,10 @@
   border-style: dashed;
   border-width: 3px;
 }
+.editor-add-button {
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.5);
+}
 /*
 [data-uuid]:hover {
   background: rgba(255, 0, 255, 0.05);
@@ -29,31 +33,120 @@
   background: none;
 }
 */
+/* ----------------- Element Spacing and Sizing ----------------- */
+[data-type="Section"] > .editor-header,
+[data-type="Row"] > div > .editor-header,
+[data-type="Column"] > .editor-header {
+  margin-top: 5px;
+}
+.editor-footer {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.editor-add-button {
+  line-height: 30px!important;
+}
+[data-type="Row"] > [data-type="Column"],
+[data-type="Row"] > .editor-footer {
+  min-height: 100px;
+}
+/* ----------------- Element Backgrounds ----------------- */
+[data-uuid] {
+  position: relative;
+}
+[data-uuid]::before {
+  z-index: -1;
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+}
+[data-type="Section"]::before {
+  border-radius: 5px;
+  background: black;
+  /*background: none;*/
+  top: -5px;
+  bottom: -5px;
+  left: -15px;
+  right: -15px;
+}
+[data-type="Row"]::before {
+  border-radius: 5px;
+  background: rgba(90, 155, 252, 0.3);
+  top: 5px;
+  bottom: 5px;
+  left: 10px;
+  right: 10px;
+}
+[data-type="Column"]::before {
+  border-radius: 5px;
+  background: #5a9bfc;
+  top: 5px;
+  bottom: 5px;
+  left: 15px;
+  right: 15px;
+}
+[data-uuid].editor-highlight::before,
+[data-uuid].editor-highlight > .editor.button-group,
+[data-uuid].editor-highlight > .editor .editor.button-group,
+[data-uuid].editor-highlight > .editor .btn {
+  background: #da00ba!important;
+}
+/* ----------------- Gutterless ----------------- */
+[data-type="Row"].no-gutters::before {
+  left: 0;
+  right: 0;
+}
+[data-type="Row"].no-gutters > [data-type="Column"]::before {
+  left: 0;
+  right: 0;
+}
+/* ----------------- Special Element States ----------------- */
 [data-visible="0"]:not(.carousel-item),
 [data-enabled="0"]:not(.carousel-item) {
   position: relative;
 }
-[data-visible="0"]::after,
-[data-enabled="0"]::after {
-  z-index: 1;
-  pointer-events: none;
-  content: '';
+[data-enabled="0"]::before {
+  background-image: linear-gradient(45deg, rgba(255, 0, 0, .3) 25%, transparent 25%, transparent 50%, rgba(255, 0, 0, .3) 50%, rgba(255, 0, 0, .3) 75%, transparent 75%, transparent 100%);
+  background-size: 40.00px 40.00px;
+}
+[data-visible="0"]::before {
+  background-image: linear-gradient(45deg, rgba(255, 255, 0, .3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, .3) 50%, rgba(255, 255, 0, .3) 75%, transparent 75%, transparent 100%);
+  background-size: 40.00px 40.00px;
+}
+/* ----------------- Grid ----------------- */
+.editor-grid {
+  z-index: -1;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(45deg, rgba(255, 0, 0, .5) 25%, transparent 25%, transparent 50%, rgba(255, 0, 0, .5) 50%, rgba(255, 0, 0, .5) 75%, transparent 75%, transparent 100%);
-  background-size: 40.00px 40.00px;
 }
-[data-visible="0"]::after {
-  background-image: linear-gradient(45deg, rgba(255, 255, 0, .5) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, .5) 50%, rgba(255, 255, 0, .5) 75%, transparent 75%, transparent 100%);
+.editor-grid .col {
+  position: relative;
 }
-[data-uuid] {
-
+.editor-grid .col::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  /*background: rgba(0, 0, 0, 0.05);*/
 }
-[data-uuid].editor-highlight > .editor.button-group,
-[data-uuid].editor-highlight > .editor .editor.button-group,
-[data-uuid].editor-highlight > .editor .btn {
-  background: #da00ba!important;
+/* ----------------- Hide editor ----------------- */
+body.hide-editor [data-enabled="0"],
+body.hide-editor [data-visible="0"],
+body.hide-editor [data-uuid]::before,
+body.hide-editor .editor {
+  display: none!important;
+}
+body.hide-editor [data-type="Row"] > [data-type="Column"] {
+  min-height: 0!important;
 }

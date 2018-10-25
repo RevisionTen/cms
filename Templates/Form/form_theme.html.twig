@@ -40,7 +40,7 @@
             <div role="tabpanel" class="tab-pane" id="file_chooser">
                 {{ form_row(form.existingFileUuid) }}
                 {{ form_row(form.existingFileVersion) }}
-                {{ render(controller('RevisionTen\\CMS\\Controller\\FileController::fileList')) }}
+                {{ render(controller('RevisionTen\\CMS\\Controller\\FileController::files')) }}
             </div>
         </div>
     {% endif %}
