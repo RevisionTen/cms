@@ -37,7 +37,7 @@ class ApiController extends Controller
      */
     public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $em, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
     {
-        $user = $this->getApiUser($userId);
+        $user = $this->getApiUser($userId, $em);
         if (null === $user) {
             return new JsonResponse(false, 404);
         }
@@ -209,15 +209,16 @@ class ApiController extends Controller
     /**
      * @Route("/page-tree/{pageUuid}/{userId}", name="cms_api_page_tree")
      *
-     * @param string           $pageUuid
-     * @param int|NULL         $userId
-     * @param AggregateFactory $aggregateFactory
+     * @param string                 $pageUuid
+     * @param int|NULL               $userId
+     * @param AggregateFactory       $aggregateFactory
+     * @param EntityManagerInterface $entityManager
      *
      * @return Response
      */
-    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory): Response
+    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
-        $user = $this->getApiUser($userId);
+        $user = $this->getApiUser($userId, $entityManager);
         if (null === $user) {
             return new JsonResponse(false, 404);
         }
@@ -235,7 +236,7 @@ class ApiController extends Controller
         ]);
     }
 
-    private function getApiUser(int $userId = null): ?User
+    private function getApiUser(int $userId = null, EntityManagerInterface $entityManager): ?User
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -248,7 +249,7 @@ class ApiController extends Controller
              *
              * @var User $user
              */
-            $user = $em->getRepository(User::class)->find($userId);
+            $user = $entityManager->getRepository(User::class)->find($userId);
             $user->setImposter(true);
         }
 
