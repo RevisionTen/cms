@@ -140,3 +140,13 @@
   background: rgba(255, 255, 255, 0.05);
   /*background: rgba(0, 0, 0, 0.05);*/
 }
+/* ----------------- Hide editor ----------------- */
+body.hide-editor [data-enabled="0"],
+body.hide-editor [data-visible="0"],
+body.hide-editor [data-uuid]::before,
+body.hide-editor .editor {
+  display: none!important;
+}
+body.hide-editor [data-type="Row"] > [data-type="Column"] {
+  min-height: 0!important;
+}

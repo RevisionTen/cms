@@ -104,3 +104,8 @@ cms:
             template: '@cms/Layout/card.html.twig'
             public: true
             icon: 'fas fa-id-card'
+        Youtube:
+            class: RevisionTen\CMS\Form\Elements\Youtube
+            template: '@cms/Layout/youtube.html.twig'
+            public: true
+            icon: 'fab fa-youtube'

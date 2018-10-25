@@ -66,7 +66,7 @@ class ApiController extends Controller
                 'type' => 'link',
             ],
             'preview' => [
-                'css_class' => ' btn-tertiary',
+                'css_class' => ' btn-tertiary toggle-editor',
                 'icon' => 'fas fa-eye',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),

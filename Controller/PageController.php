@@ -1076,6 +1076,8 @@ class PageController extends Controller
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
         // Convert the page aggregate to a json payload.
         $pageData = json_decode(json_encode($page), true);
+        // Filter disabled elements.
+        $pageData = $pageService->filterPayload($pageData);
         // Hydrate the page with doctrine entities.
         $pageData = $pageService->hydratePage($pageData);
 
