@@ -34,12 +34,14 @@ cms:
     page_elements:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section
+            type: 'Section' # Optional property, defines how the element behaves in the frontend editor.
             template: '@cms/Layout/section.html.twig'
             icon: 'fa fa-th-large'
             children:
                 - 'Row'
         Row:
             class: RevisionTen\CMS\Form\Elements\Row
+            type: 'Row' # Optional property, defines how the element behaves in the frontend editor.
             template: '@cms/Layout/row.html.twig'
             icon: 'fa fa-window-maximize'
             children:
@@ -51,6 +53,7 @@ cms:
                 no gutters: 'no-gutters'
         Column:
             class: RevisionTen\CMS\Form\Elements\Column
+            type: 'Column' # Optional property, defines how the element behaves in the frontend editor.
             template: '@cms/Layout/column.html.twig'
             icon: 'fa fa-columns'
             children:
@@ -101,3 +104,8 @@ cms:
             template: '@cms/Layout/card.html.twig'
             public: true
             icon: 'fas fa-id-card'
+        Youtube:
+            class: RevisionTen\CMS\Form\Elements\Youtube
+            template: '@cms/Layout/youtube.html.twig'
+            public: true
+            icon: 'fab fa-youtube'

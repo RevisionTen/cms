@@ -87,7 +87,7 @@ class PageService
      *
      * @return array
      */
-    private function filterPayload(array $payload): array
+    public function filterPayload(array $payload): array
     {
         if (isset($payload['elements']) && is_array($payload['elements'])) {
             $payload['elements'] = $this->removeDisabled($payload['elements']);
