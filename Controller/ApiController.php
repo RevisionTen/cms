@@ -68,7 +68,7 @@ class ApiController extends Controller
             ],
             'preview' => [
                 'css_class' => ' btn-tertiary toggle-editor',
-                'icon' => 'fas fa-eye',
+                'icon' => 'fas fa-toggle-on',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
                 'display' => ($previewUser === false),
