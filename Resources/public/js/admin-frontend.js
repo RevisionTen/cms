@@ -171,6 +171,7 @@
                 'btn',
                 'btn-block',
                 'btn-sm',
+                'font-weight-bold',
                 textColor,
             ];
 
