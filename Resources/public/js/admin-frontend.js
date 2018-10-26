@@ -1,5 +1,34 @@
 (function($) {
 
+    // Make new column button resizable.
+    function bindNewColumnButton(element, newColumnButton, fullWidth) {
+        let columnWidth = fullWidth / 12;
+
+        // Destroy if already initialised.
+        if (newColumnButton.data('ui-resizable')) {
+            newColumnButton.resizable('destroy');
+        }
+
+        // Make resizable.
+        newColumnButton.resizable({
+            maxWidth: fullWidth,
+            start: function( event, ui ) {
+                newColumnButton.addClass('editor-resizing');
+            },
+            stop: function( event, ui ) {
+                let endSize = ui.size.width;
+                let colSpan = Math.round(12 / (fullWidth / endSize));
+                let colSize = colSpan * columnWidth;
+                newColumnButton.stop().animate({
+                    width: colSize
+                }, 250, function() {
+                    // Insert a new column.
+                    parent.$('body').trigger('createColumn', {'parent': element.data('uuid'), 'size': colSpan, 'breakpoint': window.bootstrapBreakpoint});
+                });
+            }
+        });
+    }
+
     // Binds editor controls to the element.
     function bindElement(element, bindChildren = false)
     {
@@ -43,7 +72,7 @@
 
         let label = element.data('label');
 
-        let textColor = 'text-muted';
+        let textColor = '';
         if ('Section' === type ||'Row' === type ||'Column' === type) {
             textColor = 'text-white';
         }
@@ -51,7 +80,7 @@
 
         // Build controls.
         let html = `<div class="editor editor-header button-group p-1 text-right w-100 align-self-start">`
-            + (label ? `<span class="btn btn-sm float-left ${textColor}">${label}</span>` : '')
+            + (label ? `<span class="btn btn-sm float-left ${textColor} font-weight-bold">${label}</span>` : '')
             + ((disabledActions.indexOf('enable') === -1 && enabled == 0) ? `<span class="btn-enable ${actionButtonClasses}" title="${translations.enable}"><span class="fa fa-eye-slash"></span></span>` : '')
             + ((disabledActions.indexOf('disable') === -1 && enabled == 1) ? `<span class="btn-disable ${actionButtonClasses}" title="${translations.disable}"><span class="fa fa-eye"></span></span>` : '')
             + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-up ${actionButtonClasses}" title="${translations.shift}"><span class="fa fa-arrow-up"></span></span>` : '')
@@ -139,6 +168,21 @@
             element.prepend('<div class="editor editor-grid row"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div>');
         }
 
+        // Make new-column button resizable.
+        if ('Row' === type) {
+            let newColumnButton = element.children('.editor-footer.col-auto').first();
+            if (newColumnButton.length > 0) {
+                setTimeout(function () {
+                    let fullWidth = element.width();
+                    bindNewColumnButton(element, newColumnButton, fullWidth);
+                }, 1000);
+                $(window).on('afterChangedBreakpoint', function () {
+                    let fullWidth = element.width();
+                    bindNewColumnButton(element, newColumnButton, fullWidth);
+                });
+            }
+        }
+
         // Bind actions to the control elements.
         element.find('.btn-add').on('click', function (event) {
             parent.$('body').trigger('createElement', {'parent': element.data('uuid'), 'elementName': $(this).data('element-name')});
@@ -176,8 +220,49 @@
         }
     }
 
+    window.bootstrapBreakpoint = 'xs';
+
+    function detectBreakpoint() {
+        let breakpoint = 'xs';
+        $('body').append('<div data="sm" class="detect-breakpoint d-none d-sm-block"></div>');
+        $('body').append('<div data="md" class="detect-breakpoint d-none d-md-block"></div>');
+        $('body').append('<div data="lg" class="detect-breakpoint d-none d-lg-block"></div>');
+        $('body').append('<div data="xl" class="detect-breakpoint d-none d-xl-block"></div>');
+
+        breakpoint = $('.detect-breakpoint.d-sm-block').is(':visible') ? 'sm' : breakpoint;
+        breakpoint = $('.detect-breakpoint.d-md-block').is(':visible') ? 'md' : breakpoint;
+        breakpoint = $('.detect-breakpoint.d-lg-block').is(':visible') ? 'lg' : breakpoint;
+        breakpoint = $('.detect-breakpoint.d-xl-block').is(':visible') ? 'xl' : breakpoint;
+
+        $('.detect-breakpoint').remove();
+
+        return breakpoint;
+    }
+
     // Bind all elements.
     $(document).ready(function () {
+        // Trigger afterResize event after resizing the window.
+        $(window).on('resize', function () {
+            if (this.resizeTO) {
+                clearTimeout(this.resizeTO);
+            }
+            this.resizeTO = setTimeout(function() {
+                $(this).trigger('afterResize');
+            }, 500);
+        });
+
+        // Get current breakpoint.
+        window.bootstrapBreakpoint = detectBreakpoint();
+
+        // Get new breakpoint after window resize.
+        $(window).on('afterResize', function () {
+            let newBreakPoint = detectBreakpoint();
+            if (newBreakPoint !== window.bootstrapBreakpoint) {
+                window.bootstrapBreakpoint = newBreakPoint;
+                $(this).trigger('afterChangedBreakpoint');
+            }
+        });
+
         let elements = $('[data-uuid]');
         elements.each(function() {
             let element = $(this);

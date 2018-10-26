@@ -428,6 +428,15 @@ $(document).ready(function () {
         let url = `/admin/page/create-section/${pageUuid}/${onVersion}/${section}`;
         $('body').trigger('openAjax', url);
     });
+    body.on('createColumn', function (event, data) {
+        let pageUuid = window.pageData.uuid;
+        let onVersion = window.pageData.version;
+        let parent = data.parent;
+        let size = data.size;
+        let breakpoint = data.breakpoint;
+        let url = `/admin/page/create-column/${pageUuid}/${onVersion}/${parent}/${size}/${breakpoint}`;
+        $('body').trigger('openAjax', url);
+    });
 
     getPageInfo();
 });

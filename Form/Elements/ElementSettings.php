@@ -16,9 +16,9 @@ class ElementSettings extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('margins', CollectionType::class, [
+        $builder->add('paddings', CollectionType::class, [
             'required' => false,
-            'label' => 'Margins',
+            'label' => 'Paddings',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,
@@ -34,9 +34,9 @@ class ElementSettings extends AbstractType
             ],
         ]);
 
-        $builder->add('paddings', CollectionType::class, [
+        $builder->add('margins', CollectionType::class, [
             'required' => false,
-            'label' => 'Paddings',
+            'label' => 'Margins',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,

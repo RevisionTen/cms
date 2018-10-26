@@ -280,6 +280,56 @@ class PageController extends Controller
     }
 
     /**
+     * Creates a column.
+     *
+     * @Route("/page/create-column/{pageUuid}/{onVersion}/{parent}/{size}/{breakpoint}", name="cms_page_create_column")
+     *
+     * @param Request          $request
+     * @param CommandBus       $commandBus
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $parent
+     * @param string           $size
+     * @param string           $breakpoint
+     *
+     * @return JsonResponse|Response
+     */
+    public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        // Check if breakpoint and size are valid.
+        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || intval($size) < 1 || intval($size) > 12 ) {
+            return new JsonResponse([
+                'success' => false,
+                'refresh' => null, // Refreshes whole page.
+            ]);
+        }
+
+        $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
+            'elementName' => 'Column',
+            'data' => [
+                'width'.strtoupper($breakpoint) => intval($size),
+            ],
+            'parent' => $parent,
+        ], $pageUuid, $onVersion, true);
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => $parent,
+            ]);
+        }
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
      * Submit qeued events for a specific Page Aggregate and user.
      *
      * @Route("/submit-changes/{pageUuid}/{version}/{qeueUser}", name="cms_submit_changes")
