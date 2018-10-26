@@ -13,6 +13,7 @@ use RevisionTen\CMS\Command\PageEditElementCommand;
 use RevisionTen\CMS\Command\PageEnableElementCommand;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageRemoveElementCommand;
+use RevisionTen\CMS\Command\PageResizeColumnCommand;
 use RevisionTen\CMS\Command\PageRollbackCommand;
 use RevisionTen\CMS\Command\PageSaveOrderCommand;
 use RevisionTen\CMS\Command\PageShiftElementCommand;
@@ -319,6 +320,45 @@ class PageController extends Controller
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $parent,
+            ]);
+        }
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        return $this->redirectToPage($pageUuid);
+    }
+    /**
+     * Resizes a column.
+     *
+     * @Route("/page/resize-column/{pageUuid}/{onVersion}/{elementUuid}/{size}/{breakpoint}", name="cms_page_resize_column")
+     *
+     * @param Request          $request
+     * @param CommandBus       $commandBus
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $parent
+     * @param string           $size
+     * @param string           $breakpoint
+     *
+     * @return JsonResponse|Response
+     */
+    public function resizeColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $size, string $breakpoint)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
+            'uuid' => $elementUuid,
+            'size' => intval($size),
+            'breakpoint' => $breakpoint,
+        ], $pageUuid, $onVersion, true);
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => $elementUuid,
             ]);
         }
 

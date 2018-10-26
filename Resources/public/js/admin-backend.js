@@ -437,6 +437,15 @@ $(document).ready(function () {
         let url = `/admin/page/create-column/${pageUuid}/${onVersion}/${parent}/${size}/${breakpoint}`;
         $('body').trigger('openAjax', url);
     });
+    body.on('resizeColumn', function (event, data) {
+        let pageUuid = window.pageData.uuid;
+        let onVersion = window.pageData.version;
+        let elementUuid = data.uuid;
+        let size = data.size;
+        let breakpoint = data.breakpoint;
+        let url = `/admin/page/resize-column/${pageUuid}/${onVersion}/${elementUuid}/${size}/${breakpoint}`;
+        $('body').trigger('openAjax', url);
+    });
 
     getPageInfo();
 });

@@ -29,6 +29,41 @@
         });
     }
 
+    // Make column resizable.
+    function bindColumnResize(element, fullWidth) {
+        let columnWidth = fullWidth / 12;
+
+        // Destroy if already initialised.
+        if (element.data('ui-resizable')) {
+            element.resizable('destroy');
+        }
+
+        // Make resizable.
+        element.resizable({
+            maxWidth: fullWidth,
+            start: function( event, ui ) {
+                // Remove column classes.
+                element.attr('class', function(i, c){
+                    return c.replace(/(^|\s)col-\S+/g, '');
+                });
+                // Add resizing classes.
+                element.addClass('col-auto');
+                element.addClass('editor-resizing');
+            },
+            stop: function( event, ui ) {
+                let endSize = ui.size.width;
+                let colSpan = Math.round(12 / (fullWidth / endSize));
+                let colSize = colSpan * columnWidth;
+                element.stop().animate({
+                    width: colSize
+                }, 250, function() {
+                    // Resize column.
+                    parent.$('body').trigger('resizeColumn', {'uuid': element.data('uuid'), 'size': colSpan, 'breakpoint': window.bootstrapBreakpoint});
+                });
+            }
+        });
+    }
+
     // Binds editor controls to the element.
     function bindElement(element, bindChildren = false)
     {
@@ -181,6 +216,18 @@
                     bindNewColumnButton(element, newColumnButton, fullWidth);
                 });
             }
+        }
+
+        // Make new-column button resizable.
+        if ('Column' === type) {
+            setTimeout(function () {
+                let fullWidth = element.parent().width();
+                bindColumnResize(element, fullWidth);
+            }, 1000);
+            $(window).on('afterChangedBreakpoint', function () {
+                let fullWidth = element.parent().width();
+                bindColumnResize(element, fullWidth);
+            });
         }
 
         // Bind actions to the control elements.

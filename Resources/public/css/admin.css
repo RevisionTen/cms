@@ -18,7 +18,7 @@
   background: none;
   border: 1px dashed rgba(255, 255, 255, 0.5);
 }
-.editor-resizing .editor-add-button {
+.editor-resizing:not([data-type="Column"]) > .editor-add-button {
   background: #5a9bfc;
   color: transparent!important;
   border: 0;
