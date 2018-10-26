@@ -20,6 +20,12 @@ even: #f7f7f7
 .modal {
     background: rgba(237, 241, 245, 0.8);
 }
+.modal-dialog {
+    resize: horizontal;
+    overflow: hidden;
+    min-width: 300px;
+    max-width: 90%;
+}
 .modal-dialog .modal-content {
     border-radius: 10px;
 }

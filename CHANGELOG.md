@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2018-10-26
+### Changed
+- Made modal resizable
+### Added
+- Add new column in editor after resizing the new column button
+- Added jquery-ui to frontend editor, update **@cms/Admin/admin-scripts.html.twig** and **@cms/Admin/admin-styles.html.twig** If you have overwritten them.
+
 ## [1.2.0] - 2018-10-25
 ### Added
 - Added a simple managed file overview and upload

@@ -1,4 +1,4 @@
-<div {{ editorAttr(element, edit, 'bg-info') }}>
+<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }}">
     {% set iframeMarkup = '<iframe class="embed-responsive-item" src="https://www.youtube-nocookie.com/embed/'~element.data.youtubeId~'?rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>' %}
     {% set id = 'youtube-'~element.uuid %}
 

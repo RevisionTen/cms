@@ -18,6 +18,11 @@
   background: none;
   border: 1px dashed rgba(255, 255, 255, 0.5);
 }
+.editor-resizing .editor-add-button {
+  background: #5a9bfc;
+  color: transparent!important;
+  border: 0;
+}
 /*
 [data-uuid]:hover {
   background: rgba(255, 0, 255, 0.05);
@@ -140,6 +145,20 @@
   background: rgba(255, 255, 255, 0.05);
   /*background: rgba(0, 0, 0, 0.05);*/
 }
+/* ----------------- Resizing ----------------- */
+.ui-resizable-e {
+  right: 15px;
+  width: 10px;
+}
+.ui-resizable-s,
+.ui-resizable-se {
+  display: none;
+}
+/* ----------------- Padding & Margin Higlighting -----------------
+body:not(.hide-editor) [data-uuid]:not([data-type="Section"]):not([data-type="Row"]):not([data-type="Column"]) {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%), linear-gradient(to bottom, rgb(204, 226, 255) 0%, rgb(204, 226, 255) 100%);
+  background-clip: content-box, padding-box;
+}*/
 /* ----------------- Hide editor ----------------- */
 body.hide-editor [data-enabled="0"],
 body.hide-editor [data-visible="0"],

@@ -171,14 +171,15 @@ easy_admin:
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'
-                - 'bundles/cms/css/easyadmin.css?v=1.1.13'
                 - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
                 - 'bundles/cms/css/trix.css'
+                - 'bundles/cms/css/jquery-ui.min.css'
+                - 'bundles/cms/css/easyadmin.css?v=1.2.1'
             js:
                 - 'bundles/cms/libs/dist/trix.js'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js'
-                - 'bundles/cms/js/admin-backend.js?v=1.1.13'
+                - 'bundles/cms/js/admin-backend.js?v=1.2.1'
         form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
