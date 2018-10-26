@@ -53,6 +53,12 @@ function bindLinks()
         $(this).toggleClass('active');
         $('#page-frame')[0].contentWindow.$('body').toggleClass('hide-editor');
     });
+
+    $('.toggle-contrast').on('click', function (event) {
+        event.preventDefault();
+        $(this).toggleClass('active');
+        $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');;
+    });
 }
 
 function bindTree() {

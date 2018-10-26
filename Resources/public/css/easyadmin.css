@@ -50,7 +50,18 @@ even: #f7f7f7
         width: 100%;
     }
 }
-
+.badge-up {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+}
+.btn > .badge-up {
+    font-size: 8px;
+    position: absolute;
+    top: -1rem;
+    right: -0.5rem;
+    background: #54667a;
+}
 .title-truncate {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -186,6 +197,9 @@ body.list table tbody td.actions a,
 .btn-tertiary {
     background: none;
     color: #54667a;
+}
+.btn-group .btn-tertiary {
+    background: #e1e9f2;
 }
 .btn-tertiary .label-text {
     display: none;
@@ -389,11 +403,6 @@ body.easyadmin h1.title {
     display: inline-block;
     height: 4rem;
     width: 4rem;
-}
-.qeued-user-icon .badge {
-    position: absolute;
-    top: -0.5rem;
-    right: -0.5rem;
 }
 .qeued-user-text {
     display: inline-block;

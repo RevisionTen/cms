@@ -58,6 +58,14 @@ class ApiController extends Controller
         $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
         $actions = [
+            'toggle_contrast' => [
+                'css_class' => ' btn-tertiary toggle-contrast',
+                'icon' => 'fas fa-adjust',
+                'label' => $translator->trans('Toggle editor contrast'),
+                'url' => '#',
+                'display' => ($previewUser === false),
+                'type' => 'link',
+            ],
             'toggle_tree' => [
                 'css_class' => ' btn-tertiary toggle-tree',
                 'icon' => 'fas fa-layer-group',

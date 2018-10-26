@@ -26,22 +26,39 @@
                 </div>
             {% endif %}
             <h1 class="title editor-title">
-                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">Version {{ version }} {% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
+                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
             </h1>
         </div>
         <div class="admin-col-right">
             <form class="form-inline pull-right">
 
                 <div class="button-group">
+
+                    <div class="btn-group">
+                        {% set buttonActions = [
+                            actions.toggle_contrast,
+                            actions.toggle_tree,
+                            actions.preview,
+                        ] %}
+
+                        {% for action in buttonActions %}
+                            {% if action.display %}
+                                <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                    <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
                     {% if actions.rollback_aggregate.display %}
-                        <div class="dropdown dropdown-inline">
+                        <div class="btn-group dropdown dropdown-inline">
                             {% set historyActions = [
-                            actions.undo_change,
-                            actions.rollback_aggregate,
-                            actions.discard_changes
+                                actions.undo_change,
+                                actions.rollback_aggregate,
+                                actions.discard_changes
                             ] %}
                             <button class="btn btn-tertiary btn-label-fade btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                <span class="fas fa-history"></span> <span class="label-text">{{ 'History'|trans }}</span>
+                                <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'History'|trans }}</span>
                             </button>
                             <ul class="dropdown-menu">
                                 {% for action in historyActions %}
@@ -55,27 +72,32 @@
                                 {% endfor %}
                             </ul>
                         </div>
+
                     {% endif %}
 
-                    {% set buttonActions = [
-                    actions.toggle_tree,
-                    actions.preview,
-                    actions.change_pagesettings,
-                    actions.publish,
-                    actions.unpublish,
-                    actions.optimize,
-                    actions.submit_changes,
-                    actions.clone_aggregate,
-                    actions.delete_aggregate
-                    ] %}
+                    <div class="btn-group">
 
-                    {% for action in buttonActions %}
-                        {% if action.display %}
-                        <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                            <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
-                        </a>
-                        {% endif %}
-                    {% endfor %}
+
+                        {% set buttonActions = [
+                            actions.change_pagesettings,
+                            actions.publish,
+                            actions.unpublish,
+                            actions.optimize,
+                            actions.submit_changes,
+                            actions.clone_aggregate,
+                            actions.delete_aggregate
+                        ] %}
+
+                        {% for action in buttonActions %}
+                            {% if action.display %}
+                                <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                    <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+
                 </div>
             </form>
         </div>
@@ -88,7 +110,7 @@
         {% set count = userData.events|length %}
         <a class="qeued-user" href="{{ path('cms_edit_aggregate', {user: user.id, id: id}) }}">
             <div class="qeued-user-icon">
-                {% include '@cms/Admin/user_info_medium.html.twig' %} <span class="badge label-danger">{{ count }}</span>
+                {% include '@cms/Admin/user_info_medium.html.twig' %} <span class="badge badge-up label-danger">{{ count }}</span>
             </div>
             <div class="qeued-user-text">
                 {{ 'User <strong>%username%</strong> <br/>has <strong>%count%</strong> qeued events'|trans({'%username%': user.username, '%count%': count})|raw }}
