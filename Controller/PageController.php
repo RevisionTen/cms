@@ -36,11 +36,11 @@ use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\EventStore;
+use RevisionTen\CQRS\Services\MessageBus;
 use RevisionTen\CQRS\Services\SnapshotStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -59,8 +59,16 @@ use Cocur\Slugify\Slugify;
  *
  * @Route("/admin")
  */
-class PageController extends Controller
+class PageController extends AbstractController
 {
+    /** @var MessageBus */
+    private $messageBus;
+
+    public function __construct(MessageBus $messageBus)
+    {
+        $this->messageBus = $messageBus;
+    }
+
     /**
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
@@ -100,7 +108,7 @@ class PageController extends Controller
      */
     public function errorResponse(): JsonResponse
     {
-        return new JsonResponse($this->get('messagebus')->getMessagesJson());
+        return new JsonResponse($this->messageBus->getMessagesJson());
     }
 
     /**
@@ -110,17 +118,17 @@ class PageController extends Controller
      *
      * @param Request                $request
      * @param CommandBus             $commandBus
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      *
      * @return Response
      */
-    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $em)
+    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager)
     {
         $config = $this->getParameter('cms');
 
         $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $em->getRepository(Website::class)->findAll();
+        $websites = $entityManager->getRepository(Website::class)->findAll();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
@@ -166,13 +174,13 @@ class PageController extends Controller
      * @param CommandBus             $commandBus
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param string                 $pageUuid
      * @param int                    $version
      *
      * @return JsonResponse|Response
      */
-    public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $em, string $pageUuid, int $version)
+    public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -193,7 +201,7 @@ class PageController extends Controller
 
         $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $em->getRepository(Website::class)->findAll();
+        $websites = $entityManager->getRepository(Website::class)->findAll();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
@@ -285,13 +293,13 @@ class PageController extends Controller
      *
      * @Route("/page/create-column/{pageUuid}/{onVersion}/{parent}/{size}/{breakpoint}", name="cms_page_create_column")
      *
-     * @param Request          $request
-     * @param CommandBus       $commandBus
-     * @param string           $pageUuid
-     * @param int              $onVersion
-     * @param string           $parent
-     * @param string           $size
-     * @param string           $breakpoint
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $parent
+     * @param string     $size
+     * @param string     $breakpoint
      *
      * @return JsonResponse|Response
      */
@@ -301,7 +309,7 @@ class PageController extends Controller
         $user = $this->getUser();
 
         // Check if breakpoint and size are valid.
-        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || intval($size) < 1 || intval($size) > 12 ) {
+        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || intval($size) < 1 || intval($size) > 12) {
             return new JsonResponse([
                 'success' => false,
                 'refresh' => null, // Refreshes whole page.
@@ -329,18 +337,19 @@ class PageController extends Controller
 
         return $this->redirectToPage($pageUuid);
     }
+
     /**
      * Resizes a column.
      *
      * @Route("/page/resize-column/{pageUuid}/{onVersion}/{elementUuid}/{size}/{breakpoint}", name="cms_page_resize_column")
      *
-     * @param Request          $request
-     * @param CommandBus       $commandBus
-     * @param string           $pageUuid
-     * @param int              $onVersion
-     * @param string           $parent
-     * @param string           $size
-     * @param string           $breakpoint
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $parent
+     * @param string     $size
+     * @param string     $breakpoint
      *
      * @return JsonResponse|Response
      */
@@ -597,7 +606,7 @@ class PageController extends Controller
 
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
-        if (null === $aliases || empty($aliases) || count($aliases) === 0) {
+        if (null === $aliases || empty($aliases) || 0 === count($aliases)) {
             // The page has no aliases, show modal or page with alias create form.
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,
@@ -702,30 +711,13 @@ class PageController extends Controller
 
             /** @var string $formClass */
             $formClass = $elementConfig['class'];
+            $implements = class_implements($formClass);
 
             if (null === $form_template) {
                 $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
             }
 
-            // Instantiate the form only to check if it implements FormTypeInterface.
-            try {
-                /**
-                 * Get the form as a service.
-                 * # TODO: Is this needed with autowired forms?
-                 *
-                 * @var FormTypeInterface $formInstance
-                 */
-                $formInstance = $this->get($formClass);
-            } catch (ServiceNotFoundException $e) {
-                /**
-                 * Construct form type instance.
-                 *
-                 * @var FormTypeInterface $formInstance
-                 */
-                $formInstance = new $formClass();
-            }
-
-            if ($formInstance instanceof FormTypeInterface) {
+            if ($implements && in_array(FormTypeInterface::class, $implements)) {
                 $form = $this->createForm(ElementType::class, ['data' => $data], [
                     'elementConfig' => $elementConfig,
                 ]);
@@ -809,29 +801,13 @@ class PageController extends Controller
             if (isset($config['page_elements'][$elementName])) {
                 $elementConfig = $config['page_elements'][$elementName];
                 $formClass = $elementConfig['class'];
+                $implements = class_implements($formClass);
 
                 if (null === $form_template) {
                     $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
                 }
 
-                // Instantiate the form only to check if it implements FormTypeInterface.
-                try {
-                    /**
-                     * Get the form as a service.
-                     *
-                     * @var FormTypeInterface $formInstance
-                     */
-                    $formInstance = $this->get($formClass);
-                } catch (ServiceNotFoundException $e) {
-                    /**
-                     * Construct form type instance.
-                     *
-                     * @var FormTypeInterface $formInstance
-                     */
-                    $formInstance = new $formClass();
-                }
-
-                if ($formInstance instanceof FormTypeInterface) {
+                if ($implements && in_array(FormTypeInterface::class, $implements)) {
                     $form = $this->createForm(ElementType::class, $data, [
                         'elementConfig' => $elementConfig,
                     ]);
@@ -1028,15 +1004,15 @@ class PageController extends Controller
     /**
      * Gets a PageRead entity for a Page Aggregate by its uuid.
      *
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param string                 $pageUuid
      *
      * @return PageRead|null
      */
-    private function getPageRead(EntityManagerInterface $em, string $pageUuid): ?PageRead
+    private function getPageRead(EntityManagerInterface $entityManager, string $pageUuid): ?PageRead
     {
         /** @var PageRead $page */
-        $pageRead = $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        $pageRead = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
         return $pageRead;
     }
@@ -1047,7 +1023,7 @@ class PageController extends Controller
      * @Route("/edit/{pageUuid}/{user}", name="cms_page_edit")
      *
      * @param PageService            $pageService
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param EventStore             $eventStore
      * @param TranslatorInterface    $translator
@@ -1056,12 +1032,12 @@ class PageController extends Controller
      *
      * @return Response
      */
-    public function pageEdit(PageService $pageService, EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
+    public function pageEdit(PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
     {
         $config = $this->getParameter('cms');
 
         /** @var User $user */
-        $user = $em->getRepository(User::class)->find($user);
+        $user = $entityManager->getRepository(User::class)->find($user);
 
         /** @var User $realUser */
         $realUser = $this->getUser();
@@ -1076,12 +1052,12 @@ class PageController extends Controller
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
         /** @var PageRead $publishedPage */
-        $publishedPage = $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
         // Get all qeued Events for this page.
 
         /** @var User[] $adminUsers */
-        $adminUsers = $em->getRepository(User::class)->findAll();
+        $adminUsers = $entityManager->getRepository(User::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
             $eventStreamObjects = $eventStore->findQeued($pageUuid, null, $page->getStreamVersion() + 1, $adminUser->getId());
@@ -1192,11 +1168,11 @@ class PageController extends Controller
      */
     private function redirectToPage(string $pageUuid): Response
     {
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $this->getDoctrine()->getManager();
 
         /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
         if (!$pageStreamRead) {
             return $this->redirect('/admin');
@@ -1215,18 +1191,18 @@ class PageController extends Controller
      *
      * @param Request                $request
      * @param CommandBus             $commandBus
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param TranslatorInterface    $translator
      *
      * @return Response
      */
-    public function cloneAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em, TranslatorInterface $translator): Response
+    public function cloneAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
         /** @var int $id PageStreamRead Id. */
         $id = $request->get('id');
 
         /** @var PageStreamRead $pageStreamRead */
-        $pageStreamRead = $em->getRepository(PageStreamRead::class)->find($id);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
 
         if (null === $pageStreamRead) {
             return $this->redirect('/admin');
@@ -1257,13 +1233,13 @@ class PageController extends Controller
      *
      * @param Request                $request
      * @param CommandBus             $commandBus
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param EventStore             $eventStore
      * @param TranslatorInterface    $translator
      *
      * @return Response
      */
-    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $em, EventStore $eventStore, TranslatorInterface $translator): Response
+    public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, EventStore $eventStore, TranslatorInterface $translator): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -1272,7 +1248,7 @@ class PageController extends Controller
         $id = $request->get('id');
 
         /** @var PageStreamRead $pageStreamRead */
-        $pageStreamRead = $em->getRepository(PageStreamRead::class)->find($id);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
 
         if (null === $pageStreamRead) {
             return $this->redirect('/admin');

@@ -9,7 +9,7 @@ use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Services\PageService;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 /**
  * Class FrontendController.
  */
-class FrontendController extends Controller
+class FrontendController extends AbstractController
 {
     /**
      * @Route("/sitemap.xml", name="cms_page_sitemap")
@@ -106,8 +106,6 @@ class FrontendController extends Controller
             'config' => $config,
         ]);
     }
-
-
 
     /**
      * @Route("/", name="cms_page_frontpage")

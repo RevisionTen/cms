@@ -34,7 +34,6 @@ class Youtube extends Element
             $form = $event->getForm();
 
             if (isset($data['youtubeId']) && $data['youtubeId']) {
-
                 $youtubeId = $data['youtubeId'];
 
                 if (strpos($youtubeId, 'youtu')) {

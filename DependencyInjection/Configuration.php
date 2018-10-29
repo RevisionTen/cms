@@ -11,6 +11,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
 
+        // Todo: https://symfony.com/blog/new-in-symfony-4-2-important-deprecations?#deprecated-tree-builders-without-root-nodes
         $rootNode = $treeBuilder->root('cms');
         $rootNode
             ->children()

@@ -8,7 +8,7 @@ use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * This command lets you create a user from the command line.
  */
-class UserSecretCommand extends ContainerAwareCommand
+class UserSecretCommand extends Command
 {
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;

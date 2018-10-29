@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
-use Ramsey\Uuid\Uuid;
-use RevisionTen\CMS\Command\FileCreateCommand;
-use RevisionTen\CMS\Form\Types\ManagedUploadType;
 use RevisionTen\CMS\Services\FileService;
 use RevisionTen\CQRS\Services\AggregateFactory;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use RevisionTen\CMS\Model\File;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -24,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  *
  * @Route("/admin")
  */
-class FileController extends Controller
+class FileController extends AbstractController
 {
     /**
      * @param AggregateFactory $aggregateFactory
@@ -36,7 +33,7 @@ class FileController extends Controller
         /** @var File[] $files */
         $files = $aggregateFactory->findAggregates(File::class);
         // Sort by created date.
-        usort($files, "self::sortByCreated");
+        usort($files, 'self::sortByCreated');
         $files = array_reverse($files);
 
         return $this->render('@cms/File/list.html.twig', [
@@ -64,7 +61,7 @@ class FileController extends Controller
         /** @var File[] $files */
         $files = $aggregateFactory->findAggregates(File::class);
         // Sort by created date.
-        usort($files, "self::sortByCreated");
+        usort($files, 'self::sortByCreated');
         $files = array_reverse($files);
 
         return $this->render('@cms/Admin/file-list.html.twig', [
@@ -113,7 +110,6 @@ class FileController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $data = $form->getData();
 
             $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir);

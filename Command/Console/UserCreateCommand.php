@@ -8,7 +8,7 @@ use RevisionTen\CMS\Model\User;
 use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  *
  * This command lets you create a user from the command line.
  */
-class UserCreateCommand extends ContainerAwareCommand
+class UserCreateCommand extends Command
 {
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
@@ -68,7 +68,7 @@ class UserCreateCommand extends ContainerAwareCommand
             ->addArgument('password', InputArgument::OPTIONAL, 'The users password.')
             ->addArgument('email', InputArgument::OPTIONAL, 'The users email.')
             ->addArgument('avatarUrl', InputArgument::OPTIONAL, 'The users avatar url.')
-            ->addOption('sendLoginMail', null, InputOption::VALUE_REQUIRED,'Whether or not to send a mail with the login info to the user.')
+            ->addOption('sendLoginMail', null, InputOption::VALUE_REQUIRED, 'Whether or not to send a mail with the login info to the user.')
         ;
     }
 
@@ -150,7 +150,7 @@ class UserCreateCommand extends ContainerAwareCommand
                 'No',
             ]);
             $sendLoginMailQuestion->setValidator(function ($answer) {
-                if ($answer !== 'Yes' && $answer !== 'No') {
+                if ('Yes' !== $answer && 'No' !== $answer) {
                     throw new \RuntimeException('Yes or No?');
                 }
 
@@ -159,7 +159,7 @@ class UserCreateCommand extends ContainerAwareCommand
             $sendLoginMailQuestion->setMaxAttempts(5);
 
             $sendLoginMail = $helper->ask($input, $output, $sendLoginMailQuestion);
-            $sendLoginMail = ($sendLoginMail === 'Yes');
+            $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
         // Create the User.

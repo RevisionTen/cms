@@ -11,7 +11,7 @@ use RevisionTen\CMS\Model\User;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\EventStore;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,7 +22,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @Route("/admin/api")
  */
-class ApiController extends Controller
+class ApiController extends AbstractController
 {
     /**
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
@@ -63,7 +63,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-adjust',
                 'label' => $translator->trans('Toggle editor contrast'),
                 'url' => '#',
-                'display' => ($previewUser === false),
+                'display' => (false === $previewUser),
                 'type' => 'link',
             ],
             'toggle_tree' => [
@@ -71,7 +71,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-layer-group',
                 'label' => $translator->trans('Layers'),
                 'url' => '#',
-                'display' => ($previewUser === false),
+                'display' => (false === $previewUser),
                 'type' => 'link',
             ],
             'preview' => [
@@ -79,7 +79,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-toggle-on',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
-                'display' => ($previewUser === false),
+                'display' => (false === $previewUser),
                 'type' => 'link',
                 'attributes' => [
                     'target' => '_blank',
@@ -90,7 +90,7 @@ class ApiController extends Controller
                 'icon' => 'fa fa-edit',
                 'label' => $translator->trans('Change Page Settings'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => ($previewUser === false),
+                'display' => (false === $previewUser),
                 'type' => 'form',
             ],
             'publish' => [
@@ -98,7 +98,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
-                'display' => ($previewUser === false && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() !== $publishedPage->getVersion() + 1),
+                'display' => (false === $previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() !== $publishedPage->getVersion() + 1),
                 'type' => 'ajax',
             ],
             'unpublish' => [
@@ -106,7 +106,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
-                'display' => ($previewUser === false && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published),
+                'display' => (false === $previewUser && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published),
                 'type' => 'ajax',
             ],
             'optimize' => [
@@ -114,7 +114,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-sync',
                 'label' => $translator->trans('Optimize'),
                 'url' => $this->generateUrl('cms_save_snapshot', ['pageUuid' => $pageUuid]),
-                'display' => ($previewUser === false && $page->shouldTakeSnapshot()),
+                'display' => (false === $previewUser && $page->shouldTakeSnapshot()),
                 'type' => 'ajax',
             ],
             'undo_change' => [
@@ -122,7 +122,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-undo',
                 'label' => $translator->trans('Undo last change'),
                 'url' => $this->generateUrl('cms_undo_change', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => ($previewUser === false && $page->getVersion() !== $page->getStreamVersion()),
+                'display' => (false === $previewUser && $page->getVersion() !== $page->getStreamVersion()),
                 'type' => 'link',
             ],
             'submit_changes' => [
@@ -138,7 +138,7 @@ class ApiController extends Controller
                 'icon' => 'fas fa-history',
                 'label' => $translator->trans('Rollback'),
                 'url' => $this->generateUrl('cms_rollback_aggregate', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => ($previewUser === false),
+                'display' => (false === $previewUser),
                 'type' => 'form',
             ],
             'discard_changes' => [
@@ -146,7 +146,7 @@ class ApiController extends Controller
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Discard changes'),
                 'url' => $this->generateUrl('cms_discard_changes', ['pageUuid' => $pageUuid]),
-                'display' => ($previewUser === false && $page->getVersion() !== $page->getStreamVersion()),
+                'display' => (false === $previewUser && $page->getVersion() !== $page->getStreamVersion()),
                 'type' => 'link',
             ],
             'clone_aggregate' => [
@@ -154,7 +154,7 @@ class ApiController extends Controller
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => ($previewUser === false && false === $pageStreamRead->getDeleted()),
+                'display' => (false === $previewUser && false === $pageStreamRead->getDeleted()),
                 'type' => 'link',
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
                     'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
@@ -165,7 +165,7 @@ class ApiController extends Controller
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => ($previewUser === false && false === $pageStreamRead->getDeleted()),
+                'display' => (false === $previewUser && false === $pageStreamRead->getDeleted()),
                 'type' => 'link',
                 'attributes' => [
                     'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
@@ -187,7 +187,7 @@ class ApiController extends Controller
         ];
 
         $users = [];
-        if ($previewUser === false) {
+        if (false === $previewUser) {
             /** @var User[] $adminUsers */
             $adminUsers = $entityManager->getRepository(User::class)->findAll();
             foreach ($adminUsers as $key => $adminUser) {
@@ -214,12 +214,11 @@ class ApiController extends Controller
         return new JsonResponse($data);
     }
 
-
     /**
      * @Route("/page-tree/{pageUuid}/{userId}", name="cms_api_page_tree")
      *
      * @param string                 $pageUuid
-     * @param int|NULL               $userId
+     * @param int|null               $userId
      * @param AggregateFactory       $aggregateFactory
      * @param EntityManagerInterface $entityManager
      *
@@ -273,7 +272,7 @@ class ApiController extends Controller
             foreach ($elements as $element) {
                 $children[] = [
                     'elementName' => $element['elementName'],
-                    'title' => $element['elementName'] === 'Section' ? $element['data']['section'] : '',
+                    'title' => 'Section' === $element['elementName'] ? $element['data']['section'] : '',
                     'uuid' => $element['uuid'],
                     'elements' => isset($element['elements']) ? $this->getChildren($element['elements'], $config) : [],
                     'supportChildTypes' => $config['page_elements'][$element['elementName']]['children'] ?? [],

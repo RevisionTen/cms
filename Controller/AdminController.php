@@ -14,7 +14,7 @@ use RevisionTen\Forms\Model\FormRead;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @Route("/admin")
  */
-class AdminController extends Controller
+class AdminController extends AbstractController
 {
     /**
      * Get the title from the website id.
@@ -35,13 +35,10 @@ class AdminController extends Controller
      *
      * @return Response
      */
-    public function websiteTitle(int $id): Response
+    public function websiteTitle(EntityManagerInterface $entityManager, int $id): Response
     {
-        /** @var EntityManager $em */
-        $em = $this->getDoctrine()->getManager();
-
         /** @var Website $website */
-        $website = $em->getRepository(Website::class)->find($id);
+        $website = $entityManager->getRepository(Website::class)->find($id);
 
         return $this->render('@cms/Admin/website_info.html.twig', [
             'website' => $website ?? [
@@ -59,13 +56,10 @@ class AdminController extends Controller
      *
      * @return Response
      */
-    public function userName(int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
+    public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
     {
-        /** @var EntityManager $em */
-        $em = $this->getDoctrine()->getManager();
-
         /** @var User $user */
-        $user = $em->getRepository(User::class)->find($userId);
+        $user = $entityManager->getRepository(User::class)->find($userId);
 
         return $this->render($template, [
             'user' => $user ?? [

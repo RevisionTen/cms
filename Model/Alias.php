@@ -89,7 +89,7 @@ class Alias
 
     public function getHost(): ?string
     {
-        if (null !== $this->getWebsite() && count($this->getWebsite()->getDomains()) !== 0) {
+        if (null !== $this->getWebsite() && 0 !== count($this->getWebsite()->getDomains())) {
             // Append locale prefix if it differs from the websites default language.
             $locale = '';
             if (null !== $this->getLanguage() && $this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
@@ -97,6 +97,7 @@ class Alias
             }
             /** @var Domain $domain */
             $domain = $this->getWebsite()->getDomains()->first();
+
             return $domain->getDomain().$locale;
         } else {
             return null;

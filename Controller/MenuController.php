@@ -26,8 +26,7 @@ use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +42,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @Route("/admin")
  */
-class MenuController extends Controller
+class MenuController extends AbstractController
 {
     /**
      * A wrapper function to execute a Command.
@@ -123,11 +122,8 @@ class MenuController extends Controller
      *
      * @return JsonResponse
      */
-    public function errorResponse(): JsonResponse
+    public function errorResponse(MessageBus $messageBus): JsonResponse
     {
-        /** @var MessageBus $messageBus */
-        $messageBus = $this->get('messagebus');
-
         return new JsonResponse($messageBus->getMessagesJson());
     }
 
@@ -177,13 +173,14 @@ class MenuController extends Controller
      * @Route("/menu/create/{name}", name="cms_menu_create")
      *
      * @param CommandBus $commandBus
+     * @param MessageBus $messageBus
      * @param string     $name
      *
      * @return JsonResponse|Response
      *
      * @throws \Exception
      */
-    public function create(CommandBus $commandBus, string $name)
+    public function create(CommandBus $commandBus, MessageBus $messageBus, string $name)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -209,7 +206,7 @@ class MenuController extends Controller
             if ($success) {
                 return $this->redirectToMenu($aggregateUuid);
             } else {
-                return $this->errorResponse();
+                return $this->errorResponse($messageBus);
             }
         } else {
             throw new \Exception('Menu with the name '.$name.' is not defined in the cms config');
@@ -221,6 +218,7 @@ class MenuController extends Controller
      *
      * @param Request     $request
      * @param CommandBus  $commandBus
+     * @param MessageBus  $messageBus
      * @param string      $itemName
      * @param string      $menuUuid
      * @param int         $onVersion
@@ -233,7 +231,7 @@ class MenuController extends Controller
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function addItem(Request $request, CommandBus $commandBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
+    public function addItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
     {
         $config = $this->getParameter('cms');
 
@@ -242,26 +240,9 @@ class MenuController extends Controller
 
             /** @var string $formClass */
             $formClass = $itemConfig['class'];
+            $implements = class_implements($formClass);
 
-            // Instantiate the form only to check if it implements FormTypeInterface.
-            try {
-                /**
-                 * Get the form as a service.
-                 * # TODO: Is this needed with autowired forms?
-                 *
-                 * @var FormTypeInterface $formInstance
-                 */
-                $formInstance = $this->get($formClass);
-            } catch (ServiceNotFoundException $e) {
-                /**
-                 * Construct form type instance.
-                 *
-                 * @var FormTypeInterface $formInstance
-                 */
-                $formInstance = new $formClass();
-            }
-
-            if ($formInstance instanceof FormTypeInterface) {
+            if ($implements && in_array(FormTypeInterface::class, $implements)) {
                 $form = $this->createForm(ElementType::class, ['data' => $data], ['elementConfig' => $itemConfig]);
                 $form->handleRequest($request);
 
@@ -284,7 +265,7 @@ class MenuController extends Controller
                     if ($success) {
                         return $this->redirectToMenu($menuUuid);
                     } else {
-                        return $this->errorResponse();
+                        return $this->errorResponse($messageBus);
                     }
                 }
 
@@ -307,6 +288,7 @@ class MenuController extends Controller
      *
      * @param Request             $request
      * @param CommandBus          $commandBus
+     * @param MessageBus          $messageBus
      * @param AggregateFactory    $aggregateFactory
      * @param TranslatorInterface $translator
      * @param string              $menuUuid
@@ -319,7 +301,7 @@ class MenuController extends Controller
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function editItem(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@cms/Form/form.html.twig')
+    public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@cms/Form/form.html.twig')
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -329,7 +311,7 @@ class MenuController extends Controller
 
         if (empty($aggregate->items)) {
             // Aggregate does not exist, or is empty.
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         }
 
         // Get the element from the Aggregate.
@@ -343,25 +325,9 @@ class MenuController extends Controller
             if (isset($config['menu_items'][$itemName])) {
                 $itemConfig = $config['menu_items'][$itemName];
                 $formClass = $itemConfig['class'];
+                $implements = class_implements($formClass);
 
-                // Instantiate the form only to check if it implements FormTypeInterface.
-                try {
-                    /**
-                     * Get the form as a service.
-                     *
-                     * @var FormTypeInterface $formInstance
-                     */
-                    $formInstance = $this->get($formClass);
-                } catch (ServiceNotFoundException $e) {
-                    /**
-                     * Construct form type instance.
-                     *
-                     * @var FormTypeInterface $formInstance
-                     */
-                    $formInstance = new $formClass();
-                }
-
-                if ($formInstance instanceof FormTypeInterface) {
+                if ($implements && in_array(FormTypeInterface::class, $implements)) {
                     $form = $this->createForm(ElementType::class, $data, ['elementConfig' => $itemConfig]);
                     $form->handleRequest($request);
 
@@ -392,7 +358,7 @@ class MenuController extends Controller
                         if ($success) {
                             return $this->redirectToMenu($menuUuid);
                         } else {
-                            return $this->errorResponse();
+                            return $this->errorResponse($messageBus);
                         }
                     }
 
@@ -419,6 +385,7 @@ class MenuController extends Controller
      *
      * @param Request          $request
      * @param CommandBus       $commandBus
+     * @param MessageBus       $messageBus
      * @param AggregateFactory $aggregateFactory
      * @param string           $menuUuid
      * @param int              $onVersion
@@ -426,7 +393,7 @@ class MenuController extends Controller
      *
      * @return JsonResponse|Response
      */
-    public function deleteItem(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
+    public function deleteItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -453,7 +420,7 @@ class MenuController extends Controller
         }
 
         if (!$success) {
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         }
 
         return $this->redirectToMenu($menuUuid);
@@ -466,6 +433,7 @@ class MenuController extends Controller
      *
      * @param Request          $request
      * @param CommandBus       $commandBus
+     * @param MessageBus       $messageBus
      * @param AggregateFactory $aggregateFactory
      * @param string           $menuUuid
      * @param int              $onVersion
@@ -474,7 +442,7 @@ class MenuController extends Controller
      *
      * @return JsonResponse|Response
      */
-    public function shiftItem(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
+    public function shiftItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -503,7 +471,7 @@ class MenuController extends Controller
         }
 
         if (!$success) {
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         }
 
         return $this->redirectToMenu($menuUuid);
@@ -516,6 +484,7 @@ class MenuController extends Controller
      *
      * @param Request          $request
      * @param CommandBus       $commandBus
+     * @param MessageBus       $messageBus
      * @param AggregateFactory $aggregateFactory
      * @param string           $menuUuid
      * @param int              $onVersion
@@ -523,7 +492,7 @@ class MenuController extends Controller
      *
      * @return JsonResponse|Response
      */
-    public function disableItem(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
+    public function disableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -550,7 +519,7 @@ class MenuController extends Controller
         }
 
         if (!$success) {
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         }
 
         return $this->redirectToMenu($menuUuid);
@@ -563,6 +532,7 @@ class MenuController extends Controller
      *
      * @param Request          $request
      * @param CommandBus       $commandBus
+     * @param MessageBus       $messageBus
      * @param AggregateFactory $aggregateFactory
      * @param string           $menuUuid
      * @param int              $onVersion
@@ -570,7 +540,7 @@ class MenuController extends Controller
      *
      * @return JsonResponse|Response
      */
-    public function enableItem(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
+    public function enableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -597,7 +567,7 @@ class MenuController extends Controller
         }
 
         if (!$success) {
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         }
 
         return $this->redirectToMenu($menuUuid);
@@ -761,13 +731,14 @@ class MenuController extends Controller
      * @param Request             $request
      * @param TranslatorInterface $translator
      * @param CommandBus          $commandBus
+     * @param MessageBus          $messageBus
      * @param AggregateFactory    $aggregateFactory
      * @param string              $menuUuid
      * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
      */
-    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
+    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -784,7 +755,7 @@ class MenuController extends Controller
         ], $menuUuid, $onVersion, false); // Todo: Qeue events.
 
         if (!$success) {
-            return $this->errorResponse();
+            return $this->errorResponse($messageBus);
         } else {
             $this->addFlash(
                 'success',
