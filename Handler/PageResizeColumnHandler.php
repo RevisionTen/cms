@@ -68,7 +68,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
         $breakpoint = $payload['breakpoint'];
 
         // Check if breakpoint and size are valid.
-        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || $size < 1 || $size > 12 ) {
+        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || $size < 1 || $size > 12) {
             $this->messageBus->dispatch(new Message(
                 'Size or breakpoint is invalid',
                 CODE_BAD_REQUEST,
@@ -77,8 +77,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
             ));
 
             return false;
-        }
-        elseif (!isset($uuid)) {
+        } elseif (!isset($uuid)) {
             $this->messageBus->dispatch(new Message(
                 'No column uuid to resize is set',
                 CODE_BAD_REQUEST,

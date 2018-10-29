@@ -177,7 +177,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $length = 6;
         $x = '0123456789';
 
-        return substr(str_shuffle(str_repeat($x, ceil($length/strlen($x)))),1, $length);
+        return substr(str_shuffle(str_repeat($x, ceil($length / strlen($x)))), 1, $length);
     }
 
     /**

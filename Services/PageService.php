@@ -129,7 +129,7 @@ class PageService
                 $aliases = $pageStreamRead->getAliases();
                 if (null !== $aliases) {
                     foreach ($aliases as $alias) {
-                        /** @var \RevisionTen\CMS\Model\Alias $alias */
+                        /* @var \RevisionTen\CMS\Model\Alias $alias */
                         $alias->setLanguage($aggregate->language);
                         $alias->setWebsite($this->em->getReference(Website::class, $aggregate->website));
                         $this->em->persist($alias);
