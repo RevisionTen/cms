@@ -39,6 +39,8 @@ class CmsExtension extends Extension implements PrependExtensionInterface
 
     public function prepend(ContainerBuilder $container)
     {
+        $container->setParameter('cms.version', '1.2.6');
+
         // Get configured site name and set the cms.site_name parameter.
         $configs = $container->getExtensionConfig('cms');
         $config = self::mergeCMSConfig($configs);
