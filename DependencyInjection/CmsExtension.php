@@ -2,6 +2,7 @@
 
 namespace RevisionTen\CMS\DependencyInjection;
 
+use RevisionTen\CMS\CmsBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,7 +40,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
 
     public function prepend(ContainerBuilder $container)
     {
-        $container->setParameter('cms.version', '1.2.6');
+        $container->setParameter('cms.version', CmsBundle::VERSION);
 
         // Get configured site name and set the cms.site_name parameter.
         $configs = $container->getExtensionConfig('cms');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\User;
@@ -119,13 +120,14 @@ class AdminController extends AbstractController
         /** @var EventStreamObject[]|null $latestCommits */
         $latestCommits = $em->getRepository(EventStreamObject::class)->findby([
             'event' => PageSubmitEvent::class,
-        ], ['id' => Criteria::DESC], 6);
+        ], ['id' => Criteria::DESC], 7);
 
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'eventStreamObjects' => $eventStreamObjects,
             'eventQeueObjects' => $eventQeueObjects,
             'latestCommits' => $latestCommits,
             'symfony_version' => Kernel::VERSION,
+            'cms_version' => CmsBundle::VERSION,
             'php_version' => phpversion(),
             'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
             'memory_limit' => ini_get('memory_limit'),
