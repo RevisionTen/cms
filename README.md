@@ -9,7 +9,7 @@ Add the bundle and its repositories to your composer.json
 "prefer-stable": true,
 "minimum-stability": "dev",
 "require": {
-    "revision-ten/cms": "@dev",
+    "revision-ten/cms": "^1.2",
 },
 ```
 
@@ -63,7 +63,7 @@ You will be mailed a QR-code that you need for logging in.
 
 If you lost your QR-code you can use this command to generate a new one: `bin/console cms:user:generate_secret`
 
-Start your web-server and login at `/admin`.
+Start your web-server and login at `/login`.
 
 ## Configuration
 
