@@ -8,7 +8,7 @@ use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class UserCreateListener extends UserBaseListener implements ListenerInterface
+class UserGenerateSecretListener extends UserBaseListener implements ListenerInterface
 {
     /**
      * {@inheritdoc}

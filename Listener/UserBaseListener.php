@@ -8,18 +8,21 @@ use RevisionTen\CMS\Services\UserService;
 
 abstract class UserBaseListener
 {
-    /**
-     * @var UserService
-     */
+    /** @var UserService */
     protected $userService;
+
+    /** @var array */
+    protected $config;
 
     /**
      * UserBaseListener constructor.
      *
      * @param UserService $userService
+     * @param boolean     $useMailCodes
      */
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, array $config)
     {
         $this->userService = $userService;
+        $this->config = $config;
     }
 }

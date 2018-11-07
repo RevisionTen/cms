@@ -14,26 +14,27 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class UserService
 {
-    /**
-     * @var EntityManagerInterface
-     */
+    /** @var EntityManagerInterface */
     private $em;
 
-    /**
-     * @var AggregateFactory
-     */
+    /** @var AggregateFactory */
     private $aggregateFactory;
+
+    /** @var SecretService */
+    protected $secretService;
 
     /**
      * UserService constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface        $em
-     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     * @param EntityManagerInterface $em
+     * @param AggregateFactory       $aggregateFactory
+     * @param SecretService          $secretService
      */
-    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory)
+    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, SecretService $secretService)
     {
         $this->em = $em;
         $this->aggregateFactory = $aggregateFactory;
+        $this->secretService = $secretService;
     }
 
     /**
@@ -62,5 +63,25 @@ class UserService
         // Persist UserRead entity.
         $this->em->persist($userRead);
         $this->em->flush();
+    }
+
+    public function sendSecret(string $userUuid)
+    {
+        /**
+         * @var UserAggregate $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
+
+        $this->secretService->sendSecret($aggregate->secret, $aggregate->username, $aggregate->email);
+    }
+
+    public function sendLoginInfo(string $userUuid, string $password)
+    {
+        /**
+         * @var UserAggregate $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
+
+        $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email);
     }
 }

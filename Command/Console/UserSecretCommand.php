@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
+use RevisionTen\CMS\Command\UserGenerateSecretCommand;
+use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CQRS\Services\AggregateFactory;
+use RevisionTen\CQRS\Services\CommandBus;
+use RevisionTen\CQRS\Services\MessageBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,18 +28,29 @@ class UserSecretCommand extends Command
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
-    /** @var SecretService $secretService */
-    private $secretService;
+    /** @var CommandBus $commandBus */
+    private $commandBus;
+
+    /** @var MessageBus $messageBus */
+    private $messageBus;
+
+    /** @var AggregateFactory $aggregateFactory */
+    private $aggregateFactory;
 
     /**
      * UserSecretCommand constructor.
      *
      * @param EntityManagerInterface $entityManager
+     * @param CommandBus             $commandBus
+     * @param MessageBus             $messageBus
+     * @param AggregateFactory       $aggregateFactory
      */
-    public function __construct(EntityManagerInterface $entityManager, SecretService $secretService)
+    public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory)
     {
         $this->entityManager = $entityManager;
-        $this->secretService = $secretService;
+        $this->commandBus = $commandBus;
+        $this->messageBus = $messageBus;
+        $this->aggregateFactory = $aggregateFactory;
 
         parent::__construct();
     }
@@ -85,19 +100,31 @@ class UserSecretCommand extends Command
             'username' => $username,
         ]);
 
-        if ($user) {
+        if ($user && $user->getUuid()) {
+            // Build the aggregate.
+            $userUuid = $user->getUuid();
+            /** @var UserAggregate $aggregate */
+            $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
+            $onVersion = $aggregate->getStreamVersion();
+
+            // Generate the new secret.
             $googleAuthenticator = new GoogleAuthenticator();
             $secret = $googleAuthenticator->generateSecret();
-            $user->setSecret($secret);
 
-            // Persist the user.
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+            $success = false;
+            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $userGenerateSecretCommand = new UserGenerateSecretCommand(-1, null, $userUuid, $onVersion, [
+                'secret' => $secret,
+            ], $successCallback);
+            $this->commandBus->dispatch($userGenerateSecretCommand);
 
-            // Send the secret QRCode via mail.
-            $this->secretService->sendSecret($secret, $user->getUsername(), $user->getEmail());
-
-            $output->writeln('User secret generated.');
+            if ($success) {
+                $output->writeln('User secret generated.');
+            } else {
+                $messages = $this->messageBus->getMessagesJson();
+                $output->writeln('UserGenerateSecretCommand failed.');
+                $output->writeln($messages);
+            }
         } else {
             $output->writeln('User not found.');
         }

@@ -135,9 +135,19 @@ services:
         tags: [form.type]
     RevisionTen\CMS\Listener\:
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php}'
         public: true
         autowire: true
+    RevisionTen\CMS\Listener\UserCreateListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserGenerateSecretListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
 
 framework:
     translator:

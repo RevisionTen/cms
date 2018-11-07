@@ -6,8 +6,8 @@ namespace RevisionTen\CMS\Command\Console;
 
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
@@ -33,18 +33,16 @@ class UserCreateCommand extends Command
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
 
-    /** @var SecretService $secretService */
-    private $secretService;
-
     /** @var CommandBus $commandBus */
     private $commandBus;
 
     /** @var MessageBus $messageBus */
     private $messageBus;
 
-    /**
-     * @var array
-     */
+    /** @var UserService $userService */
+    private $userService;
+
+    /** @var array */
     private $config;
 
     /**
@@ -52,17 +50,18 @@ class UserCreateCommand extends Command
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param EntityManagerInterface       $entityManager
-     * @param SecretService                $secretService
      * @param CommandBus                   $commandBus
+     * @param MessageBus                   $messageBus
+     * @param UserService                  $userService
      * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService, CommandBus $commandBus, MessageBus $messageBus, array $config)
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService, array $config)
     {
         $this->entityManager = $entityManager;
         $this->encoder = $encoder;
-        $this->secretService = $secretService;
         $this->commandBus = $commandBus;
         $this->messageBus = $messageBus;
+        $this->userService = $userService;
         $this->config = $config;
 
         parent::__construct();
@@ -174,6 +173,8 @@ class UserCreateCommand extends Command
             $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
+        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+
         // Encoded the password.
         $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
 
@@ -182,33 +183,24 @@ class UserCreateCommand extends Command
         $secret = $googleAuthenticator->generateSecret();
 
         // Create the User.
-        $userData = [
+        $payload = [
             'username' => $username,
             'email' => $email,
             'avatarUrl' => $avatarUrl,
             'password' => $encodedPassword,
             'secret' => $secret,
             'color' => null,
+            'sendLoginMail' => $sendLoginMail,
+            'useMailCodes' => $useMailCodes,
         ];
 
         $success = false;
         $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
         $userUuid = Uuid::uuid1()->toString();
-        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $userData, $successCallback);
+        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
         $this->commandBus->dispatch($userCreateCommand);
 
         if ($success) {
-            // Send the secret QRCode via mail.
-            $useMailCodes = $this->config['use_mail_codes'] ?? false;
-            if (!$useMailCodes) {
-                $this->secretService->sendSecret($secret, $password, $email);
-            }
-
-            // Send email with login data to new user.
-            if ($sendLoginMail) {
-                $this->secretService->sendLoginInfo($username, $password, $email);
-            }
-
             // Return info about the new user.
             $output->writeln('User saved.');
             $output->writeln('Username: '.$username);
@@ -216,6 +208,7 @@ class UserCreateCommand extends Command
             $output->writeln('Avatar url: '.$avatarUrl);
             $output->writeln('Email: '.$email);
             if ($sendLoginMail) {
+                $this->userService->sendLoginInfo($userUuid, $password);
                 $output->writeln('Email with login info was sent to '.$email);
             }
         } else {
