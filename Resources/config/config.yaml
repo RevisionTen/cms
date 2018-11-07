@@ -83,6 +83,11 @@ services:
         autowire: true
         public: false
         tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
     RevisionTen\CMS\Services\SecretService:
         autowire: true
         public: true
@@ -140,7 +145,7 @@ services:
         tags: [form.type]
     RevisionTen\CMS\Listener\:
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php}'
         public: true
         autowire: true
     RevisionTen\CMS\Listener\UserCreateListener:
@@ -149,6 +154,11 @@ services:
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Listener\UserGenerateSecretListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserChangePasswordListener:
         public: true
         autowire: true
         arguments:

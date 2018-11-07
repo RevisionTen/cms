@@ -173,7 +173,7 @@ class UserCreateCommand extends Command
             $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
-        // Encoded the password.
+        // Encode the password.
         $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
 
         // Generate a secret.

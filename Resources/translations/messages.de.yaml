@@ -3,6 +3,7 @@ This list shows all persisted events.: "Diese Liste zeigt alle im Event-Stream g
 Hello %username%: "Hallo %username%"
 User Created: "Benutzer angelegt"
 User secret generated: "Geheimer Schlüssel generiert"
+User password changed: "Password geändert"
 what do you want to do?: "was willst du tun?"
 I want to create a page: "Ich will eine Seite erstellen"
 I want to edit a page: "Ich will eine Seite bearbeiten"
