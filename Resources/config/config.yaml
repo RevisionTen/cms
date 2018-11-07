@@ -78,6 +78,11 @@ services:
         autowire: true
         public: false
         tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserMigrateCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
     RevisionTen\CMS\Services\SecretService:
         autowire: true
         public: true

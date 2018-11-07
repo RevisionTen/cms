@@ -91,15 +91,17 @@ class AdminController extends AbstractController
 
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($uuid);
+        /** @var FormRead|null $formRead */
+        $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
+        /** @var UserRead|null $userRead */
+        $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
-        } else {
-            /** @var FormRead|null $formRead */
-            $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
-            if ($formRead) {
-                $title = $formRead->getTitle();
-            }
+        } elseif ($formRead) {
+            $title = $formRead->getTitle();
+        } elseif ($userRead) {
+            $title = $userRead->getUsername();
         }
 
         return new Response($title);

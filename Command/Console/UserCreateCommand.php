@@ -173,8 +173,6 @@ class UserCreateCommand extends Command
             $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
-        $useMailCodes = $this->config['use_mail_codes'] ?? false;
-
         // Encoded the password.
         $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
 
@@ -190,8 +188,6 @@ class UserCreateCommand extends Command
             'password' => $encodedPassword,
             'secret' => $secret,
             'color' => null,
-            'sendLoginMail' => $sendLoginMail,
-            'useMailCodes' => $useMailCodes,
         ];
 
         $success = false;
