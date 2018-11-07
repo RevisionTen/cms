@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
@@ -59,14 +59,19 @@ class AdminController extends AbstractController
      */
     public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
     {
-        /** @var User $user */
-        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (-1 === $userId) {
+            $unknownUser = new UserRead();
+            $unknownUser->setUsername('System');
+        } else {
+            /** @var UserRead $user */
+            $user = $entityManager->getRepository(UserRead::class)->find($userId);
+
+            $unknownUser = new UserRead();
+            $unknownUser->setUsername('Unknown');
+        }
 
         return $this->render($template, [
-            'user' => $user ?? [
-                'username' => 'anonymous',
-                'avatarUrl' => null,
-            ],
+            'user' => $user ?? $unknownUser,
         ]);
     }
 
@@ -161,7 +166,7 @@ class AdminController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
         $edit = true;
 
@@ -169,8 +174,8 @@ class AdminController extends AbstractController
         if ($previewUserId = $request->get('user')) {
             if ($user->getId() != $previewUserId) {
                 $edit = false;
-                /** @var User $user */
-                $user = $em->getRepository(User::class)->find($previewUserId);
+                /** @var UserRead $user */
+                $user = $em->getRepository(UserRead::class)->find($previewUserId);
             }
         }
 

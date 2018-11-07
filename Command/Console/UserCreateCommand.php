@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use RevisionTen\CMS\Model\User;
+use Ramsey\Uuid\Uuid;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CQRS\Services\CommandBus;
+use RevisionTen\CQRS\Services\MessageBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,6 +36,12 @@ class UserCreateCommand extends Command
     /** @var SecretService $secretService */
     private $secretService;
 
+    /** @var CommandBus $commandBus */
+    private $commandBus;
+
+    /** @var MessageBus $messageBus */
+    private $messageBus;
+
     /**
      * @var array
      */
@@ -44,13 +53,16 @@ class UserCreateCommand extends Command
      * @param UserPasswordEncoderInterface $encoder
      * @param EntityManagerInterface       $entityManager
      * @param SecretService                $secretService
+     * @param CommandBus                   $commandBus
      * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService, array $config)
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService, CommandBus $commandBus, MessageBus $messageBus, array $config)
     {
         $this->entityManager = $entityManager;
         $this->encoder = $encoder;
         $this->secretService = $secretService;
+        $this->commandBus = $commandBus;
+        $this->messageBus = $messageBus;
         $this->config = $config;
 
         parent::__construct();
@@ -85,7 +97,7 @@ class UserCreateCommand extends Command
             $usernameQuestion = new Question('Please enter a username: ');
 
             $usernameQuestion->setValidator(function ($answer) {
-                if ($this->entityManager->getRepository(User::class)->findOneByUsername($answer)) {
+                if ($this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
                     throw new \RuntimeException('This username is already taken.');
                 }
 
@@ -102,7 +114,7 @@ class UserCreateCommand extends Command
             $emailQuestion = new Question('Please enter an email: ');
 
             $emailQuestion->setValidator(function ($answer) {
-                if ($this->entityManager->getRepository(User::class)->findOneByEmail($answer)) {
+                if ($this->entityManager->getRepository(UserRead::class)->findOneByEmail($answer)) {
                     throw new \RuntimeException('This email is already taken.');
                 }
 
@@ -162,44 +174,54 @@ class UserCreateCommand extends Command
             $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
-        // Create the User.
-        $user = new User();
-        $user->setUsername($username);
-        $user->setEmail($email);
-        $user->setAvatarUrl($avatarUrl);
-
         // Encoded the password.
-        $encodedPassword = $this->encoder->encodePassword($user, $password);
-        $user->setPassword($encodedPassword);
+        $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
 
+        // Generate a secret.
         $googleAuthenticator = new GoogleAuthenticator();
         $secret = $googleAuthenticator->generateSecret();
-        $user->setSecret($secret);
 
-        // Persist the user.
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        // Create the User.
+        $userData = [
+            'username' => $username,
+            'email' => $email,
+            'avatarUrl' => $avatarUrl,
+            'password' => $encodedPassword,
+            'secret' => $secret,
+            'color' => null,
+        ];
 
-        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+        $success = false;
+        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $userUuid = Uuid::uuid1()->toString();
+        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $userData, $successCallback);
+        $this->commandBus->dispatch($userCreateCommand);
 
-        // Send the secret QRCode via mail.
-        if (!$useMailCodes) {
-            $this->secretService->sendSecret($secret, $user->getUsername(), $user->getEmail());
-        }
+        if ($success) {
+            // Send the secret QRCode via mail.
+            $useMailCodes = $this->config['use_mail_codes'] ?? false;
+            if (!$useMailCodes) {
+                $this->secretService->sendSecret($secret, $password, $email);
+            }
 
-        // Send email with login data to new user.
-        if ($sendLoginMail) {
-            $this->secretService->sendLoginInfo($user->getUsername(), $password, $user->getEmail());
-        }
+            // Send email with login data to new user.
+            if ($sendLoginMail) {
+                $this->secretService->sendLoginInfo($username, $password, $email);
+            }
 
-        // Return info about the new user.
-        $output->writeln('User saved.');
-        $output->writeln('Username: '.$username);
-        $output->writeln('Password: '.$password);
-        $output->writeln('Avatar url: '.$avatarUrl);
-        $output->writeln('Email: '.$email);
-        if ($sendLoginMail) {
-            $output->writeln('Email with login info was sent to '.$email);
+            // Return info about the new user.
+            $output->writeln('User saved.');
+            $output->writeln('Username: '.$username);
+            $output->writeln('Password: '.$password);
+            $output->writeln('Avatar url: '.$avatarUrl);
+            $output->writeln('Email: '.$email);
+            if ($sendLoginMail) {
+                $output->writeln('Email with login info was sent to '.$email);
+            }
+        } else {
+            $messages = $this->messageBus->getMessagesJson();
+            $output->writeln('UserCreateCommand failed.');
+            $output->writeln($messages);
         }
     }
 

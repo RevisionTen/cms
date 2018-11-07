@@ -86,6 +86,9 @@ services:
     RevisionTen\CMS\Services\PageService:
         autowire: true
         public: true
+    RevisionTen\CMS\Services\UserService:
+        autowire: true
+        public: true
     RevisionTen\CMS\Services\CacheService:
         autowire: true
         public: true

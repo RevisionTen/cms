@@ -2,7 +2,7 @@
 
 namespace RevisionTen\CMS\Security;
 
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -183,10 +183,10 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     /**
      * Sends a mail with a login code.
      *
-     * @param User   $user
+     * @param UserRead   $user
      * @param string $code
      */
-    private function sendCodeMail(User $user, string $code): void
+    private function sendCodeMail(UserRead $user, string $code): void
     {
         $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
 

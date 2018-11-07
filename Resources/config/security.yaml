@@ -2,12 +2,12 @@ security:
     session_fixation_strategy: none
     erase_credentials: false
     encoders:
-        RevisionTen\CMS\Model\User:
+        RevisionTen\CMS\Model\UserRead:
             algorithm: bcrypt
     providers:
         db_provider:
             entity:
-                class: RevisionTen\CMS\Model\User
+                class: RevisionTen\CMS\Model\UserRead
                 property: username
     firewalls:
         # Protect the Admin Area with the Code Authenticator.

@@ -8,11 +8,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User.
+ * UserRead.
  *
  * @ORM\Entity
+ * @ORM\Table("user")
  */
-class User implements UserInterface, \Serializable
+class UserRead implements UserInterface, \Serializable
 {
     /**
      * @var int
@@ -21,6 +22,12 @@ class User implements UserInterface, \Serializable
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     */
+    private $uuid;
 
     /**
      * @var string
@@ -119,6 +126,26 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return UserRead
+     */
+    public function setUuid(string $uuid): UserRead
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getUsername()
     {
         return $this->username;
@@ -127,7 +154,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $username
      *
-     * @return User
+     * @return UserRead
      */
     public function setUsername(string $username): self
     {
@@ -147,7 +174,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $email
      *
-     * @return User
+     * @return UserRead
      */
     public function setEmail(string $email): self
     {
@@ -167,7 +194,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $password
      *
-     * @return User
+     * @return UserRead
      */
     public function setPassword(string $password): self
     {
@@ -187,7 +214,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $secret
      *
-     * @return User
+     * @return UserRead
      */
     public function setSecret(string $secret): self
     {
@@ -209,11 +236,11 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * @param string $color
+     * @param string|null $color
      *
-     * @return User
+     * @return UserRead
      */
-    public function setColor(string $color): self
+    public function setColor(string $color = null): self
     {
         $this->color = $color;
 
@@ -231,7 +258,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string|null $avatarUrl
      *
-     * @return User
+     * @return UserRead
      */
     public function setAvatarUrl(string $avatarUrl = null): self
     {
@@ -280,7 +307,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param bool $imposter
      *
-     * @return User
+     * @return UserRead
      */
     public function setImposter(bool $imposter): self
     {
@@ -289,3 +316,5 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 }
+
+\class_alias('RevisionTen\CMS\Model\UserRead', 'RevisionTen\CMS\Model\User');

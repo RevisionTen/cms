@@ -28,7 +28,7 @@ use RevisionTen\CMS\Command\PageChangeSettingsCommand;
 use RevisionTen\CMS\Command\PageCreateCommand;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
@@ -86,7 +86,7 @@ class PageController extends AbstractController
     public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
-            /** @var User $user */
+            /** @var UserRead $user */
             $user = $this->getUser();
             $userId = $user->getId();
         }
@@ -182,7 +182,7 @@ class PageController extends AbstractController
      */
     public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $ignore_validation = $request->get('ignore_validation');
@@ -305,7 +305,7 @@ class PageController extends AbstractController
      */
     public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         // Check if breakpoint and size are valid.
@@ -355,7 +355,7 @@ class PageController extends AbstractController
      */
     public function resizeColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $size, string $breakpoint)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
@@ -393,7 +393,7 @@ class PageController extends AbstractController
      */
     public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
@@ -449,7 +449,7 @@ class PageController extends AbstractController
      */
     public function discardChanges(EventStore $eventStore, string $pageUuid): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $eventStore->discardQeued($pageUuid, $user->getId());
@@ -471,7 +471,7 @@ class PageController extends AbstractController
      */
     public function undoChange(EventStore $eventStore, string $pageUuid, int $version): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $eventStore->discardLatestQeued($pageUuid, $user->getId(), $version);
@@ -499,7 +499,7 @@ class PageController extends AbstractController
             return $this->errorResponse();
         }
 
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Website $website */
@@ -779,7 +779,7 @@ class PageController extends AbstractController
      */
     public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $aggregate */
@@ -879,7 +879,7 @@ class PageController extends AbstractController
      */
     public function deleteElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $aggregate */
@@ -927,7 +927,7 @@ class PageController extends AbstractController
      */
     public function shiftElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid, string $direction)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageShiftElementCommand::class, [
@@ -1036,10 +1036,10 @@ class PageController extends AbstractController
     {
         $config = $this->getParameter('cms');
 
-        /** @var User $user */
-        $user = $entityManager->getRepository(User::class)->find($user);
+        /** @var UserRead $user */
+        $user = $entityManager->getRepository(UserRead::class)->find($user);
 
-        /** @var User $realUser */
+        /** @var UserRead $realUser */
         $realUser = $this->getUser();
 
         if ($user->getId() === $realUser->getId()) {
@@ -1056,8 +1056,8 @@ class PageController extends AbstractController
 
         // Get all qeued Events for this page.
 
-        /** @var User[] $adminUsers */
-        $adminUsers = $entityManager->getRepository(User::class)->findAll();
+        /** @var UserRead[] $adminUsers */
+        $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
             $eventStreamObjects = $eventStore->findQeued($pageUuid, null, $page->getStreamVersion() + 1, $adminUser->getId());
@@ -1131,7 +1131,7 @@ class PageController extends AbstractController
     {
         $config = $this->getParameter('cms');
 
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var PageStreamRead $pageStreamRead */
@@ -1241,7 +1241,7 @@ class PageController extends AbstractController
      */
     public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, EventStore $eventStore, TranslatorInterface $translator): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var int $id FormRead Id. */
@@ -1288,7 +1288,7 @@ class PageController extends AbstractController
      */
     public function rollbackAggregateAction(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $version)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $pageAggregate */
@@ -1362,7 +1362,7 @@ class PageController extends AbstractController
      */
     public function disableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageDisableElementCommand::class, [
@@ -1409,7 +1409,7 @@ class PageController extends AbstractController
      */
     public function enableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageEnableElementCommand::class, [
@@ -1456,7 +1456,7 @@ class PageController extends AbstractController
      */
     public function duplicateElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageDuplicateElementCommand::class, [
@@ -1501,7 +1501,7 @@ class PageController extends AbstractController
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $order = json_decode($request->getContent(), true);

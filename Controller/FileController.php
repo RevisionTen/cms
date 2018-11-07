@@ -78,7 +78,7 @@ class FileController extends AbstractController
      */
     public function fileCreate(Request $request, FileService $fileService): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
         $userId = $user->getId();
 

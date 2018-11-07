@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Services;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -39,6 +39,11 @@ class PageService
      * @var EventBus
      */
     private $eventBus;
+
+    /**
+     * @var CacheService
+     */
+    private $cacheService;
 
     /**
      * PageService constructor.
@@ -216,8 +221,8 @@ class PageService
      */
     private function removeQeuedEvents(string $pageUuid): void
     {
-        /** @var User[] $users */
-        $users = $this->em->getRepository(User::class)->findAll();
+        /** @var UserRead[] $users */
+        $users = $this->em->getRepository(UserRead::class)->findAll();
 
         // Remove all other qeued Events for this Page.
         foreach ($users as $qeueUser) {

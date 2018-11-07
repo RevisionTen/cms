@@ -17,7 +17,7 @@ use RevisionTen\CMS\Form\Page;
 use RevisionTen\CMS\Handler\MenuBaseHandler;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -61,7 +61,7 @@ class MenuController extends AbstractController
     public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
-            /** @var User $user */
+            /** @var UserRead $user */
             $user = $this->getUser();
             $userId = $user->getId();
         }
@@ -182,7 +182,7 @@ class MenuController extends AbstractController
      */
     public function create(CommandBus $commandBus, MessageBus $messageBus, string $name)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $config = $this->getParameter('cms');
@@ -303,7 +303,7 @@ class MenuController extends AbstractController
      */
     public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@cms/Form/form.html.twig')
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Menu $aggregate */
@@ -395,7 +395,7 @@ class MenuController extends AbstractController
      */
     public function deleteItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Menu $aggregate */
@@ -444,7 +444,7 @@ class MenuController extends AbstractController
      */
     public function shiftItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuShiftItemCommand::class, [
@@ -494,7 +494,7 @@ class MenuController extends AbstractController
      */
     public function disableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuDisableItemCommand::class, [
@@ -542,7 +542,7 @@ class MenuController extends AbstractController
      */
     public function enableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuEnableItemCommand::class, [
@@ -740,7 +740,7 @@ class MenuController extends AbstractController
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $order = json_decode($request->getContent(), true);

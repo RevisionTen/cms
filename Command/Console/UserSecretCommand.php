@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Services\SecretService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
@@ -65,7 +65,7 @@ class UserSecretCommand extends Command
             $usernameQuestion = new Question('Please enter a username: ');
 
             $usernameQuestion->setValidator(function ($answer) {
-                if (!$this->entityManager->getRepository(User::class)->findOneByUsername($answer)) {
+                if (!$this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
                     throw new \RuntimeException('User not found.');
                 }
 
@@ -79,9 +79,9 @@ class UserSecretCommand extends Command
         /**
          * Get the User.
          *
-         * @var User $user
+         * @var UserRead $user
          */
-        $user = $this->entityManager->getRepository(User::class)->findOneBy([
+        $user = $this->entityManager->getRepository(UserRead::class)->findOneBy([
             'username' => $username,
         ]);
 

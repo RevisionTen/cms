@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Services;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\File;
@@ -30,7 +30,7 @@ class FileService
     private $commandBus;
 
     /**
-     * @var User
+     * @var UserRead
      */
     private $user;
 
