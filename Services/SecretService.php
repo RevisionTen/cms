@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Sonata\GoogleAuthenticator\GoogleQrUrl;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -28,17 +32,29 @@ class SecretService
     private $translator;
 
     /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
+    /**
      * SecretService constructor.
      *
      * @param \Swift_Mailer       $swift_Mailer
      * @param array               $config
      * @param TranslatorInterface $translator
      */
-    public function __construct(\Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator)
+    public function __construct(\Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router)
     {
         $this->swift_Mailer = $swift_Mailer;
         $this->config = $config;
         $this->translator = $translator;
+        $this->requestStack = $requestStack;
+        $this->router = $router;
     }
 
     public function sendLoginInfo(string $username, string $password, string $mail): void
@@ -81,6 +97,32 @@ Secret: $secret<br/><br/>
 <img src="$qrCode"><br/><br/>
 <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=de">Google Authenticator (Android)</a><br/>
 <a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>
+EOT;
+
+        $this->sendMail($subject, $messageBody, $mail);
+    }
+
+    public function sendPasswordResetMail(string $username, string $token, string $mail): void
+    {
+        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+
+        $subject = $this->translator->trans('Password reset requested for %username%', [
+            '%username%' => $username,
+        ]);
+
+        $messageText = $this->translator->trans('Click here to reset your password.');
+
+        // Generate reset url.
+        $context = new RequestContext();
+        $context->fromRequest($this->requestStack->getMasterRequest());
+        $this->router->setContext($context);
+        $resetUrl = $this->router->generate('cms_reset_password_form', [
+            'resetToken' => $token,
+            'username' => $username,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $messageBody = <<<EOT
+<a href="$resetUrl">$messageText</a>
 EOT;
 
         $this->sendMail($subject, $messageBody, $mail);

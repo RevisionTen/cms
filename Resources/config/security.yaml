@@ -20,9 +20,10 @@ security:
                 authenticators:
                     - RevisionTen\CMS\Security\CodeAuthenticator
             logout:
-                path:   /logout
-                target: /
                 invalidate_session: true
+                path: cms_logout
+                target: /
+                #handlers: [RevisionTen\CMS\EventListener\LogoutListener]
         # Protect the Code Authenticator with the Basic Authenticator.
         code:
             methods: [GET, POST, PUT, PATCH, DELETE]
@@ -33,6 +34,6 @@ security:
                 authenticators:
                     - RevisionTen\CMS\Security\BasicAuthenticator
             logout:
-                path:   /logout
-                target: /
                 invalidate_session: true
+                path: cms_logout
+                target: /

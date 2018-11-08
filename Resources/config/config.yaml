@@ -45,6 +45,11 @@ services:
         autowire: true
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 20 }
+    # TODO: Fix this listener.
+    # RevisionTen\CMS\EventListener\LogoutListener:
+    #     autowire: true
+    #     tags:
+    #         - { name: security.logout_listener.main, event: security.logout_listener }
     RevisionTen\CMS\Controller\:
         autowire: true
         autoconfigure: true
@@ -145,7 +150,7 @@ services:
         tags: [form.type]
     RevisionTen\CMS\Listener\:
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php}'
         public: true
         autowire: true
     RevisionTen\CMS\Listener\UserCreateListener:
@@ -164,6 +169,16 @@ services:
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Listener\UserLoginListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLogoutListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserResetPasswordListener:
         public: true
         autowire: true
         arguments:

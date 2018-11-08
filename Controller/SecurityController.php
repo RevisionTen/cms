@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Command\UserChangePasswordCommand;
+use RevisionTen\CMS\Command\UserResetPasswordCommand;
+use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -15,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -169,13 +177,166 @@ class SecurityController extends AbstractController
      *
      * @Route("/reset-password", name="cms_reset_password")
      *
-     * @param Request $request
+     * @param Request                $request
+     * @param FormFactoryInterface   $formFactory
+     * @param EntityManagerInterface $entityManager
+     * @param CommandBus             $commandBus
      *
      * @return RedirectResponse
      */
-    public function resetPassword(Request $request): RedirectResponse
+    public function resetPassword(Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus): Response
     {
-        return $this->redirect('/');
+        $formBuilder = $formFactory->createNamedBuilder(null);
+
+        $formBuilder->setMethod('POST');
+
+        $formBuilder->add('username_email', TextType::class, [
+            'label' => 'Username or email',
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('send', SubmitType::class, [
+            'label' => 'Request new Password',
+        ]);
+
+        $form = $formBuilder->getForm();
+        $form->handleRequest($request);
+
+        $success = false;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $success = true;
+
+            $this->addFlash('success', 'A password reset email was requested. Please check your inbox.');
+
+            $data = $form->getData();
+            $usernameOrEmail = $data['username_email'];
+
+            /** @var UserRead $user */
+            $user = $entityManager->getRepository(UserRead::class)->findOneByUsername($usernameOrEmail);
+            if (null === $user) {
+                $user = $entityManager->getRepository(UserRead::class)->findOneByEmail($usernameOrEmail);
+            }
+
+            if (null !== $user) {
+                $userId = $user->getId();
+                $userUuid = $user->getUuid();
+
+                // Check if user has an aggregate.
+                if (null !== $userUuid) {
+                    $onVersion = $user->getVersion();
+
+                    $token = $this->random_str();
+
+                    // Dispatch password reset event.
+                    $userResetPasswordCommand = new UserResetPasswordCommand($userId, null, $userUuid, $onVersion, [
+                        'token' => $token,
+                    ]);
+                    $commandBus->dispatch($userResetPasswordCommand);
+                }
+            }
+        }
+
+        return $this->render('@cms/Security/reset-password-form.html.twig', [
+            'form' => $form->createView(),
+            'success' => $success,
+        ]);
+    }
+
+    private function random_str($length = 10, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    {
+        $pieces = [];
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $pieces []= $keyspace[random_int(0, $max)];
+        }
+        return implode('', $pieces);
+    }
+
+    /**
+     * Password reset form.
+     *
+     * @Route("/reset-password-form/{resetToken}/{username}", name="cms_reset_password_form")
+     *
+     * @param Request                      $request
+     * @param FormFactoryInterface         $formFactory
+     * @param EntityManagerInterface       $entityManager
+     * @param CommandBus                   $commandBus
+     * @param UserPasswordEncoderInterface $encoder
+     *
+     * @return RedirectResponse
+     */
+    public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder): Response
+    {
+
+        $formBuilder = $formFactory->createNamedBuilder(null, FormType::class, [
+            'username' => $username,
+            'resetToken' => $resetToken,
+        ]);
+
+        $formBuilder->setMethod('POST');
+
+        $formBuilder->add('username', HiddenType::class, [
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('resetToken', HiddenType::class, [
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('password', PasswordType::class, [
+            'label' => 'New Password',
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('send', SubmitType::class, [
+            'label' => 'Set new password',
+        ]);
+
+        $form = $formBuilder->getForm();
+        $form->handleRequest($request);
+
+        $success = false;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $password = $data['password'];
+            $username = $data['username'];
+            $resetToken = $data['resetToken'];
+
+            /** @var UserRead $user */
+            $user = $entityManager->getRepository(UserRead::class)->findOneByUsername($username);
+
+            if (null !== $user) {
+                $userId = $user->getId();
+                $userUuid = $user->getUuid();
+                $userToken = $user->getResetToken();
+                $encodedPassword = $encoder->encodePassword($user, $password);
+
+                // Check if token matches and user has an aggregate.
+                if ($userToken === $resetToken && null !== $userUuid) {
+                    $onVersion = $user->getVersion();
+
+                    // Dispatch password reset event.
+                    $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+                    $userChangePasswordCommand = new UserChangePasswordCommand($userId, null, $userUuid, $onVersion, [
+                        'password' => $encodedPassword,
+                    ], $successCallback);
+                    $commandBus->dispatch($userChangePasswordCommand);
+                }
+            }
+        }
+
+        if ($success) {
+            $this->addFlash('success', 'Password was changed!');
+        }
+
+        return $this->render('@cms/Security/reset-password-form.html.twig', [
+            'form' => $form->createView(),
+            'success' => $success,
+        ]);
     }
 
     /**
@@ -189,8 +350,8 @@ class SecurityController extends AbstractController
      */
     public function logout(Request $request): RedirectResponse
     {
+        // Destroy session.
         $session = $request->getSession();
-
         if ($session) {
             $session->clear();
         }

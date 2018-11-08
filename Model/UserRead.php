@@ -57,6 +57,12 @@ class UserRead implements UserInterface, \Serializable
      * @var string
      * @ORM\Column(type="string", nullable=true)
      */
+    private $resetToken;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
     private $color;
 
     /**
@@ -237,6 +243,26 @@ class UserRead implements UserInterface, \Serializable
     public function setSecret(string $secret): self
     {
         $this->secret = $secret;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    /**
+     * @param string|null $resetToken
+     *
+     * @return UserRead
+     */
+    public function setResetToken(string $resetToken = null): self
+    {
+        $this->resetToken = $resetToken;
 
         return $this;
     }

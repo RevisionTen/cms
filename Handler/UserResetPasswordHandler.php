@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserChangePasswordCommand;
-use RevisionTen\CMS\Event\UserChangePasswordEvent;
+use RevisionTen\CMS\Command\UserResetPasswordCommand;
+use RevisionTen\CMS\Event\UserResetPasswordEvent;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
@@ -14,7 +14,7 @@ use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use RevisionTen\CQRS\Message\Message;
 use RevisionTen\CQRS\Handler\Handler;
 
-final class UserChangePasswordHandler extends Handler implements HandlerInterface
+final class UserResetPasswordHandler extends Handler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -25,8 +25,7 @@ final class UserChangePasswordHandler extends Handler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        $aggregate->password = $payload['password'];
-        $aggregate->resetToken = null;
+        $aggregate->resetToken = $payload['token'];
 
         return $aggregate;
     }
@@ -36,7 +35,7 @@ final class UserChangePasswordHandler extends Handler implements HandlerInterfac
      */
     public static function getCommandClass(): string
     {
-        return UserChangePasswordCommand::class;
+        return UserResetPasswordCommand::class;
     }
 
     /**
@@ -44,7 +43,7 @@ final class UserChangePasswordHandler extends Handler implements HandlerInterfac
      */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserChangePasswordEvent($command);
+        return new UserResetPasswordEvent($command);
     }
 
     /**
@@ -54,9 +53,9 @@ final class UserChangePasswordHandler extends Handler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (!isset($payload['password']))  {
+        if (!isset($payload['token']))  {
             $this->messageBus->dispatch(new Message(
-                'Missing new password',
+                'Missing token',
                 CODE_BAD_REQUEST,
                 $command->getUuid(),
                 $command->getAggregateUuid()

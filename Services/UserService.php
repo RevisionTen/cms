@@ -62,6 +62,7 @@ class UserService
         $userRead->setColor($aggregate->color);
         $userRead->setDevices($aggregate->devices);
         $userRead->setIps($aggregate->ips);
+        $userRead->setResetToken($aggregate->resetToken);
 
         // Persist UserRead entity.
         $this->em->persist($userRead);
@@ -86,5 +87,15 @@ class UserService
         $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
         $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email);
+    }
+
+    public function sendPasswordResetMail(string $userUuid, string $token)
+    {
+        /**
+         * @var UserAggregate $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
+
+        $this->secretService->sendPasswordResetMail($aggregate->username, $token, $aggregate->email);
     }
 }

@@ -21,6 +21,9 @@ final class UserAggregate extends Aggregate
     public $secret;
 
     /** @var string */
+    public $resetToken;
+
+    /** @var string */
     public $color;
 
     /** @var string */
