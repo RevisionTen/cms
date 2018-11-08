@@ -145,7 +145,7 @@ services:
         tags: [form.type]
     RevisionTen\CMS\Listener\:
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php}'
         public: true
         autowire: true
     RevisionTen\CMS\Listener\UserCreateListener:
@@ -159,6 +159,11 @@ services:
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Listener\UserChangePasswordListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLoginListener:
         public: true
         autowire: true
         arguments:
@@ -221,6 +226,7 @@ easy_admin:
             - { label: 'Menues', route: 'cms_list_menues', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
+            - { entity: UserRead, icon: 'users' }
             - { entity: EventStreamObject, icon: 'clock' }
     formats:
         date:     'd.m.Y'
@@ -322,7 +328,7 @@ easy_admin:
                 help: 'This list shows all persisted events.'
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', label: 'inspect payload', icon: 'eye' }
+                    #- { name: 'show', label: 'inspect payload', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -332,6 +338,30 @@ easy_admin:
                     - 'version'
                     - { property: 'created', type: 'datetime' }
                     - { property: 'user', template: '@cms/Admin/user_column.html.twig' }
+        UserRead:
+            label: 'Users'
+            class: RevisionTen\CMS\Model\UserRead
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'username' }
+                    - { property: 'email' }
+                    - { property: 'devices' }
+                    - { property: 'ips' }
+            list:
+                sort: ['id', 'DESC']
+                actions:
+                    - { name: 'show', icon: 'eye' }
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'username', label: 'Username' }
+                    - { property: 'email', label: 'Email' }
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead

@@ -53,12 +53,15 @@ class UserService
         $userRead = $this->em->getRepository(UserRead::class)->findOneByUuid($userUuid) ?? new UserRead();
 
         $userRead->setUuid($userUuid);
+        $userRead->setVersion($aggregate->getVersion());
         $userRead->setEmail($aggregate->email);
         $userRead->setSecret($aggregate->secret);
         $userRead->setAvatarUrl($aggregate->avatarUrl);
         $userRead->setUsername($aggregate->username);
         $userRead->setPassword($aggregate->password);
         $userRead->setColor($aggregate->color);
+        $userRead->setDevices($aggregate->devices);
+        $userRead->setIps($aggregate->ips);
 
         // Persist UserRead entity.
         $this->em->persist($userRead);

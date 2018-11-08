@@ -28,4 +28,10 @@ final class UserAggregate extends Aggregate
 
     /** @var array */
     public $permissions;
+
+    /** @var array */
+    public $devices = [];
+
+    /** @var array */
+    public $ips = [];
 }

@@ -66,6 +66,24 @@ class UserRead implements UserInterface, \Serializable
     private $avatarUrl;
 
     /**
+     * @var int
+     * @ORM\Column(type="integer", options={"default" : 0})
+     */
+    private $version;
+
+    /**
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $devices;
+
+    /**
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $ips;
+
+    /**
      * @var bool
      */
     private $imposter = false;
@@ -312,6 +330,66 @@ class UserRead implements UserInterface, \Serializable
     public function setImposter(bool $imposter): self
     {
         $this->imposter = $imposter;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     *
+     * @return UserRead
+     */
+    public function setVersion(int $version): self
+    {
+        $this->version = $version;
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getDevices(): ?array
+    {
+        return $this->devices;
+    }
+
+    /**
+     * @param array|null $devices
+     *
+     * @return UserRead
+     */
+    public function setDevices(array $devices = null): self
+    {
+        $this->devices = $devices;
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getIps(): ?array
+    {
+        return $this->ips;
+    }
+
+    /**
+     * @param array|null $ips
+     *
+     * @return UserRead
+     */
+    public function setIps(array $ips = null): self
+    {
+        $this->ips = $ips;
 
         return $this;
     }

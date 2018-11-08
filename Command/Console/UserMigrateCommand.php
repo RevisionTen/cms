@@ -72,8 +72,12 @@ class UserMigrateCommand extends Command
             $usernameQuestion = new Question('Please enter a username: ');
 
             $usernameQuestion->setValidator(function ($answer) {
-                if (!$this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
+                /** @var UserRead|null $userResult */
+                $userResult = $this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer);
+                if (!$userResult) {
                     throw new \RuntimeException('User not found.');
+                } elseif ('' !== $userResult->getUuid()) {
+                    throw new \RuntimeException('User was already migrated.');
                 }
 
                 return $answer;

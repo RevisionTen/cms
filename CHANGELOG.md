@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added UserAggregate
 - **Added command to migrate old users to new user aggregates**, run `bin/console cms:user:migrate`
 - Added user password change console command
+- Added user login command/event
 ### Changed
 - Renamed class User to UserRead
+### TODO
+- User password reset command (mail)
+- Create, delete & edit user in backend
 
 ## [1.2.8] - 2018-11-06
 ### Changed

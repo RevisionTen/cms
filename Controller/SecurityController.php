@@ -99,7 +99,7 @@ class SecurityController extends AbstractController
     /**
      * Displays the login page.
      *
-     * @Route("/login", name="login")
+     * @Route("/login", name="cms_login")
      *
      * @param Request              $request
      * @param FormFactoryInterface $formFactory
@@ -119,7 +119,7 @@ class SecurityController extends AbstractController
     /**
      * Displays the login page.
      *
-     * @Route("/code", name="code")
+     * @Route("/code", name="cms_code")
      *
      * @param Request              $request
      * @param FormFactoryInterface $formFactory
@@ -165,9 +165,23 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * Request a password reset mail.
+     *
+     * @Route("/reset-password", name="cms_reset_password")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     */
+    public function resetPassword(Request $request): RedirectResponse
+    {
+        return $this->redirect('/');
+    }
+
+    /**
      * Log a user out by clearing the session.
      *
-     * @Route("/logout", name="logout")
+     * @Route("/logout", name="cms_logout")
      *
      * @param Request $request
      *

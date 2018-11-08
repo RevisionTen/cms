@@ -2,6 +2,8 @@
 
 namespace RevisionTen\CMS\Security;
 
+use RevisionTen\CMS\Command\UserLoginCommand;
+use RevisionTen\CQRS\Services\CommandBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,15 +36,23 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     private $config;
 
     /**
-     * BasicAuthenticator constructor.
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * CodeAuthenticator constructor.
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
+     * @param CommandBus                   $commandBus
+     * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, array $config)
+    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, CommandBus $commandBus, array $config)
     {
         $this->encoder = $encoder;
         $this->session = $this->getSession($requestStack);
+        $this->commandBus = $commandBus;
         $this->config = $config;
     }
 
@@ -155,6 +165,27 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $user = $token->getUser();
+
+        if (is_object($user)) {
+            $userId = $user->getId();
+            $userUuid = $user->getUuid();
+
+            // Check if user has an aggregate.
+            if (null !== $userUuid) {
+                $onVersion = $user->getVersion();
+
+                // Dispatch login event.
+                $userLoginCommand = new UserLoginCommand($userId, null, $userUuid, $onVersion, [
+                    'device' => $request->headers->get('User-Agent') ?? 'unknown',
+                    'ip' => $request->getClientIp() ?? 'unknown',
+                ]);
+                $this->commandBus->dispatch($userLoginCommand);
+            }
+        } else {
+            return false;
+        }
+
         // On success, let the request continue.
         return null;
     }
