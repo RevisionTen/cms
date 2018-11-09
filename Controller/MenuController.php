@@ -52,6 +52,7 @@ class MenuController extends AbstractController
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
+     * @param bool        $qeue
      * @param string|null $commandUuid
      * @param int|null    $userId
      *
@@ -204,11 +205,7 @@ class MenuController extends AbstractController
                 $success = true;
             }));
 
-            if ($success) {
-                return $this->redirectToMenu($aggregateUuid);
-            } else {
-                return $this->errorResponse($messageBus);
-            }
+            return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
         } else {
             throw new \Exception('Menu with the name '.$name.' is not defined in the cms config');
         }
@@ -263,11 +260,7 @@ class MenuController extends AbstractController
                         ]);
                     }
 
-                    if ($success) {
-                        return $this->redirectToMenu($menuUuid);
-                    } else {
-                        return $this->errorResponse($messageBus);
-                    }
+                    return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                 }
 
                 return $this->render($form_template, array(
@@ -318,7 +311,7 @@ class MenuController extends AbstractController
         // Get the element from the Aggregate.
         $item = MenuBaseHandler::getItem($aggregate, $itemUuid);
 
-        if ($item && isset($item['data']) && isset($item['itemName'])) {
+        if ($item && isset($item['data'], $item['itemName'])) {
             $data = $item;
             $itemName = $item['itemName'];
             $config = $this->getParameter('cms');
@@ -356,11 +349,7 @@ class MenuController extends AbstractController
                             ]);
                         }
 
-                        if ($success) {
-                            return $this->redirectToMenu($menuUuid);
-                        } else {
-                            return $this->errorResponse($messageBus);
-                        }
+                        return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                     }
 
                     return $this->render($form_template, array(
@@ -640,7 +629,7 @@ class MenuController extends AbstractController
                 'id' => $aliasIds,
             ]);
             foreach ($aliases as $alias) {
-                if ($alias->getPageStreamRead()->isPublished()) {
+                if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
                     $paths[$alias->getId()] = $alias->getPath();
                 }
             }

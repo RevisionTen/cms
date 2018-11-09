@@ -154,11 +154,7 @@ class PageController extends AbstractController
                 $pageUuid = Uuid::uuid1()->toString();
                 $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
 
-                if ($success) {
-                    return $this->redirectToPage($pageUuid);
-                } else {
-                    return $this->errorResponse();
-                }
+                return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
             }
         }
 
@@ -193,8 +189,7 @@ class PageController extends AbstractController
             // Convert Aggregate to data array for form and remove properties we don't want changed.
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
             $aggregateData = json_decode(json_encode($aggregate), true);
-            unset($aggregateData['uuid']);
-            unset($aggregateData['elements']);
+            unset($aggregateData['uuid'], $aggregateData['elements']);
         } else {
             $aggregateData = $request->get('page');
         }
@@ -239,11 +234,7 @@ class PageController extends AbstractController
                         ]);
                     }
 
-                    if ($success) {
-                        return $this->redirectToPage($pageUuid);
-                    } else {
-                        return $this->errorResponse();
-                    }
+                    return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
             }
         }
@@ -421,11 +412,7 @@ class PageController extends AbstractController
                 ]);
             }
 
-            if ($success) {
-                return $this->redirectToPage($pageUuid);
-            } else {
-                return $this->errorResponse();
-            }
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', array(
@@ -542,13 +529,9 @@ class PageController extends AbstractController
             $entityManager->flush();
             $entityManager->clear();
 
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => true,
-                ]);
-            } else {
-                return $this->redirectToPage($pageUuid);
-            }
+            return $request->get('ajax') ? new JsonResponse([
+                'success' => true,
+            ]) : $this->redirectToPage($pageUuid);
         }
 
         return $this->render('@cms/Form/alias-form.html.twig', array(
@@ -604,14 +587,11 @@ class PageController extends AbstractController
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,
             ]);
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => $success,
-                    'modal' => $url,
-                ]);
-            } else {
-                return $this->redirect($url);
-            }
+
+            return $request->get('ajax') ? new JsonResponse([
+                'success' => $success,
+                'modal' => $url,
+            ]) : $this->redirect($url);
         } elseif ($request->get('ajax')) {
             return new JsonResponse([
                 'success' => $success,
@@ -730,11 +710,7 @@ class PageController extends AbstractController
                         ]);
                     }
 
-                    if ($success) {
-                        return $this->redirectToPage($pageUuid);
-                    } else {
-                        return $this->errorResponse();
-                    }
+                    return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
 
                 return $this->render($form_template, array(
@@ -784,7 +760,7 @@ class PageController extends AbstractController
         // Get the element from the Aggregate.
         $element = PageBaseHandler::getElement($aggregate, $elementUuid);
 
-        if ($element && isset($element['data']) && isset($element['elementName'])) {
+        if ($element && isset($element['data'], $element['elementName'])) {
             $data = $element;
             $elementName = $element['elementName'];
             $config = $this->getParameter('cms');
@@ -831,11 +807,7 @@ class PageController extends AbstractController
                             ]);
                         }
 
-                        if ($success) {
-                            return $this->redirectToPage($pageUuid);
-                        } else {
-                            return $this->errorResponse();
-                        }
+                        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                     }
 
                     return $this->render($form_template, array(
@@ -1309,11 +1281,7 @@ class PageController extends AbstractController
                 ]);
             }
 
-            if ($success) {
-                return $this->redirectToPage($pageUuid);
-            } else {
-                return $this->errorResponse();
-            }
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', array(
