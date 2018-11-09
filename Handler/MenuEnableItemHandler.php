@@ -59,10 +59,10 @@ final class MenuEnableItemHandler extends MenuBaseHandler implements HandlerInte
     {
         $payload = $command->getPayload();
         // The uuid to enable.
-        $uuid = $payload['uuid'];
-        $item = self::getItem($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to enable is set',
                 CODE_BAD_REQUEST,

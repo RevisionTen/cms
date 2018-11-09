@@ -51,7 +51,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
     {
         $payload = $command->getPayload();
 
-        if ($aggregate->getVersion() > 0 && isset($payload['version']) && !empty($payload['version'])) {
+        if (isset($payload['version']) && !empty($payload['version']) && $aggregate->getVersion() > 0) {
             return true;
         } else {
             $this->messageBus->dispatch(new Message(

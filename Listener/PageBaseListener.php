@@ -8,9 +8,7 @@ use RevisionTen\CMS\Services\PageService;
 
 abstract class PageBaseListener
 {
-    /**
-     * @var PageService
-     */
+    /** @var PageService */
     protected $pageService;
 
     /**

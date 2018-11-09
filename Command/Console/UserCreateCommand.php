@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use RevisionTen\CMS\Model\User;
-use RevisionTen\CMS\Services\SecretService;
+use Ramsey\Uuid\Uuid;
+use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Services\UserService;
+use RevisionTen\CQRS\Services\CommandBus;
+use RevisionTen\CQRS\Services\MessageBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -30,28 +33,31 @@ class UserCreateCommand extends Command
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
 
-    /** @var SecretService $secretService */
-    private $secretService;
+    /** @var CommandBus $commandBus */
+    private $commandBus;
 
-    /**
-     * @var array
-     */
-    private $config;
+    /** @var MessageBus $messageBus */
+    private $messageBus;
+
+    /** @var UserService $userService */
+    private $userService;
 
     /**
      * UserCreateCommand constructor.
      *
      * @param UserPasswordEncoderInterface $encoder
      * @param EntityManagerInterface       $entityManager
-     * @param SecretService                $secretService
-     * @param array                        $config
+     * @param CommandBus                   $commandBus
+     * @param MessageBus                   $messageBus
+     * @param UserService                  $userService
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, SecretService $secretService, array $config)
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService)
     {
         $this->entityManager = $entityManager;
         $this->encoder = $encoder;
-        $this->secretService = $secretService;
-        $this->config = $config;
+        $this->commandBus = $commandBus;
+        $this->messageBus = $messageBus;
+        $this->userService = $userService;
 
         parent::__construct();
     }
@@ -85,7 +91,7 @@ class UserCreateCommand extends Command
             $usernameQuestion = new Question('Please enter a username: ');
 
             $usernameQuestion->setValidator(function ($answer) {
-                if ($this->entityManager->getRepository(User::class)->findOneByUsername($answer)) {
+                if ($this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
                     throw new \RuntimeException('This username is already taken.');
                 }
 
@@ -102,7 +108,7 @@ class UserCreateCommand extends Command
             $emailQuestion = new Question('Please enter an email: ');
 
             $emailQuestion->setValidator(function ($answer) {
-                if ($this->entityManager->getRepository(User::class)->findOneByEmail($answer)) {
+                if ($this->entityManager->getRepository(UserRead::class)->findOneByEmail($answer)) {
                     throw new \RuntimeException('This email is already taken.');
                 }
 
@@ -162,68 +168,44 @@ class UserCreateCommand extends Command
             $sendLoginMail = ('Yes' === $sendLoginMail);
         }
 
-        // Create the User.
-        $user = new User();
-        $user->setUsername($username);
-        $user->setEmail($email);
-        $user->setAvatarUrl($avatarUrl);
+        // Encode the password.
+        $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
 
-        // Encoded the password.
-        $encodedPassword = $this->encoder->encodePassword($user, $password);
-        $user->setPassword($encodedPassword);
-
+        // Generate a secret.
         $googleAuthenticator = new GoogleAuthenticator();
         $secret = $googleAuthenticator->generateSecret();
-        $user->setSecret($secret);
 
-        // Persist the user.
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        // Create the User.
+        $payload = [
+            'username' => $username,
+            'email' => $email,
+            'avatarUrl' => $avatarUrl,
+            'password' => $encodedPassword,
+            'secret' => $secret,
+            'color' => null,
+        ];
 
-        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+        $success = false;
+        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $userUuid = Uuid::uuid1()->toString();
+        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
+        $this->commandBus->dispatch($userCreateCommand);
 
-        // Send the secret QRCode via mail.
-        if (!$useMailCodes) {
-            $this->secretService->sendSecret($secret, $user->getUsername(), $user->getEmail());
+        if ($success) {
+            // Return info about the new user.
+            $output->writeln('User saved.');
+            $output->writeln('Username: '.$username);
+            $output->writeln('Password: '.$password);
+            $output->writeln('Avatar url: '.$avatarUrl);
+            $output->writeln('Email: '.$email);
+            if ($sendLoginMail) {
+                $this->userService->sendLoginInfo($userUuid, $password);
+                $output->writeln('Email with login info was sent to '.$email);
+            }
+        } else {
+            $messages = $this->messageBus->getMessagesJson();
+            $output->writeln('UserCreateCommand failed.');
+            $output->writeln($messages);
         }
-
-        // Send email with login data to new user.
-        if ($sendLoginMail) {
-            $this->secretService->sendLoginInfo($user->getUsername(), $password, $user->getEmail());
-        }
-
-        // Return info about the new user.
-        $output->writeln('User saved.');
-        $output->writeln('Username: '.$username);
-        $output->writeln('Password: '.$password);
-        $output->writeln('Avatar url: '.$avatarUrl);
-        $output->writeln('Email: '.$email);
-        if ($sendLoginMail) {
-            $output->writeln('Email with login info was sent to '.$email);
-        }
-    }
-
-    /**
-     * Generate a random string, using a cryptographically secure
-     * pseudorandom number generator (random_int).
-     *
-     * For PHP 7, random_int is a PHP core function
-     * For PHP 5.x, depends on https://github.com/paragonie/random_compat
-     *
-     * @param int    $length   How many characters do we want?
-     * @param string $keyspace A string of all possible characters
-     *                         to select from
-     *
-     * @return string
-     */
-    private function random_str($length, $keyspace = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    {
-        $pieces = [];
-        $max = mb_strlen($keyspace, '8bit') - 1;
-        for ($i = 0; $i < $length; ++$i) {
-            $pieces[] = $keyspace[random_int(0, $max)];
-        }
-
-        return implode('', $pieces);
     }
 }

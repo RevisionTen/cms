@@ -29,9 +29,9 @@ final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInte
         // A function that removes a item from its parent.
         $removeAndRebase = function (&$collection, $uuid) {
             // Remove the item by filtering the items array.
-            $collection = array_filter($collection, function ($item, $key) use ($uuid) {
+            $collection = array_filter($collection, function ($item) use ($uuid) {
                 return $uuid !== $item['uuid'];
-            }, ARRAY_FILTER_USE_BOTH);
+            });
 
             // Rebase array values.
             $collection = array_values($collection);
@@ -74,10 +74,10 @@ final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInte
     {
         $payload = $command->getPayload();
         // The uuid to remove.
-        $uuid = $payload['uuid'];
-        $item = self::getItem($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to remove is set',
                 CODE_BAD_REQUEST,

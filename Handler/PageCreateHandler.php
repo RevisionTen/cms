@@ -62,7 +62,7 @@ final class PageCreateHandler extends PageBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (0 === $aggregate->getVersion() && isset($payload['title']) && !empty($payload['title'])) {
+        if (isset($payload['title']) && !empty($payload['title']) && 0 === $aggregate->getVersion()) {
             return true;
         }
         if (0 !== $aggregate->getVersion()) {

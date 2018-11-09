@@ -30,11 +30,11 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
         if ($this->aggregateFactory) {
             // Build original aggregate and use its state as a starting point.
             /** @var Page $originalAggregate */
-            $originalAggregate = $this->aggregateFactory->build($originalUuid, Page::class, intval($originalVersion));
+            $originalAggregate = $this->aggregateFactory->build($originalUuid, Page::class, (int) $originalVersion);
             $baseAggregate = clone $originalAggregate;
 
             // Override title.
-            $baseAggregate->title = $baseAggregate->title.' duplicate';
+            $baseAggregate->title .= ' duplicate';
 
             // Override aggregate meta info.
             $baseAggregate->setUuid($aggregate->getUuid());
@@ -77,11 +77,10 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
         $payload = $command->getPayload();
 
         if (
-            0 === $aggregate->getVersion() &&
-            isset($payload['originalUuid']) &&
+            isset($payload['originalUuid'], $payload['originalVersion']) &&
             !empty($payload['originalUuid']) &&
-            isset($payload['originalVersion']) &&
-            !empty($payload['originalVersion'])
+            !empty($payload['originalVersion']) &&
+            0 === $aggregate->getVersion()
         ) {
             return true;
         }

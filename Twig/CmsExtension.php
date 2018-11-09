@@ -23,7 +23,8 @@ class CmsExtension extends AbstractExtension
     /**
      * CmsExtension constructor.
      *
-     * @param array $config
+     * @param array               $config
+     * @param TranslatorInterface $translator
      */
     public function __construct(array $config, TranslatorInterface $translator)
     {
@@ -53,12 +54,12 @@ class CmsExtension extends AbstractExtension
     /**
      * Returns an array of bootstrap spacing css classes.
      *
-     * @param $spacing    the amount of spacing
-     * @param $properyAbr the type of spacing ('m' = margin, 'p' = padding)
+     * @param array  $spacing     the amount of spacing
+     * @param string $propertyAbr the type of spacing ('m' = margin, 'p' = padding)
      *
      * @return array
      */
-    private static function getSpacing($spacing, $properyAbr)
+    private static function getSpacing(array $spacing, string $propertyAbr): array
     {
         $classes = [];
 
@@ -68,19 +69,19 @@ class CmsExtension extends AbstractExtension
         $bottom = $spacing['bottom'] ?? null;
         $left = $spacing['left'] ?? null;
         if ($top) {
-            $key = $properyAbr.'t'.$breakpoint;
+            $key = $propertyAbr.'t'.$breakpoint;
             $classes[$key] = $key.'-'.$top;
         }
         if ($right) {
-            $key = $properyAbr.'r'.$breakpoint;
+            $key = $propertyAbr.'r'.$breakpoint;
             $classes[$key] = $key.'-'.$right;
         }
         if ($bottom) {
-            $key = $properyAbr.'b'.$breakpoint;
+            $key = $propertyAbr.'b'.$breakpoint;
             $classes[$key] = $key.'-'.$bottom;
         }
         if ($left) {
-            $key = $properyAbr.'l'.$breakpoint;
+            $key = $propertyAbr.'l'.$breakpoint;
             $classes[$key] = $key.'-'.$left;
         }
 
@@ -92,19 +93,19 @@ class CmsExtension extends AbstractExtension
         $classes = [];
 
         // Add style classes.
-        if (isset($element['data']['styles']) && is_array($element['data']['styles'])) {
+        if (isset($element['data']['styles']) && \is_array($element['data']['styles'])) {
             $classes = $element['data']['styles'];
         }
 
         // Add margin classes.
-        if (isset($element['data']['settings']['margins']) && is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
+        if (isset($element['data']['settings']['margins']) && \is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
             foreach ($element['data']['settings']['margins'] as $spacing) {
                 $classes += self::getSpacing($spacing, 'm');
             }
         }
 
         // Add padding classes.
-        if (isset($element['data']['settings']['paddings']) && is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
+        if (isset($element['data']['settings']['paddings']) && \is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
             foreach ($element['data']['settings']['paddings'] as $spacing) {
                 $classes += self::getSpacing($spacing, 'p');
             }

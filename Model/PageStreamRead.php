@@ -163,7 +163,7 @@ class PageStreamRead
      */
     public function getPayload(): array
     {
-        return is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
+        return \is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
     }
 
     /**

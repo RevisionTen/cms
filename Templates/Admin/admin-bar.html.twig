@@ -68,7 +68,7 @@
                             {% if publishedVersion == null or page.version != (publishedVersion+1) %}
                                 <a title="{{ 'Pending changes of other users will be lost.'|trans }}" class="btn btn-success btn-sm" target="_top" href="{{ path('cms_publish_page', {pageUuid: page.uuid, version: page.streamVersion}) }}"><span class="fas fa-bullhorn"></span> {{ 'Publish'|trans }}</a>
                             {% else %}
-                                <a class="btn btn-primary btn-sm" target="_blank" href="{{ path('cms_page_show', {pageUuid: page.uuid}) }}"><span class="fas fa-eye"></span> {{ 'View'|trans }}</a>
+                                <a class="btn btn-primary btn-sm" target="_blank" href="{{ path('cms_page_preview', {pageUuid: page.uuid}) }}"><span class="fas fa-eye"></span> {{ 'View'|trans }}</a>
                                 <a title="{{ 'Pending changes of other users will be lost.'|trans }}" class="btn btn-danger btn-sm" target="_top" href="{{ path('cms_unpublish_page', {pageUuid: page.uuid}) }}"><span class="fas fa-eye-slash"></span> {{ 'Unpublish'|trans }}</a>
                             {% endif %}
                         {% else %}

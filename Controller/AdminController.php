@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
@@ -29,10 +29,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdminController extends AbstractController
 {
+
     /**
      * Get the title from the website id.
      *
-     * @param int $id
+     * @param EntityManagerInterface $entityManager
+     * @param int                    $id
      *
      * @return Response
      */
@@ -52,21 +54,28 @@ class AdminController extends AbstractController
     /**
      * Get the username from the user id.
      *
-     * @param int    $userId
-     * @param string $template
+     * @param EntityManagerInterface $entityManager
+     * @param int                    $userId
+     * @param string                 $template
      *
      * @return Response
+     *
      */
     public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
     {
-        /** @var User $user */
-        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (-1 === $userId) {
+            $unknownUser = new UserRead();
+            $unknownUser->setUsername('System');
+        } else {
+            /** @var UserRead $user */
+            $user = $entityManager->getRepository(UserRead::class)->find($userId);
+
+            $unknownUser = new UserRead();
+            $unknownUser->setUsername('Unknown');
+        }
 
         return $this->render($template, [
-            'user' => $user ?? [
-                'username' => 'anonymous',
-                'avatarUrl' => null,
-            ],
+            'user' => $user ?? $unknownUser,
         ]);
     }
 
@@ -86,15 +95,17 @@ class AdminController extends AbstractController
 
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($uuid);
+        /** @var FormRead|null $formRead */
+        $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
+        /** @var UserRead|null $userRead */
+        $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
-        } else {
-            /** @var FormRead|null $formRead */
-            $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
-            if ($formRead) {
-                $title = $formRead->getTitle();
-            }
+        } elseif ($formRead) {
+            $title = $formRead->getTitle();
+        } elseif ($userRead) {
+            $title = $userRead->getUsername();
         }
 
         return new Response($title);
@@ -112,13 +123,13 @@ class AdminController extends AbstractController
     public function dashboardAction(EntityManagerInterface $em): Response
     {
         /** @var EventStreamObject[]|null $eventStreamObjects */
-        $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findby([], ['id' => Criteria::DESC], 6);
+        $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
         /** @var EventQeueObject[]|null $eventQeueObjects */
-        $eventQeueObjects = $em->getRepository(EventQeueObject::class)->findby([], ['id' => Criteria::DESC], 6);
+        $eventQeueObjects = $em->getRepository(EventQeueObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
         /** @var EventStreamObject[]|null $latestCommits */
-        $latestCommits = $em->getRepository(EventStreamObject::class)->findby([
+        $latestCommits = $em->getRepository(EventStreamObject::class)->findBy([
             'event' => PageSubmitEvent::class,
         ], ['id' => Criteria::DESC], 7);
 
@@ -128,8 +139,8 @@ class AdminController extends AbstractController
             'latestCommits' => $latestCommits,
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
-            'php_version' => phpversion(),
-            'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
+            'php_version' => PHP_VERSION,
+            'apc_enabled' => (\extension_loaded('apcu') && ini_get('apc.enabled') && \function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
             'memory_limit' => ini_get('memory_limit'),
             'upload_limit' => ini_get('upload_max_filesize'),
             'post_limit' => ini_get('post_max_size'),
@@ -161,17 +172,16 @@ class AdminController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
         $edit = true;
 
         // Get Preview User.
-        if ($previewUserId = $request->get('user')) {
-            if ($user->getId() != $previewUserId) {
-                $edit = false;
-                /** @var User $user */
-                $user = $em->getRepository(User::class)->find($previewUserId);
-            }
+        $previewUserId = (int) $request->get('user');
+        if ($previewUserId && $user->getId() !== $previewUserId) {
+            $edit = false;
+            /** @var UserRead $user */
+            $user = $em->getRepository(UserRead::class)->find($previewUserId);
         }
 
         /** @var int $id PageStreamRead Id. */

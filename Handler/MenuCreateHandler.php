@@ -60,7 +60,7 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (0 === $aggregate->getVersion() && isset($payload['name']) && !empty($payload['name'])) {
+        if (isset($payload['name']) && !empty($payload['name']) && 0 === $aggregate->getVersion()) {
             return true;
         }
         if (0 !== $aggregate->getVersion()) {

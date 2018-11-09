@@ -31,6 +31,7 @@ final class PageChangeSettingsHandler extends PageBaseHandler implements Handler
             }
         }
 
+        /** @var Page $aggregate */
         $aggregate->state = Page::STATE_DRAFT;
 
         return $aggregate;

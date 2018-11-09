@@ -60,17 +60,13 @@ class DoctrineType extends AbstractType
         // Write a compound attribute for easy hydration.
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
-            $form = $event->getForm();
 
-            if (isset($data['entityId']) && isset($data['entityClass'])) {
+            if (isset($data['entityId'], $data['entityClass'])) {
                 $data['doctrineEntity'] = $data['entityClass'].':'.$data['entityId'];
                 // Remove unneeded data.
-                unset($data['entityId']);
-                unset($data['entityClass']);
+                unset($data['entityId'], $data['entityClass']);
             } else {
-                unset($data['entityId']);
-                unset($data['entityClass']);
-                unset($data['doctrineEntity']);
+                unset($data['entityId'], $data['entityClass'], $data['doctrineEntity']);
             }
 
             $event->setData($data);
@@ -79,7 +75,6 @@ class DoctrineType extends AbstractType
         // Parse hydrationId.
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $data = $event->getData();
-            $form = $event->getForm();
             if (null !== $data) {
                 if (isset($data['doctrineEntity'])) {
                     $data['entityId'] = explode(':', $data['doctrineEntity'])[1];

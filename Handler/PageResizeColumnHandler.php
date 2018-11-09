@@ -24,7 +24,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
     {
         $payload = $command->getPayload();
         $uuid = $payload['uuid'];
-        $size = intval($payload['size']);
+        $size = (int) $payload['size'];
         $breakpoint = $payload['breakpoint'];
 
         // A function that resizes the column.
@@ -62,13 +62,13 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
     public function validateCommand(CommandInterface $command, AggregateInterface $aggregate): bool
     {
         $payload = $command->getPayload();
-        $uuid = $payload['uuid'];
-        $element = self::getElement($aggregate, $uuid);
-        $size = intval($payload['size']);
+        $uuid = $payload['uuid'] ?? null;
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $size = (int) $payload['size'];
         $breakpoint = $payload['breakpoint'];
 
         // Check if breakpoint and size are valid.
-        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || $size < 1 || $size > 12) {
+        if ($size < 1 || $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'xl'])) {
             $this->messageBus->dispatch(new Message(
                 'Size or breakpoint is invalid',
                 CODE_BAD_REQUEST,
@@ -77,7 +77,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
             ));
 
             return false;
-        } elseif (!isset($uuid)) {
+        } elseif (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No column uuid to resize is set',
                 CODE_BAD_REQUEST,

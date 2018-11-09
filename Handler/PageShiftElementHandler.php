@@ -25,11 +25,11 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
      */
     private static function down(array $array, int $item): array
     {
-        if (count($array) - 1 > $item) {
-            $b = array_slice($array, 0, $item, true);
+        if (\count($array) - 1 > $item) {
+            $b = \array_slice($array, 0, $item, true);
             $b[] = $array[$item + 1];
             $b[] = $array[$item];
-            $b += array_slice($array, $item + 2, count($array), true);
+            $b += \array_slice($array, $item + 2, \count($array), true);
 
             return $b;
         } else {
@@ -47,11 +47,11 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
      */
     private static function up(array $array, int $item): array
     {
-        if ($item > 0 && $item < count($array)) {
-            $b = array_slice($array, 0, ($item - 1), true);
+        if ($item > 0 && $item < \count($array)) {
+            $b = \array_slice($array, 0, $item - 1, true);
             $b[] = $array[$item];
             $b[] = $array[$item - 1];
-            $b += array_slice($array, ($item + 1), count($array), true);
+            $b += \array_slice($array, $item + 1, \count($array), true);
 
             return $b;
         } else {
@@ -123,10 +123,10 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
     {
         $payload = $command->getPayload();
         // The uuid to shift.
-        $uuid = $payload['uuid'];
-        $element = self::getElement($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to shift is set',
                 CODE_BAD_REQUEST,

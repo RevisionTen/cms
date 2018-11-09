@@ -81,7 +81,7 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
     {
         foreach ($items as $item) {
             // Get child items array.
-            $childItems = isset($item['items']) && is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
+            $childItems = isset($item['items']) && \is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
 
             if (null !== $childItems) {
                 // Unset child items property.

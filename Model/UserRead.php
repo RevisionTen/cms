@@ -8,11 +8,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * User.
+ * UserRead.
  *
  * @ORM\Entity
+ * @ORM\Table("user")
  */
-class User implements UserInterface, \Serializable
+class UserRead implements UserInterface, \Serializable
 {
     /**
      * @var int
@@ -21,6 +22,12 @@ class User implements UserInterface, \Serializable
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     */
+    private $uuid;
 
     /**
      * @var string
@@ -50,6 +57,12 @@ class User implements UserInterface, \Serializable
      * @var string
      * @ORM\Column(type="string", nullable=true)
      */
+    private $resetToken;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
     private $color;
 
     /**
@@ -57,6 +70,24 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(type="string", nullable=true)
      */
     private $avatarUrl;
+
+    /**
+     * @var int
+     * @ORM\Column(type="integer", options={"default" : 0})
+     */
+    private $version;
+
+    /**
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $devices;
+
+    /**
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $ips;
 
     /**
      * @var bool
@@ -99,19 +130,23 @@ class User implements UserInterface, \Serializable
 
     /**
      * @see \Serializable::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {
         list(
             $this->id,
             $this->username,
-            $this->password) = unserialize($serialized);
+            $this->password) = unserialize($serialized, [
+                'allowed_classes' => false,
+        ]);
     }
 
     /**
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -119,7 +154,27 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getUsername()
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return UserRead
+     */
+    public function setUuid(string $uuid): UserRead
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -127,7 +182,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $username
      *
-     * @return User
+     * @return UserRead
      */
     public function setUsername(string $username): self
     {
@@ -139,7 +194,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -147,7 +202,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $email
      *
-     * @return User
+     * @return UserRead
      */
     public function setEmail(string $email): self
     {
@@ -159,7 +214,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -167,7 +222,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $password
      *
-     * @return User
+     * @return UserRead
      */
     public function setPassword(string $password): self
     {
@@ -179,7 +234,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getSecret()
+    public function getSecret(): ?string
     {
         return $this->secret;
     }
@@ -187,7 +242,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string $secret
      *
-     * @return User
+     * @return UserRead
      */
     public function setSecret(string $secret): self
     {
@@ -197,11 +252,31 @@ class User implements UserInterface, \Serializable
     }
 
     /**
+     * @return string|null
+     */
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    /**
+     * @param string|null $resetToken
+     *
+     * @return UserRead
+     */
+    public function setResetToken(string $resetToken = null): self
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getColor(): string
     {
-        if (null == $this->color) {
+        if (null === $this->color) {
             $this->color = $this->getColorFromUsername();
         }
 
@@ -209,11 +284,11 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * @param string $color
+     * @param string|null $color
      *
-     * @return User
+     * @return UserRead
      */
-    public function setColor(string $color): self
+    public function setColor(string $color = null): self
     {
         $this->color = $color;
 
@@ -231,7 +306,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param string|null $avatarUrl
      *
-     * @return User
+     * @return UserRead
      */
     public function setAvatarUrl(string $avatarUrl = null): self
     {
@@ -251,7 +326,7 @@ class User implements UserInterface, \Serializable
     private function hsl2rgb($H, float $strength, float $saturation): string
     {
         $H *= 6;
-        $h = intval($H);
+        $h = (int) $H;
         $H -= $h;
         $saturation *= 255;
         $m = $saturation * (1 - $strength);
@@ -280,7 +355,7 @@ class User implements UserInterface, \Serializable
     /**
      * @param bool $imposter
      *
-     * @return User
+     * @return UserRead
      */
     public function setImposter(bool $imposter): self
     {
@@ -288,4 +363,66 @@ class User implements UserInterface, \Serializable
 
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     *
+     * @return UserRead
+     */
+    public function setVersion(int $version): self
+    {
+        $this->version = $version;
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getDevices(): ?array
+    {
+        return $this->devices;
+    }
+
+    /**
+     * @param array|null $devices
+     *
+     * @return UserRead
+     */
+    public function setDevices(array $devices = null): self
+    {
+        $this->devices = $devices;
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getIps(): ?array
+    {
+        return $this->ips;
+    }
+
+    /**
+     * @param array|null $ips
+     *
+     * @return UserRead
+     */
+    public function setIps(array $ips = null): self
+    {
+        $this->ips = $ips;
+
+        return $this;
+    }
 }
+
+\class_alias(UserRead::class, 'RevisionTen\CMS\Model\User');

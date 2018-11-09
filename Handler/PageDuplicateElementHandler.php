@@ -27,7 +27,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         // Set new Uuid.
         $element['uuid'] = $newUuid;
 
-        if (isset($element['elements']) && is_array($element['elements'])) {
+        if (isset($element['elements']) && \is_array($element['elements'])) {
             foreach ($element['elements'] as $key => $subElement) {
                 $element['elements'][$key] = $this->assignNewUuid($subElement, $commandUuid);
             }
@@ -68,7 +68,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
                     $duplicatedElement = $this->assignNewUuid($duplicatedElement, $commandUuid);
 
                     // Insert duplicated element into collection.
-                    array_splice($collection, ($itemKey + 1), 0, [$duplicatedElement]);
+                    array_splice($collection, $itemKey + 1, 0, [$duplicatedElement]);
                 }
             }
         };
@@ -105,10 +105,10 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
     {
         $payload = $command->getPayload();
         // The uuid to duplicate.
-        $uuid = $payload['uuid'];
-        $element = self::getElement($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to duplicate is set',
                 CODE_BAD_REQUEST,
