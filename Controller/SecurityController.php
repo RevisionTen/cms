@@ -32,7 +32,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class SecurityController extends AbstractController
 {
     /**
-     * @param Request $request
+     * @param Request              $request
+     * @param FormFactoryInterface $formFactory
      *
      * @return FormInterface
      */
@@ -69,12 +70,11 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @param Request              $request
      * @param FormFactoryInterface $formFactory
      *
      * @return FormInterface
      */
-    private function buildLoginForm(Request $request, FormFactoryInterface $formFactory): FormInterface
+    private function buildLoginForm(FormFactoryInterface $formFactory): FormInterface
     {
         $formBuilder = $formFactory->createNamedBuilder(null);
 
@@ -183,7 +183,7 @@ class SecurityController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @param CommandBus             $commandBus
      *
-     * @return RedirectResponse
+     * @return Response
      */
     public function resetPassword(Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus): Response
     {
@@ -249,13 +249,15 @@ class SecurityController extends AbstractController
      *
      * @Route("/reset-password-form/{resetToken}/{username}", name="cms_reset_password_form")
      *
+     * @param string                       $resetToken
+     * @param string                       $username
      * @param Request                      $request
      * @param FormFactoryInterface         $formFactory
      * @param EntityManagerInterface       $entityManager
      * @param CommandBus                   $commandBus
      * @param UserPasswordEncoderInterface $encoder
      *
-     * @return RedirectResponse
+     * @return Response
      */
     public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder): Response
     {

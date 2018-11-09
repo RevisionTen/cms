@@ -160,6 +160,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
 
         if ($useMailCodes) {
+            /** @var UserRead $user */
             $user = $token->getUser();
             $code = RandomHelpers::randomString(6, '0123456789');
             $codeExpires = time() + 330;
@@ -181,8 +182,6 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     private function sendCodeMail(UserRead $user, string $code): void
     {
-        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
-
         $subject = $this->translator->trans('Login Code for %username%', [
             '%username%' => $user->getUsername(),
         ]);

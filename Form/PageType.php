@@ -66,7 +66,7 @@ class PageType extends AbstractType
 
         $builder->add('language', ChoiceType::class, [
             'label' => 'Language',
-            'choices' => $options['page_languages'] ? $options['page_languages'] : [
+            'choices' => $options['page_languages'] ?: [
                 'English' => 'en',
                 'German' => 'de',
             ],

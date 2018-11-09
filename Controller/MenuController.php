@@ -13,7 +13,6 @@ use RevisionTen\CMS\Command\MenuRemoveItemCommand;
 use RevisionTen\CMS\Command\MenuSaveOrderCommand;
 use RevisionTen\CMS\Command\MenuShiftItemCommand;
 use RevisionTen\CMS\Form\ElementType;
-use RevisionTen\CMS\Form\Page;
 use RevisionTen\CMS\Handler\MenuBaseHandler;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
@@ -54,7 +53,7 @@ class MenuController extends AbstractController
      * @param string      $aggregateUuid
      * @param int         $onVersion
      * @param string|null $commandUuid
-     * @param int|null    $user
+     * @param int|null    $userId
      *
      * @return bool
      */
@@ -98,7 +97,7 @@ class MenuController extends AbstractController
             } else {
                 $originalValue = $base[$property];
 
-                if (is_array($value) && is_array($originalValue)) {
+                if (\is_array($value) && \is_array($originalValue)) {
                     // Check if values arrays are identical.
                     if (0 !== strcmp(json_encode($value), json_encode($originalValue))) {
                         // Arrays are not equal.
@@ -120,6 +119,8 @@ class MenuController extends AbstractController
     /**
      * Returns info from the messageBus.
      *
+     * @param MessageBus $messageBus
+     *
      * @return JsonResponse
      */
     public function errorResponse(MessageBus $messageBus): JsonResponse
@@ -132,9 +133,9 @@ class MenuController extends AbstractController
      *
      * @param string $menuUuid
      *
-     * @return Response
+     * @return RedirectResponse
      */
-    private function redirectToMenu(string $menuUuid): Response
+    private function redirectToMenu(string $menuUuid): RedirectResponse
     {
         return $this->redirectToRoute('cms_list_menues');
     }
@@ -242,7 +243,7 @@ class MenuController extends AbstractController
             $formClass = $itemConfig['class'];
             $implements = class_implements($formClass);
 
-            if ($implements && in_array(FormTypeInterface::class, $implements)) {
+            if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
                 $form = $this->createForm(ElementType::class, ['data' => $data], ['elementConfig' => $itemConfig]);
                 $form->handleRequest($request);
 
@@ -327,7 +328,7 @@ class MenuController extends AbstractController
                 $formClass = $itemConfig['class'];
                 $implements = class_implements($formClass);
 
-                if ($implements && in_array(FormTypeInterface::class, $implements)) {
+                if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
                     $form = $this->createForm(ElementType::class, $data, ['elementConfig' => $itemConfig]);
                     $form->handleRequest($request);
 
@@ -401,7 +402,7 @@ class MenuController extends AbstractController
         /** @var Menu $aggregate */
         $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
         $itemParent = null;
-        if (!empty($aggregate->elements)) {
+        if (!empty($aggregate->items)) {
             // Get the parent element from the Aggregate.
             MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
                 $itemParent = $parent['uuid'];
@@ -505,7 +506,7 @@ class MenuController extends AbstractController
             /** @var Menu $aggregate */
             $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
             $itemParent = null;
-            if (!empty($aggregate->elements)) {
+            if (!empty($aggregate->items)) {
                 // Get the parent element from the Aggregate.
                 MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
                     $itemParent = $parent['uuid'];
@@ -553,7 +554,7 @@ class MenuController extends AbstractController
             /** @var Menu $aggregate */
             $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
             $itemParent = null;
-            if (!empty($aggregate->elements)) {
+            if (!empty($aggregate->items)) {
                 // Get the parent element from the Aggregate.
                 MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
                     $itemParent = $parent['uuid'];
@@ -681,7 +682,7 @@ class MenuController extends AbstractController
             }
         }
 
-        return $this->render($template ? $template : $config['page_menues'][$name]['template'], [
+        return $this->render($template ?: $config['page_menues'][$name]['template'], [
             'request' => $request,
             'alias' => $alias,
             'menu' => $menuData,
@@ -732,17 +733,13 @@ class MenuController extends AbstractController
      * @param TranslatorInterface $translator
      * @param CommandBus          $commandBus
      * @param MessageBus          $messageBus
-     * @param AggregateFactory    $aggregateFactory
      * @param string              $menuUuid
      * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
      */
-    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion)
+    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $menuUuid, int $onVersion)
     {
-        /** @var UserRead $user */
-        $user = $this->getUser();
-
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {
@@ -773,18 +770,18 @@ class MenuController extends AbstractController
         return $this->redirectToMenu($menuUuid);
     }
 
-    private static function array_diff_recursive($arrayOriginal, $arrayNew)
+    private static function array_diff_recursive(array $arrayOriginal, array $arrayNew): array
     {
         $arrayDiff = [];
 
         foreach ($arrayOriginal as $key => $value) {
             if (array_key_exists($key, $arrayNew)) {
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     $arrayRecursiveDiff = self::array_diff_recursive($value, $arrayNew[$key]);
-                    if (count($arrayRecursiveDiff)) {
+                    if (\count($arrayRecursiveDiff)) {
                         $arrayDiff[$key] = $arrayRecursiveDiff;
                     }
-                } elseif ($value != $arrayNew[$key]) {
+                } elseif ($value !== $arrayNew[$key]) {
                     $arrayDiff[$key] = $value;
                 }
             } else {

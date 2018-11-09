@@ -16,6 +16,7 @@ abstract class PageBaseHandler extends Handler
      * @param string   $elementUuid
      * @param callable $callable
      * @param array    $collection
+     * @param string   $parent
      *
      * @return mixed
      */
@@ -31,7 +32,7 @@ abstract class PageBaseHandler extends Handler
         }
 
         // Look in child elements.
-        if (isset($element['elements']) && is_array($element['elements'])) {
+        if (isset($element['elements']) && \is_array($element['elements'])) {
             foreach ($element['elements'] as &$subElement) {
                 if ($c = self::getMatching($subElement, $elementUuid, $callable, $element['elements'], $element)) {
                     return $c;

@@ -31,7 +31,7 @@ abstract class MenuBaseHandler extends Handler
         }
 
         // Look in child items.
-        if (isset($item['items']) && is_array($item['items'])) {
+        if (isset($item['items']) && \is_array($item['items'])) {
             foreach ($item['items'] as &$subItem) {
                 if ($c = self::getMatching($subItem, $itemUuid, $callable, $item['items'])) {
                     return $c;

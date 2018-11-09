@@ -8,11 +8,11 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class Page extends Aggregate
 {
-    const STATE_PUBLISHED = 'published';
-    const STATE_UNPUBLISHED = 'unpublished';
-    const STATE_STAGED = 'staged';
-    const STATE_DELETED = 'deleted';
-    const STATE_DRAFT = 'draft';
+    public const STATE_PUBLISHED = 'published';
+    public const STATE_UNPUBLISHED = 'unpublished';
+    public const STATE_STAGED = 'staged';
+    public const STATE_DELETED = 'deleted';
+    public const STATE_DRAFT = 'draft';
 
     /** @var string */
     public $title;

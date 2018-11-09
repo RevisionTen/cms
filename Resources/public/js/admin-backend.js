@@ -187,7 +187,7 @@ function updateElement(data)
     if (typeof data.refresh !== 'undefined' && data.refresh) {
         // Trigger a refresh event on the page.
         $('#page-frame')[0].contentWindow.$('body').trigger('refreshElement', data.refresh);
-    } else if (typeof data.refresh !== 'undefined' && data.refresh == null) {
+    } else if (typeof data.refresh !== 'undefined' && data.refresh === null) {
         // Reload the full page if refresh isset and is null.
         window.location.reload();
     } else if (typeof data.modal !== 'undefined' && data.modal) {

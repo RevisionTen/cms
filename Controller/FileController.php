@@ -72,16 +72,13 @@ class FileController extends AbstractController
     /**
      * @Route("/file/create", name="cms_file_create")
      *
+     * @param Request     $request
      * @param FileService $fileService
      *
      * @return Response
      */
     public function fileCreate(Request $request, FileService $fileService): Response
     {
-        /** @var UserRead $user */
-        $user = $this->getUser();
-        $userId = $user->getId();
-
         $uploadDir = '/uploads/managed-files/';
 
         $builder = $this->createFormBuilder();

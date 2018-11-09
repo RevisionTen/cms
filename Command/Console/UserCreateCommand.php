@@ -42,9 +42,6 @@ class UserCreateCommand extends Command
     /** @var UserService $userService */
     private $userService;
 
-    /** @var array */
-    private $config;
-
     /**
      * UserCreateCommand constructor.
      *
@@ -53,16 +50,14 @@ class UserCreateCommand extends Command
      * @param CommandBus                   $commandBus
      * @param MessageBus                   $messageBus
      * @param UserService                  $userService
-     * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService, array $config)
+    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService)
     {
         $this->entityManager = $entityManager;
         $this->encoder = $encoder;
         $this->commandBus = $commandBus;
         $this->messageBus = $messageBus;
         $this->userService = $userService;
-        $this->config = $config;
 
         parent::__construct();
     }

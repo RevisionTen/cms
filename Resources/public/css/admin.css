@@ -135,11 +135,11 @@ body:not(.editor-dark) .editor .text-white {
 }
 [data-enabled="0"]::before {
   background-image: linear-gradient(45deg, rgba(255, 0, 0, .3) 25%, transparent 25%, transparent 50%, rgba(255, 0, 0, .3) 50%, rgba(255, 0, 0, .3) 75%, transparent 75%, transparent 100%);
-  background-size: 40.00px 40.00px;
+  background-size: 40px 40px;
 }
 [data-visible="0"]::before {
   background-image: linear-gradient(45deg, rgba(255, 255, 0, .3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, .3) 50%, rgba(255, 255, 0, .3) 75%, transparent 75%, transparent 100%);
-  background-size: 40.00px 40.00px;
+  background-size: 40px 40px;
 }
 /* ----------------- Grid ----------------- */
 .editor-grid {

@@ -28,6 +28,7 @@ class ApiController extends AbstractController
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
      *
      * @param string                 $pageUuid
+     * @param int                    $userId
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator

@@ -23,7 +23,7 @@ class UserResetPasswordListener extends UserBaseListener implements ListenerInte
         $payload = $event->getCommand()->getPayload();
         $token = $payload['token'] ?? null;
 
-        if (null !== $token) {
+        if (null !== $token && \is_string($token)) {
             // Send password reset mail.
             $this->userService->sendPasswordResetMail($userUuid, $token);
         }

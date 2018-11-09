@@ -27,7 +27,7 @@ class LogoutListener implements LogoutHandlerInterface
     {
         $user = $token->getUser();
 
-        if (is_object($user)) {
+        if (\is_object($user)) {
             $userId = $user->getId();
             $userUuid = $user->getUuid();
 

@@ -20,6 +20,7 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
+        /** @var Page $aggregate */
         $aggregate->state = Page::STATE_STAGED;
 
         return $aggregate;

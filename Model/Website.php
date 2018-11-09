@@ -116,7 +116,7 @@ class Website
     /**
      * @param string $defaultLanguage
      *
-     * @return PageStreamRead
+     * @return Website
      */
     public function setDefaultLanguage(string $defaultLanguage): self
     {
@@ -126,7 +126,7 @@ class Website
     }
 
     /**
-     * @return Domain[]
+     * @return Collection
      */
     public function getDomains(): Collection
     {
@@ -134,7 +134,7 @@ class Website
     }
 
     /**
-     * @param Domain[] $domains
+     * @param Collection $domains
      *
      * @return Website
      */
@@ -181,7 +181,7 @@ class Website
     /**
      * @return Alias[]
      */
-    public function getAliases()
+    public function getAliases(): ?array
     {
         return $this->aliases;
     }

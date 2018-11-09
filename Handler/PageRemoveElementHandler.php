@@ -29,9 +29,9 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
         // A function that removes a element from its parent.
         $removeAndRebase = function (&$collection, $uuid) {
             // Remove the element by filtering the elements array.
-            $collection = array_filter($collection, function ($element, $key) use ($uuid) {
+            $collection = array_filter($collection, function ($element) use ($uuid) {
                 return $uuid !== $element['uuid'];
-            }, ARRAY_FILTER_USE_BOTH);
+            });
 
             // Rebase array values.
             $collection = array_values($collection);

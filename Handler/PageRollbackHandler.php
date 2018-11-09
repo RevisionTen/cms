@@ -30,7 +30,7 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
         if ($this->aggregateFactory) {
             // Build original aggregate and use its state as a starting point.
             /** @var Page $previousAggregate */
-            $previousAggregate = $this->aggregateFactory->build($aggregate->getUuid(), Page::class, intval($previousVersion), $user);
+            $previousAggregate = $this->aggregateFactory->build($aggregate->getUuid(), Page::class, (int) $previousVersion, $user);
 
             // Override aggregate meta info.
             $previousAggregate->setVersion($aggregate->getVersion());

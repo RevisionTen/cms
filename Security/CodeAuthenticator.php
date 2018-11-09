@@ -16,15 +16,9 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CodeAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @var UserPasswordEncoderInterface $encoder
-     */
-    private $encoder;
-
     /**
      * @var SessionInterface
      */
@@ -43,14 +37,12 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     /**
      * CodeAuthenticator constructor.
      *
-     * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
      * @param CommandBus                   $commandBus
      * @param array                        $config
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, CommandBus $commandBus, array $config)
+    public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config)
     {
-        $this->encoder = $encoder;
         $this->session = $this->getSession($requestStack);
         $this->commandBus = $commandBus;
         $this->config = $config;
@@ -84,7 +76,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        if (($this->session->has('username') || $request->get('username')) && $request->get('code')) {
+        if (($request->get('username') && $request->get('code')) || $this->session->has('username')) {
             return true;
         } else {
             return false;
@@ -155,6 +147,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     public function checkCredentials($credentials, UserInterface $user)
     {
         // Check if submitted Code is Valid.
+        /** @var \RevisionTen\CMS\Model\UserRead $user */
         $secret = $user->getSecret();
 
         return $this->isCodeValid($secret, $credentials['code']);
@@ -167,7 +160,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     {
         $user = $token->getUser();
 
-        if (is_object($user)) {
+        if (\is_object($user)) {
             $userId = $user->getId();
             $userUuid = $user->getUuid();
 

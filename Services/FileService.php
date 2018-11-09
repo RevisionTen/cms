@@ -42,9 +42,10 @@ class FileService
     /**
      * PageService constructor.
      *
-     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
-     * @param \RevisionTen\CQRS\Services\CommandBus       $commandBus
-     * @param string                                      $project_dir
+     * @param AggregateFactory      $aggregateFactory
+     * @param CommandBus            $commandBus
+     * @param TokenStorageInterface $tokenStorage
+     * @param string                $project_dir
      */
     public function __construct(AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
     {
@@ -62,8 +63,9 @@ class FileService
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
+     * @param boolean     $qeue
      * @param string|null $commandUuid
-     * @param int|null    $user
+     * @param int|null    $userId
      *
      * @return bool
      */
@@ -83,19 +85,16 @@ class FileService
         return $success;
     }
 
-    public function saveUploadedFile(UploadedFile $file, string $upload_dir, string $filename)
+    public function saveUploadedFile(UploadedFile $file, string $upload_dir, string $filename): string
     {
         $public_dir = $this->project_dir.'/public';
 
         // Move the file to the uploads directory.
         $newFileName = $filename.'.'.$file->getClientOriginalExtension();
 
-        /** @var File $storedFiled */
-        $storedFiled = $file->move($public_dir.$upload_dir, $newFileName);
+        $file->move($public_dir.$upload_dir, $newFileName);
 
-        $filePath = $upload_dir.$newFileName;
-
-        return $filePath;
+        return $upload_dir.$newFileName;
     }
 
     public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir): ?array
@@ -125,15 +124,14 @@ class FileService
             'uuid' => $uuid,
             'path' => $filePath,
             'mimeType' => $mimeType,
-            'version' => ($version + 1),
+            'version' => $version + 1,
             'size' => $size,
         ];
     }
 
-    public function replaceFile(array $file, File $newFile, string $title, string $upload_dir): ?array
+    public function replaceFile(array $file, UploadedFile $newFile, string $title, string $upload_dir): ?array
     {
         $uuid = $file['uuid'];
-        $version = $file['version'];
         $mimeType = $newFile->getMimeType();
         $size = $newFile->getSize();
 
@@ -172,7 +170,7 @@ class FileService
             'uuid' => $uuid,
             'path' => $filePath,
             'mimeType' => $mimeType,
-            'version' => ($version + 1),
+            'version' => $version + 1,
             'size' => $size,
         ];
     }
@@ -226,7 +224,7 @@ class FileService
     public function deleteFile(array $file): ?array
     {
         // Delete the file (detaches the file aggregate).
-        $uuid = $file['uuid'];
+        // $uuid = $file['uuid'];
 
         return null;
     }

@@ -28,12 +28,12 @@ final class UserLoginHandler extends Handler implements HandlerInterface
         $ip = $payload['ip'];
 
         // Add device to list of known devices.
-        if (!in_array($device, $aggregate->devices)) {
+        if (!\in_array($device, $aggregate->devices, false)) {
             $aggregate->devices[] = $device;
         }
 
         // Add IP to list of known ips.
-        if (!in_array($ip, $aggregate->ips)) {
+        if (!\in_array($ip, $aggregate->ips, false)) {
             $aggregate->ips[] = $ip;
         }
 

@@ -77,7 +77,7 @@ class PageService
         });
 
         foreach ($elements as &$element) {
-            if (isset($element['elements']) && is_array($element['elements'])) {
+            if (isset($element['elements']) && \is_array($element['elements'])) {
                 $element['elements'] = $this->removeDisabled($element['elements']);
             }
         }
@@ -94,7 +94,7 @@ class PageService
      */
     public function filterPayload(array $payload): array
     {
-        if (isset($payload['elements']) && is_array($payload['elements'])) {
+        if (isset($payload['elements']) && \is_array($payload['elements'])) {
             $payload['elements'] = $this->removeDisabled($payload['elements']);
         }
 
@@ -129,6 +129,7 @@ class PageService
             $pageRead->setPayload($pageData);
 
             // Update the language and website of associated aliases.
+            /** @var PageStreamRead $pageStreamRead */
             $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
             if (null !== $pageStreamRead) {
                 $aliases = $pageStreamRead->getAliases();

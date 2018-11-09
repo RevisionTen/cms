@@ -31,13 +31,12 @@ class Youtube extends Element
 
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
-            $form = $event->getForm();
 
             if (isset($data['youtubeId']) && $data['youtubeId']) {
                 $youtubeId = $data['youtubeId'];
 
                 if (strpos($youtubeId, 'youtu')) {
-                    preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=embed/)‌​[^&\n]+|(?<=v=)[^&\n‌​]+|(?<=youtu.be/)[^&‌​\n]+#", $youtubeId, $matches);
+                    preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=embed/)‌​[^&\n]+|(?<=v=)[^&\n‌​]+|(?<=youtu.be/)[^&‌​\n]+#/u", $youtubeId, $matches);
                     if (isset($matches[0]) && $matches[0]) {
                         $youtubeId = $matches[0];
                     }

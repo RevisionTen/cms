@@ -130,6 +130,8 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @see \Serializable::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {
@@ -142,7 +144,7 @@ class UserRead implements UserInterface, \Serializable
     /**
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -170,7 +172,7 @@ class UserRead implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getUsername()
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -190,7 +192,7 @@ class UserRead implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -210,7 +212,7 @@ class UserRead implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -230,7 +232,7 @@ class UserRead implements UserInterface, \Serializable
     /**
      * @return string
      */
-    public function getSecret()
+    public function getSecret(): ?string
     {
         return $this->secret;
     }
@@ -272,7 +274,7 @@ class UserRead implements UserInterface, \Serializable
      */
     public function getColor(): string
     {
-        if (null == $this->color) {
+        if (null === $this->color) {
             $this->color = $this->getColorFromUsername();
         }
 
@@ -322,7 +324,7 @@ class UserRead implements UserInterface, \Serializable
     private function hsl2rgb($H, float $strength, float $saturation): string
     {
         $H *= 6;
-        $h = intval($H);
+        $h = (int) $H;
         $H -= $h;
         $saturation *= 255;
         $m = $saturation * (1 - $strength);
@@ -421,4 +423,4 @@ class UserRead implements UserInterface, \Serializable
     }
 }
 
-\class_alias('RevisionTen\CMS\Model\UserRead', 'RevisionTen\CMS\Model\User');
+\class_alias(UserRead::class, 'RevisionTen\CMS\Model\User');

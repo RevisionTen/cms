@@ -27,7 +27,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         // Set new Uuid.
         $element['uuid'] = $newUuid;
 
-        if (isset($element['elements']) && is_array($element['elements'])) {
+        if (isset($element['elements']) && \is_array($element['elements'])) {
             foreach ($element['elements'] as $key => $subElement) {
                 $element['elements'][$key] = $this->assignNewUuid($subElement, $commandUuid);
             }

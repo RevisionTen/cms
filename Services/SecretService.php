@@ -47,6 +47,8 @@ class SecretService
      * @param \Swift_Mailer       $swift_Mailer
      * @param array               $config
      * @param TranslatorInterface $translator
+     * @param RequestStack        $requestStack
+     * @param RouterInterface     $router
      */
     public function __construct(\Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router)
     {
@@ -59,7 +61,7 @@ class SecretService
 
     public function sendLoginInfo(string $username, string $password, string $mail): void
     {
-        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+        $issuer = $this->config['site_name'] ?? 'revisionTen';
 
         $subject = $this->translator->trans('Login data for %username%', [
             '%username%' => $username,
@@ -80,7 +82,7 @@ EOT;
 
     public function sendSecret(string $secret, string $username, string $mail): void
     {
-        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
+        $issuer = $this->config['site_name'] ?? 'revisionTen';
 
         $qrCode = GoogleQrUrl::generate(rawurlencode($username), $secret, rawurlencode($issuer), 200);
 
@@ -104,8 +106,6 @@ EOT;
 
     public function sendPasswordResetMail(string $username, string $token, string $mail): void
     {
-        $issuer = $this->config['site_name'] ? $this->config['site_name'] : 'revisionTen';
-
         $subject = $this->translator->trans('Password reset requested for %username%', [
             '%username%' => $username,
         ]);
@@ -130,7 +130,7 @@ EOT;
 
     private function sendMail(string $subject, string $messageBody, string $mail): void
     {
-        $senderConfigExists = isset($this->config['mailer_from']) && $this->config['mailer_from'] && isset($this->config['mailer_sender']) && $this->config['mailer_sender'] && isset($this->config['mailer_return_path']) && $this->config['mailer_return_path'];
+        $senderConfigExists = isset($this->config['mailer_from'], $this->config['mailer_sender'], $this->config['mailer_return_path']) && $this->config['mailer_from'] && $this->config['mailer_sender'] && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
             $message = (new \Swift_Message($subject))
