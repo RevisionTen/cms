@@ -117,7 +117,7 @@ class SecurityController extends AbstractController
      */
     public function login(Request $request, FormFactoryInterface $formFactory): Response
     {
-        $form = $this->buildLoginForm($request, $formFactory);
+        $form = $this->buildLoginForm($formFactory);
         $form->handleRequest($request);
 
         return $this->render('@cms/Security/login.html.twig', [
@@ -165,7 +165,7 @@ class SecurityController extends AbstractController
     {
         $request = $requestStack->getMasterRequest();
 
-        $form = $this->buildLoginForm($request, $formFactory);
+        $form = $this->buildLoginForm($formFactory);
         $form->handleRequest($request);
 
         return $this->render('@cms/Security/login-form.html.twig', [
