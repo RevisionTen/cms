@@ -43,7 +43,7 @@ class Website
     private $domains;
 
     /**
-     * @var Alias[]
+     * @var Collection
      * @ORM\OneToMany(targetEntity="Alias", mappedBy="website")
      */
     private $aliases;
@@ -179,9 +179,9 @@ class Website
     }
 
     /**
-     * @return Alias[]
+     * @return Collection
      */
-    public function getAliases(): ?array
+    public function getAliases(): ?Collection
     {
         return $this->aliases;
     }
