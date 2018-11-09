@@ -63,7 +63,7 @@ class FileService
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
-     * @param boolean     $qeue
+     * @param bool        $qeue
      * @param string|null $commandUuid
      * @param int|null    $userId
      *

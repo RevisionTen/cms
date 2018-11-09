@@ -120,11 +120,11 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
     public function validateCommand(CommandInterface $command, AggregateInterface $aggregate): bool
     {
         $payload = $command->getPayload();
-        // The uuid to remove.
-        $uuid = $payload['uuid'];
-        $item = self::getItem($aggregate, $uuid);
+        // The uuid to shift.
+        $uuid = $payload['uuid'] ?? null;
+        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to shift is set',
                 CODE_BAD_REQUEST,

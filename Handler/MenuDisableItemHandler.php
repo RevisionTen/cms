@@ -59,10 +59,10 @@ final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInt
     {
         $payload = $command->getPayload();
         // The uuid to disable.
-        $uuid = $payload['uuid'];
-        $item = self::getItem($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to disable is set',
                 CODE_BAD_REQUEST,

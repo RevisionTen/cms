@@ -37,9 +37,9 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     /**
      * CodeAuthenticator constructor.
      *
-     * @param RequestStack                 $requestStack
-     * @param CommandBus                   $commandBus
-     * @param array                        $config
+     * @param RequestStack $requestStack
+     * @param CommandBus   $commandBus
+     * @param array        $config
      */
     public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config)
     {

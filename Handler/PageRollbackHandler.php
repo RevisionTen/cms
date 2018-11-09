@@ -71,9 +71,9 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
         $payload = $command->getPayload();
 
         if (
-            0 !== $aggregate->getVersion() &&
             isset($payload['previousVersion']) &&
-            !empty($payload['previousVersion'])
+            !empty($payload['previousVersion']) &&
+            0 !== $aggregate->getVersion()
         ) {
             return true;
         } else {

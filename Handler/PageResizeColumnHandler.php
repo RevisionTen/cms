@@ -63,7 +63,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
     {
         $payload = $command->getPayload();
         $uuid = $payload['uuid'] ?? null;
-        $element = self::getElement($aggregate, $uuid);
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
         $size = (int) $payload['size'];
         $breakpoint = $payload['breakpoint'];
 

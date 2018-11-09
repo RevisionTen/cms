@@ -67,7 +67,7 @@ final class UserCreateHandler extends Handler implements HandlerInterface
             ));
 
             return false;
-        } elseif (!isset($payload['username']) || !isset($payload['email']) || !isset($payload['password']) || !isset($payload['secret'])) {
+        } elseif (!isset($payload['username'], $payload['email'], $payload['password'], $payload['secret'])) {
             $this->messageBus->dispatch(new Message(
                 'Missing user data',
                 CODE_BAD_REQUEST,

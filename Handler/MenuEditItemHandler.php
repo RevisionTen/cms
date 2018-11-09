@@ -62,10 +62,10 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
     {
         $payload = $command->getPayload();
         // The uuid to edit.
-        $uuid = $payload['uuid'];
-        $item = self::getItem($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to edit is set',
                 CODE_BAD_REQUEST,

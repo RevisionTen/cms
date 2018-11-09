@@ -54,7 +54,7 @@ class CmsExtension extends AbstractExtension
     /**
      * Returns an array of bootstrap spacing css classes.
      *
-     * @param array $spacing      the amount of spacing
+     * @param array  $spacing     the amount of spacing
      * @param string $propertyAbr the type of spacing ('m' = margin, 'p' = padding)
      *
      * @return array
