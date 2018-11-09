@@ -18,7 +18,7 @@ abstract class UserBaseListener
      * UserBaseListener constructor.
      *
      * @param UserService $userService
-     * @param boolean     $useMailCodes
+     * @param bool        $useMailCodes
      */
     public function __construct(UserService $userService, array $config)
     {

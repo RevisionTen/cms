@@ -11,7 +11,6 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 use RevisionTen\CQRS\Handler\Handler;
 
 final class UserLoginHandler extends Handler implements HandlerInterface
@@ -29,12 +28,12 @@ final class UserLoginHandler extends Handler implements HandlerInterface
         $ip = $payload['ip'];
 
         // Add device to list of known devices.
-        if (!in_array($device,$aggregate->devices)) {
+        if (!in_array($device, $aggregate->devices)) {
             $aggregate->devices[] = $device;
         }
 
         // Add IP to list of known ips.
-        if (!in_array($ip,$aggregate->ips)) {
+        if (!in_array($ip, $aggregate->ips)) {
             $aggregate->ips[] = $ip;
         }
 

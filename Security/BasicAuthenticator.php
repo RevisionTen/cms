@@ -3,6 +3,7 @@
 namespace RevisionTen\CMS\Security;
 
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Utilities\RandomHelpers;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -160,7 +161,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
 
         if ($useMailCodes) {
             $user = $token->getUser();
-            $code = $this->generateCode();
+            $code = RandomHelpers::randomString(6, '0123456789');
             $codeExpires = time() + 330;
 
             $this->session->set('mailCode', $code);
@@ -172,19 +173,11 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         return null;
     }
 
-    private function generateCode(): string
-    {
-        $length = 6;
-        $x = '0123456789';
-
-        return substr(str_shuffle(str_repeat($x, ceil($length / strlen($x)))), 1, $length);
-    }
-
     /**
      * Sends a mail with a login code.
      *
-     * @param UserRead   $user
-     * @param string $code
+     * @param UserRead $user
+     * @param string   $code
      */
     private function sendCodeMail(UserRead $user, string $code): void
     {

@@ -34,9 +34,9 @@ class UserMigrateCommand extends Command
     /**
      * UserCreateCommand constructor.
      *
-     * @param EntityManagerInterface       $entityManager
-     * @param CommandBus                   $commandBus
-     * @param MessageBus                   $messageBus
+     * @param EntityManagerInterface $entityManager
+     * @param CommandBus             $commandBus
+     * @param MessageBus             $messageBus
      */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus)
     {

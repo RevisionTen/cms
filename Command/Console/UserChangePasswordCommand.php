@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;

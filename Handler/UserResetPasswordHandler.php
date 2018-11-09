@@ -53,7 +53,7 @@ final class UserResetPasswordHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (!isset($payload['token']))  {
+        if (!isset($payload['token'])) {
             $this->messageBus->dispatch(new Message(
                 'Missing token',
                 CODE_BAD_REQUEST,

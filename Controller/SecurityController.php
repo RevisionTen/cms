@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Command\UserChangePasswordCommand;
 use RevisionTen\CMS\Command\UserResetPasswordCommand;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Utilities\RandomHelpers;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -226,7 +227,7 @@ class SecurityController extends AbstractController
                 if (null !== $userUuid) {
                     $onVersion = $user->getVersion();
 
-                    $token = $this->random_str();
+                    $token = RandomHelpers::randomString();
 
                     // Dispatch password reset event.
                     $userResetPasswordCommand = new UserResetPasswordCommand($userId, null, $userUuid, $onVersion, [
@@ -241,16 +242,6 @@ class SecurityController extends AbstractController
             'form' => $form->createView(),
             'success' => $success,
         ]);
-    }
-
-    private function random_str($length = 10, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
-    {
-        $pieces = [];
-        $max = mb_strlen($keyspace, '8bit') - 1;
-        for ($i = 0; $i < $length; ++$i) {
-            $pieces []= $keyspace[random_int(0, $max)];
-        }
-        return implode('', $pieces);
     }
 
     /**
@@ -268,7 +259,6 @@ class SecurityController extends AbstractController
      */
     public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder): Response
     {
-
         $formBuilder = $formFactory->createNamedBuilder(null, FormType::class, [
             'username' => $username,
             'resetToken' => $resetToken,

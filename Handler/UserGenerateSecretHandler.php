@@ -53,7 +53,7 @@ final class UserGenerateSecretHandler extends Handler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (!isset($payload['secret']))  {
+        if (!isset($payload['secret'])) {
             $this->messageBus->dispatch(new Message(
                 'Missing secret',
                 CODE_BAD_REQUEST,

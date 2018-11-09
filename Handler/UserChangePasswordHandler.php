@@ -54,7 +54,7 @@ final class UserChangePasswordHandler extends Handler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (!isset($payload['password']))  {
+        if (!isset($payload['password'])) {
             $this->messageBus->dispatch(new Message(
                 'Missing new password',
                 CODE_BAD_REQUEST,
