@@ -4,7 +4,7 @@
     {% for alias in aliases %}
         {% if alias.pageStreamRead or alias.controller %}
             <url>
-                <loc>{{ alias.path }}</loc>
+                <loc>{{ app.request.getSchemeAndHttpHost() }}{{ alias.path }}</loc>
                 {#<lastmod>2005-01-01</lastmod>
                 <changefreq>monthly</changefreq>#}
                 <priority>{{ alias.priority }}</priority>
@@ -12,4 +12,3 @@
         {% endif %}
     {% endfor %}
 </urlset>
-

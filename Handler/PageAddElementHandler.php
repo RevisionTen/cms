@@ -34,9 +34,9 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
         ];
 
         // Add to elements.
-        $parentUuid = isset($payload['parent']) ? $payload['parent'] : null;
+        $parentUuid = $payload['parent'] ?? null;
 
-        if ($parentUuid && is_string($parentUuid)) {
+        if ($parentUuid && \is_string($parentUuid)) {
             // A function that add the new element to the target parent.
             $addElementFunction = function (&$element, &$collection) use ($newElement) {
                 if (!isset($element['elements'])) {

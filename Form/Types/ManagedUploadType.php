@@ -55,30 +55,29 @@ class ManagedUploadType extends AbstractType
 
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options) {
             $data = $event->getData();
-            $form = $event->getForm();
 
             if (isset($data['delete']) && $data['delete']) {
                 // Request to delete, set the file property to null.
                 $data['file'] = $this->fileService->deleteFile($data['file']);
                 $data['delete'] = null;
-            } elseif (isset($data['existingFileUuid']) && null !== $data['existingFileUuid'] && isset($data['existingFileVersion']) && null !== $data['existingFileVersion']) {
+            } elseif (isset($data['existingFileUuid'], $data['existingFileVersion']) && null !== $data['existingFileUuid'] && null !== $data['existingFileVersion']) {
                 $existingFileUuid = $data['existingFileUuid'];
-                $existingFileVersion = intval($data['existingFileVersion']);
+                $existingFileVersion = (int) $data['existingFileVersion'];
 
                 $data['file'] = $this->fileService->getFile($existingFileUuid, $existingFileVersion);
                 $data['existingFileUuid'] = null;
                 $data['existingFileVersion'] = null;
             } elseif (isset($data['replaceFile']) && null !== $data['replaceFile']) {
-                if (is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
+                if (\is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->replaceFile($data['file'], $data['replaceFile'], $data['title'], $options['upload_dir']);
                     $data['replaceFile'] = null;
                 }
             } elseif (isset($data['file']) && null !== $data['file']) {
-                if (is_object($data['file'])) {
+                if (\is_object($data['file'])) {
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->createFile(null, $data['file'], $data['title'], $options['upload_dir']);
-                } elseif (is_array($data['file'])) {
+                } elseif (\is_array($data['file'])) {
                     // File is already stored.
                     $data['file'] = $this->fileService->updateFile($data['file'], $data['title']);
                 }

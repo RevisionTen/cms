@@ -61,7 +61,7 @@ final class FileCreateHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (0 === $aggregate->getVersion() && isset($payload['title']) && !empty($payload['title']) && isset($payload['path']) && !empty($payload['path'])) {
+        if (isset($payload['title'], $payload['path']) && !empty($payload['title']) && !empty($payload['path']) && 0 === $aggregate->getVersion()) {
             return true;
         }
         if (0 !== $aggregate->getVersion()) {

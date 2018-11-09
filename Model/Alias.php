@@ -89,10 +89,10 @@ class Alias
 
     public function getHost(): ?string
     {
-        if (null !== $this->getWebsite() && 0 !== count($this->getWebsite()->getDomains())) {
+        if (null !== $this->getWebsite() && 0 !== \count($this->getWebsite()->getDomains())) {
             // Append locale prefix if it differs from the websites default language.
             $locale = '';
-            if (null !== $this->getLanguage() && $this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
+            if ($this->getWebsite()->getDefaultLanguage() !== $this->getLanguage()) {
                 $locale = '/'.$this->getLanguage();
             }
             /** @var Domain $domain */
@@ -229,7 +229,7 @@ class Alias
      */
     public function getMeta(): ?array
     {
-        return is_string($this->meta) ? json_decode($this->meta, true) : $this->meta;
+        return \is_string($this->meta) ? json_decode($this->meta, true) : $this->meta;
     }
 
     /**

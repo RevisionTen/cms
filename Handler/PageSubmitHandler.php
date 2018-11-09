@@ -20,6 +20,7 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
+        /** @var Page $aggregate */
         $aggregate->state = Page::STATE_STAGED;
 
         return $aggregate;
@@ -48,7 +49,7 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if ($aggregate->getVersion() > 0 && isset($payload['grantedBy']) && !empty($payload['grantedBy'])) {
+        if (isset($payload['grantedBy']) && !empty($payload['grantedBy']) && $aggregate->getVersion() > 0) {
             return true;
         } else {
             $this->messageBus->dispatch(new Message(

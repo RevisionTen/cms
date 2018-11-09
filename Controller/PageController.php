@@ -28,7 +28,7 @@ use RevisionTen\CMS\Command\PageChangeSettingsCommand;
 use RevisionTen\CMS\Command\PageCreateCommand;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
@@ -48,6 +48,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -78,15 +79,16 @@ class PageController extends AbstractController
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
+     * @param boolean     $qeue
      * @param string|null $commandUuid
-     * @param int|null    $user
+     * @param int|null    $userId
      *
      * @return bool
      */
     public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
-            /** @var User $user */
+            /** @var UserRead $user */
             $user = $this->getUser();
             $userId = $user->getId();
         }
@@ -152,11 +154,7 @@ class PageController extends AbstractController
                 $pageUuid = Uuid::uuid1()->toString();
                 $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
 
-                if ($success) {
-                    return $this->redirectToPage($pageUuid);
-                } else {
-                    return $this->errorResponse();
-                }
+                return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
             }
         }
 
@@ -182,7 +180,7 @@ class PageController extends AbstractController
      */
     public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $ignore_validation = $request->get('ignore_validation');
@@ -191,8 +189,7 @@ class PageController extends AbstractController
             // Convert Aggregate to data array for form and remove properties we don't want changed.
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
             $aggregateData = json_decode(json_encode($aggregate), true);
-            unset($aggregateData['uuid']);
-            unset($aggregateData['elements']);
+            unset($aggregateData['uuid'], $aggregateData['elements']);
         } else {
             $aggregateData = $request->get('page');
         }
@@ -237,11 +234,7 @@ class PageController extends AbstractController
                         ]);
                     }
 
-                    if ($success) {
-                        return $this->redirectToPage($pageUuid);
-                    } else {
-                        return $this->errorResponse();
-                    }
+                    return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
             }
         }
@@ -305,11 +298,8 @@ class PageController extends AbstractController
      */
     public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
     {
-        /** @var User $user */
-        $user = $this->getUser();
-
         // Check if breakpoint and size are valid.
-        if (!in_array($breakpoint, ['xs', 'sm', 'md', 'xl']) || intval($size) < 1 || intval($size) > 12) {
+        if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'xl'])) {
             return new JsonResponse([
                 'success' => false,
                 'refresh' => null, // Refreshes whole page.
@@ -319,7 +309,7 @@ class PageController extends AbstractController
         $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Column',
             'data' => [
-                'width'.strtoupper($breakpoint) => intval($size),
+                'width'.strtoupper($breakpoint) => (int) $size,
             ],
             'parent' => $parent,
         ], $pageUuid, $onVersion, true);
@@ -347,7 +337,7 @@ class PageController extends AbstractController
      * @param CommandBus $commandBus
      * @param string     $pageUuid
      * @param int        $onVersion
-     * @param string     $parent
+     * @param string     $elementUuid
      * @param string     $size
      * @param string     $breakpoint
      *
@@ -355,12 +345,9 @@ class PageController extends AbstractController
      */
     public function resizeColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $size, string $breakpoint)
     {
-        /** @var User $user */
-        $user = $this->getUser();
-
         $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
             'uuid' => $elementUuid,
-            'size' => intval($size),
+            'size' => (int) $size,
             'breakpoint' => $breakpoint,
         ], $pageUuid, $onVersion, true);
 
@@ -393,7 +380,7 @@ class PageController extends AbstractController
      */
     public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
@@ -425,11 +412,7 @@ class PageController extends AbstractController
                 ]);
             }
 
-            if ($success) {
-                return $this->redirectToPage($pageUuid);
-            } else {
-                return $this->errorResponse();
-            }
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', array(
@@ -449,7 +432,7 @@ class PageController extends AbstractController
      */
     public function discardChanges(EventStore $eventStore, string $pageUuid): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $eventStore->discardQeued($pageUuid, $user->getId());
@@ -471,7 +454,7 @@ class PageController extends AbstractController
      */
     public function undoChange(EventStore $eventStore, string $pageUuid, int $version): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $eventStore->discardLatestQeued($pageUuid, $user->getId(), $version);
@@ -498,9 +481,6 @@ class PageController extends AbstractController
         if (null === $pageStreamRead) {
             return $this->errorResponse();
         }
-
-        /** @var User $user */
-        $user = $this->getUser();
 
         /** @var Website $website */
         $website = $entityManager->getRepository(Website::class)->find($pageStreamRead->getWebsite());
@@ -546,16 +526,12 @@ class PageController extends AbstractController
 
             // Persist alias.
             $entityManager->persist($alias);
-            $entityManager->flush($alias);
+            $entityManager->flush();
             $entityManager->clear();
 
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => true,
-                ]);
-            } else {
-                return $this->redirectToPage($pageUuid);
-            }
+            return $request->get('ajax') ? new JsonResponse([
+                'success' => true,
+            ]) : $this->redirectToPage($pageUuid);
         }
 
         return $this->render('@cms/Form/alias-form.html.twig', array(
@@ -606,27 +582,22 @@ class PageController extends AbstractController
 
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
-        if (null === $aliases || empty($aliases) || 0 === count($aliases)) {
+        if (null === $aliases || empty($aliases) || 0 === \count($aliases)) {
             // The page has no aliases, show modal or page with alias create form.
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,
             ]);
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => $success,
-                    'modal' => $url,
-                ]);
-            } else {
-                return $this->redirect($url);
-            }
+
+            return $request->get('ajax') ? new JsonResponse([
+                'success' => $success,
+                'modal' => $url,
+            ]) : $this->redirect($url);
+        } elseif ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+            ]);
         } else {
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => $success,
-                ]);
-            } else {
-                return $this->redirectToPage($pageUuid);
-            }
+            return $this->redirectToPage($pageUuid);
         }
     }
 
@@ -714,10 +685,10 @@ class PageController extends AbstractController
             $implements = class_implements($formClass);
 
             if (null === $form_template) {
-                $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
+                $form_template = $elementConfig['form_template'] ?? '@cms/Form/element-form.html.twig';
             }
 
-            if ($implements && in_array(FormTypeInterface::class, $implements)) {
+            if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
                 $form = $this->createForm(ElementType::class, ['data' => $data], [
                     'elementConfig' => $elementConfig,
                 ]);
@@ -739,11 +710,7 @@ class PageController extends AbstractController
                         ]);
                     }
 
-                    if ($success) {
-                        return $this->redirectToPage($pageUuid);
-                    } else {
-                        return $this->errorResponse();
-                    }
+                    return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
 
                 return $this->render($form_template, array(
@@ -779,7 +746,7 @@ class PageController extends AbstractController
      */
     public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $aggregate */
@@ -793,7 +760,7 @@ class PageController extends AbstractController
         // Get the element from the Aggregate.
         $element = PageBaseHandler::getElement($aggregate, $elementUuid);
 
-        if ($element && isset($element['data']) && isset($element['elementName'])) {
+        if ($element && isset($element['data'], $element['elementName'])) {
             $data = $element;
             $elementName = $element['elementName'];
             $config = $this->getParameter('cms');
@@ -804,10 +771,10 @@ class PageController extends AbstractController
                 $implements = class_implements($formClass);
 
                 if (null === $form_template) {
-                    $form_template = isset($elementConfig['form_template']) ? $elementConfig['form_template'] : '@cms/Form/element-form.html.twig';
+                    $form_template = $elementConfig['form_template'] ?? '@cms/Form/element-form.html.twig';
                 }
 
-                if ($implements && in_array(FormTypeInterface::class, $implements)) {
+                if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
                     $form = $this->createForm(ElementType::class, $data, [
                         'elementConfig' => $elementConfig,
                     ]);
@@ -840,11 +807,7 @@ class PageController extends AbstractController
                             ]);
                         }
 
-                        if ($success) {
-                            return $this->redirectToPage($pageUuid);
-                        } else {
-                            return $this->errorResponse();
-                        }
+                        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                     }
 
                     return $this->render($form_template, array(
@@ -879,7 +842,7 @@ class PageController extends AbstractController
      */
     public function deleteElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $aggregate */
@@ -927,7 +890,7 @@ class PageController extends AbstractController
      */
     public function shiftElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid, string $direction)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageShiftElementCommand::class, [
@@ -982,7 +945,7 @@ class PageController extends AbstractController
             } else {
                 $originalValue = $base[$property];
 
-                if (is_array($value) && is_array($originalValue)) {
+                if (\is_array($value) && \is_array($originalValue)) {
                     // Check if values arrays are identical.
                     if (0 !== strcmp(json_encode($value), json_encode($originalValue))) {
                         // Arrays are not equal.
@@ -999,22 +962,6 @@ class PageController extends AbstractController
         }
 
         return $diff;
-    }
-
-    /**
-     * Gets a PageRead entity for a Page Aggregate by its uuid.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param string                 $pageUuid
-     *
-     * @return PageRead|null
-     */
-    private function getPageRead(EntityManagerInterface $entityManager, string $pageUuid): ?PageRead
-    {
-        /** @var PageRead $page */
-        $pageRead = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
-
-        return $pageRead;
     }
 
     /**
@@ -1036,10 +983,10 @@ class PageController extends AbstractController
     {
         $config = $this->getParameter('cms');
 
-        /** @var User $user */
-        $user = $entityManager->getRepository(User::class)->find($user);
+        /** @var UserRead $user */
+        $user = $entityManager->getRepository(UserRead::class)->find($user);
 
-        /** @var User $realUser */
+        /** @var UserRead $realUser */
         $realUser = $this->getUser();
 
         if ($user->getId() === $realUser->getId()) {
@@ -1056,8 +1003,8 @@ class PageController extends AbstractController
 
         // Get all qeued Events for this page.
 
-        /** @var User[] $adminUsers */
-        $adminUsers = $entityManager->getRepository(User::class)->findAll();
+        /** @var UserRead[] $adminUsers */
+        $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
             $eventStreamObjects = $eventStore->findQeued($pageUuid, null, $page->getStreamVersion() + 1, $adminUser->getId());
@@ -1122,7 +1069,7 @@ class PageController extends AbstractController
      *
      * @param PageService            $pageService
      * @param AggregateFactory       $aggregateFactory
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param string                 $pageUuid
      *
      * @return Response
@@ -1131,7 +1078,7 @@ class PageController extends AbstractController
     {
         $config = $this->getParameter('cms');
 
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var PageStreamRead $pageStreamRead */
@@ -1164,9 +1111,9 @@ class PageController extends AbstractController
      *
      * @param string $pageUuid
      *
-     * @return Response
+     * @return RedirectResponse
      */
-    private function redirectToPage(string $pageUuid): Response
+    private function redirectToPage(string $pageUuid): RedirectResponse
     {
         /** @var EntityManagerInterface $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
@@ -1241,7 +1188,7 @@ class PageController extends AbstractController
      */
     public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, EventStore $eventStore, TranslatorInterface $translator): Response
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var int $id FormRead Id. */
@@ -1288,7 +1235,7 @@ class PageController extends AbstractController
      */
     public function rollbackAggregateAction(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $version)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         /** @var Page $pageAggregate */
@@ -1334,11 +1281,7 @@ class PageController extends AbstractController
                 ]);
             }
 
-            if ($success) {
-                return $this->redirectToPage($pageUuid);
-            } else {
-                return $this->errorResponse();
-            }
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', array(
@@ -1362,7 +1305,7 @@ class PageController extends AbstractController
      */
     public function disableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageDisableElementCommand::class, [
@@ -1409,7 +1352,7 @@ class PageController extends AbstractController
      */
     public function enableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageEnableElementCommand::class, [
@@ -1456,7 +1399,7 @@ class PageController extends AbstractController
      */
     public function duplicateElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, PageDuplicateElementCommand::class, [
@@ -1493,17 +1436,13 @@ class PageController extends AbstractController
      * @param Request             $request
      * @param TranslatorInterface $translator
      * @param CommandBus          $commandBus
-     * @param AggregateFactory    $aggregateFactory
      * @param string              $pageUuid
      * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
      */
-    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion)
+    public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, string $pageUuid, int $onVersion)
     {
-        /** @var User $user */
-        $user = $this->getUser();
-
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {

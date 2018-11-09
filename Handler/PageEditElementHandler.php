@@ -64,10 +64,10 @@ final class PageEditElementHandler extends PageBaseHandler implements HandlerInt
     {
         $payload = $command->getPayload();
         // The uuid to edit.
-        $uuid = $payload['uuid'];
-        $element = self::getElement($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to edit is set',
                 CODE_BAD_REQUEST,

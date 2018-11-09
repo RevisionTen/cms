@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\EventStore;
@@ -28,6 +28,7 @@ class ApiController extends AbstractController
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
      *
      * @param string                 $pageUuid
+     * @param int                    $userId
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator
@@ -188,8 +189,8 @@ class ApiController extends AbstractController
 
         $users = [];
         if (false === $previewUser) {
-            /** @var User[] $adminUsers */
-            $adminUsers = $entityManager->getRepository(User::class)->findAll();
+            /** @var UserRead[] $adminUsers */
+            $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
             foreach ($adminUsers as $key => $adminUser) {
                 if ($adminUser->getId() === $user->getId()) {
                     continue;
@@ -244,9 +245,9 @@ class ApiController extends AbstractController
         ]);
     }
 
-    private function getApiUser(int $userId = null, EntityManagerInterface $entityManager): ?User
+    private function getApiUser(int $userId = null, EntityManagerInterface $entityManager): ?UserRead
     {
-        /** @var User $user */
+        /** @var UserRead $user */
         $user = $this->getUser();
 
         $imposter = ($userId !== $user->getId());
@@ -255,9 +256,9 @@ class ApiController extends AbstractController
             /**
              * Load Preview User.
              *
-             * @var User $user
+             * @var UserRead $user
              */
-            $user = $entityManager->getRepository(User::class)->find($userId);
+            $user = $entityManager->getRepository(UserRead::class)->find($userId);
             $user->setImposter(true);
         }
 

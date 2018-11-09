@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Services;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\User;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -41,6 +41,11 @@ class PageService
     private $eventBus;
 
     /**
+     * @var CacheService
+     */
+    private $cacheService;
+
+    /**
      * PageService constructor.
      *
      * @param \Doctrine\ORM\EntityManagerInterface        $em
@@ -72,7 +77,7 @@ class PageService
         });
 
         foreach ($elements as &$element) {
-            if (isset($element['elements']) && is_array($element['elements'])) {
+            if (isset($element['elements']) && \is_array($element['elements'])) {
                 $element['elements'] = $this->removeDisabled($element['elements']);
             }
         }
@@ -89,7 +94,7 @@ class PageService
      */
     public function filterPayload(array $payload): array
     {
-        if (isset($payload['elements']) && is_array($payload['elements'])) {
+        if (isset($payload['elements']) && \is_array($payload['elements'])) {
             $payload['elements'] = $this->removeDisabled($payload['elements']);
         }
 
@@ -124,6 +129,7 @@ class PageService
             $pageRead->setPayload($pageData);
 
             // Update the language and website of associated aliases.
+            /** @var PageStreamRead $pageStreamRead */
             $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
             if (null !== $pageStreamRead) {
                 $aliases = $pageStreamRead->getAliases();
@@ -216,8 +222,8 @@ class PageService
      */
     private function removeQeuedEvents(string $pageUuid): void
     {
-        /** @var User[] $users */
-        $users = $this->em->getRepository(User::class)->findAll();
+        /** @var UserRead[] $users */
+        $users = $this->em->getRepository(UserRead::class)->findAll();
 
         // Remove all other qeued Events for this Page.
         foreach ($users as $qeueUser) {
@@ -307,11 +313,11 @@ class PageService
      */
     private function parseHydrationId(string $hydrationId): array
     {
-        $hydrationId = explode(':', $hydrationId);
+        $hydrationIdParts = explode(':', $hydrationId);
 
         return [
-            'class' => $hydrationId[0],
-            'id' => $hydrationId[1],
+            'class' => $hydrationIdParts[0],
+            'id' => $hydrationIdParts[1],
         ];
     }
 }

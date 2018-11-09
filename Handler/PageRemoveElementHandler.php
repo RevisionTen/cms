@@ -29,9 +29,9 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
         // A function that removes a element from its parent.
         $removeAndRebase = function (&$collection, $uuid) {
             // Remove the element by filtering the elements array.
-            $collection = array_filter($collection, function ($element, $key) use ($uuid) {
+            $collection = array_filter($collection, function ($element) use ($uuid) {
                 return $uuid !== $element['uuid'];
-            }, ARRAY_FILTER_USE_BOTH);
+            });
 
             // Rebase array values.
             $collection = array_values($collection);
@@ -76,10 +76,10 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
     {
         $payload = $command->getPayload();
         // The uuid to remove.
-        $uuid = $payload['uuid'];
-        $element = self::getElement($aggregate, $uuid);
+        $uuid = $payload['uuid'] ?? null;
+        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
-        if (!isset($uuid)) {
+        if (null === $uuid) {
             $this->messageBus->dispatch(new Message(
                 'No uuid to remove is set',
                 CODE_BAD_REQUEST,

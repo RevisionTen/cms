@@ -2,6 +2,8 @@
 
 namespace RevisionTen\CMS\Security;
 
+use RevisionTen\CMS\Command\UserLoginCommand;
+use RevisionTen\CQRS\Services\CommandBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,15 +16,9 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class CodeAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @var UserPasswordEncoderInterface $encoder
-     */
-    private $encoder;
-
     /**
      * @var SessionInterface
      */
@@ -34,15 +30,21 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     private $config;
 
     /**
-     * BasicAuthenticator constructor.
-     *
-     * @param UserPasswordEncoderInterface $encoder
-     * @param RequestStack                 $requestStack
+     * @var CommandBus
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, RequestStack $requestStack, array $config)
+    private $commandBus;
+
+    /**
+     * CodeAuthenticator constructor.
+     *
+     * @param RequestStack $requestStack
+     * @param CommandBus   $commandBus
+     * @param array        $config
+     */
+    public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config)
     {
-        $this->encoder = $encoder;
         $this->session = $this->getSession($requestStack);
+        $this->commandBus = $commandBus;
         $this->config = $config;
     }
 
@@ -74,11 +76,10 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        if (($this->session->has('username') || $request->get('username')) && $request->get('code')) {
-            return true;
-        } else {
-            return false;
-        }
+        $username = $this->session->has('username') ?? $request->get('username');
+
+        // Returns true If a code was submitted and a username exists, otherwise skip authentication.
+        return $username && $request->get('code');
     }
 
     /**
@@ -91,11 +92,14 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if ($request->get('code') && ($this->session->has('username') || $request->get('username'))) {
+        $username = $this->session->get('username') ?? $request->get('username');
+        $code = $request->get('code');
+
+        if ($username && $code) {
             // Username and password matches, code needs to be checked.
             return [
-                'username' => $this->session->get('username') ?? $request->get('username'),
-                'code' => $request->get('code'),
+                'username' => $username,
+                'code' => $code,
             ];
         }
 
@@ -107,15 +111,10 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        $username = $credentials['username'];
+        $username = $credentials['username'] ?? null;
 
-        if (null === $username) {
-            // If null, authentication will fail.
-            return null;
-        } else {
-            // If its a User object, checkCredentials() is called.
-            return $userProvider->loadUserByUsername($username);
-        }
+        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
+        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
     }
 
     private function isCodeValid(string $secret, string $code): bool
@@ -145,6 +144,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     public function checkCredentials($credentials, UserInterface $user)
     {
         // Check if submitted Code is Valid.
+        /** @var \RevisionTen\CMS\Model\UserRead $user */
         $secret = $user->getSecret();
 
         return $this->isCodeValid($secret, $credentials['code']);
@@ -155,6 +155,27 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $user = $token->getUser();
+
+        if (\is_object($user)) {
+            $userId = $user->getId();
+            $userUuid = $user->getUuid();
+
+            // Check if user has an aggregate.
+            if (null !== $userUuid) {
+                $onVersion = $user->getVersion();
+
+                // Dispatch login event.
+                $userLoginCommand = new UserLoginCommand($userId, null, $userUuid, $onVersion, [
+                    'device' => $request->headers->get('User-Agent') ?? 'unknown',
+                    'ip' => $request->getClientIp() ?? 'unknown',
+                ]);
+                $this->commandBus->dispatch($userLoginCommand);
+            }
+        } else {
+            return false;
+        }
+
         // On success, let the request continue.
         return null;
     }

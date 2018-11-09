@@ -81,7 +81,7 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
     {
         foreach ($elements as $element) {
             // Get child elements array.
-            $childElements = isset($element['elements']) && is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
+            $childElements = isset($element['elements']) && \is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
 
             if (null !== $childElements) {
                 // Unset child elements property.

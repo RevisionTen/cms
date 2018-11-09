@@ -45,6 +45,11 @@ services:
         autowire: true
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 20 }
+    # TODO: Fix this listener.
+    # RevisionTen\CMS\EventListener\LogoutListener:
+    #     autowire: true
+    #     tags:
+    #         - { name: security.logout_listener.main, event: security.logout_listener }
     RevisionTen\CMS\Controller\:
         autowire: true
         autoconfigure: true
@@ -71,9 +76,17 @@ services:
         autowire: true
         public: false
         tags: [console.command]
-        arguments:
-            $config: '%cms%'
     RevisionTen\CMS\Command\Console\UserSecretCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserMigrateCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
         autoconfigure: true
         autowire: true
         public: false
@@ -84,6 +97,9 @@ services:
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Services\PageService:
+        autowire: true
+        public: true
+    RevisionTen\CMS\Services\UserService:
         autowire: true
         public: true
     RevisionTen\CMS\Services\CacheService:
@@ -132,9 +148,39 @@ services:
         tags: [form.type]
     RevisionTen\CMS\Listener\:
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php}'
         public: true
         autowire: true
+    RevisionTen\CMS\Listener\UserCreateListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserGenerateSecretListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserChangePasswordListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLoginListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLogoutListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserResetPasswordListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
 
 framework:
     translator:
@@ -193,6 +239,7 @@ easy_admin:
             - { label: 'Menues', route: 'cms_list_menues', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
+            - { entity: UserRead, icon: 'users' }
             - { entity: EventStreamObject, icon: 'clock' }
     formats:
         date:     'd.m.Y'
@@ -294,7 +341,7 @@ easy_admin:
                 help: 'This list shows all persisted events.'
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', label: 'inspect payload', icon: 'eye' }
+                    #- { name: 'show', label: 'inspect payload', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -304,6 +351,30 @@ easy_admin:
                     - 'version'
                     - { property: 'created', type: 'datetime' }
                     - { property: 'user', template: '@cms/Admin/user_column.html.twig' }
+        UserRead:
+            label: 'Users'
+            class: RevisionTen\CMS\Model\UserRead
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'username' }
+                    - { property: 'email' }
+                    - { property: 'devices' }
+                    - { property: 'ips' }
+            list:
+                sort: ['id', 'DESC']
+                actions:
+                    - { name: 'show', icon: 'eye' }
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'username', label: 'Username' }
+                    - { property: 'email', label: 'Email' }
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead

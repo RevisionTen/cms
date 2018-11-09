@@ -31,7 +31,7 @@ abstract class MenuBaseHandler extends Handler
         }
 
         // Look in child items.
-        if (isset($item['items']) && is_array($item['items'])) {
+        if (isset($item['items']) && \is_array($item['items'])) {
             foreach ($item['items'] as &$subItem) {
                 if ($c = self::getMatching($subItem, $itemUuid, $callable, $item['items'])) {
                     return $c;
@@ -49,7 +49,7 @@ abstract class MenuBaseHandler extends Handler
      * @param string   $itemUuid
      * @param callable $callable
      */
-    public static function onItem(Menu &$aggregate, string $itemUuid, callable $callable): void
+    public static function onItem(Menu $aggregate, string $itemUuid, callable $callable): void
     {
         foreach ($aggregate->items as &$item) {
             if ($c = self::getMatching($item, $itemUuid, $callable, $aggregate->items)) {

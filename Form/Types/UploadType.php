@@ -49,7 +49,6 @@ class UploadType extends AbstractType
         $keep_deleted_file = $options['keep_deleted_file'];
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($public_dir, $upload_dir, $keep_deleted_file) {
             $data = $event->getData();
-            $form = $event->getForm();
 
             if (isset($data['delete']) && $data['delete']) {
                 // Set the file name property to null.
@@ -63,15 +62,14 @@ class UploadType extends AbstractType
                     }
                 }
             } elseif (isset($data['file']) && null !== $data['file']) {
-                if (is_object($data['file'])) {
+                if (\is_object($data['file'])) {
                     // Save the image and set the field to the upload path.
                     /** @var File $image */
                     $image = $data['file'];
 
                     // Move the file to the uploads directory.
                     $newFileName = $image->getFilename().'.'.$image->guessExtension();
-                    /** @var File $storedFiled */
-                    $storedFiled = $image->move($public_dir.$upload_dir, $newFileName);
+                    $image->move($public_dir.$upload_dir, $newFileName);
 
                     // Overwrite uploaded File with file path string.
                     $data = $upload_dir.$newFileName;

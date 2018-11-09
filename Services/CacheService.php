@@ -12,11 +12,6 @@ use Symfony\Component\Cache\Adapter\ApcuAdapter;
 class CacheService
 {
     /**
-     * @var array
-     */
-    private $config;
-
-    /**
      * @var string
      */
     private $issuer;
@@ -39,15 +34,19 @@ class CacheService
     /**
      * @var null|ApcuAdapter
      */
-    private $cache = null;
+    private $cache;
 
+    /**
+     * CacheService constructor.
+     *
+     * @param array $config
+     */
     public function __construct(array $config)
     {
-        $this->config = $config;
-        $this->issuer = isset($config['site_name']) ? $config['site_name'] : 'revisionTen';
+        $this->issuer = $config['site_name'] ?? 'revisionTen';
 
         // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
-        $key = isset($config['shm_key']) ? $config['shm_key'] : 1;
+        $key = $config['shm_key'] ?? 1;
         $key = (int) $key;
         $memsize = 2000000; // Reserve 2MB for UuidStore.
         $this->shmSegment = shm_attach($key, $memsize, 0666);
@@ -55,7 +54,7 @@ class CacheService
 
         $this->initUuidStore();
 
-        if (extension_loaded('apcu') && ini_get('apc.enabled')) {
+        if (\extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
         }
     }
@@ -65,11 +64,9 @@ class CacheService
         if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
             // UuidStore exists.
             $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-        } else {
+        } elseif (shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore)) {
             // Create UuidStore.
-            if (shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore)) {
-                $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-            }
+            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
         }
     }
 
@@ -104,9 +101,7 @@ class CacheService
      */
     private function getVersion(string $uuid): ?int
     {
-        $version = $this->uuidStore[$uuid] ?? null;
-
-        return $version;
+        return $this->uuidStore[$uuid] ?? null;
     }
 
     /**
@@ -130,6 +125,13 @@ class CacheService
         return $version;
     }
 
+    /**
+     * @param string $uuid
+     * @param int    $version
+     * @param array  $data
+     *
+     * @return bool|null
+     */
     public function put(string $uuid, int $version, array $data): ?bool
     {
         if (null === $this->cache) {
@@ -137,15 +139,20 @@ class CacheService
         }
 
         // Save current version to memory and return the save version.
-        $version = $this->setVersion($uuid, $version);
+        $saveVersion = $this->setVersion($uuid, $version);
 
         // Save data to apc cache.
-        $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$version);
+        $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$saveVersion);
         $entry->set($data);
 
         return $this->cache->save($entry);
     }
 
+    /**
+     * @param string $uuid
+     *
+     * @return array|null
+     */
     public function get(string $uuid): ?array
     {
         if (null === $this->cache) {
@@ -169,11 +176,17 @@ class CacheService
         return $data;
     }
 
+    /**
+     * @param string $uuid
+     * @param int    $version
+     *
+     * @return bool|null
+     */
     public function delete(string $uuid, int $version): ?bool
     {
         // Delete the version from memory and return the deleted version.
-        $version = $this->deleteVersion($uuid, $version);
+        $deletedVersion = $this->deleteVersion($uuid, $version);
 
-        return $this->cache->deleteItem($this->issuer.'_'.$uuid.'_v'.$version);
+        return $this->cache->deleteItem($this->issuer.'_'.$uuid.'_v'.$deletedVersion);
     }
 }

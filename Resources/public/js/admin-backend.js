@@ -70,11 +70,7 @@ function bindTree() {
         itemSelector: '.tree-node',
         placeholder: '<div class="placeholder"><i class="fas fa-arrow-right"></i></div>',
         isValidTarget: function ($item, container) {
-            if (container.el.hasClass('valid-target-tree')) {
-                return true;
-            } else {
-                return false;
-            }
+            return container.el.hasClass('valid-target-tree');
         },
         onCancel: function ($item, container, _super, event) {
             // Clear valid trees.
@@ -187,7 +183,7 @@ function updateElement(data)
     if (typeof data.refresh !== 'undefined' && data.refresh) {
         // Trigger a refresh event on the page.
         $('#page-frame')[0].contentWindow.$('body').trigger('refreshElement', data.refresh);
-    } else if (typeof data.refresh !== 'undefined' && data.refresh == null) {
+    } else if (typeof data.refresh !== 'undefined' && data.refresh === null) {
         // Reload the full page if refresh isset and is null.
         window.location.reload();
     } else if (typeof data.modal !== 'undefined' && data.modal) {
