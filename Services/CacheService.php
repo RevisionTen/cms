@@ -36,6 +36,11 @@ class CacheService
      */
     private $cache;
 
+    /**
+     * CacheService constructor.
+     *
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         $this->issuer = $config['site_name'] ?? 'revisionTen';
@@ -120,6 +125,13 @@ class CacheService
         return $version;
     }
 
+    /**
+     * @param string $uuid
+     * @param int    $version
+     * @param array  $data
+     *
+     * @return bool|null
+     */
     public function put(string $uuid, int $version, array $data): ?bool
     {
         if (null === $this->cache) {
@@ -127,15 +139,20 @@ class CacheService
         }
 
         // Save current version to memory and return the save version.
-        $version = $this->setVersion($uuid, $version);
+        $saveVersion = $this->setVersion($uuid, $version);
 
         // Save data to apc cache.
-        $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$version);
+        $entry = $this->cache->getItem($this->issuer.'_'.$uuid.'_v'.$saveVersion);
         $entry->set($data);
 
         return $this->cache->save($entry);
     }
 
+    /**
+     * @param string $uuid
+     *
+     * @return array|null
+     */
     public function get(string $uuid): ?array
     {
         if (null === $this->cache) {
@@ -159,11 +176,17 @@ class CacheService
         return $data;
     }
 
+    /**
+     * @param string $uuid
+     * @param int    $version
+     *
+     * @return bool|null
+     */
     public function delete(string $uuid, int $version): ?bool
     {
         // Delete the version from memory and return the deleted version.
-        $version = $this->deleteVersion($uuid, $version);
+        $deletedVersion = $this->deleteVersion($uuid, $version);
 
-        return $this->cache->deleteItem($this->issuer.'_'.$uuid.'_v'.$version);
+        return $this->cache->deleteItem($this->issuer.'_'.$uuid.'_v'.$deletedVersion);
     }
 }

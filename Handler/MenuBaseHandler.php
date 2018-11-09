@@ -49,7 +49,7 @@ abstract class MenuBaseHandler extends Handler
      * @param string   $itemUuid
      * @param callable $callable
      */
-    public static function onItem(Menu &$aggregate, string $itemUuid, callable $callable): void
+    public static function onItem(Menu $aggregate, string $itemUuid, callable $callable): void
     {
         foreach ($aggregate->items as &$item) {
             if ($c = self::getMatching($item, $itemUuid, $callable, $aggregate->items)) {

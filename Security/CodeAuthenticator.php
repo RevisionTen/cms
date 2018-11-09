@@ -78,13 +78,8 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     {
         $username = $this->session->has('username') ?? $request->get('username');
 
-        if ($username && $request->get('code')) {
-            // A code was submitted and a username exists.
-            return true;
-        } else {
-            // Skip authentication.
-            return false;
-        }
+        // Returns true If a code was submitted and a username exists, otherwise skip authentication.
+        return $username && $request->get('code');
     }
 
     /**
@@ -118,13 +113,8 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     {
         $username = $credentials['username'] ?? null;
 
-        if (null === $username) {
-            // If null, authentication will fail.
-            return null;
-        } else {
-            // If its a User object, checkCredentials() is called.
-            return $userProvider->loadUserByUsername($username);
-        }
+        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
+        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
     }
 
     private function isCodeValid(string $secret, string $code): bool

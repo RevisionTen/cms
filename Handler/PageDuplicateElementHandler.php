@@ -68,7 +68,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
                     $duplicatedElement = $this->assignNewUuid($duplicatedElement, $commandUuid);
 
                     // Insert duplicated element into collection.
-                    array_splice($collection, ($itemKey + 1), 0, [$duplicatedElement]);
+                    array_splice($collection, $itemKey + 1, 0, [$duplicatedElement]);
                 }
             }
         };

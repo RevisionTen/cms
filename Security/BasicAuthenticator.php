@@ -91,11 +91,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        if ($request->get('username') && $request->get('password')) {
-            return true;
-        } else {
-            return false;
-        }
+        return $request->get('username') && $request->get('password');
     }
 
     /**
@@ -126,13 +122,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     {
         $username = $credentials['username'];
 
-        if (null === $username) {
-            // If null, authentication will fail.
-            return null;
-        } else {
-            // If its a User object, checkCredentials() is called.
-            return $userProvider->loadUserByUsername($username);
-        }
+        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
+        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
     }
 
     /**
@@ -197,7 +188,7 @@ EOT;
 
         $mail = $user->getEmail();
 
-        $senderConfigExists = isset($this->config['mailer_from']) && $this->config['mailer_from'] && isset($this->config['mailer_sender']) && $this->config['mailer_sender'] && isset($this->config['mailer_return_path']) && $this->config['mailer_return_path'];
+        $senderConfigExists = isset($this->config['mailer_from'], $this->config['mailer_sender'], $this->config['mailer_return_path']) && $this->config['mailer_from'] && $this->config['mailer_sender'] && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
             $message = (new \Swift_Message($subject))

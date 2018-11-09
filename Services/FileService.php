@@ -10,7 +10,6 @@ use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 

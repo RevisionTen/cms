@@ -70,11 +70,7 @@ function bindTree() {
         itemSelector: '.tree-node',
         placeholder: '<div class="placeholder"><i class="fas fa-arrow-right"></i></div>',
         isValidTarget: function ($item, container) {
-            if (container.el.hasClass('valid-target-tree')) {
-                return true;
-            } else {
-                return false;
-            }
+            return container.el.hasClass('valid-target-tree');
         },
         onCancel: function ($item, container, _super, event) {
             // Clear valid trees.

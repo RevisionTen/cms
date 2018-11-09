@@ -50,7 +50,7 @@ abstract class PageBaseHandler extends Handler
      * @param string   $elementUuid
      * @param callable $callable
      */
-    public static function onElement(Page &$aggregate, string $elementUuid, callable $callable): void
+    public static function onElement(Page $aggregate, string $elementUuid, callable $callable): void
     {
         foreach ($aggregate->elements as &$element) {
             if ($c = self::getMatching($element, $elementUuid, $callable, $aggregate->elements, null)) {

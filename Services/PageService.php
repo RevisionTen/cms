@@ -313,11 +313,11 @@ class PageService
      */
     private function parseHydrationId(string $hydrationId): array
     {
-        $hydrationId = explode(':', $hydrationId);
+        $hydrationIdParts = explode(':', $hydrationId);
 
         return [
-            'class' => $hydrationId[0],
-            'id' => $hydrationId[1],
+            'class' => $hydrationIdParts[0],
+            'id' => $hydrationIdParts[1],
         ];
     }
 }

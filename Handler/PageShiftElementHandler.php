@@ -48,10 +48,10 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
     private static function up(array $array, int $item): array
     {
         if ($item > 0 && $item < \count($array)) {
-            $b = \array_slice($array, 0, ($item - 1), true);
+            $b = \array_slice($array, 0, $item - 1, true);
             $b[] = $array[$item];
             $b[] = $array[$item - 1];
-            $b += \array_slice($array, ($item + 1), \count($array), true);
+            $b += \array_slice($array, $item + 1, \count($array), true);
 
             return $b;
         } else {
