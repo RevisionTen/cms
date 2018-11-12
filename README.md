@@ -4,16 +4,13 @@
 
 #### Install via composer
 
-Add the bundle and its repositories to your composer.json
+Add this to your composer.json
 ```JSON
 "prefer-stable": true,
 "minimum-stability": "dev",
-"require": {
-    "revision-ten/cms": "^1.2",
-},
 ```
 
-Run `composer update`.
+Run `composer req revision-ten/cms`.
 
 #### Add routes
 

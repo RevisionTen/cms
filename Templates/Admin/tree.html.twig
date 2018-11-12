@@ -1,6 +1,6 @@
 {% set root = element.uuid is not defined %}
 
-<div class="tree"
+<div class="cms_tree"
     {% if root == false %}
         data-uuid="{{ element.uuid }}"
         data-children="{{ element.supportChildTypes|join(',') }}"

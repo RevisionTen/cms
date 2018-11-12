@@ -63,24 +63,24 @@ function bindLinks()
 
 function bindTree() {
 
-    let pageTree = $('#page-tree > .tree').sortable({
+    let pageTree = $('#page-tree > .cms_tree').sortable({
         group: 'serialization',
-        containerSelector: '.tree',
+        containerSelector: '.cms_tree',
         nested: true,
-        itemSelector: '.tree-node',
+        itemSelector: '.cms_tree-node',
         placeholder: '<div class="placeholder"><i class="fas fa-arrow-right"></i></div>',
         isValidTarget: function ($item, container) {
             return container.el.hasClass('valid-target-tree');
         },
         onCancel: function ($item, container, _super, event) {
             // Clear valid trees.
-            $('#page-tree .tree').removeClass('valid-target-tree');
-            $('#page-tree .tree-node-item').removeClass('valid-target');
+            $('#page-tree .cms_tree').removeClass('valid-target-tree');
+            $('#page-tree .cms_tree-node-item').removeClass('valid-target');
         },
         onDrop: function ($item, container, _super, event) {
             // Clear valid trees.
-            $('#page-tree .tree').removeClass('valid-target-tree');
-            $('#page-tree .tree-node-item').removeClass('valid-target');
+            $('#page-tree .cms_tree').removeClass('valid-target-tree');
+            $('#page-tree .cms_tree-node-item').removeClass('valid-target');
         },
         onDragStart: function ($item, container, _super, event) {
             let elementName = $item.data('elementName');
@@ -91,16 +91,16 @@ function bindTree() {
             }
 
             // Look at every tree and see If this item is allowed.
-            $('#page-tree .tree').each(function () {
+            $('#page-tree .cms_tree').each(function () {
                 let isChild = $.contains($item[0], $(this)[0]); // True if this is a child of the items beeing dragged.
                 let acceptedTypes = typeof $(this).data('children') !== 'undefined' ? $(this).data('children') : '';
 
                 if (isChild === false && ('all' === acceptedTypes || acceptedTypes.split(',').indexOf(elementName) !== -1)) {
                     $(this).addClass('valid-target-tree');
-                    $(this).siblings('.tree-node-item').addClass('valid-target');
+                    $(this).siblings('.cms_tree-node-item').addClass('valid-target');
                 } else {
                     $(this).removeClass('valid-target-tree');
-                    $(this).siblings('.tree-node-item').removeClass('valid-target');
+                    $(this).siblings('.cms_tree-node-item').removeClass('valid-target');
                 }
             });
         },
@@ -134,7 +134,7 @@ function bindTree() {
     });
 
     // Highlight elements on page when hovering them in page tree.
-    $('.tree-node-item').hover(function (event) {
+    $('.cms_tree-node-item').hover(function (event) {
         // Hover.
         let uuid = $(this).parent().data('uuid');
         let elementSelector = `[data-uuid="${uuid}"]`;
