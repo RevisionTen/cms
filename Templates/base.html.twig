@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{% block title %}{% endblock %}</title>
+        <title>{% block title %}{{ page.title }} | {{ website.title }}{% endblock %}</title>
         <meta charset="utf-8" />
 
         {% block metatags %}
+            {% if website is defined and website.siteVerification %}<meta name="google-site-verification" content="{{ website.siteVerification }}">{% endif %}
             {% if page.robots %}<meta name="robots" content="{{ page.robots|join(', ') }}" />{% endif %}
             {% if page.description %}<meta name="description" content="{{ page.description }}" />{% endif %}
             {% if page.meta.keywords %}<meta name="keywords" content="{{ page.meta.keywords }}" />{% endif %}

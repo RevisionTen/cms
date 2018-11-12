@@ -32,6 +32,12 @@ class Website
 
     /**
      * @var string
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $siteVerification;
+
+    /**
+     * @var string
      * @ORM\Column(type="string", options={"default":"de"})
      */
     private $defaultLanguage = 'de';
@@ -101,6 +107,26 @@ class Website
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSiteVerification(): ?string
+    {
+        return $this->siteVerification;
+    }
+
+    /**
+     * @param string|null $siteVerification
+     *
+     * @return Website
+     */
+    public function setSiteVerification(string $siteVerification = null): self
+    {
+        $this->siteVerification = $siteVerification;
 
         return $this;
     }

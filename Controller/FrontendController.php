@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Services\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,13 +64,13 @@ class FrontendController extends AbstractController
      *
      * @param PageService            $pageService
      * @param CacheService           $cacheService
-     * @param EntityManagerInterface $em
+     * @param EntityManagerInterface $entityManager
      * @param string                 $pageUuid
      * @param Alias|null             $alias
      *
      * @return Response
      */
-    private function renderPage(PageService $pageService, CacheService $cacheService, EntityManagerInterface $em, string $pageUuid, Alias $alias = null): Response
+    private function renderPage(PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, string $pageUuid, Alias $alias = null): Response
     {
         $config = $this->getParameter('cms');
 
@@ -78,7 +79,7 @@ class FrontendController extends AbstractController
 
         if (null === $pageData) {
             // Get Page from read model.
-            $pageRead = $this->getPageRead($em, $pageUuid);
+            $pageRead = $this->getPageRead($entityManager, $pageUuid);
             $pageData = $pageRead ? $pageRead->getPayload() : false;
 
             if ($pageData) {
@@ -91,6 +92,9 @@ class FrontendController extends AbstractController
             return new Response('404', Response::HTTP_NOT_FOUND);
         }
 
+        // Get the pages website.
+        $website = isset($pageData['website']) ? $entityManager->getRepository(Website::class)->find($pageData['website']) : null;
+
         // Get the page template from the template name.
         $templateName = $pageData['template'];
         $template = $config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
@@ -99,6 +103,7 @@ class FrontendController extends AbstractController
         $pageData = $pageService->hydratePage($pageData);
 
         return $this->render($template, [
+            'website' => $website,
             'alias' => $alias,
             'page' => $pageData,
             'edit' => false,
