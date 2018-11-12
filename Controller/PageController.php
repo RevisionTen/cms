@@ -1049,7 +1049,11 @@ class PageController extends AbstractController
         // Hydrate the page with doctrine entities.
         $pageData = $pageService->hydratePage($pageData);
 
+        // Get the pages website.
+        $website = isset($pageData['website']) ? $entityManager->getRepository(Website::class)->find($pageData['website']) : null;
+
         return $this->render($template, [
+            'website' => $website,
             'alias' => null,
             'page' => $pageData,
             'publishedVersion' => $publishedPage ? $publishedPage->getVersion() : null,
