@@ -76,10 +76,11 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        $username = $this->session->has('username') ?? $request->get('username');
+        $code = $request->get('code')['code'] ?? null;
+        $username = $this->session->has('username');
 
         // Returns true If a code was submitted and a username exists, otherwise skip authentication.
-        return $username && $request->get('code');
+        return $username && $code;
     }
 
     /**
@@ -92,8 +93,8 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        $username = $this->session->get('username') ?? $request->get('username');
-        $code = $request->get('code');
+        $username = $this->session->get('username');
+        $code = $request->get('code')['code'] ?? null;
 
         if ($username && $code) {
             // Username and password matches, code needs to be checked.
