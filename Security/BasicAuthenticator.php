@@ -91,7 +91,10 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->get('username') && $request->get('password');
+        $username = $request->get('login')['username'] ?? null;
+        $password = $request->get('login')['password'] ?? null;
+
+        return $username && $password;
     }
 
     /**
@@ -104,11 +107,14 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if ($request->get('username') && $request->get('password')) {
+        $username = $request->get('login')['username'] ?? null;
+        $password = $request->get('login')['password'] ?? null;
+
+        if ($username && $password) {
             // User loggs in.
             return [
-                'username' => $request->get('username'),
-                'password' => $request->get('password'),
+                'username' => $username,
+                'password' => $password,
             ];
         }
 
@@ -145,7 +151,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         // Remember the username in the session for the Code Authenticator.
-        $this->session->set('username', $request->get('username'));
+        $username = $request->get('login')['username'] ?? null;
+        $this->session->set('username', $username);
 
         // Sent a mail with the PIN code.
         $useMailCodes = $this->config['use_mail_codes'] ?? false;

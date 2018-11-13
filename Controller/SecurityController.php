@@ -32,27 +32,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class SecurityController extends AbstractController
 {
     /**
-     * @param Request              $request
      * @param FormFactoryInterface $formFactory
      *
      * @return FormInterface
      */
-    private function buildCodeForm(Request $request, FormFactoryInterface $formFactory): FormInterface
+    private function buildCodeForm(FormFactoryInterface $formFactory): FormInterface
     {
-        $formBuilder = $formFactory->createNamedBuilder(null);
+        $formBuilder = $formFactory->createNamedBuilder('code');
 
         $formBuilder->setMethod('POST');
         $formBuilder->setAction('/admin/dashboard');
-
-        $session = $request->getSession();
-
-        if (!$session->has('username')) {
-            $formBuilder->add('username', TextType::class, [
-                'label' => 'Username',
-                'required' => true,
-                'constraints' => new NotBlank(),
-            ]);
-        }
 
         $formBuilder->add('code', TextType::class, [
             'label' => 'Code',
@@ -64,9 +53,7 @@ class SecurityController extends AbstractController
             'label' => 'Send',
         ]);
 
-        $form = $formBuilder->getForm();
-
-        return $form;
+        return $formBuilder->getForm();
     }
 
     /**
@@ -76,7 +63,7 @@ class SecurityController extends AbstractController
      */
     private function buildLoginForm(FormFactoryInterface $formFactory): FormInterface
     {
-        $formBuilder = $formFactory->createNamedBuilder(null);
+        $formBuilder = $formFactory->createNamedBuilder('login');
 
         $formBuilder->setMethod('POST');
         $formBuilder->setAction('/code');
@@ -100,9 +87,7 @@ class SecurityController extends AbstractController
             'label' => 'Send',
         ]);
 
-        $form = $formBuilder->getForm();
-
-        return $form;
+        return $formBuilder->getForm();
     }
 
     /**
@@ -137,14 +122,14 @@ class SecurityController extends AbstractController
      */
     public function code(Request $request, FormFactoryInterface $formFactory): Response
     {
-        // Remove username and password field from request.
-        $request->request->remove('username');
-        $request->request->remove('password');
+        // Remove submitted login form fields from request.
+        $request->request->remove('login');
 
-        $form = $this->buildCodeForm($request, $formFactory);
+        $form = $this->buildCodeForm($formFactory);
 
         // Only handle the request if a code was submitted.
-        if ($request->get('code')) {
+        $code = $request->get('code')['code'] ?? null;
+        if ($code) {
             $form->handleRequest($request);
         }
 
@@ -187,7 +172,7 @@ class SecurityController extends AbstractController
      */
     public function resetPassword(Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus): Response
     {
-        $formBuilder = $formFactory->createNamedBuilder(null);
+        $formBuilder = $formFactory->createBuilder();
 
         $formBuilder->setMethod('POST');
 
@@ -261,7 +246,7 @@ class SecurityController extends AbstractController
      */
     public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder): Response
     {
-        $formBuilder = $formFactory->createNamedBuilder(null, FormType::class, [
+        $formBuilder = $formFactory->createBuilder(FormType::class, [
             'username' => $username,
             'resetToken' => $resetToken,
         ]);
