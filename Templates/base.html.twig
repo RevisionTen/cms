@@ -14,8 +14,8 @@
 
         {% block styles %}
             <!-- Full Bootstrap -->
-            <!-- IMPORTANT: REPLACE WITH LOCAL VERSION -->
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+            <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
+            <link rel="stylesheet" href="{{ asset('bundles/cms/example-template-files/bootstrap.min.css') }}">
 
             {% if edit %}
                 <script defer src="{{ asset('bundles/cms/libs/dist/main.js') }}"></script>
@@ -119,10 +119,10 @@
 
         {% block scripts %}
             <!-- Full Bootstrap and jQuery -->
-            <!-- IMPORTANT: REPLACE WITH LOCAL VERSION -->
-            <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+            <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
+            <script src="{{ asset('bundles/cms/example-template-files/jquery.min.js') }}"></script>
+            <script src="{{ asset('bundles/cms/example-template-files/popper.min.js') }}"></script>
+            <script src="{{ asset('bundles/cms/example-template-files/bootstrap.min.js') }}"></script>
 
             {% include '@cms/Admin/admin-scripts.html.twig' %}
         {% endblock %}

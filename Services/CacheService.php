@@ -184,6 +184,10 @@ class CacheService
      */
     public function delete(string $uuid, int $version): ?bool
     {
+        if (null === $this->cache) {
+            return null;
+        }
+
         // Delete the version from memory and return the deleted version.
         $deletedVersion = $this->deleteVersion($uuid, $version);
 
