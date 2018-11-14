@@ -72,6 +72,10 @@
                         <td>{{ execution_limit }} sec</td>
                     </tr>
                     <tr>
+                        <td><span class="fas fa-file"></span> Page Cache: </td>
+                        <td>{{ (shm_enabled ? '<span title="shm_key: '~shm_key~'">enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
+                    </tr>
+                    <tr>
                         <td><span class="fas fa-info-circle"></span> Server IP: </td>
                         <td>{{ server_ip }}</td>
                     </tr>

@@ -122,6 +122,20 @@ class AdminController extends AbstractController
      */
     public function dashboardAction(EntityManagerInterface $em): Response
     {
+        // Test If the cache is enabled.
+        $shm_key = $this->getParameter('cms')['shm_key'] ?? 'none';
+        if ('none' !== $shm_key) {
+            try {
+                // Create a 1MB shared memory segment for the UuidStore.
+                $shmSegment = shm_attach($shm_key, 1000000, 0666);
+            } catch (\Exception $exception) {
+                $shmSegment = false;
+            }
+            $shm_enabled = $shmSegment ? true : false;
+        } else {
+            $shm_enabled = true;
+        }
+
         /** @var EventStreamObject[]|null $eventStreamObjects */
         $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
@@ -134,6 +148,8 @@ class AdminController extends AbstractController
         ], ['id' => Criteria::DESC], 7);
 
         return $this->render('@cms/Admin/dashboard.html.twig', [
+            'shm_enabled' => $shm_enabled,
+            'shm_key' => $shm_key,
             'eventStreamObjects' => $eventStreamObjects,
             'eventQeueObjects' => $eventQeueObjects,
             'latestCommits' => $latestCommits,

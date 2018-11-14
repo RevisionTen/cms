@@ -16,7 +16,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('site_name')->end()
-                ->integerNode('shm_key')->end()
+                ->integerNode('shm_key')->end() // Not needed anymore.
                 ->booleanNode('use_mail_codes')->end()
                 ->scalarNode('mailer_from')->end()
                 ->scalarNode('mailer_sender')->end()
