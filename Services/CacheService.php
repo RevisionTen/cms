@@ -45,17 +45,20 @@ class CacheService
     {
         $this->issuer = $config['site_name'] ?? 'revisionTen';
 
-        // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
-        $key = $config['shm_key'] ?? 1;
-        $key = (int) $key;
-        $memsize = 2000000; // Reserve 2MB for UuidStore.
-        $this->shmSegment = shm_attach($key, $memsize, 0666);
-        $this->shmVarKey = 1;
-
-        $this->initUuidStore();
-
         if (\extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
+
+            try {
+                // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
+                $key = (int) $config['shm_key'] ?? 1;
+                $this->shmVarKey = 1;
+                // Create a 1MB shared memory segmanet for the UuidStore.
+                $this->shmSegment = shm_attach($key, 1000000, 0666);
+                $this->initUuidStore();
+            } catch (\Exception $exception) {
+                // Failed to create the shared memory segment, disable cache.
+                $this->cache = null;
+            }
         }
     }
 
@@ -72,7 +75,9 @@ class CacheService
 
     private function saveUuidStore(): void
     {
-        shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
+        if ($this->shmSegment) {
+            shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
+        }
     }
 
     /**

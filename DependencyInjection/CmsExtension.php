@@ -35,6 +35,9 @@ class CmsExtension extends Extension implements PrependExtensionInterface
     {
         $config = self::mergeCMSConfig($configs);
 
+        // Use the license file to generate the key.
+        $config['shm_key'] = ftok(__DIR__.'/../LICENSE', 'c');
+
         $container->setParameter('cms', $config);
     }
 

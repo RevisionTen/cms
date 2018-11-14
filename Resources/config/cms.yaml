@@ -1,6 +1,6 @@
 # Default cms bundle config.
 cms:
-    shm_key: 1
+    shm_key: 1 # Not needed anymore.
     site_name: 'CMS'
     mailer_return_path: 'postmaster@some-website.com'
     mailer_from: 'info@some-website.com'
