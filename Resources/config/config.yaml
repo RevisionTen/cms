@@ -63,81 +63,65 @@ services:
             $config: '%cms%'
     RevisionTen\CMS\Security\CodeAuthenticator:
         autowire: true
-        public: false
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Security\BasicAuthenticator:
         autowire: true
-        public: false
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Command\Console\UserCreateCommand:
         autoconfigure: true
         autowire: true
-        public: false
         tags: [console.command]
     RevisionTen\CMS\Command\Console\UserSecretCommand:
         autoconfigure: true
         autowire: true
-        public: false
         tags: [console.command]
     RevisionTen\CMS\Command\Console\UserMigrateCommand:
         autoconfigure: true
         autowire: true
-        public: false
         tags: [console.command]
     RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
         autoconfigure: true
         autowire: true
-        public: false
         tags: [console.command]
     RevisionTen\CMS\Services\SecretService:
         autowire: true
-        public: true
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Services\PageService:
         autowire: true
-        public: true
     RevisionTen\CMS\Services\UserService:
         autowire: true
-        public: true
     RevisionTen\CMS\Services\CacheService:
         autowire: true
-        public: true
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Services\FileService:
         autowire: true
-        public: true
         arguments:
             $project_dir: '%kernel.project_dir%'
     RevisionTen\CMS\Form\Types\UploadType:
         autoconfigure: true
         autowire: true
-        public: true
         arguments:
             $project_dir: '%kernel.project_dir%'
         tags: [form.type]
     RevisionTen\CMS\Form\Types\ManagedUploadType:
         autoconfigure: true
         autowire: true
-        public: true
         tags: [form.type]
     RevisionTen\CMS\Form\Types\DoctrineType:
         autoconfigure: true
         autowire: true
-        public: true
         tags: [form.type]
     RevisionTen\CMS\Form\Elements\Form:
         autoconfigure: true
         autowire: true
-        public: true
         tags: [form.type]
     RevisionTen\CMS\Form\Menu\Page:
         autoconfigure: true
         autowire: true
-        public: true
         tags: [form.type]
     RevisionTen\CMS\Form\Elements\Controller:
         autoconfigure: true
@@ -146,10 +130,15 @@ services:
         arguments:
             $config: '%cms%'
         tags: [form.type]
+    RevisionTen\CMS\EventSubscriber\:
+        resource: '../../EventSubscriber/*'
+        autowire: true
+        autoconfigure: true
+    # Listeners must be public!
     RevisionTen\CMS\Listener\:
+        public: true
         resource: '../../Listener/*'
         exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php}'
-        public: true
         autowire: true
     RevisionTen\CMS\Listener\UserCreateListener:
         public: true
