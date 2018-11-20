@@ -199,7 +199,7 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
-    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="push-menu" role="button"><!--<img class="appicon" src="/bundles/cms/icons/drop.svg">--><i class="fas fa-pencil-ruler"></i></span> <span class="text-muted">%cms.site_name%</span>'
+    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="push-menu" role="button"><img class="appicon" src="/bundles/cms/icons/logo.svg"></span> <span class="text-muted">%cms.site_name%</span>'
     design:
         color_scheme: 'light'
         brand_color: '#2f323e'

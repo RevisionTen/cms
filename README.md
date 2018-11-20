@@ -1,5 +1,7 @@
 # revision-ten/cms
 
+![RevisionTen](Resources/public/icons/logo.png)
+
 ## Installation
 
 #### Install via composer
