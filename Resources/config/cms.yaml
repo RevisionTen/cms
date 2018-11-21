@@ -2,25 +2,22 @@
 cms:
     shm_key: 1 # Not needed anymore.
     site_name: 'CMS'
+
+    # Email configuration for user management.
     mailer_return_path: 'postmaster@some-website.com'
     mailer_from: 'info@some-website.com'
     mailer_sender: 'info@some-website.com'
-    page_metatype: RevisionTen\CMS\Form\PageMetaType
-    page_templates:
-        Simple Page:
-            template: '@cms/layout.html.twig'
+
+    # Two Factor Authentication configuration.
+    use_mail_codes: false # Set this to true If you want to receive login codes by mail, set this to false to use Google Authenticator.
+    mail_code_lifetime: 5 # Minutes until mailed code expires.
+
+    # Menu configuration.
     page_menues:
         Main Menu:
             template: '@cms/Menu/main.html.twig'
         Footer Menu:
             template: '@cms/Menu/footer.html.twig'
-    page_languages:
-        English: 'en'
-        German: 'de'
-        French: 'fr'
-    controller:
-        Login Form:
-            action: 'RevisionTen\CMS\Controller\SecurityController::loginForm'
     menu_items:
         Page:
             class: RevisionTen\CMS\Form\Menu\Page
@@ -31,6 +28,21 @@ cms:
         Divider:
             class: RevisionTen\CMS\Form\Menu\Divider
             template: '@cms/Menu/Items/divider.html.twig'
+
+    # Controller choices for controller page element.
+    controller:
+        Login Form:
+            action: 'RevisionTen\CMS\Controller\SecurityController::loginForm'
+
+    # Page configuration.
+    page_metatype: RevisionTen\CMS\Form\PageMetaType
+    page_languages:
+        English: 'en'
+        German: 'de'
+        French: 'fr'
+    page_templates:
+        Simple Page:
+            template: '@cms/layout.html.twig'
     page_elements:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section
