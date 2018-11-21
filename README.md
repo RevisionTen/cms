@@ -1,18 +1,20 @@
 # revision-ten/cms
 
+[![Latest Version][badge-release]][release]
+[![Software License][badge-license]][license]
+[![Total Downloads][badge-downloads]][downloads]
+
 ![RevisionTen](Resources/public/icons/logo.png)
 
 ## Installation
 
 #### Install via composer
 
-Add this to your composer.json
-```JSON
-"prefer-stable": true,
-"minimum-stability": "dev",
-```
+The preferred method of installation is via [Packagist][] and [Composer][]. Run the following command to install the package and add it as a requirement to your project's `composer.json`:
 
-Run `composer req revision-ten/cms`.
+```bash
+composer req revision-ten/cms
+```
 
 #### Add routes
 
@@ -54,7 +56,7 @@ Run `bin/console assets:install --symlink` to install the bundle assets.
 
 ## Setup
 
-Make sure your website is able to send emails first. [Use gmail If you can't send emails locally](https://symfony.com/doc/current/email.html#using-gmail-to-send-emails).
+Make sure your website is able to send emails first. [Use gmail If you can't send emails locally][use-gmail].
 
 Create an admin user with the interactive command: `bin/console cms:user:create`
 
@@ -159,3 +161,15 @@ Menues are language neutral and show all of their items regardless If the items 
 To support language/website specific menues just create mutiple menues, and only show the menu that matches the requests language and website.
 
 Hint: `{{ app.request.get('website') }}` returns the current website id in twig templates.
+
+[packagist]: https://packagist.org/packages/revision-ten/cms
+[composer]: http://getcomposer.org/
+[use-gmail]: https://symfony.com/doc/current/email.html#using-gmail-to-send-emails
+
+[badge-release]: https://img.shields.io/packagist/v/revision-ten/cms.svg?style=flat-square
+[badge-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[badge-downloads]: https://img.shields.io/packagist/dt/revision-ten/cms.svg?style=flat-square
+
+[release]: https://packagist.org/packages/revision-ten/cms
+[license]: https://github.com/RevisionTen/cms/blob/master/LICENSE
+[downloads]: https://packagist.org/packages/revision-ten/cms
