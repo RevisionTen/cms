@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('site_name')->end()
                 ->integerNode('shm_key')->end() // Not needed anymore.
                 ->booleanNode('use_mail_codes')->end()
+                ->integerNode('mail_code_lifetime')->end()
                 ->scalarNode('mailer_from')->end()
                 ->scalarNode('mailer_sender')->end()
                 ->scalarNode('mailer_return_path')->end()

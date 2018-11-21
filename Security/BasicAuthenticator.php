@@ -161,7 +161,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
             /** @var UserRead $user */
             $user = $token->getUser();
             $code = RandomHelpers::randomString(6, '0123456789');
-            $codeExpires = time() + 330;
+            $codeLifetime = (int) ($this->config['mail_code_lifetime'] ?? 5);
+            $codeExpires = time() + ($codeLifetime * 60);
 
             $this->session->set('mailCode', $code);
             $this->session->set('mailCodeExpires', $codeExpires);
@@ -184,8 +185,12 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
             '%username%' => $user->getUsername(),
         ]);
 
+        $minutes = $this->config['mailer_from'];
+
         $yourlogin = $this->translator->trans('Your login code is');
-        $validfor = $this->translator->trans('This code is valid for 5 minutes.');
+        $validfor = $this->translator->trans('This code is valid for %minutes% minutes.', [
+            '%minutes%' => $this->config['mail_code_lifetime'] ?? 5,
+        ]);
 
         $messageBody = <<<EOT
 $yourlogin:
