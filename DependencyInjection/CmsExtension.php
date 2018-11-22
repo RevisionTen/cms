@@ -28,6 +28,12 @@ class CmsExtension extends Extension implements PrependExtensionInterface
             $config = array_merge($config, $subConfig);
         }
 
+        // Use deprecated "page_menues" config If it is set.
+        if (!empty($config['page_menues'])) {
+            $config['menus'] = $config['page_menues'];
+            unset($config['page_menues']);
+        }
+
         return $config;
     }
 
