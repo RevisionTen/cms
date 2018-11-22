@@ -1,7 +1,6 @@
 # Default cms bundle config.
 cms:
-    shm_key: 1 # Not needed anymore.
-    site_name: 'CMS'
+    site_name: 'RevisionTen CMS'
 
     # Email configuration for user management.
     mailer_return_path: 'postmaster@some-website.com'
@@ -13,7 +12,7 @@ cms:
     mail_code_lifetime: 5 # Minutes until mailed code expires.
 
     # Menu configuration.
-    page_menues:
+    menus:
         Main Menu:
             template: '@cms/Menu/main.html.twig'
         Footer Menu:

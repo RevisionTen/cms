@@ -225,7 +225,7 @@ easy_admin:
             - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
             - { entity: Website, icon: 'nope fas fa-globe-africa' }
-            - { label: 'Menues', route: 'cms_list_menues', icon: 'bars' }
+            - { label: 'Menus', route: 'cms_list_menus', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
             - { entity: UserRead, icon: 'users' }

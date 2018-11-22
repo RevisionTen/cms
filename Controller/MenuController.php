@@ -138,33 +138,33 @@ class MenuController extends AbstractController
      */
     private function redirectToMenu(string $menuUuid): RedirectResponse
     {
-        return $this->redirectToRoute('cms_list_menues');
+        return $this->redirectToRoute('cms_list_menus');
     }
 
     /**
-     * @Route("/list-menues", name="cms_list_menues")
+     * @Route("/list-menus", name="cms_list_menus")
      *
      * @param AggregateFactory $aggregateFactory
      *
      * @return Response
      */
-    public function listMenues(AggregateFactory $aggregateFactory): Response
+    public function listMenus(AggregateFactory $aggregateFactory): Response
     {
         $config = $this->getParameter('cms');
 
-        /** @var Menu[] $menues */
-        $menues = $aggregateFactory->findAggregates(Menu::class);
+        /** @var Menu[] $menus */
+        $menus = $aggregateFactory->findAggregates(Menu::class);
 
-        $missingMenues = $config['page_menues'];
-        foreach ($menues as $menu) {
-            if (isset($missingMenues[$menu->name])) {
-                unset($missingMenues[$menu->name]);
+        $missingMenus = $config['menus'];
+        foreach ($menus as $menu) {
+            if (isset($missingMenus[$menu->name])) {
+                unset($missingMenus[$menu->name]);
             }
         }
 
-        return $this->render('@cms/Admin/list-menues.html.twig', [
-            'menues' => $menues,
-            'missingMenues' => $missingMenues,
+        return $this->render('@cms/Admin/list-menus.html.twig', [
+            'menus' => $menus,
+            'missingMenus' => $missingMenus,
             'config' => $config,
         ]);
     }
@@ -189,7 +189,7 @@ class MenuController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        if (isset($config['page_menues'][$name])) {
+        if (isset($config['menus'][$name])) {
             $data = [
                 'name' => $name,
             ];
@@ -613,8 +613,8 @@ class MenuController extends AbstractController
         /** @var Menu[] $menuAggregates */
         $menuAggregates = $aggregateFactory->findAggregates(Menu::class);
         foreach ($menuAggregates as $menuAggregate) {
-            if ($name === $menuAggregate->name && isset($config['page_menues'][$menuAggregate->name])) {
-                $menu = $config['page_menues'][$menuAggregate->name];
+            if ($name === $menuAggregate->name && isset($config['menus'][$menuAggregate->name])) {
+                $menu = $config['menus'][$menuAggregate->name];
                 $menu['data'] = json_decode(json_encode($menuAggregate), true);
             }
         }
@@ -656,7 +656,7 @@ class MenuController extends AbstractController
     {
         $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
-        if (!isset($config['page_menues'][$name])) {
+        if (!isset($config['menus'][$name])) {
             return new Response('Menu '.$name.' does not exist.');
         }
 
@@ -671,7 +671,7 @@ class MenuController extends AbstractController
             }
         }
 
-        return $this->render($template ?: $config['page_menues'][$name]['template'], [
+        return $this->render($template ?: $config['menus'][$name]['template'], [
             'request' => $request,
             'alias' => $alias,
             'menu' => $menuData,
@@ -696,7 +696,7 @@ class MenuController extends AbstractController
     {
         $config = $this->getParameter('cms');
 
-        if (!isset($config['page_menues'][$name])) {
+        if (!isset($config['menus'][$name])) {
             throw new \Exception('Menu does not exist.');
         }
 
@@ -712,7 +712,7 @@ class MenuController extends AbstractController
             );
         }
 
-        return $this->redirectToRoute('cms_list_menues');
+        return $this->redirectToRoute('cms_list_menus');
     }
 
     /**
