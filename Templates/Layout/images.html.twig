@@ -1,0 +1,9 @@
+<div {{ editorAttr(element, edit, 'bg-warning') }} class="{{ elementClasses(element) }} row">
+    {% for image in element.data.images %}
+        <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+            <a rel="lightbox" href="{{ asset(image.image) }}">
+                <img class="img-fluid" title="{{ image.title }}" alt="{{ image.title }}" src="{{ web_image(image.image).zoomCrop(500, 500) }}">
+            </a>
+        </div>
+    {% endfor %}
+</div>

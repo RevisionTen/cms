@@ -50,41 +50,86 @@
 {% endblock managed_upload_widget %}
 
 {% block form_widget %}
+
+    {% if form.parent.vars.allow_delete|default(false) %}
+        {% set shift_item_up_javascript %}
+            $(function() {
+                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
+
+                /* Shift item up */
+                var item = $(this.activeElement).parent().parent();
+                item.insertBefore(item.prev());
+
+                /* Update index of all collection items */
+                item.parent().children().each(function() {
+                    var index = $(this).index();
+                    $(this).find('[name]').each(function() {
+                        var input = $(this);
+                        var newName = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
+                        input.attr('name', newName);
+                    });
+                });
+            });
+        {% endset %}
+        {% set shift_item_down_javascript %}
+            $(function() {
+                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
+
+                /* Shift item down */
+                var item = $(this.activeElement).parent().parent();
+                item.insertAfter(item.next());
+
+                /* Update index of all collection items */
+                item.parent().children().each(function() {
+                    var index = $(this).index();
+                    $(this).find('[name]').each(function() {
+                        var input = $(this);
+                        var newName = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
+                        input.attr('name', newName);
+                    });
+                });
+            });
+        {% endset %}
+        {% set remove_item_javascript %}
+            $(function() {
+                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
+
+                var containerDiv = $('#{{ id }}').parents('.form-group:first');
+                var parentDiv = containerDiv.parents('[data-prototype]:first');
+                containerDiv.remove();
+                parentDiv.trigger('easyadmin.collection.item-deleted');
+
+                var hasCountAttr = parentDiv.data('count');
+
+                if (hasCountAttr === undefined) {
+                    var numItems = parentDiv.children('div.form-group').length;
+                    parentDiv.data('count', ++numItems)
+                }
+
+                if (0 == parentDiv.children().length && 'undefined' !== parentDiv.attr('data-empty-collection')) {
+                    $(parentDiv.attr('data-empty-collection')).insertBefore(parentDiv);
+                }
+            });
+        {% endset %}
+        <div class="text-right field-collection-item-action">
+            <a title="{{ 'Shift up'|trans() }}" href="#" onclick="{{ shift_item_up_javascript|raw }}" class="text-muted">
+                <i class="fas fa-arrow-circle-up"></i>
+            </a>
+
+            <a title="{{ 'Shift down'|trans() }}" href="#" onclick="{{ shift_item_down_javascript|raw }}" class="text-muted">
+                <i class="fas fa-arrow-circle-down"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            <a title="{{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}" href="#" onclick="{{ remove_item_javascript|raw }}" class="text-danger">
+                <i class="fas fa-times-circle"></i>
+            </a>
+        </div>
+    {% endif %}
+
     {% if compound %}
         {{- block('form_widget_compound') -}}
     {% else %}
         {{- block('form_widget_simple') -}}
-    {% endif %}
-
-    {% if form.parent.vars.allow_delete|default(false) %}
-        {% set remove_item_javascript %}
-            $(function() {
-            if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
-
-            var containerDiv = $('#{{ id }}').parents('.form-group:first');
-            var parentDiv = containerDiv.parents('[data-prototype]:first');
-            containerDiv.remove();
-            parentDiv.trigger('easyadmin.collection.item-deleted');
-
-            var hasCountAttr = parentDiv.data('count');
-
-            if (hasCountAttr === undefined) {
-            var numItems = parentDiv.children('div.form-group').length;
-            parentDiv.data('count', ++numItems)
-            }
-
-            if (0 == parentDiv.children().length && 'undefined' !== parentDiv.attr('data-empty-collection')) {
-            $(parentDiv.attr('data-empty-collection')).insertBefore(parentDiv);
-            }
-            });
-        {% endset %}
-
-        <div class="text-right field-collection-item-action">
-            <a href="#" onclick="{{ remove_item_javascript|raw }}" class="text-danger">
-                <i class="fas fa-trash"></i>
-                {{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}
-            </a>
-        </div>
     {% endif %}
 {% endblock form_widget %}
 
