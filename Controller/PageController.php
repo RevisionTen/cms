@@ -299,7 +299,7 @@ class PageController extends AbstractController
     public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
     {
         // Check if breakpoint and size are valid.
-        if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'xl'])) {
+        if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
             return new JsonResponse([
                 'success' => false,
                 'refresh' => null, // Refreshes whole page.

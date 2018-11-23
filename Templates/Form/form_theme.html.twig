@@ -1,6 +1,4 @@
-{% extends ['bootstrap_3_layout.html.twig'] %}
-
-{#% use 'bootstrap_4_layout.html.twig' %#}
+{% extends ['bootstrap_4_layout.html.twig'] %}
 
 {%- block trix_widget -%}
     {%- set type = type|default('hidden') -%}
@@ -46,11 +44,9 @@
     {% endif %}
 
     {{ block('form_widget') }}
-
 {% endblock managed_upload_widget %}
 
 {% block form_widget %}
-
     {% if form.parent.vars.allow_delete|default(false) %}
         {% set shift_item_up_javascript %}
             $(function() {
@@ -170,7 +166,7 @@
 {% endblock collection_row %}
 
 
-{% block checkbox_radio_label -%}
+{% block checkbox_radio_label1 -%}
     {# Do not display the label if widget is not defined in order to prevent double label rendering #}
     {%- if widget is defined -%}
         {%- if required -%}
@@ -193,4 +189,4 @@
         {{- widget|raw }} {{ label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
         </label>
     {%- endif -%}
-{%- endblock checkbox_radio_label %}
+{%- endblock checkbox_radio_label1 %}

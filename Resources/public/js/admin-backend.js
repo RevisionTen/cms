@@ -366,7 +366,7 @@ $(document).ready(function () {
     // Event that opens a bootstrap modal with dynamic content.
     body.on('openModal', function (event, linkSrc) {
         linkSrc = linkSrc + '?ajax=1';
-        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper', [], function () {
+        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper .content', [], function () {
             bindModal(linkSrc);
         });
     });

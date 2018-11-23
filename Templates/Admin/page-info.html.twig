@@ -7,97 +7,83 @@
 {% import _self as helper %}
 
 <div id="page-info">
-    <div class="admin-row">
-        <div class="admin-col-left admin-row">
+    <div class="row justify-content-between">
+        <div class="col-auto d-flex">
             {% if aliases is defined and aliases is iterable and aliases|length > 0 %}
-                <div class="dropdown dropdown-inline">
-                    <button class="btn btn-tertiary btn-label-fade btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div class="dropdown mr-3">
+                    <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         <span class="fas fa-link"></span> <span class="label-text">{{ 'Aliases'|trans }}</span>
                     </button>
-                    <ul class="dropdown-menu">
+                    <div class="dropdown-menu">
                         {% for alias in aliases %}
-                            <li>
-                                <a class="text-dark" target="_blank" href="{{ alias.host ? app.request.getScheme()~'://'~alias.host : '' }}{{ alias.path }}">
-                                    {{ alias.host }}{{ alias.path }}
-                                </a>
-                            </li>
+                            <a class="dropdown-item text-dark" target="_blank" href="{{ alias.host ? app.request.getScheme()~'://'~alias.host : '' }}{{ alias.path }}">
+                                {{ alias.host }}{{ alias.path }}
+                            </a>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             {% endif %}
-            <h1 class="title editor-title">
+            <h3 class="m-0">
                 {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
-            </h1>
+            </h3>
         </div>
-        <div class="admin-col-right">
-            <form class="form-inline pull-right">
+        <div class="col-auto ml-auto">
+            <form class="form-inline d-flex">
+                <div class="btn-group">
+                    {% set buttonActions = [
+                    actions.toggle_contrast,
+                    actions.toggle_tree,
+                    actions.preview,
+                    ] %}
+                    {% for action in buttonActions %}
+                        {% if action.display %}
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
-                <div class="button-group">
-
-                    <div class="btn-group">
-                        {% set buttonActions = [
-                            actions.toggle_contrast,
-                            actions.toggle_tree,
-                            actions.preview,
+                {% if actions.rollback_aggregate.display %}
+                    <div class="dropdown ml-1 mr-1">
+                        {% set historyActions = [
+                        actions.undo_change,
+                        actions.rollback_aggregate,
+                        actions.discard_changes
                         ] %}
-
-                        {% for action in buttonActions %}
-                            {% if action.display %}
-                                <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                    <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-
-                    {% if actions.rollback_aggregate.display %}
-                        <div class="btn-group dropdown dropdown-inline">
-                            {% set historyActions = [
-                                actions.undo_change,
-                                actions.rollback_aggregate,
-                                actions.discard_changes
-                            ] %}
-                            <button class="btn btn-tertiary btn-label-fade btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'History'|trans }}</span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                {% for action in historyActions %}
-                                    {% if action.display %}
-                                        <li>
-                                            <a class="text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                                <span class="{{ action.icon }}"></span> {{ action.label }}
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
+                        <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'History'|trans }}</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            {% for action in historyActions %}
+                                {% if action.display %}
+                                    <a class="dropdown-item text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                        <span class="{{ action.icon }}"></span> {{ action.label }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-
-                    {% endif %}
-
-                    <div class="btn-group">
-
-
-                        {% set buttonActions = [
-                            actions.change_pagesettings,
-                            actions.publish,
-                            actions.unpublish,
-                            actions.optimize,
-                            actions.submit_changes,
-                            actions.clone_aggregate,
-                            actions.delete_aggregate
-                        ] %}
-
-                        {% for action in buttonActions %}
-                            {% if action.display %}
-                                <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                    <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
-                                </a>
-                            {% endif %}
-                        {% endfor %}
                     </div>
+                {% endif %}
 
+                <div class="btn-group">
+                    {% set buttonActions = [
+                    actions.change_pagesettings,
+                    actions.publish,
+                    actions.unpublish,
+                    actions.optimize,
+                    actions.submit_changes,
+                    actions.clone_aggregate,
+                    actions.delete_aggregate
+                    ] %}
 
+                    {% for action in buttonActions %}
+                        {% if action.display %}
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm btn-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </form>
         </div>

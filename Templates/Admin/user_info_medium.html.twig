@@ -1,6 +1,6 @@
 <span title="{{ user.username }}">
     {% if user.avatarUrl %}
-        <img src="{{ user.avatarUrl }}" class="editor-avatar-medium img-circle svg-inline--fa">
+        <img src="{{ user.avatarUrl }}" class="editor-avatar-medium rounded-circle svg-inline--fa">
     {% else %}
         <div class="editor-avatar-color-medium" style="background: {{ user.color }};">
             {{ user.username|first }}

@@ -94,6 +94,11 @@ class UserRead implements UserInterface, \Serializable
      */
     private $imposter = false;
 
+    public function __toString()
+    {
+        return $this->getUsername();
+    }
+
     /**
      * {@inheritdoc}
      */

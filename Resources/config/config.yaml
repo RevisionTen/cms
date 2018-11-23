@@ -36,7 +36,7 @@ twig:
     paths:
         '%kernel.project_dir%/vendor/revision-ten/cms/Templates': cms
         '%kernel.project_dir%/vendor/easycorp/easyadmin-bundle/src/Resources/views': EasyAdminBase
-        '%kernel.project_dir%/vendor/revision-ten/cms/Templates/EasyAdmin': EasyAdmin
+        #'%kernel.project_dir%/vendor/revision-ten/cms/Templates/EasyAdmin': EasyAdmin
     form_themes:
           - '@cms/Form/form_theme.html.twig'
 
@@ -199,13 +199,13 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
-    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="push-menu" role="button"><img class="appicon" src="/bundles/cms/icons/logo.svg"></span> <span class="text-muted">%cms.site_name%</span>'
+    site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
     design:
-        color_scheme: 'light'
-        brand_color: '#2f323e'
+        #color_scheme: 'light'
+        #brand_color: '#2f323e'
         assets:
             css:
-                - 'https://fonts.googleapis.com/css?family=Rubik'
+                #- 'https://fonts.googleapis.com/css?family=Rubik'
                 - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
                 - 'bundles/cms/css/trix.css?v=%cms.version%'
                 - 'bundles/cms/css/jquery-ui.min.css?v=%cms.version%'
@@ -215,7 +215,7 @@ easy_admin:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
-        form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
+        #form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
             - { label: 'Contents' }

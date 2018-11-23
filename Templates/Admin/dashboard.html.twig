@@ -7,137 +7,154 @@
 {% block body_class %}dashboard{% endblock %}
 
 {% block main %}
-
-    <div class="row row-flexed">
-        <div class="col-sm-6 col-flexed">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ 'Latest Commits'|trans }}</h3>
+<div class="p-3">
+    <div class="row">
+        <div class="col col-sm-6">
+            <div class="card border rounded mb-3">
+                <div class="card-header p-3">
+                    <h6>
+                        {{ 'Latest Commits'|trans }}
+                    </h6>
                 </div>
-                <table class="table">
-                    {% for event in latestCommits %}
-                        <tr>
-                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
-                            <td>
-                                {{ event.payload.message|trans }}<br/>
-                                <span class="text-muted">
+                <div class="card-body">
+                    <table class="table datagrid">
+                        {% for event in latestCommits %}
+                            <tr>
+                                <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                                <td>
+                                    {{ event.payload.message|trans }}<br/>
+                                    <span class="text-muted">
                                     {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
                                 </span>
-                            </td>
-                            <td class="text-right">
-                                {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
+                                </td>
+                                <td class="text-right">
+                                    {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-flexed">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ 'System Information'|trans }}</h3>
+        <div class="col col-sm-6">
+            <div class="card border rounded mb-3">
+                <div class="card-header p-3">
+                    <h6>
+                        {{ 'System Information'|trans }}
+                    </h6>
                 </div>
-                <table class="table">
-                    <tr>
-                        <td><span class="fas fa-pencil-ruler"></span> CMS Version: </td>
-                        <td>{{ cms_version }}</td>
-                    </tr>
-                    <tr>
-                        <td><img style="height: 1em;" class="svg-inline--fa" src="{{ asset('bundles/cms/icons/symfony.svg') }}"> Symfony Version: </td>
-                        <td>{{ symfony_version }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fab fa-php"></span> PHP Version: </td>
-                        <td>{{ php_version }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
-                        <td>{{ apc_enabled }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-microchip"></span> PHP Memory Limit: </td>
-                        <td>{{ memory_limit }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-upload"></span> PHP Upload Max File Size: </td>
-                        <td>{{ upload_limit }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-upload"></span> PHP Post Max Size: </td>
-                        <td>{{ post_limit }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-hourglass-half"></span> PHP Max Execution Time: </td>
-                        <td>{{ execution_limit }} sec</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-file"></span> Page Cache: </td>
-                        <td>{{ (shm_enabled ? '<span title="shm_key: '~shm_key~'">enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-info-circle"></span> Server IP: </td>
-                        <td>{{ server_ip }}</td>
-                    </tr>
-                    <tr>
-                        <td><span class="fas fa-database"></span> Database: </td>
-                        <td>{{ database_name }}</td>
-                    </tr>
-                </table>
+                <div class="card-body">
+                    <table class="table datagrid">
+                        <tr>
+                            <td><span class="fas fa-pencil-ruler"></span> CMS Version: </td>
+                            <td>{{ cms_version }}</td>
+                        </tr>
+                        <tr>
+                            <td><img style="height: 1em;" class="svg-inline--fa" src="{{ asset('bundles/cms/icons/symfony.svg') }}"> Symfony Version: </td>
+                            <td>{{ symfony_version }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fab fa-php"></span> PHP Version: </td>
+                            <td>{{ php_version }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
+                            <td>{{ apc_enabled }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-microchip"></span> PHP Memory Limit: </td>
+                            <td>{{ memory_limit }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-upload"></span> PHP Upload Max File Size: </td>
+                            <td>{{ upload_limit }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-upload"></span> PHP Post Max Size: </td>
+                            <td>{{ post_limit }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-hourglass-half"></span> PHP Max Execution Time: </td>
+                            <td>{{ execution_limit }} sec</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-file"></span> Page Cache: </td>
+                            <td>{{ (shm_enabled ? '<span title="shm_key: '~shm_key~'">enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-info-circle"></span> Server IP: </td>
+                            <td>{{ server_ip }}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="fas fa-database"></span> Database: </td>
+                            <td>{{ database_name }}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div class="row row-flexed">
-        <div class="col-sm-6 col-flexed">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ 'Latest Events'|trans }}</h3>
+    <div class="row">
+        <div class="col col-sm-6">
+            <div class="card border rounded mb-3">
+                <div class="card-header p-3">
+                    <h6>
+                        {{ 'Latest Events'|trans }}
+                    </h6>
                 </div>
-                <table class="table">
-                    {% for event in eventStreamObjects %}
-                        <tr>
-                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
-                            <td>
-                                {{ event.message|trans }}<br/>
-                                <span class="text-muted">
+                <div class="card-body">
+                    <table class="table datagrid">
+                        {% for event in eventStreamObjects %}
+                            <tr>
+                                <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                                <td>
+                                    {{ event.message|trans }}<br/>
+                                    <span class="text-muted">
                                     {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
                                 </span>
-                            </td>
-                            <td class="text-right">
-                                {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
+                                </td>
+                                <td class="text-right">
+                                    {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-flexed">
+        <div class="col col-sm-6">
             {% if eventQeueObjects|length > 0 %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">{{ 'Latest Draft Events'|trans }}</h3>
-                </div>
-                <table class="table">
-                    {% for event in eventQeueObjects %}
-                        <tr>
-                            <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
-                            <td>
-                                {{ event.message|trans }}<br/>
-                                <span class="text-muted">
+                <div class="card border rounded mb-3">
+                    <div class="card-header p-3">
+                        <h6>
+                            {{ 'Latest Draft Events'|trans }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table datagrid">
+                            {% for event in eventQeueObjects %}
+                                <tr>
+                                    <td style="width: 4rem;padding-right: 0;">{% set value = event.payload.grantedBy is defined ? event.payload.grantedBy : event.user %}{% include '@cms/Admin/user_column_medium.html.twig' %}</td>
+                                    <td>
+                                        {{ event.message|trans }}<br/>
+                                        <span class="text-muted">
                                     {% set value = event.uuid %}{% include '@cms/Admin/uuid_column.html.twig' %}
                                 </span>
-                            </td>
-                            <td class="text-right">
-                                {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
+                                    </td>
+                                    <td class="text-right">
+                                        {% set value = event.created %}{% include '@cms/Admin/datetime_ago_column.html.twig' %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
             {% endif %}
         </div>
     </div>
+</div>
 {% endblock %}
