@@ -60,6 +60,12 @@ fieldset.form-group > div {
 .select2-container {
     width: 100%!important;
 }
+body.show .field-string .form-widget,
+body.show .field-boolean .form-widget,
+body.show .field-float .form-widget,
+body.show .field-integer .form-widget {
+    max-width: none;
+}
 /* Collections */
 .form-group.field-collection-action {
     margin: 0;

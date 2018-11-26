@@ -4,8 +4,6 @@
 [![Software License][badge-license]][license]
 [![Total Downloads][badge-downloads]][downloads]
 
-![RevisionTen](Resources/public/icons/logo.png)
-
 ## Installation
 
 #### Install via composer
