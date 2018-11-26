@@ -214,22 +214,23 @@ class MenuController extends AbstractController
     /**
      * @Route("/menu/add/{itemName}/{menuUuid}/{onVersion}/{parent}", name="cms_menu_additem")
      *
-     * @param Request     $request
-     * @param CommandBus  $commandBus
-     * @param MessageBus  $messageBus
-     * @param string      $itemName
-     * @param string      $menuUuid
-     * @param int         $onVersion
-     * @param string|null $parent
-     * @param array|null  $data
-     * @param string      $form_template
+     * @param Request             $request
+     * @param TranslatorInterface $translator
+     * @param CommandBus          $commandBus
+     * @param MessageBus          $messageBus
+     * @param string              $itemName
+     * @param string              $menuUuid
+     * @param int                 $onVersion
+     * @param string|null         $parent
+     * @param array|null          $data
+     * @param string              $form_template
      *
      * @return JsonResponse|Response
      *
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function addItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
+    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
     {
         $config = $this->getParameter('cms');
 
@@ -263,9 +264,10 @@ class MenuController extends AbstractController
                     return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                 }
 
-                return $this->render($form_template, array(
+                return $this->render($form_template, [
+                    'title' => $translator->trans('Add %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
                     'form' => $form->createView(),
-                ));
+                ]);
             } else {
                 // Not a valid form type.
                 throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -352,9 +354,10 @@ class MenuController extends AbstractController
                         return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                     }
 
-                    return $this->render($form_template, array(
+                    return $this->render($form_template, [
+                        'title' => $translator->trans('Edit %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
                         'form' => $form->createView(),
-                    ));
+                    ]);
                 } else {
                     // Not a valid form type.
                     throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);

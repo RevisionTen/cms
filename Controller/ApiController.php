@@ -60,7 +60,7 @@ class ApiController extends AbstractController
 
         $actions = [
             'toggle_contrast' => [
-                'css_class' => ' btn-tertiary toggle-contrast',
+                'css_class' => 'btn-tertiary toggle-contrast',
                 'icon' => 'fas fa-adjust',
                 'label' => $translator->trans('Toggle editor contrast'),
                 'url' => '#',
@@ -68,7 +68,7 @@ class ApiController extends AbstractController
                 'type' => 'link',
             ],
             'toggle_tree' => [
-                'css_class' => ' btn-tertiary toggle-tree',
+                'css_class' => 'btn-tertiary toggle-tree',
                 'icon' => 'fas fa-layer-group',
                 'label' => $translator->trans('Layers'),
                 'url' => '#',
@@ -76,7 +76,7 @@ class ApiController extends AbstractController
                 'type' => 'link',
             ],
             'preview' => [
-                'css_class' => ' btn-tertiary toggle-editor',
+                'css_class' => 'btn-tertiary toggle-editor',
                 'icon' => 'fas fa-toggle-on',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
@@ -87,7 +87,7 @@ class ApiController extends AbstractController
                 ],
             ],
             'change_pagesettings' => [
-                'css_class' => 'info btn-tertiary',
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-edit',
                 'label' => $translator->trans('Change Page Settings'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
@@ -95,7 +95,7 @@ class ApiController extends AbstractController
                 'type' => 'form',
             ],
             'publish' => [
-                'css_class' => 'success',
+                'css_class' => 'btn-success',
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
@@ -103,7 +103,7 @@ class ApiController extends AbstractController
                 'type' => 'ajax',
             ],
             'unpublish' => [
-                'css_class' => 'danger',
+                'css_class' => 'btn-danger',
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
@@ -111,7 +111,7 @@ class ApiController extends AbstractController
                 'type' => 'ajax',
             ],
             'optimize' => [
-                'css_class' => 'success btn-tertiary',
+                'css_class' => 'btn-success btn-tertiary',
                 'icon' => 'fas fa-sync',
                 'label' => $translator->trans('Optimize'),
                 'url' => $this->generateUrl('cms_save_snapshot', ['pageUuid' => $pageUuid]),
@@ -127,7 +127,7 @@ class ApiController extends AbstractController
                 'type' => 'link',
             ],
             'submit_changes' => [
-                'css_class' => 'success',
+                'css_class' => 'btn-success',
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('Submit changes'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
@@ -143,7 +143,7 @@ class ApiController extends AbstractController
                 'type' => 'form',
             ],
             'discard_changes' => [
-                'css_class' => 'danger',
+                'css_class' => 'btn-danger',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Discard changes'),
                 'url' => $this->generateUrl('cms_discard_changes', ['pageUuid' => $pageUuid]),
@@ -151,7 +151,7 @@ class ApiController extends AbstractController
                 'type' => 'link',
             ],
             'clone_aggregate' => [
-                'css_class' => 'warning btn-tertiary',
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
@@ -162,7 +162,7 @@ class ApiController extends AbstractController
                 ] : [],
             ],
             'delete_aggregate' => [
-                'css_class' => 'danger btn-tertiary',
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),

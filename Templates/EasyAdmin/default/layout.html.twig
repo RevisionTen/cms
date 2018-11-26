@@ -1,68 +1,18 @@
 {% extends '@EasyAdminBase/default/layout.html.twig' %}
 
-{% block head_stylesheets %}
-    <link rel="stylesheet" href="{{ asset('bundles/easyadmin/stylesheet/easyadmin-all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('bundles/cms/css/easyadmin.css') }}">
-    <script defer src="{{ asset('bundles/cms/libs/dist/main.js') }}"></script>
-    <style>
-        {{ easyadmin_config('_internal.custom_css')|raw }}
-    </style>
-{% endblock %}
-
-{% block user_menu %}
-    <span class="sr-only">{{ 'user.logged_in_as'|trans(domain = 'EasyAdminBundle') }}</span>
-
-    {% if app.user|default(false) == false %}
-        <i class="hidden-xs fa fa-user-times"></i>
-        {{ 'user.anonymous'|trans(domain = 'EasyAdminBundle') }}
-    {% elseif not _logout_path %}
-        <i class="hidden-xs fa fa-user"></i>
-        {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
-    {% else %}
-        <div class="btn-group">
-            <button type="button" class="btn" data-toggle="dropdown">
-                {% if app.user.avatarUrl is defined and app.user.avatarUrl %}
-                    <img src="{{ app.user.avatarUrl }}" style="height: 1em;margin-right: 5px;" class="img-circle hidden-xs">
-                {% else %}
-                    <i class="hidden-xs fa fa-user"></i>
-                {% endif %}
-                {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
-            </button>
-            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                {% block user_menu_dropdown %}
-                    <li>
-                        <a href="{{ _logout_path }}"><i class="fas fa-sign-out-alt"></i> {{ 'user.signout'|trans(domain = 'EasyAdminBundle') }}</a>
-                    </li>
-                    {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
-                        <li>
-                            <a href="?_switch_user=_exit"><i class="fas fa-sign-out-alt"></i> {{ 'user.exit_impersonation'|trans(domain = 'EasyAdminBundle') }}</a>
-                        </li>
-                    {% endif %}
-                {% endblock user_menu_dropdown %}
-            </ul>
-        </div>
-    {% endif %}
-{% endblock user_menu %}
-
-
-{% block sidebar %}
-    <section class="sidebar">
-
-        <div class="hidden-xs text-center editor-userinfo">
+{% block main_menu_wrapper %}
+    <div class="hidden-xs text-center editor-userinfo">
+        <div>
             {% if app.user.avatarUrl is defined and app.user.avatarUrl %}
-                <img src="{{ app.user.avatarUrl }}" class="img-circle img-responsive editor-avatar">
+                <img src="{{ app.user.avatarUrl }}" class="rounded-circle img-fluid editor-avatar">
             {% else %}
                 <div class="editor-avatar-color" style="background: {{ app.user.color }};">
                     {{ app.user.username|first }}
                 </div>
             {% endif %}
-            <span class="text-muted">{{ 'You are logged in as'|trans }}</span><br/>
-            {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
         </div>
-
-        {{ block('main_menu_wrapper') }}
-    </section>
-{% endblock sidebar %}
+        <span class="text-muted">{{ 'You are logged in as'|trans }}</span><br/>
+        {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
+    </div>
+    {{ parent() }}
+{% endblock main_menu_wrapper %}

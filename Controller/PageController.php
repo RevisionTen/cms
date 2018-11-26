@@ -121,10 +121,11 @@ class PageController extends AbstractController
      * @param Request                $request
      * @param CommandBus             $commandBus
      * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface    $translator
      *
      * @return Response
      */
-    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager)
+    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator)
     {
         $config = $this->getParameter('cms');
 
@@ -158,9 +159,10 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => $translator->trans('Add page'),
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**

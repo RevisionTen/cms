@@ -7,5 +7,10 @@
 {% endblock %}
 
 {% block main %}
-    {{ form(form) }}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+    {% if form.data is defined %}
+        {{ form_widget(form.data) }}
+    {% endif %}
+    {{ form_end(form) }}
 {% endblock %}

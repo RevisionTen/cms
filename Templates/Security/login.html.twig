@@ -1,6 +1,6 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
-{% block main %}
+{% block wrapper %}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
             <div class="alert alert-{{ label }}">
