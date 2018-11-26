@@ -2,6 +2,8 @@
 :root {
     --color-primary: #41b3f9;
     --color-primary-hover: #3795cc;
+    --color-lighter-blue: #e1e9f2;
+    --color-light-blue: #cad7e6;
     --text-color: #4b5464;
     --gray-800: #4b5464;
     --gray-900: #4b5464;
@@ -90,6 +92,7 @@ body.show .field-integer .form-widget {
 /* --- */
 body {
     color: var(--text-color);
+    background: #edf1f5;
 }
 a {
     color: var(--color-primary);
@@ -151,6 +154,12 @@ a {
     background: #737c8d;
     margin: 0 -30px 30px -30px;
 }
+.content-header {
+    background: var(--color-lighter-blue);
+}
+.content-header-title {
+    text-transform: uppercase;
+}
 .content {
     box-shadow: none;
 }
@@ -192,6 +201,7 @@ a {
 .btn-tertiary {
     border: 0;
     box-shadow: none;
+    background: none;
 }
 .btn-tertiary .label-text {
     display: none;
@@ -237,6 +247,14 @@ a {
 .modal-body .btn {
     background: var(--color-primary);
     color: white;
+}
+/* Card */
+.card-header {
+    border-bottom: 1px solid #dee2e6;
+}
+.card-header h6 {
+    margin: 0;
+    text-transform: uppercase;
 }
 /* Avatar */
 .editor-avatar {
