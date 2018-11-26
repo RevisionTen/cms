@@ -147,12 +147,14 @@ class AdminController extends AbstractController
             'event' => PageSubmitEvent::class,
         ], ['id' => Criteria::DESC], 7);
 
+
+
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'shm_enabled' => $shm_enabled,
             'shm_key' => $shm_key,
-            'eventStreamObjects' => $eventStreamObjects,
-            'eventQeueObjects' => $eventQeueObjects,
-            'latestCommits' => $latestCommits,
+            'eventStreamObjects' => $this->groupEventsByUser($eventStreamObjects),
+            'eventQeueObjects' => $this->groupEventsByUser($eventQeueObjects),
+            'latestCommits' => $this->groupEventsByUser($latestCommits),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
             'php_version' => PHP_VERSION,
@@ -164,6 +166,20 @@ class AdminController extends AbstractController
             'server_ip' => $_SERVER['SERVER_ADDR'] ?? gethostbyname($_SERVER['SERVER_NAME']),
             'database_name' => $em->getConnection()->getDatabase(),
         ]);
+    }
+
+    private function groupEventsByUser(array $events = null): array
+    {
+        $grouped = [];
+        foreach ($events as $event) {
+            $eventUser = $event->getUser();
+            if (!isset($grouped[$eventUser])) {
+                $grouped[$eventUser] = [];
+            }
+            $grouped[$eventUser][] = $event;
+        }
+
+        return $grouped;
     }
 
     /**

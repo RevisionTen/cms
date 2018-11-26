@@ -251,6 +251,7 @@ a {
 /* Card */
 .card-header {
     border-bottom: 1px solid #dee2e6;
+    background: var(--color-lighter-blue);
 }
 .card-header h6 {
     margin: 0;
