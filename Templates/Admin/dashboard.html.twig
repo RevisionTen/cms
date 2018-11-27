@@ -41,7 +41,7 @@
 <div class="p-3">
     <div class="row align-items-stretch">
         <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card border rounded mb-3">
+            <div class="flex-grow-1 card mb-3">
                 <div class="card-header p-3">
                     <h6>
                         {{ 'Latest Commits'|trans }}
@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-            <div class="flex-grow-1 card border rounded mb-3">
+            <div class="flex-grow-1 card mb-3">
                 <div class="card-header p-3">
                     <h6>
                         {{ 'Latest Events'|trans }}
@@ -64,7 +64,7 @@
             </div>
 
             {% if eventQeueObjects|length > 0 %}
-                <div class="flex-grow-1 card border rounded mb-3">
+                <div class="flex-grow-1 card mb-3">
                     <div class="card-header p-3">
                         <h6>
                             {{ 'Latest Draft Events'|trans }}
@@ -78,14 +78,14 @@
         </div>
 
         <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card border rounded mb-3">
+            <div class="flex-grow-1 card mb-3">
                 <div class="card-header p-3">
                     <h6>
                         {{ 'System Information'|trans }}
                     </h6>
                 </div>
                 <div class="card-body">
-                    <table class="table datagrid">
+                    <table class="table datagrid border-0">
                         <tr>
                             <td><span class="fas fa-pencil-ruler"></span> CMS Version: </td>
                             <td>{{ cms_version }}</td>
@@ -135,16 +135,6 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="row align-items-stretch">
-        <div class="col col-sm-6 d-flex flex-column">
-
-        </div>
-
-        <div class="col col-sm-6 d-flex flex-column">
-
-        </div>
     </div>
 </div>
 {% endblock %}

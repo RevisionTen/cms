@@ -1,12 +1,22 @@
 /* General Styling */
 :root {
+    --text-muted: #818b9b;
     --color-primary: #41b3f9;
     --color-primary-hover: #3795cc;
     --color-lighter-blue: #e1e9f2;
     --color-light-blue: #cad7e6;
+    --color-light-blue-grey: #d2d7e1;
+    --color-light-silver: #edf1f5;
     --text-color: #4b5464;
     --gray-800: #4b5464;
+    --gray-1000: #3a3b4b;
     --gray-900: #4b5464;
+    --gray-500: #737c8d;
+    --content-top-shadow: 0 0px 5px 0 rgba(0, 0, 0, .1);
+    --color-content-top: white;
+    --color-main-header: var(--gray-1000);
+    --color-main-sidebar: var(--gray-900);
+    --color-sidebar: var(--color-light-blue);
     --color-success: #7ace4c;
     --color-danger: #f33155;
     --color-warning: #fb4;
@@ -92,10 +102,13 @@ body.show .field-integer .form-widget {
 /* --- */
 body {
     color: var(--text-color);
-    background: #edf1f5;
 }
 a {
     color: var(--color-primary);
+}
+.datagrid.border-0 th,
+.datagrid.border-0 td {
+    border: 0;
 }
 .bg-light {
     background-color: #fafbfc !important;
@@ -105,14 +118,14 @@ a {
     min-height: 100vh;
 }
 .main-sidebar {
+    background: var(--color-main-sidebar);
     align-self: stretch;
-    background: white;
     margin: 0;
     padding: 0;
     height: auto;
 }
 .main-header {
-    background: #4b5464;
+    background: var(--color-main-header);
     font-size: 20px;
     line-height: 20px;
 }
@@ -136,26 +149,35 @@ a {
     float: left;
     margin-right: 5px;
 }
+.sidebar {
+    color: var(--color-sidebar);
+    display: flex;
+    flex-direction: column;
+}
 .sidebar-menu {
     margin: 0;
     padding: 30px 15px;
 }
+.sidebar-menu a {
+    color: var(--color-sidebar);
+}
 .sidebar-menu .fa {
     filter: none;
+    color: var(--color-sidebar);
 }
 .content-wrapper {
     margin: 0;
-    padding: 0 30px 30px 30px;
+    /*padding: 0 30px 30px 30px;*/
+    padding: 30px;
 }
 .content-top {
     font-size: 1em;
     line-height: 20px;
     padding: 15px;
-    background: #737c8d;
+    background: var(--color-content-top);
     margin: 0 -30px 30px -30px;
-}
-.content-header {
-    background: var(--color-lighter-blue);
+    box-shadow: var(--content-top-shadow);
+    display: none;
 }
 .content-header-title {
     text-transform: uppercase;
@@ -249,10 +271,6 @@ a {
     color: white;
 }
 /* Card */
-.card-header {
-    border-bottom: 1px solid #dee2e6;
-    background: var(--color-lighter-blue);
-}
 .card-header h6 {
     margin: 0;
     text-transform: uppercase;

@@ -15,4 +15,7 @@
         {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
     </div>
     {{ parent() }}
+    <div class="mt-auto sidebar-menu tree">
+        <a href="{{ path('cms_logout') }}"><i class="fa fas fa-sign-out-alt"></i> {{ 'Logout'|trans }}</a>
+    </div>
 {% endblock main_menu_wrapper %}
