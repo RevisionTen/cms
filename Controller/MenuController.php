@@ -162,7 +162,7 @@ class MenuController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Admin/list-menus.html.twig', [
+        return $this->render('@cms/Admin/Menu/list.html.twig', [
             'menus' => $menus,
             'missingMenus' => $missingMenus,
             'config' => $config,

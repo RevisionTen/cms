@@ -9,7 +9,7 @@
         <ul data-uuid="{{ menu.uuid }}" data-version="{{ menu.version }}" class="cms-admin-menu cms-admin-menu-root">
             {% for item in menu.items %}
                 {% set level = 0 %}
-                {% include '@cms/Admin/edit-menu-item.html.twig' %}
+                {% include '@cms/Admin/Menu/edit-item.html.twig' %}
             {% endfor %}
         </ul>
 

@@ -22,19 +22,17 @@
 
         <div class="pull-right p-2">
 
-            <div class="dropdown" style="display: inline-block;">
-            <span class=dropdown-toggle" data-toggle="dropdown">
-                <span class="fas fa-plus"></span>
-            </span>
-                <ul class="dropdown-menu">
+            <div class="dropleft" style="display: inline-block;">
+                <span class=dropdown-toggle" data-toggle="dropdown">
+                    <span class="fas fa-plus"></span>
+                </span>
+                <div class="dropdown-menu">
                     {% for itemName, itemConfig in config.menu_items %}
-                        <li>
-                            <a href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: item.uuid}) }}">
-                                {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
-                            </a>
-                        </li>
+                        <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: item.uuid}) }}">
+                            {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+                        </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div> &nbsp;
 
             {% if item.enabled is not defined or item.enabled %}
@@ -57,12 +55,12 @@
                 <span class="fas fa-arrow-down"></span>
             </a> &nbsp;
 
-            <a href="{{ path('cms_menu_edititem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
-                <span class="fas fa-edit"></span> {{ 'Edit'|trans }}
+            <a title="{{ 'Edit'|trans }}" href="{{ path('cms_menu_edititem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+                <span class="fas fa-edit"></span>
             </a> &nbsp;
 
-            <a class="text-danger" href="{{ path('cms_menu_deleteitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
-                <span class="fas fa-trash"></span> {{ 'Delete'|trans }}
+            <a title="{{ 'Delete'|trans }}" class="text-danger" href="{{ path('cms_menu_deleteitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+                <span class="fas fa-trash"></span>
             </a>
         </div>
     </div>
@@ -71,7 +69,7 @@
         {% if item.items is defined %}
             {% set level = level + 1 %}
             {% for item in item.items %}
-                {% include '@cms/Admin/edit-menu-item.html.twig' %}
+                {% include '@cms/Admin/Menu/edit-item.html.twig' %}
             {% endfor %}
         {% endif %}
     </ul>

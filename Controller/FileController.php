@@ -64,7 +64,7 @@ class FileController extends AbstractController
         usort($files, 'self::sortByCreated');
         $files = array_reverse($files);
 
-        return $this->render('@cms/Admin/file-list.html.twig', [
+        return $this->render('@cms/Admin/File/list.html.twig', [
             'files' => $files,
         ]);
     }
@@ -111,7 +111,7 @@ class FileController extends AbstractController
 
             $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir);
 
-            return $this->render('@cms/Admin/file-create-success.html.twig', $data);
+            return $this->render('@cms/Admin/File/create-success.html.twig', $data);
         }
 
         return $this->render('@cms/Form/file-form.html.twig', [

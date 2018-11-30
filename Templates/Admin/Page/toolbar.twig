@@ -96,7 +96,7 @@
         {% set count = userData.events|length %}
         <a class="qeued-user" href="{{ path('cms_edit_aggregate', {user: user.id, id: id}) }}">
             <div class="qeued-user-icon">
-                {% include '@cms/Admin/user_info_medium.html.twig' %} <span class="badge badge-up label-danger">{{ count }}</span>
+                {% include '@cms/Admin/User/medium.html.twig' %} <span class="badge badge-up label-danger">{{ count }}</span>
             </div>
             <div class="qeued-user-text">
                 {{ 'User <strong>%username%</strong> <br/>has <strong>%count%</strong> qeued events'|trans({'%username%': user.username, '%count%': count})|raw }}

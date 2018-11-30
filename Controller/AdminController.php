@@ -43,7 +43,7 @@ class AdminController extends AbstractController
         /** @var Website $website */
         $website = $entityManager->getRepository(Website::class)->find($id);
 
-        return $this->render('@cms/Admin/website_info.html.twig', [
+        return $this->render('@cms/Admin/Website/website_info.html.twig', [
             'website' => $website ?? [
                 'id' => '0',
                 'title' => 'unknown',
@@ -61,7 +61,7 @@ class AdminController extends AbstractController
      * @return Response
      *
      */
-    public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
+    public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/User/small.html.twig'): Response
     {
         if (-1 === $userId) {
             $unknownUser = new UserRead();
@@ -226,7 +226,7 @@ class AdminController extends AbstractController
             return $this->redirect('/admin');
         }
 
-        $response = $this->render('@cms/Admin/edit-aggregate.html.twig', [
+        $response = $this->render('@cms/Admin/Page/edit.html.twig', [
             'pageStreamRead' => $pageStreamRead,
             'user' => $user,
             'edit' => $edit,

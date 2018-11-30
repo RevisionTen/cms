@@ -205,7 +205,8 @@ easy_admin:
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'
-                - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
+                - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
+                - 'https://use.fontawesome.com/releases/v5.5.0/css/v4-shims.css'
                 - 'bundles/cms/css/trix.css?v=%cms.version%'
                 - 'bundles/cms/css/jquery-ui.min.css?v=%cms.version%'
                 - 'bundles/cms/css/easyadmin.css?v=%cms.version%'
@@ -240,16 +241,19 @@ easy_admin:
             class: RevisionTen\CMS\Model\Alias
             list:
                 dql_filter: 'entity.controller IS NULL'
+                actions:
+                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
+                    - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
                 fields:
                     #- 'uuid'
                     - 'id'
-                    - { property: 'path', template: '@cms/Admin/alias_path_column.html.twig' }
-                    - { property: 'language', template: '@cms/Admin/alias_language_column.html.twig' }
-                    - { property: 'website', template: '@cms/Admin/alias_website_column.html.twig' }
-                    - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/alias_pagestreamred_column.html.twig' }
-                    #- { property: 'controller', template: '@cms/Admin/alias_controller_column.html.twig' }
-                    - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/alias_redirect_column.html.twig' }
-                    - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/alias_priority_column.html.twig' }
+                    - { property: 'path', template: '@cms/Admin/Alias/List/path.html.twig' }
+                    - { property: 'language', template: '@cms/Admin/Alias/List/language.html.twig' }
+                    - { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }
+                    - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/Alias/List/page.html.twig' }
+                    #- { property: 'controller', template: '@cms/Admin/Alias/List/controller.html.twig' }
+                    - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/Alias/List/redirect.html.twig' }
+                    - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/Alias/List/priority.html.twig' }
             form:
                 fields:
                     - 'path'
@@ -262,6 +266,9 @@ easy_admin:
             label: 'Websites'
             class: RevisionTen\CMS\Model\Website
             list:
+                actions:
+                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
+                    - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
                 fields:
                     #- 'uuid'
                     - 'title'
@@ -278,14 +285,14 @@ easy_admin:
             label: 'Pages'
             class: RevisionTen\CMS\Model\PageStreamRead
             templates:
-                list: '@cms/Admin/list-pages.html.twig'
+                list: '@cms/Admin/Page/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'cms_edit_aggregate', type: 'route', label: 'Edit aggregate', icon: 'edit' }
-                    - { name: 'cms_clone_aggregate', type: 'route', label: 'Clone page', icon: 'clone' }
-                    - { name: 'cms_delete_aggregate', type: 'route', label: 'Delete page', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone' }
+                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'Delete page', icon: 'trash', css_class: 'text-danger' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -294,9 +301,9 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/website_column.html.twig' }
+                    - { property: 'website', template: '@cms/Admin/Page/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page Template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         PageStreamReadArchive:
@@ -315,7 +322,7 @@ easy_admin:
                     - 'version'
                     - 'language'
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page Template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         EventStreamObject:
@@ -326,7 +333,7 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'payload', template: '@cms/Admin/payload_column.html.twig' }
+                    - { property: 'payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
             list:
                 help: 'This list shows all persisted events.'
                 sort: ['id', 'DESC']
@@ -336,11 +343,11 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'uuid', label: 'Title', template: '@cms/Admin/uuid_column.html.twig' }
-                    - { property: 'message', label: 'Message', template: '@cms/Admin/message_column.html.twig' }
+                    - { property: 'uuid', label: 'Title', template: '@cms/Admin/User/List/uuid.html.twig' }
+                    - { property: 'message', label: 'Message', template: '@cms/Admin/Event/List/message.html.twig' }
                     - 'version'
                     - { property: 'created', type: 'datetime' }
-                    - { property: 'user', template: '@cms/Admin/user_column.html.twig' }
+                    - { property: 'user', template: '@cms/Admin/User/List/small.html.twig' }
         UserRead:
             label: 'Users'
             class: RevisionTen\CMS\Model\UserRead
@@ -349,7 +356,7 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username' }
                     - { property: 'email' }
                     - { property: 'devices' }
@@ -357,26 +364,26 @@ easy_admin:
             list:
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', icon: 'eye' }
+                    - { name: 'show', title: 'View', label: '', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username', label: 'Username' }
                     - { property: 'email', label: 'Email' }
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead
             templates:
-                list: '@cms/Admin/list-forms.html.twig'
+                list: '@cms/Admin/Forms/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'forms_edit_aggregate', type: 'route', label: 'edit form', icon: 'edit' }
-                    - { name: 'forms_clone_aggregate', type: 'route', label: 'clone form', icon: 'clone' }
-                    - { name: 'forms_delete_aggregate', type: 'route', label: 'delete form', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit' }
+                    - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone' }
+                    - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger' }
                     - '-new'
                     - '-edit'
                     - '-delete'
