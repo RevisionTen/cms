@@ -8,7 +8,7 @@
 >
     {% if tree is defined and tree|length > 0 %}
         {% for element in tree %}
-            {% include '@cms/Admin/tree-node.html.twig' %}
+            {% include '@cms/Admin/Page/Tree/tree-node.html.twig' %}
         {% endfor %}
     {% endif %}
 

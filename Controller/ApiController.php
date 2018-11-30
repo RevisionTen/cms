@@ -237,7 +237,7 @@ class ApiController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        return $this->render('@cms/Admin/Tree/tree.html.twig', [
+        return $this->render('@cms/Admin/Page/Tree/tree.html.twig', [
             'pageUuid' => $pageUuid,
             'onVersion' => $page->getVersion(),
             'tree' => $this->getChildren($page->elements, $config),
