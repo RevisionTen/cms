@@ -12,24 +12,9 @@
     <input type="hidden" id="pageUuid" value="{{ pageStreamRead.uuid }}">
     <input type="hidden" id="userId" value="{{ user.id }}">
 
-    {% set size = previewSize %}
-    {% if size == 'xs' %}
-        {% set width = '320px' %}
-    {% elseif size == 'sm' %}
-        {% set width = '576px' %}
-    {% elseif size == 'md' %}
-        {% set width = '768px' %}
-    {% elseif size == 'lg' %}
-        {% set width = '992px' %}
-    {% elseif size == 'xl' %}
-        {% set width = '1200px' %}
-    {% else %}
-        {% set width = '100%' %}
-    {% endif %}
-
     <iframe
             id="page-frame"
-            style="width: {{ width }};"
+            {% if previewSize %}class="size-{{ previewSize }}"{% endif %}
             src="{{ path('cms_page_edit', {pageUuid: pageStreamRead.uuid, user: user.id}) }}"
     ></iframe>
 

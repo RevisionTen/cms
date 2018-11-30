@@ -57,7 +57,7 @@ function bindLinks()
     $('.toggle-contrast').on('click', function (event) {
         event.preventDefault();
         $(this).toggleClass('active');
-        $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');;
+        $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');
     });
 }
 
@@ -369,6 +369,18 @@ $(document).ready(function () {
         $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper .content', [], function () {
             bindModal(linkSrc);
         });
+    });
+
+    // Fix mobile preview iframe size.
+    body.on('iframeReady', function () {
+        if (!$('#page-frame').hasClass('size-AutoWidth')) {
+            let contentWidth = $('#page-frame')[0].contentWindow.$('body').innerWidth();
+            let iframeWidth = $('#page-frame').width();
+            let scrollbarWidth = iframeWidth - contentWidth;
+            if (scrollbarWidth > 0) {
+                $('#page-frame').width(iframeWidth + scrollbarWidth);
+            }
+        }
     });
 
     // Events to trigger PageController methods.

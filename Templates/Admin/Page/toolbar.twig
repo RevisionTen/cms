@@ -29,6 +29,32 @@
         </div>
         <div class="col-auto ml-auto">
             <form class="form-inline d-flex">
+
+                {% set deviceIcons = {
+                    'AutoWidth': 'fas fa-expand',
+                    'xs': 'fas fa-mobile-alt',
+                    'sm': 'fas fa-mobile-alt',
+                    'md': 'fas fa-tablet-alt',
+                    'lg': 'fas fa-laptop',
+                    'xl': 'fas fa-desktop'
+                } %}
+                <div class="dropdown">
+                    <button title="{{ previewSize|trans }}" class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="{{ deviceIcons[previewSize] }}"></span> <span class="label-text">{{ previewSize|trans }}</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        {% set route = 'cms_edit_aggregate' %}
+                        {% set queries = app.request.query.all %}
+                        {% set queries = queries|merge({'id': id}) %}
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'AutoWidth'|trans }}</a>
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'xs'|trans }}</a>
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'sm'|trans }}</a>
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'md'|trans }}</a>
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'lg'|trans }}</a>
+                        <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'xl'|trans }}</a>
+                    </div>
+                </div>
+
                 <div class="btn-group">
                     {% set buttonActions = [
                     actions.toggle_contrast,

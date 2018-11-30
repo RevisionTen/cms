@@ -211,13 +211,48 @@ a {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    background: var(--color-light-silver);
 }
 .edit-page > .wrapper > .content-wrapper > .content > .content-body > iframe {
-    flex-grow: 1;
-    margin: 0 auto;
     height: auto;
+    flex-grow: 0;
+    margin: 40px auto;
+    border: 5px solid black;
+    background: black;
+    padding: 20px 0;
+    box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    box-sizing: content-box;
+}
+#page-frame.size-xl,
+#page-frame.size-AutoWidth {
+    margin: 0 auto;
     border: 0;
+    flex-grow: 1;
     width: 100%;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    overflow-y: auto;
+}
+#page-frame.size-xs {
+    width: 320px;
+    max-height: 568px;
+}
+#page-frame.size-sm {
+    width: 576px;
+    max-height: 900px;
+}
+#page-frame.size-md {
+    width: 768px;
+    max-height: 1024px;
+}
+#page-frame.size-lg {
+    width: 992px;
+    max-height: 768px;
+}
+#page-frame.size-xl {
+    min-width: 1200px
 }
 /* Page Edit Toolbar */
 .btn-tertiary {

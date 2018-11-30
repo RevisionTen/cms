@@ -192,15 +192,15 @@ class AdminController extends AbstractController
      */
     public function editAggregateAction(Request $request, EntityManagerInterface $em): Response
     {
+        // Get Preview Size.
         $cookies = [];
         if ($previewSize = $request->get('previewSize')) {
             $cookies[] = new Cookie('previewSize', $previewSize);
         } else {
             $previewSize = $request->cookies->get('previewSize');
         }
-
-        // Default Preview Size.
         if (!$previewSize) {
+            // Default Preview Size.
             $previewSize = 'AutoWidth';
         }
 

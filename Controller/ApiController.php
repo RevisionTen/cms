@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\EventStore;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -27,16 +28,17 @@ class ApiController extends AbstractController
     /**
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
      *
-     * @param string                 $pageUuid
-     * @param int                    $userId
+     * @param Request                $request
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator
      * @param EventStore             $eventStore
+     * @param string                 $pageUuid
+     * @param int                    $userId
      *
      * @return JsonResponse
      */
-    public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
+    public function getPageInfo(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore, string $pageUuid, int $userId = null): JsonResponse
     {
         $user = $this->getApiUser($userId, $entityManager);
 
@@ -57,6 +59,16 @@ class ApiController extends AbstractController
 
         /** @var PageRead $publishedPage */
         $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+
+        // Get Preview Size.
+        $previewSize = $request->get('previewSize');
+        if (null === $previewSize) {
+            $previewSize = $request->cookies->get('previewSize');
+        }
+        if (null === $previewSize) {
+            // Default Preview Size.
+            $previewSize = 'AutoWidth';
+        }
 
         $actions = [
             'toggle_contrast' => [
@@ -185,6 +197,7 @@ class ApiController extends AbstractController
             'user_id' => $user->getId(),
             'actions' => $actions,
             'previewUser' => $previewUser,
+            'previewSize' => $previewSize,
         ];
 
         $users = [];

@@ -289,6 +289,8 @@
 
     // Bind all elements.
     $(document).ready(function () {
+        parent.$('body').trigger('iframeReady');
+
         // Trigger afterResize event after resizing the window.
         $(window).on('resize', function () {
             if (this.resizeTO) {
