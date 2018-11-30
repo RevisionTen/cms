@@ -219,7 +219,7 @@ easy_admin:
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
-            - { label: 'Contents' }
+            - { label: 'Content' }
             - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
             - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
             - { entity: Alias, icon: 'nope fas fa-link' }
@@ -303,7 +303,7 @@ easy_admin:
                     - 'language'
                     - { property: 'website', template: '@cms/Admin/Page/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/Page/List/template.html.twig' }
+                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         PageStreamReadArchive:
@@ -322,7 +322,7 @@ easy_admin:
                     - 'version'
                     - 'language'
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/Page/List/template.html.twig' }
+                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         EventStreamObject:

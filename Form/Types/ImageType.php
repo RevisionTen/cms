@@ -18,7 +18,7 @@ class ImageType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'What is the title of your image?',
+                'label' => 'Title',
                 'constraints' => new NotBlank(),
             ])
             ->add('image', UploadType::class, [

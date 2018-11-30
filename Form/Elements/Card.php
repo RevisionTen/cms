@@ -45,7 +45,7 @@ class Card extends Element
             ])
             ->add('text', TextareaType::class, [
                 'required' => false,
-                'label' => 'Please insert the text you want to show.',
+                'label' => 'Text',
                 'attr' => [
                     'class' => 'ckeditor',
                 ],

@@ -241,9 +241,10 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Change Page Settings',
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -417,9 +418,10 @@ class PageController extends AbstractController
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Submit changes',
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -536,11 +538,11 @@ class PageController extends AbstractController
             ]) : $this->redirectToPage($pageUuid);
         }
 
-        return $this->render('@cms/Form/alias-form.html.twig', array(
+        return $this->render('@cms/Form/alias-form.html.twig', [
+            'title' => 'Create alias',
             'form' => $form->createView(),
-            'contentTitle' => 'Create alias',
             'websiteUrl' => $websiteUrl,
-        ));
+        ]);
     }
 
     /**
@@ -715,9 +717,10 @@ class PageController extends AbstractController
                     return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
 
-                return $this->render($form_template, array(
+                return $this->render($form_template, [
+                    'title' => 'Add Element',
                     'form' => $form->createView(),
-                ));
+                ]);
             } else {
                 // Not a valid form type.
                 throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -812,9 +815,10 @@ class PageController extends AbstractController
                         return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                     }
 
-                    return $this->render($form_template, array(
+                    return $this->render($form_template, [
+                        'title' => 'Edit Element',
                         'form' => $form->createView(),
-                    ));
+                    ]);
                 } else {
                     // Not a valid form type.
                     throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);

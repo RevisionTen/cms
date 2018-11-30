@@ -9,12 +9,10 @@
 {% block body_class %}edit-page{% endblock %}
 
 {% block main %}
-
     <input type="hidden" id="pageUuid" value="{{ pageStreamRead.uuid }}">
     <input type="hidden" id="userId" value="{{ user.id }}">
 
     {% set size = previewSize %}
-
     {% if size == 'xs' %}
         {% set width = '320px' %}
     {% elseif size == 'sm' %}
@@ -42,10 +40,10 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">
+                    <h5 class="modal-title" id="editor-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span class="fa fa-times"></span>
                     </button>
-                    <h4 class="modal-title" id="editor-modal-title"></h4>
                 </div>
                 <div class="modal-body">
                 </div>

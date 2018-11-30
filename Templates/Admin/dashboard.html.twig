@@ -15,7 +15,7 @@
                         {% set groupedEvent = {} %}
                         <div class="row mb-1">
                             <div class="col">
-                                {{ event.payload.message is defined ? event.payload.message|trans : event.message }}<br/>
+                                {{ event.payload.message is defined ? event.payload.message|trans : event.message|trans }}<br/>
                                 <span class="text-muted">
                                     {% set value = event.uuid %}{% include '@cms/Admin/User/List/uuid.html.twig' %}
                                 </span>

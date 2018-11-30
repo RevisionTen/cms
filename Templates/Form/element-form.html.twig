@@ -1,5 +1,11 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
 {% block main %}
     {{ form_start(form) }}
     {% set hasSettingsForm = (form.data.settings is defined and form.data.settings.children is defined and form.data.settings.children|length > 0) %}

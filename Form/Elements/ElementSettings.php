@@ -18,7 +18,7 @@ class ElementSettings extends AbstractType
     {
         $builder->add('paddings', CollectionType::class, [
             'required' => false,
-            'label' => 'Paddings',
+            'label' => 'Padding',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,
@@ -36,7 +36,7 @@ class ElementSettings extends AbstractType
 
         $builder->add('margins', CollectionType::class, [
             'required' => false,
-            'label' => 'Margins',
+            'label' => 'Margin',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,
