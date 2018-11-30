@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgraded backend to EasyAdmin 2
 - Sorted and renamed admin templates
+- Added device preview
 
 ## [1.3.10] - 2018-11-22
 ### Added
