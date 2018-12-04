@@ -185,14 +185,10 @@
             if (childCount === 1) {
                 // Only one possible child type.
                 let child = children[Object.keys(children)[0]];
-                addButton = `<span data-element-name="${child.name}" class="btn-add `+(buttonClasses.join(' '))+`"><i class="fa fa-plus"></i> ${child.label}</span>`;
+                addButton = `<span data-element-name="${child.name}" class="btn-create `+(buttonClasses.join(' '))+`"><i class="fa fa-plus"></i> ${child.label}</span>`;
             } else {
-                // Multiple child types.
-                Object.keys(children).forEach(key => {
-                    let child = children[key];
-                    addButton += `<span data-element-name="${child.name}" class="btn-add dropdown-item"><span class="${child.icon}"></span> ${child.label}</span>`;
-                });
-                addButton = `<div class="dropup"><button class="`+(buttonClasses.join(' '))+`" type="button" data-toggle="dropdown"><i class="fa fa-plus"></i> ${translations.addElement}</button><div class="dropdown-menu">${addButton}</div>`;
+                // Multiple child types, open add-element modal.
+                addButton = `<span class="btn-add `+(buttonClasses.join(' '))+`"><i class="fa fa-plus"></i> ${translations.addElement}</span>`;
             }
 
             // Add child controls.
@@ -233,6 +229,9 @@
 
         // Bind actions to the control elements.
         element.find('.btn-add').on('click', function (event) {
+            parent.$('body').trigger('addElement', {'parent': element.data('uuid')});
+        });
+        element.find('.btn-create').on('click', function (event) {
             parent.$('body').trigger('createElement', {'parent': element.data('uuid'), 'elementName': $(this).data('element-name')});
         });
         element.find('.btn-edit').on('click', function (event) {

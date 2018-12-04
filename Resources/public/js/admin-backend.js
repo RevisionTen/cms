@@ -306,6 +306,10 @@ function bindModal(linkSrc) {
         btn.parentsUntil('.tab-content').parent().find('input.existing-file-version').val(version);
         btn.parentsUntil('form').parent().find('input.file-title').val(title);
     });
+    // Bind create buttons.
+    modalBody.find('.btn-create').on('click', function (event) {
+        $('body').trigger('createElement', {'parent': $(this).data('uuid'), 'elementName': $(this).data('element-name')});
+    });
 }
 
 $(document).ready(function () {
@@ -405,6 +409,13 @@ $(document).ready(function () {
         let elementUuid = data.uuid;
         let url = `/admin/page/delete-element/${pageUuid}/${onVersion}/${elementUuid}`;
         $('body').trigger('openAjax', url);
+    });
+    body.on('addElement', function (event, data) {
+        let pageUuid = window.pageData.uuid;
+        let onVersion = window.pageData.version;
+        let parent = data.parent;
+        let url = `/admin/page/add-element/${pageUuid}/${onVersion}/${parent}`;
+        $('body').trigger('openModal', url);
     });
     body.on('createElement', function (event, data) {
         let pageUuid = window.pageData.uuid;

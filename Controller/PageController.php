@@ -661,6 +661,65 @@ class PageController extends AbstractController
     }
 
     /**
+     * @Route("/page/add-element/{pageUuid}/{onVersion}/{parent}", name="cms_add_element")
+     *
+     * @param AggregateFactory $aggregateFactory
+     * @param string $pageUuid
+     * @param int $onVersion
+     * @param string $parent
+     * @return Response
+     * @throws \Exception
+     */
+    public function addElement(AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $parent): Response
+    {
+        /** @var UserRead $user */
+        $user = $this->getUser();
+
+        /** @var Page $page */
+        $page = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
+        if (empty($page->elements)) {
+            // Aggregate does not exist, or is empty.
+            return $this->errorResponse();
+        }
+
+        $config = $this->getParameter('cms');
+
+        // Get the element from the Aggregate.
+        $element = PageBaseHandler::getElement($page, $parent);
+
+        // Get an array of accepted children.
+        if ($element && isset($element['data'], $element['elementName'], $config['page_elements'][$element['elementName']])) {
+            $elementConfig = $config['page_elements'][$element['elementName']];
+            $allowedChildren = $elementConfig['children'] ?? null;
+
+            if (empty($allowedChildren)) {
+                throw new \Exception('Element type '.$element['elementName'].' does not accept child elements.');
+            }
+
+            if (\in_array('all', $allowedChildren, true)) {
+                // Filter list of accepted children
+                $acceptedChildren = array_filter($config['page_elements'], function ($element) {
+                    return isset($element['public']) && $element['public'];
+                });
+            } else {
+                // Filter list of accepted children
+                $acceptedChildren = array_filter($config['page_elements'], function ($elementName) use ($allowedChildren) {
+                    return \in_array($elementName, $allowedChildren, true);
+                }, ARRAY_FILTER_USE_KEY);
+            }
+        } else {
+            // Not a valid element.
+            throw new \Exception('Element with uuid '.$parent.' is not a valid parent element.');
+        }
+
+        return $this->render('@cms/Form/add-element.html.twig', [
+            'title' => 'Add Element',
+            'parent' => $parent,
+            'children' => $acceptedChildren,
+        ]);
+    }
+
+    /**
      * @Route("/page/create-element/{elementName}/{pageUuid}/{onVersion}/{parent}", name="cms_create_element")
      *
      * @param Request     $request
