@@ -1,7 +1,7 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 {% import _self as macros %}
 {% macro groupedEvents(eventObjects) %}
-    <table class="table datagrid">
+    <table class="table datagrid border-0">
         {% for userId, events in eventObjects %}
             <tr>
                 <td style="width: 4rem;padding-right: 0;vertical-align: top;">

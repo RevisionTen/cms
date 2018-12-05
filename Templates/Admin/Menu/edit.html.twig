@@ -1,35 +1,26 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h4 class="panel-title">
-            {{ menu.name|trans }}
-        </h4>
+{% block content_title %}{{ 'Edit %menu%'|trans({'%menu%': menu.name|trans}) }} <span class="text-muted pull-right">{{ menu.language }} | {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteTitle', {'id': menu.website})) }}</span>{% endblock %}
+
+{% block main %}
+    <ul style="margin: -1px;" data-uuid="{{ menu.uuid }}" data-version="{{ menu.version }}" class="cms-admin-menu cms-admin-menu-root">
+        {% for item in menu.items %}
+            {% set level = 0 %}
+            {% include '@cms/Admin/Menu/edit-item.html.twig' %}
+        {% endfor %}
+    </ul>
+
+    <div class="p-3">
+        <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
+
+        <a class="btn btn-secondary" href="{{ path('cms_menu_clearmenucache', {name: menu.name}) }}">
+            {{ 'Clear menu cache'|trans }}
+        </a>
+
+        {% for itemName, itemConfig in config.menu_items %}
+            <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+                {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+            </a>
+        {% endfor %}
     </div>
-    <div class="panel-body">
-        <ul data-uuid="{{ menu.uuid }}" data-version="{{ menu.version }}" class="cms-admin-menu cms-admin-menu-root">
-            {% for item in menu.items %}
-                {% set level = 0 %}
-                {% include '@cms/Admin/Menu/edit-item.html.twig' %}
-            {% endfor %}
-        </ul>
-
-
-        <div>
-            <p>&nbsp;</p>
-            <p>
-                <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
-
-                <a class="btn btn-secondary" href="{{ path('cms_menu_clearmenucache', {name: menu.name}) }}">
-                    {{ 'Clear menu cache'|trans }}
-                </a>
-
-                {% for itemName, itemConfig in config.menu_items %}
-                    <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
-                        {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
-                    </a>
-                {% endfor %}
-            </p>
-        </div>
-
-    </div>
-</div>
+{% endblock %}

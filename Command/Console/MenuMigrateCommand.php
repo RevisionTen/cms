@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use Ramsey\Uuid\Uuid;
+use RevisionTen\CMS\Command\MenuEditCommand;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
-use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Class MenuMigrateCommand.
@@ -139,12 +136,22 @@ class MenuMigrateCommand extends Command
             $languageAnswer = $helper->ask($input, $output, $languageQuestion);
             $language = $languages[$languageAnswer];
 
-            $output->writeln('You chose website '.$website);
-            $output->writeln('You chose language '.$language);
-
             // Update the aggregate.
-            #$this->commandBus->dispatch();
+            $success = false;
+            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $this->commandBus->dispatch(new MenuEditCommand(-1, null, $menu->getUuid(), $menu->getVersion(), [
+                'website' => (int) $website,
+                'language' => (string) $language,
+            ], $successCallback), false);
 
+            if ($success) {
+                // Return info about the user.
+                $output->writeln('Menu "'.$menu->name.'" migrated.');
+            } else {
+                $messages = $this->messageBus->getMessagesJson();
+                $output->writeln('Migrating "'.$menu->name.'" failed.');
+                print_r($messages);
+            }
         }
     }
 }

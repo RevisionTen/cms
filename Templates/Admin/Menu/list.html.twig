@@ -1,29 +1,11 @@
-{% extends '@EasyAdmin/default/layout.html.twig' %}
+{% extends '@EasyAdminBase/default/list.html.twig' %}
 
-{% block content_title %}{{ 'Menus'|trans }}{% endblock %}
+{% block global_actions %}
+    {{- parent() -}}
 
-{% block main %}
-
-    <div class="container-fluid pt-3 pb-3">
-        <div class="row">
-            <div class="col-12">
-                {% for name, menu in missingMenus %}
-                    <a class="btn btn-primary" href="{{ path('cms_menu_create', {name: name}) }}">
-                        {{ 'Create %menu%'|trans({'%menu%': name|trans}) }}
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
+    <div class="button-action">
+        <a class="btn btn-success" href="{{ path('cms_menu_create') }}">
+            <span class="fa fa-plus"></span> {{ 'Add menu'|trans }}
+        </a>
     </div>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                {% for menu in menus %}
-                    {% include '@cms/Admin/Menu/edit.html.twig' %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-{% endblock %}
+{% endblock global_actions %}

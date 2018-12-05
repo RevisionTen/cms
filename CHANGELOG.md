@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2018-12-04
 ### Changed
-- **IMPORTANT:** Added menu read model, run **`cms:menu:migrate`** after upgrading
 - Upgraded backend to EasyAdmin 2
+- **IMPORTANT:** Added menu read model, run **`cms:menu:migrate`** after upgrading
+- Added language and website fields to menus
 - Sorted and renamed admin templates
 - Added device preview
 - Improved youtube id parsing in youtube element

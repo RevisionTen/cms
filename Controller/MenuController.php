@@ -16,7 +16,9 @@ use RevisionTen\CMS\Form\ElementType;
 use RevisionTen\CMS\Handler\MenuBaseHandler;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -26,6 +28,8 @@ use RevisionTen\CQRS\Services\MessageBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +39,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class MenuController.
@@ -138,33 +143,42 @@ class MenuController extends AbstractController
      */
     private function redirectToMenu(string $menuUuid): RedirectResponse
     {
-        return $this->redirectToRoute('cms_list_menus');
+        return $this->redirectToRoute('cms_edit_menu', [
+            'uuid' => $menuUuid,
+        ]);
     }
 
     /**
-     * @Route("/list-menus", name="cms_list_menus")
+     * @Route("/edit-menu", name="cms_edit_menu")
      *
-     * @param AggregateFactory $aggregateFactory
+     * @param Request                $request
+     * @param EntityManagerInterface $entityManager
+     * @param AggregateFactory       $aggregateFactory
      *
      * @return Response
      */
-    public function listMenus(AggregateFactory $aggregateFactory): Response
+    public function editMenu(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory): Response
     {
         $config = $this->getParameter('cms');
+        $menuUuid = $request->get('uuid');
 
-        /** @var Menu[] $menus */
-        $menus = $aggregateFactory->findAggregates(Menu::class);
-
-        $missingMenus = $config['menus'];
-        foreach ($menus as $menu) {
-            if (isset($missingMenus[$menu->name])) {
-                unset($missingMenus[$menu->name]);
+        // Get menuUuid by read model id.
+        if (null === $menuUuid) {
+            /** @var int $id MenuRead Id. */
+            $id = $request->get('id');
+            /** @var MenuRead $menuRead */
+            $menuRead = $entityManager->getRepository(MenuRead::class)->find($id);
+            if (null === $menuRead) {
+                return $this->redirect('/admin');
             }
+            $menuUuid = $menuRead->getUuid();
         }
 
-        return $this->render('@cms/Admin/Menu/list.html.twig', [
-            'menus' => $menus,
-            'missingMenus' => $missingMenus,
+        /** @var Menu $menu */
+        $menu = $aggregateFactory->build($menuUuid, Menu::class);
+
+        return $this->render('@cms/Admin/Menu/edit.html.twig', [
+            'menu' => $menu,
             'config' => $config,
         ]);
     }
@@ -172,26 +186,74 @@ class MenuController extends AbstractController
     /**
      * Create a menu.
      *
-     * @Route("/menu/create/{name}", name="cms_menu_create")
+     * @Route("/menu/create", name="cms_menu_create")
      *
-     * @param CommandBus $commandBus
-     * @param MessageBus $messageBus
-     * @param string     $name
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param MessageBus             $messageBus
+     * @param EntityManagerInterface $entityManager
      *
      * @return JsonResponse|Response
      *
      * @throws \Exception
      */
-    public function create(CommandBus $commandBus, MessageBus $messageBus, string $name)
+    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, EntityManagerInterface $entityManager)
     {
         /** @var UserRead $user */
         $user = $this->getUser();
-
         $config = $this->getParameter('cms');
 
-        if (isset($config['menus'][$name])) {
-            $data = [
-                'name' => $name,
+        /**
+         * Get a choice list of all websites.
+         *
+         * @var Website[] $websiteEntities
+         */
+        $websiteEntities = $entityManager->getRepository(Website::class)->findAll();
+        $websites = [];
+        foreach ($websiteEntities as $websiteEntity) {
+            $websites[$websiteEntity->getTitle()] = $websiteEntity->getId();
+        }
+
+        $formBuilder = $this->createFormBuilder();
+
+        $formBuilder->add('title', ChoiceType::class, [
+            'label' => 'Menu',
+            'placeholder' => 'Menu',
+            'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('website', ChoiceType::class, [
+            'label' => 'Website',
+            'placeholder' => 'Website',
+            'choices' => $websites,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('language', ChoiceType::class, [
+            'label' => 'Language',
+            'placeholder' => 'Language',
+            'choices' => $config['page_languages'],
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'Add menu',
+            'attr' => [
+                'class' => 'btn-primary',
+            ],
+        ]);
+
+        $form = $formBuilder->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $payload = [
+                'name' => $data['title'],
+                'website' => (int) $data['website'],
+                'language' => $data['language'],
             ];
 
             $uuid = Uuid::uuid1()->toString();
@@ -199,16 +261,18 @@ class MenuController extends AbstractController
 
             // Execute Command.
             $success = false;
-
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), $uuid, $aggregateUuid, 0, $data, function ($commandBus, $event) use (&$success) {
+            $commandBus->dispatch(new MenuCreateCommand($user->getId(), $uuid, $aggregateUuid, 0, $payload, function ($commandBus, $event) use (&$success) {
                 // Callback.
                 $success = true;
             }));
 
             return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
-        } else {
-            throw new \Exception('Menu with the name '.$name.' is not defined in the cms config');
         }
+
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Add menu',
+            'form' => $form->createView(),
+        ]);
     }
 
     /**

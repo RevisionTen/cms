@@ -1,6 +1,6 @@
 <li data-uuid="{{ item.uuid }}" class="level-{{ level }} {{ item.enabled is defined and item.enabled == false ? 'disabled' : '' }}">
 
-    <div class="clearfix">
+    <div class="clearfix pl-3 pr-3">
         {#% for x in 0..level %}
         {% if x > 0 %}
             <span style="opacity: .2;" class="fas fa-arrow-right"></span>

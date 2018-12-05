@@ -205,7 +205,7 @@ class UserCreateCommand extends Command
         } else {
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserCreateCommand failed.');
-            $output->writeln($messages);
+            print_r($messages);
         }
     }
 }

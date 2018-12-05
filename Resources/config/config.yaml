@@ -95,7 +95,7 @@ easy_admin:
             - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
             - { entity: Website, icon: 'nope fas fa-globe-africa' }
-            - { label: 'Menus', route: 'cms_list_menus', icon: 'bars' }
+            - { entity: MenuRead, label: 'Menus', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
             - { entity: UserRead, icon: 'users' }
@@ -170,7 +170,7 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/Page/List/website.html.twig' }
+                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
                     - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
@@ -190,6 +190,7 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
+                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
                     - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
@@ -261,3 +262,21 @@ easy_admin:
                     - 'version'
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
+        MenuRead:
+            label: 'Menus'
+            class: RevisionTen\CMS\Model\MenuRead
+            templates:
+                list: '@cms/Admin/Menu/list.html.twig'
+            list:
+                sort: ['title', 'DESC']
+                actions:
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                    - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                fields:
+                    #- 'uuid'
+                    - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
+                    - 'version'
+                    - 'language'
+                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }

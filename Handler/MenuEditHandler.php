@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuCreateCommand;
-use RevisionTen\CMS\Event\MenuCreateEvent;
+use RevisionTen\CMS\Command\MenuEditCommand;
+use RevisionTen\CMS\Event\MenuEditEvent;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Handler\Handler;
 
-final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterface
+final class MenuEditHandler extends Handler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -42,7 +43,7 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
      */
     public static function getCommandClass(): string
     {
-        return MenuCreateCommand::class;
+        return MenuEditCommand::class;
     }
 
     /**
@@ -50,7 +51,7 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
      */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuCreateEvent($command);
+        return new MenuEditEvent($command);
     }
 
     /**
@@ -60,27 +61,17 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (isset($payload['name'], $payload['website'], $payload['language']) && !empty($payload['name']) && !empty($payload['website']) && !empty($payload['language']) && 0 === $aggregate->getVersion()) {
+        if (!empty($payload['website']) && !empty($payload['language'])) {
             return true;
         }
-        if (0 !== $aggregate->getVersion()) {
-            $this->messageBus->dispatch(new Message(
-                'Aggregate already exists',
-                CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
 
-            return false;
-        } else {
-            $this->messageBus->dispatch(new Message(
-                'You must enter a name, website and language',
-                CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+        $this->messageBus->dispatch(new Message(
+            'You must enter a name, website and language',
+            CODE_BAD_REQUEST,
+            $command->getUuid(),
+            $command->getAggregateUuid()
+        ));
 
-            return false;
-        }
+        return false;
     }
 }
