@@ -68,5 +68,9 @@ class MenuService
         // Persist MenuRead entity.
         $this->em->persist($menuRead);
         $this->em->flush();
+
+        // Invalidate cache.
+        $cacheKey = $aggregate->name.'_'.$aggregate->website.'_'.$aggregate->language;
+        $this->cacheService->delete($cacheKey, $aggregate->getStreamVersion() - 1);
     }
 }

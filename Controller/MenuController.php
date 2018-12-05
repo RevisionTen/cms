@@ -686,24 +686,26 @@ class MenuController extends AbstractController
             }
         }
 
+        return $menu;
+    }
+
+    private function getPaths(EntityManagerInterface $entityManager, array $items): array
+    {
         // Get all aliases.
         $paths = [];
-        $items = $menu['data']['items'];
-        if ($items) {
-            $aliasIds = $this->getAliasIds($items);
-            /** @var Alias[] $aliases */
-            $aliases = $entityManager->getRepository(Alias::class)->findBy([
-                'id' => $aliasIds,
-            ]);
-            foreach ($aliases as $alias) {
-                if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-                    $paths[$alias->getId()] = $alias->getPath();
-                }
+
+        $aliasIds = $this->getAliasIds($items);
+        /** @var Alias[] $aliases */
+        $aliases = $entityManager->getRepository(Alias::class)->findBy([
+            'id' => $aliasIds,
+        ]);
+        foreach ($aliases as $alias) {
+            if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
+                $paths[$alias->getId()] = $alias->getPath();
             }
         }
-        $menu['paths'] = $paths;
 
-        return $menu;
+        return $paths;
     }
 
     /**
@@ -716,10 +718,12 @@ class MenuController extends AbstractController
      * @param string                 $name
      * @param Alias                  $alias
      * @param string                 $template
+     * @param string                 $language
+     * @param int                    $website
      *
      * @return Response
      */
-    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null): Response
+    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
         $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
@@ -727,16 +731,56 @@ class MenuController extends AbstractController
             return new Response('Menu '.$name.' does not exist.');
         }
 
-        $menuData = $cacheService->get($name);
+        if (null === $website || null === $language) {
+            // Get website and language from alias or request.
+            if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
+                // Alias does not exist or is neutral, get website and language from request.
+                /** @var Website $website */
+                $website = $entityManager->getRepository(Website::class)->find($request->get('website'));
+                $language = $request->getLocale();
+            } else {
+                $website = $alias->getWebsite();
+                $language = $alias->getLanguage();
+            }
+        } else {
+            /** @var Website $website */
+            $website = $entityManager->getRepository(Website::class)->find($website);
+        }
 
+        $cacheKey = $name.'_'.$website->getId().'_'.$language;
+        $menuData = $cacheService->get($cacheKey);
         if (null === $menuData) {
-            $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
+            /** @var MenuRead $menuRead */
+            $menuRead = $entityManager->getRepository(MenuRead::class)->findOneBy([
+                'title' => $name,
+                'website' => $website,
+                'language' => $language,
+            ]);
+
+            if (null === $menuRead) {
+                $version = 1;
+                // No matching read model found, fallback to language neutral menu.
+                $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
+                if (isset($menuData['data']['language'], $menuData['data']['website'])) {
+                    // Aggregate isn`t neutral.
+                    $menuData = null;
+                }
+            } else {
+                $version = $menuRead->getVersion();
+                $menuData = $config['menus'][$name];
+                $menuData['data'] = json_decode(json_encode($menuRead->getPayload()), true);
+            }
 
             if ($menuData) {
+                // Get paths.
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items']);
+
                 // Populate cache.
-                $cacheService->put($name, 1, $menuData);
+                $cacheService->put($cacheKey, $version, $menuData);
             }
         }
+
+
 
         return $this->render($template ?: $config['menus'][$name]['template'], [
             'request' => $request,
@@ -744,42 +788,6 @@ class MenuController extends AbstractController
             'menu' => $menuData,
             'config' => $config,
         ]);
-    }
-
-    /**
-     * Clear the cache for a menu.
-     *
-     * @Route("/menu/clear-cache/{name}", name="cms_menu_clearmenucache")
-     *
-     * @param TranslatorInterface $translator
-     * @param CacheService        $cacheService
-     * @param string              $name
-     *
-     * @return RedirectResponse
-     *
-     * @throws \Exception
-     */
-    public function clearCache(TranslatorInterface $translator, CacheService $cacheService, string $name): RedirectResponse
-    {
-        $config = $this->getParameter('cms');
-
-        if (!isset($config['menus'][$name])) {
-            throw new \Exception('Menu does not exist.');
-        }
-
-        if ($cacheService->delete($name, 1)) {
-            $this->addFlash(
-                'success',
-                $translator->trans('Menu cache cleared.')
-            );
-        } else {
-            $this->addFlash(
-                'danger',
-                $translator->trans('Cache is not enabled.')
-            );
-        }
-
-        return $this->redirectToRoute('cms_list_menus');
     }
 
     /**
