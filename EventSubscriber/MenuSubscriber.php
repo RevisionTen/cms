@@ -4,11 +4,26 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\EventSubscriber;
 
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CMS\Services\MenuService;
 use RevisionTen\CQRS\Event\AggregateUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MenuSubscriber implements EventSubscriberInterface
 {
+    /** @var MenuService $menuService */
+    private $menuService;
+
+    /**
+     * MenuSubscriber constructor.
+     *
+     * @param MenuService $menuService
+     */
+    public function __construct(MenuService $menuService)
+    {
+        $this->menuService = $menuService;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
@@ -16,11 +31,13 @@ class MenuSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function updateReadModel(AggregateUpdatedEvent $event): void
+    public function updateReadModel(AggregateUpdatedEvent $aggregateUpdatedEvent): void
     {
-        #/** @var \RevisionTen\CQRS\Interfaces\EventInterface $event */
-        #$event = $event->getEvent();
+        /** @var \RevisionTen\CQRS\Interfaces\EventInterface $event */
+        $event = $aggregateUpdatedEvent->getEvent();
 
-        // Todo: Implement MenuRead model and update it here.
+        if ($event->getCommand()->getAggregateClass() === Menu::class) {
+            $this->menuService->updateMenuRead($event->getCommand()->getAggregateUuid());
+        }
     }
 }

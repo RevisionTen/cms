@@ -1,0 +1,134 @@
+services:
+    RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
+        autowire: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
+    # TODO: Fix this listener.
+    # RevisionTen\CMS\EventListener\LogoutListener:
+    #     autowire: true
+    #     tags:
+    #         - { name: security.logout_listener.main, event: security.logout_listener }
+    RevisionTen\CMS\Controller\:
+        autowire: true
+        autoconfigure: true
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
+    RevisionTen\CMS\Twig\CmsExtension:
+        autowire: true
+        public: true
+        tags: [twig.extension]
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Security\CodeAuthenticator:
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Security\BasicAuthenticator:
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Command\Console\UserCreateCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserSecretCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+    RevisionTen\CMS\Command\Console\MenuMigrateCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Services\SecretService:
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Services\PageService:
+        autowire: true
+    RevisionTen\CMS\Services\MenuService:
+        autowire: true
+    RevisionTen\CMS\Services\UserService:
+        autowire: true
+    RevisionTen\CMS\Services\CacheService:
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Services\FileService:
+        autowire: true
+        arguments:
+            $project_dir: '%kernel.project_dir%'
+    RevisionTen\CMS\Form\Types\UploadType:
+        autoconfigure: true
+        autowire: true
+        arguments:
+            $project_dir: '%kernel.project_dir%'
+        tags: [form.type]
+    RevisionTen\CMS\Form\Types\ManagedUploadType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+    RevisionTen\CMS\Form\Types\DoctrineType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+    RevisionTen\CMS\Form\Elements\Form:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+    RevisionTen\CMS\Form\Menu\Page:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+    RevisionTen\CMS\Form\Elements\Controller:
+        autoconfigure: true
+        autowire: true
+        public: true
+        arguments:
+            $config: '%cms%'
+        tags: [form.type]
+    RevisionTen\CMS\EventSubscriber\:
+        resource: '../../EventSubscriber/*'
+        autowire: true
+        autoconfigure: true
+    # Listeners must be public!
+    RevisionTen\CMS\Listener\:
+        public: true
+        resource: '../../Listener/*'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php}'
+        autowire: true
+    RevisionTen\CMS\Listener\UserCreateListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserGenerateSecretListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserChangePasswordListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLoginListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserLogoutListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Listener\UserResetPasswordListener:
+        public: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
