@@ -8,7 +8,7 @@ use RevisionTen\CMS\Command\MenuEditCommand;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use Doctrine\ORM\EntityManagerInterface;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Model\Site;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
@@ -97,9 +97,9 @@ class MenuMigrateCommand extends Command
             /**
              * Get a choice list of all websites.
              *
-             * @var Website[] $websiteEntities
+             * @var Site[] $websiteEntities
              */
-            $websiteEntities = $this->entityManager->getRepository(Website::class)->findAll();
+            $websiteEntities = $this->entityManager->getRepository(Site::class)->findAll();
             $websites = [];
             foreach ($websiteEntities as $websiteEntity) {
                 $websites[$websiteEntity->getTitle()] = $websiteEntity->getId();

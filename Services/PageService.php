@@ -8,7 +8,7 @@ use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Model\Site;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
@@ -137,7 +137,7 @@ class PageService
                     foreach ($aliases as $alias) {
                         /* @var \RevisionTen\CMS\Model\Alias $alias */
                         $alias->setLanguage($aggregate->language);
-                        $alias->setWebsite($this->em->getReference(Website::class, $aggregate->website));
+                        $alias->setWebsite($this->em->getReference(Site::class, $aggregate->website));
                         $this->em->persist($alias);
                     }
                 }

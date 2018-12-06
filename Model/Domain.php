@@ -31,8 +31,8 @@ class Domain
     private $domain;
 
     /**
-     * @var Website
-     * @ORM\ManyToOne(targetEntity="Website", inversedBy="domains")
+     * @var Site
+     * @ORM\ManyToOne(targetEntity="Site", inversedBy="domains")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $website;
@@ -86,19 +86,19 @@ class Domain
     }
 
     /**
-     * @return Website
+     * @return Site
      */
-    public function getWebsite(): Website
+    public function getWebsite(): Site
     {
         return $this->website;
     }
 
     /**
-     * @param Website $website
+     * @param Site $website
      *
      * @return Domain
      */
-    public function setWebsite(Website $website = null): self
+    public function setWebsite(Site $website = null): self
     {
         $this->website = $website;
 

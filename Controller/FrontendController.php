@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Model\Site;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Services\PageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -93,7 +93,7 @@ class FrontendController extends AbstractController
         }
 
         // Get the pages website.
-        $website = isset($pageData['website']) ? $entityManager->getRepository(Website::class)->find($pageData['website']) : null;
+        $website = isset($pageData['website']) ? $entityManager->getRepository(Site::class)->find($pageData['website']) : null;
 
         // Get the page template from the template name.
         $templateName = $pageData['template'];

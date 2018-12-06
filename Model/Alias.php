@@ -65,8 +65,8 @@ class Alias
     private $language;
 
     /**
-     * @var Website
-     * @ORM\ManyToOne(targetEntity="Website", inversedBy="aliases")
+     * @var Site
+     * @ORM\ManyToOne(targetEntity="Site", inversedBy="aliases")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=true)
      */
     private $website;
@@ -265,19 +265,19 @@ class Alias
     }
 
     /**
-     * @return Website
+     * @return Site
      */
-    public function getWebsite(): ?Website
+    public function getWebsite(): ?Site
     {
         return $this->website;
     }
 
     /**
-     * @param Website|null $website
+     * @param Site|null $website
      *
      * @return Alias
      */
-    public function setWebsite(Website $website = null): self
+    public function setWebsite(Site $website = null): self
     {
         $this->website = $website;
 

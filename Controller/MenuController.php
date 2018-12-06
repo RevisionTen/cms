@@ -18,7 +18,7 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Model\Site;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -206,9 +206,9 @@ class MenuController extends AbstractController
         /**
          * Get a choice list of all websites.
          *
-         * @var Website[] $websiteEntities
+         * @var Site[] $websiteEntities
          */
-        $websiteEntities = $entityManager->getRepository(Website::class)->findAll();
+        $websiteEntities = $entityManager->getRepository(Site::class)->findAll();
         $websites = [];
         foreach ($websiteEntities as $websiteEntity) {
             $websites[$websiteEntity->getTitle()] = $websiteEntity->getId();
@@ -735,16 +735,16 @@ class MenuController extends AbstractController
             // Get website and language from alias or request.
             if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
                 // Alias does not exist or is neutral, get website and language from request.
-                /** @var Website $website */
-                $website = $entityManager->getRepository(Website::class)->find($request->get('website'));
+                /** @var Site $website */
+                $website = $entityManager->getRepository(Site::class)->find($request->get('website'));
                 $language = $request->getLocale();
             } else {
                 $website = $alias->getWebsite();
                 $language = $alias->getLanguage();
             }
         } else {
-            /** @var Website $website */
-            $website = $entityManager->getRepository(Website::class)->find($website);
+            /** @var Site $website */
+            $website = $entityManager->getRepository(Site::class)->find($website);
         }
 
         $cacheKey = $name.'_'.$website->getId().'_'.$language;
