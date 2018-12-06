@@ -37,4 +37,7 @@ final class UserAggregate extends Aggregate
 
     /** @var array */
     public $ips = [];
+
+    /** @var array */
+    public $websites = [];
 }

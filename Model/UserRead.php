@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -90,13 +91,25 @@ class UserRead implements UserInterface, \Serializable
     private $ips;
 
     /**
+     * @var Website[]
+     * @ORM\ManyToMany(targetEntity="Website", inversedBy="users")
+     * @ORM\JoinTable(name="users_websites")
+     */
+    private $websites;
+
+    /**
      * @var bool
      */
     private $imposter = false;
 
+    public function __construct()
+    {
+        $this->websites = new ArrayCollection();
+    }
+
     public function __toString()
     {
-        return $this->getUsername();
+        return (string) $this->getUsername();
     }
 
     /**
@@ -425,6 +438,40 @@ class UserRead implements UserInterface, \Serializable
     public function setIps(array $ips = null): self
     {
         $this->ips = $ips;
+
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|Website[]
+     */
+    public function getWebsites()
+    {
+        return $this->websites;
+    }
+
+    /**
+     * @param Website $website
+     * @return UserRead
+     */
+    public function addWebsite(Website $website): self
+    {
+        if (!$this->websites->contains($website)) {
+            $this->websites[] = $website;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Website $website
+     * @return UserRead
+     */
+    public function removeWebsite(Website $website): self
+    {
+        if ($this->websites->contains($website)) {
+            $this->websites->removeElement($website);
+        }
 
         return $this;
     }
