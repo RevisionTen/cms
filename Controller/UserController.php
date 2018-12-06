@@ -14,6 +14,7 @@ use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -82,7 +83,7 @@ class UserController extends AbstractController
             'required' => false,
         ]);
 
-        $formBuilder->add('color', TextType::class, [
+        $formBuilder->add('color', ColorType::class, [
             'label' => 'Color',
             'required' => false,
         ]);
