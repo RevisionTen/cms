@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Controller;
 
 use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
+use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AdminController.
@@ -82,11 +84,12 @@ class AdminController extends AbstractController
     /**
      * Get the aggregate title from the uuid.
      *
-     * @param string $uuid
+     * @param TranslatorInterface $translator
+     * @param string              $uuid
      *
      * @return Response
      */
-    public function uuidTitle(string $uuid): Response
+    public function uuidTitle(TranslatorInterface $translator, string $uuid): Response
     {
         $title = $uuid;
 
@@ -99,6 +102,8 @@ class AdminController extends AbstractController
         $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
         /** @var UserRead|null $userRead */
         $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
+        /** @var MenuRead|null $menuRead */
+        $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
@@ -106,6 +111,8 @@ class AdminController extends AbstractController
             $title = $formRead->getTitle();
         } elseif ($userRead) {
             $title = $userRead->getUsername();
+        } elseif ($menuRead) {
+            $title = $translator->trans($menuRead->getTitle());
         }
 
         return new Response($title);
