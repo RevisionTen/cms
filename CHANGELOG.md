@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added device preview
 - Improved youtube id parsing in youtube element
 - Added add-element modal instead of dropdown
+- Added user edit form
 
 ## [1.3.10] - 2018-11-22
 ### Added

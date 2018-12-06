@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Services;
 
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -52,6 +53,11 @@ class UserService
         // Build UserRead entity from Aggregate.
         $userRead = $this->em->getRepository(UserRead::class)->findOneByUuid($userUuid) ?? new UserRead();
 
+        // Get collection of websites from their ids.
+        $websites = $this->em->getRepository(Website::class)->findBy([
+            'id' => $aggregate->websites,
+        ]);
+
         $userRead->setUuid($userUuid);
         $userRead->setVersion($aggregate->getVersion());
         $userRead->setEmail($aggregate->email);
@@ -63,6 +69,7 @@ class UserService
         $userRead->setDevices($aggregate->devices);
         $userRead->setIps($aggregate->ips);
         $userRead->setResetToken($aggregate->resetToken);
+        $userRead->setWebsites($websites);
 
         // Persist UserRead entity.
         $this->em->persist($userRead);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserCreateCommand;
-use RevisionTen\CMS\Event\UserCreateEvent;
+use RevisionTen\CMS\Command\UserEditCommand;
+use RevisionTen\CMS\Event\UserEditEvent;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
@@ -14,7 +14,7 @@ use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use RevisionTen\CQRS\Message\Message;
 use RevisionTen\CQRS\Handler\Handler;
 
-final class UserCreateHandler extends Handler implements HandlerInterface
+final class UserEditHandler extends Handler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -25,13 +25,24 @@ final class UserCreateHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        $aggregate->username = $payload['username'];
-        $aggregate->email = $payload['email'];
-        $aggregate->avatarUrl = $payload['avatarUrl'];
-        $aggregate->password = $payload['password'];
-        $aggregate->secret = $payload['secret'];
-        $aggregate->color = $payload['color'];
-        $aggregate->websites = $payload['websites'] ?? [];
+        // Update required fields.
+        if (!empty($payload['username'])) {
+            $aggregate->username = $payload['username'];
+        }
+        if (!empty($payload['email'])) {
+            $aggregate->email = $payload['email'];
+        }
+
+        // Update nullable fields.
+        if (isset($payload['avatarUrl'])) {
+            $aggregate->avatarUrl = $payload['avatarUrl'];
+        }
+        if (isset($payload['color'])) {
+            $aggregate->color = $payload['color'];
+        }
+        if (isset($payload['websites'])) {
+            $aggregate->websites = $payload['websites'];
+        }
 
         return $aggregate;
     }
@@ -41,7 +52,7 @@ final class UserCreateHandler extends Handler implements HandlerInterface
      */
     public static function getCommandClass(): string
     {
-        return UserCreateCommand::class;
+        return UserEditCommand::class;
     }
 
     /**
@@ -49,7 +60,7 @@ final class UserCreateHandler extends Handler implements HandlerInterface
      */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserCreateEvent($command);
+        return new UserEditEvent($command);
     }
 
     /**
@@ -59,18 +70,9 @@ final class UserCreateHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (0 !== $aggregate->getVersion()) {
+        if (empty($payload)) {
             $this->messageBus->dispatch(new Message(
-                'Aggregate already exists',
-                CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } elseif (!isset($payload['username'], $payload['email'], $payload['password'], $payload['secret'])) {
-            $this->messageBus->dispatch(new Message(
-                'Missing user data',
+                'Nothing to update',
                 CODE_BAD_REQUEST,
                 $command->getUuid(),
                 $command->getAggregateUuid()

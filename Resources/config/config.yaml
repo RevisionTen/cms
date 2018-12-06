@@ -237,6 +237,7 @@ easy_admin:
                 sort: ['id', 'DESC']
                 actions:
                     - { name: 'show', title: 'View', label: '', icon: 'eye' }
+                    - { name: 'cms_user_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'

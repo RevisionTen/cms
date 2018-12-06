@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Command\Console;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
@@ -143,6 +144,35 @@ class UserCreateCommand extends Command
             $avatarUrl = $helper->ask($input, $output, $avatarUrlQuestion);
         }
 
+        /**
+         * Get a choice list of all websites.
+         *
+         * @var Website[] $websiteEntities
+         */
+        $websiteEntities = $this->entityManager->getRepository(Website::class)->findAll();
+        $websiteChoices = [];
+        foreach ($websiteEntities as $websiteEntity) {
+            $websiteChoices[$websiteEntity->getTitle()] = $websiteEntity->getId();
+        }
+
+        $websites = [];
+        if (!empty($websiteChoices)) {
+            // Aks what website the menu aggregate belongs to.
+            $websiteQuestion = new ChoiceQuestion('What website does this user belong to? ', array_keys($websiteChoices));
+            $websiteQuestion->setErrorMessage('Answer %s is invalid.');
+            $websiteQuestion->setAutocompleterValues(array_keys($websiteChoices));
+            $websiteQuestion->setValidator(function ($answer) use ($websiteChoices) {
+                if (!isset($websiteChoices[$answer])) {
+                    throw new \RuntimeException('This website does not exist.');
+                }
+
+                return $answer;
+            });
+            $websiteQuestion->setMaxAttempts(5);
+            $websiteAnswer = $helper->ask($input, $output, $websiteQuestion);
+            $websites = [$websiteChoices[$websiteAnswer]];
+        }
+
         // Ask If the login data should be sent via mail.
         $sendLoginMail = $input->getOption('sendLoginMail');
         if (!$sendLoginMail) {
@@ -183,6 +213,7 @@ class UserCreateCommand extends Command
             'password' => $encodedPassword,
             'secret' => $secret,
             'color' => null,
+            'websites' => $websites,
         ];
 
         $success = false;

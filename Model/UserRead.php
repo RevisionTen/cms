@@ -451,6 +451,18 @@ class UserRead implements UserInterface, \Serializable
     }
 
     /**
+     * @param null|ArrayCollection|Website[] $websites
+     *
+     * @return UserRead
+     */
+    public function setWebsites($websites = null): self
+    {
+        $this->websites = $websites;
+
+        return $this;
+    }
+
+    /**
      * @param Website $website
      * @return UserRead
      */
