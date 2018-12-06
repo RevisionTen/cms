@@ -50,6 +50,9 @@ class UserService
          */
         $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
+        // Clear the EntityManager to avoid inserting duplicate UserRead entities.
+        $this->em->clear();
+
         // Build UserRead entity from Aggregate.
         $userRead = $this->em->getRepository(UserRead::class)->findOneByUuid($userUuid) ?? new UserRead();
 
@@ -74,6 +77,7 @@ class UserService
         // Persist UserRead entity.
         $this->em->persist($userRead);
         $this->em->flush();
+        $this->em->clear();
     }
 
     public function sendSecret(string $userUuid)

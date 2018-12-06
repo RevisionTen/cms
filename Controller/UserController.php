@@ -73,7 +73,7 @@ class UserController extends AbstractController
         }
 
         $formBuilder = $this->createFormBuilder([
-            'color' => $userAggregate->color,
+            'color' => $userAggregate->color ?? $userRead->getColor(),
             'websites' => $userAggregate->websites,
             'avatarUrl' => $userAggregate->avatarUrl,
         ]);
