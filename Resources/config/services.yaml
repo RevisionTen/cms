@@ -39,6 +39,10 @@ services:
         autoconfigure: true
         autowire: true
         tags: [console.command]
+    RevisionTen\CMS\Command\Console\UserMigrateCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
     RevisionTen\CMS\Command\Console\MenuMigrateCommand:
         autoconfigure: true
         autowire: true

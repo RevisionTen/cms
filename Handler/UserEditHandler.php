@@ -34,15 +34,9 @@ final class UserEditHandler extends Handler implements HandlerInterface
         }
 
         // Update nullable fields.
-        if (isset($payload['avatarUrl'])) {
-            $aggregate->avatarUrl = $payload['avatarUrl'];
-        }
-        if (isset($payload['color'])) {
-            $aggregate->color = $payload['color'];
-        }
-        if (isset($payload['websites'])) {
-            $aggregate->websites = $payload['websites'];
-        }
+        $aggregate->avatarUrl = $payload['avatarUrl'] ?? null;
+        $aggregate->color = $payload['color'] ?? null;
+        $aggregate->websites = $payload['websites'] ?? [];
 
         return $aggregate;
     }

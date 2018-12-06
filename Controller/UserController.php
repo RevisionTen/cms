@@ -52,6 +52,13 @@ class UserController extends AbstractController
         if (null === $userRead) {
             return $this->redirectToUsers();
         }
+        if (empty($userRead->getUuid())) {
+            $this->addFlash(
+                'danger',
+                $translator->trans('User needs to be migrated')
+            );
+            return $this->redirectToUsers();
+        }
 
         /** @var UserAggregate $userAggregate */
         $userAggregate = $aggregateFactory->build($userRead->getUuid(), UserAggregate::class);
@@ -65,12 +72,18 @@ class UserController extends AbstractController
         }
 
         $formBuilder = $this->createFormBuilder([
+            'color' => $userAggregate->color,
             'websites' => $userAggregate->websites,
             'avatarUrl' => $userAggregate->avatarUrl,
         ]);
 
         $formBuilder->add('avatarUrl', TextType::class, [
             'label' => 'Avatar Url',
+            'required' => false,
+        ]);
+
+        $formBuilder->add('color', TextType::class, [
+            'label' => 'Color',
             'required' => false,
         ]);
 
@@ -99,6 +112,7 @@ class UserController extends AbstractController
             $success = false;
             $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
             $commandBus->dispatch(new UserEditCommand($user->getId(), null, $userAggregate->getUuid(), $userAggregate->getVersion(), [
+                'color' => $data['color'],
                 'avatarUrl' => $data['avatarUrl'],
                 'websites' => array_values($data['websites']),
             ], $successCallback), false);
