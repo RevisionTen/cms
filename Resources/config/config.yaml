@@ -147,11 +147,10 @@ easy_admin:
                     - 'aliases'
             form:
                 fields:
-                    - 'id'
                     - { property: 'title', type: 'text' }
                     - { property: 'siteVerification', type: 'text', label: 'Google Site Verification Meta-Tag' }
                     - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
-                    #- { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
+                    - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
         PageStreamRead:
             label: 'Pages'
             class: RevisionTen\CMS\Model\PageStreamRead
