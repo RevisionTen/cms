@@ -94,7 +94,7 @@ easy_admin:
             - { entity: Alias, icon: 'nope fas fa-link' }
             - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
-            - { entity: Site, icon: 'nope fas fa-globe-africa' }
+            - { entity: Website, icon: 'nope fas fa-globe-africa' }
             - { entity: MenuRead, label: 'Menus', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
@@ -131,9 +131,9 @@ easy_admin:
                     - 'pageStreamRead'
                     - 'redirect'
                     - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 } } }
-        Site:
-            label: 'Sites'
-            class: RevisionTen\CMS\Model\Site
+        Website:
+            label: 'Websites'
+            class: RevisionTen\CMS\Model\Website
             list:
                 actions:
                     - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
@@ -151,7 +151,7 @@ easy_admin:
                     - { property: 'title', type: 'text' }
                     - { property: 'siteVerification', type: 'text', label: 'Google Site Verification Meta-Tag' }
                     - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
-                    - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
+                    #- { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
         PageStreamRead:
             label: 'Pages'
             class: RevisionTen\CMS\Model\PageStreamRead

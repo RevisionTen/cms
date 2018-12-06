@@ -9,12 +9,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Site.
+ * Class Website.
  *
  * @ORM\Entity
  * @ORM\Table(name="website")
  */
-class Site
+class Website
 {
     /**
      * @var int
@@ -55,7 +55,7 @@ class Site
     private $aliases;
 
     /**
-     * Site constructor.
+     * Website constructor.
      */
     public function __construct()
     {
@@ -82,7 +82,7 @@ class Site
     /**
      * @param int $id
      *
-     * @return Site
+     * @return Website
      */
     public function setId(int $id): self
     {
@@ -102,7 +102,7 @@ class Site
     /**
      * @param string $title
      *
-     * @return Site
+     * @return Website
      */
     public function setTitle(string $title): self
     {
@@ -122,7 +122,7 @@ class Site
     /**
      * @param string|null $siteVerification
      *
-     * @return Site
+     * @return Website
      */
     public function setSiteVerification(string $siteVerification = null): self
     {
@@ -142,7 +142,7 @@ class Site
     /**
      * @param string $defaultLanguage
      *
-     * @return Site
+     * @return Website
      */
     public function setDefaultLanguage(string $defaultLanguage): self
     {
@@ -162,7 +162,7 @@ class Site
     /**
      * @param Collection $domains
      *
-     * @return Site
+     * @return Website
      */
     public function setDomains(Collection $domains): self
     {
@@ -178,7 +178,7 @@ class Site
     /**
      * @param Domain $domain
      *
-     * @return Site
+     * @return Website
      */
     public function removeDomain(Domain $domain): self
     {
@@ -191,7 +191,7 @@ class Site
     /**
      * @param Domain $domain
      *
-     * @return Site
+     * @return Website
      */
     public function addDomain(Domain $domain): self
     {

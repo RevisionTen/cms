@@ -9,7 +9,7 @@ use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Site;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use RevisionTen\Forms\Model\FormRead;
@@ -42,8 +42,8 @@ class AdminController extends AbstractController
      */
     public function websiteTitle(EntityManagerInterface $entityManager, int $id): Response
     {
-        /** @var Site $website */
-        $website = $entityManager->getRepository(Site::class)->find($id);
+        /** @var Website $website */
+        $website = $entityManager->getRepository(Website::class)->find($id);
 
         return $this->render('@cms/Admin/Website/website_info.html.twig', [
             'website' => $website ?? [

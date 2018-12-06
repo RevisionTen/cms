@@ -29,7 +29,7 @@ use RevisionTen\CMS\Command\PageCreateCommand;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Site;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -130,8 +130,8 @@ class PageController extends AbstractController
         $config = $this->getParameter('cms');
 
         $pageWebsites = [];
-        /** @var Site[] $websites */
-        $websites = $entityManager->getRepository(Site::class)->findAll();
+        /** @var Website[] $websites */
+        $websites = $entityManager->getRepository(Website::class)->findAll();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
@@ -199,8 +199,8 @@ class PageController extends AbstractController
         $config = $this->getParameter('cms');
 
         $pageWebsites = [];
-        /** @var Site[] $websites */
-        $websites = $entityManager->getRepository(Site::class)->findAll();
+        /** @var Website[] $websites */
+        $websites = $entityManager->getRepository(Website::class)->findAll();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
@@ -486,8 +486,8 @@ class PageController extends AbstractController
             return $this->errorResponse();
         }
 
-        /** @var Site $website */
-        $website = $entityManager->getRepository(Site::class)->find($pageStreamRead->getWebsite());
+        /** @var Website $website */
+        $website = $entityManager->getRepository(Website::class)->find($pageStreamRead->getWebsite());
         if (null === $website) {
             return $this->errorResponse();
         }
@@ -1115,7 +1115,7 @@ class PageController extends AbstractController
         $pageData = $pageService->hydratePage($pageData);
 
         // Get the pages website.
-        $website = isset($pageData['website']) ? $entityManager->getRepository(Site::class)->find($pageData['website']) : null;
+        $website = isset($pageData['website']) ? $entityManager->getRepository(Website::class)->find($pageData['website']) : null;
 
         return $this->render($template, [
             'website' => $website,
