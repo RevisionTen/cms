@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Command\Console;
 
 use Ramsey\Uuid\Uuid;
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Website;
@@ -154,7 +155,6 @@ class UserCreateCommand extends Command
         foreach ($websiteEntities as $websiteEntity) {
             $websiteChoices[$websiteEntity->getTitle()] = $websiteEntity->getId();
         }
-
         $websites = [];
         if (!empty($websiteChoices)) {
             // Aks what website the menu aggregate belongs to.
@@ -171,6 +171,34 @@ class UserCreateCommand extends Command
             $websiteQuestion->setMaxAttempts(5);
             $websiteAnswer = $helper->ask($input, $output, $websiteQuestion);
             $websites = [$websiteChoices[$websiteAnswer]];
+        }
+
+        /**
+         * Get a choice list of all roles.
+         *
+         * @var RoleRead[] $roleEntities
+         */
+        $roleEntities = $this->entityManager->getRepository(RoleRead::class)->findAll();
+        $roleChoices = [];
+        foreach ($roleEntities as $roleEntity) {
+            $roleChoices[$roleEntity->getTitle()] = $roleEntity->getUuid();
+        }
+        $roles = [];
+        if (!empty($roleChoices)) {
+            // Aks what website the menu aggregate belongs to.
+            $roleQuestion = new ChoiceQuestion('What role does this user have? ', array_keys($roleChoices));
+            $roleQuestion->setErrorMessage('Answer %s is invalid.');
+            $roleQuestion->setAutocompleterValues(array_keys($roleChoices));
+            $roleQuestion->setValidator(function ($answer) use ($roleChoices) {
+                if (!isset($roleChoices[$answer])) {
+                    throw new \RuntimeException('This role does not exist.');
+                }
+
+                return $answer;
+            });
+            $roleQuestion->setMaxAttempts(5);
+            $roleAnswer = $helper->ask($input, $output, $roleQuestion);
+            $roles = [$roleChoices[$roleAnswer]];
         }
 
         // Ask If the login data should be sent via mail.
@@ -214,6 +242,7 @@ class UserCreateCommand extends Command
             'secret' => $secret,
             'color' => null,
             'websites' => $websites,
+            'roles' => $roles,
         ];
 
         $success = false;
