@@ -31,6 +31,10 @@ revision_ten_cms_controller_user:
     resource: "@CmsBundle/Controller/UserController.php"
     type: annotation
 
+revision_ten_cms_controller_role:
+    resource: "@CmsBundle/Controller/RoleController.php"
+    type: annotation
+
 revision_ten_cms_controller_page:
     resource: "@CmsBundle/Controller/PageController.php"
     type: annotation

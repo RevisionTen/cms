@@ -256,12 +256,11 @@ class MenuController extends AbstractController
                 'language' => $data['language'],
             ];
 
-            $uuid = Uuid::uuid1()->toString();
             $aggregateUuid = Uuid::uuid1()->toString();
 
             // Execute Command.
             $success = false;
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), $uuid, $aggregateUuid, 0, $payload, function ($commandBus, $event) use (&$success) {
+            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, function ($commandBus, $event) use (&$success) {
                 // Callback.
                 $success = true;
             }));

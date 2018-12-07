@@ -30,7 +30,7 @@ class MenuService
     private $cacheService;
 
     /**
-     * PageService constructor.
+     * MenuService constructor.
      *
      * @param \Doctrine\ORM\EntityManagerInterface        $em
      * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
@@ -44,7 +44,7 @@ class MenuService
     }
 
     /**
-     * Update the updateMenuRead entity.
+     * Update the MenuRead entity.
      *
      * @param string $menuUuid
      */
@@ -55,7 +55,7 @@ class MenuService
          */
         $aggregate = $this->aggregateFactory->build($menuUuid, Menu::class);
 
-        // Build PageStreamRead entity from Aggregate.
+        // Build MenuRead entity from Aggregate.
         $menuRead = $this->em->getRepository(MenuRead::class)->findOneByUuid($menuUuid) ?? new MenuRead();
         $menuRead->setVersion($aggregate->getStreamVersion());
         $menuRead->setUuid($menuUuid);

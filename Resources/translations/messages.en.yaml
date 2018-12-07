@@ -1,4 +1,5 @@
 UserRead: "User"
+RoleRead: "Role"
 MenuRead: "Menu"
 PageStreamReadArchive: "Deleted Pages"
 PageStreamRead: "Pages"

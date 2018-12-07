@@ -69,6 +69,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         $loader->load('services.yaml');
         $loader->load('config.yaml');
         $loader->load('cms.yaml');
+        $loader->load('permissions.yaml');
 
         // Only load default security If none exists.
         $fs = new Filesystem();

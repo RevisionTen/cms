@@ -99,6 +99,7 @@ easy_admin:
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
             - { entity: UserRead, icon: 'users' }
+            - { entity: RoleRead, icon: 'nope fas fa-user-shield' }
             - { entity: EventStreamObject, icon: 'clock' }
     formats:
         date:     'd.m.Y'
@@ -245,6 +246,28 @@ easy_admin:
                     - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username', label: 'Username' }
                     - { property: 'email', label: 'Email' }
+        RoleRead:
+            label: 'Roles'
+            class: RevisionTen\CMS\Model\RoleRead
+            templates:
+                list: '@cms/Admin/Role/list.html.twig'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title' }
+                    - { property: 'permissions' }
+            list:
+                sort: ['id', 'DESC']
+                actions:
+                    - { name: 'show', title: 'View', label: '', icon: 'eye' }
+                    - { name: 'cms_role_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title', label: 'Title' }
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead

@@ -8,6 +8,7 @@ use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\PageStreamRead;
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
@@ -104,6 +105,8 @@ class AdminController extends AbstractController
         $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
         /** @var MenuRead|null $menuRead */
         $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
+        /** @var RoleRead|null $roleRead */
+        $roleRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
@@ -113,6 +116,8 @@ class AdminController extends AbstractController
             $title = $userRead->getUsername();
         } elseif ($menuRead) {
             $title = $translator->trans($menuRead->getTitle());
+        } elseif ($roleRead) {
+            $title = $translator->trans($roleRead->getTitle());
         }
 
         return new Response($title);

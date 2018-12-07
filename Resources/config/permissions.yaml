@@ -1,0 +1,18 @@
+cms:
+    permissions:
+        Page:
+            page_create:
+                label: 'Create page'
+            page_edit:
+                label: 'Edit page'
+            page_delete:
+                label: 'Delete page'
+            page_clone:
+                label: 'Clone page'
+        Alias:
+            alias_create:
+                label: 'Create alias'
+            alias_edit:
+                label: 'Edit alias'
+            alias_delete:
+                label: 'Delete alias'

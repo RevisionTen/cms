@@ -59,6 +59,8 @@ services:
         autowire: true
     RevisionTen\CMS\Services\UserService:
         autowire: true
+    RevisionTen\CMS\Services\RoleService:
+        autowire: true
     RevisionTen\CMS\Services\CacheService:
         autowire: true
         arguments:
