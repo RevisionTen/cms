@@ -98,6 +98,13 @@ class UserRead implements UserInterface, \Serializable
     private $websites;
 
     /**
+     * @var RoleRead[]
+     * @ORM\ManyToMany(targetEntity="RoleRead", inversedBy="users")
+     * @ORM\JoinTable(name="users_roles")
+     */
+    private $roles;
+
+    /**
      * @var bool
      */
     private $imposter = false;
@@ -105,19 +112,12 @@ class UserRead implements UserInterface, \Serializable
     public function __construct()
     {
         $this->websites = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
 
     public function __toString()
     {
         return (string) $this->getUsername();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRoles()
-    {
-        return array('ROLE_USER');
     }
 
     /**
@@ -483,6 +483,72 @@ class UserRead implements UserInterface, \Serializable
     {
         if ($this->websites->contains($website)) {
             $this->websites->removeElement($website);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|RoleRead[]
+     */
+    public function getRoles()
+    {
+        $roles = ['ROLE_USER'];
+
+        foreach ($this->roles as $role) {
+            $roles[] = 'ROLE_'.strtoupper($role->getTitle());
+        }
+
+        return $roles;
+    }
+    /**
+     * Return an array of the users role titles.
+     *
+     * @return array
+     */
+    public function getRoleTitles(): array
+    {
+        $roles = [];
+        foreach ($this->roles as $role) {
+            $roles[] = $role->getTitle();
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @param null|ArrayCollection|RoleRead[] $roles
+     *
+     * @return UserRead
+     */
+    public function setRoles($roles = null): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @param RoleRead $role
+     * @return UserRead
+     */
+    public function addRoles(RoleRead $role): self
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param RoleRead $role
+     * @return UserRead
+     */
+    public function removeRoles(RoleRead $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
         }
 
         return $this;

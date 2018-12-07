@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserEditCommand;
-use RevisionTen\CMS\Event\UserEditEvent;
-use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CMS\Command\RoleEditCommand;
+use RevisionTen\CMS\Event\RoleEditEvent;
+use RevisionTen\CMS\Model\Role;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
@@ -14,30 +14,26 @@ use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use RevisionTen\CQRS\Message\Message;
 use RevisionTen\CQRS\Handler\Handler;
 
-final class UserEditHandler extends Handler implements HandlerInterface
+final class RoleEditHandler extends Handler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
      *
-     * @var UserAggregate $aggregate
+     * @var Role $aggregate
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
         $payload = $command->getPayload();
 
-        // Update required fields.
-        if (!empty($payload['username'])) {
-            $aggregate->username = $payload['username'];
+        // Change Aggregate state.
+        // Get each public property from the aggregate and update it If a new value exists in the payload.
+        $reflect = new \ReflectionObject($aggregate);
+        foreach ($reflect->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+            $propertyName = $property->getName();
+            if (array_key_exists($propertyName, $payload)) {
+                $aggregate->{$propertyName} = $payload[$propertyName];
+            }
         }
-        if (!empty($payload['email'])) {
-            $aggregate->email = $payload['email'];
-        }
-
-        // Update nullable fields.
-        $aggregate->avatarUrl = $payload['avatarUrl'] ?? null;
-        $aggregate->color = $payload['color'] ?? null;
-        $aggregate->websites = $payload['websites'] ?? [];
-        $aggregate->roles = $payload['roles'] ?? [];
 
         return $aggregate;
     }
@@ -47,7 +43,7 @@ final class UserEditHandler extends Handler implements HandlerInterface
      */
     public static function getCommandClass(): string
     {
-        return UserEditCommand::class;
+        return RoleEditCommand::class;
     }
 
     /**
@@ -55,7 +51,7 @@ final class UserEditHandler extends Handler implements HandlerInterface
      */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserEditEvent($command);
+        return new RoleEditEvent($command);
     }
 
     /**
@@ -65,9 +61,9 @@ final class UserEditHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (empty($payload)) {
+        if (!isset($payload['title']) || empty($payload['title'])) {
             $this->messageBus->dispatch(new Message(
-                'Nothing to update',
+                'You must enter a title',
                 CODE_BAD_REQUEST,
                 $command->getUuid(),
                 $command->getAggregateUuid()

@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Command\UserEditCommand;
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
@@ -72,9 +73,18 @@ class UserController extends AbstractController
             $websites[$websiteEntity->getTitle()] = $websiteEntity->getId();
         }
 
+        // Get all roles.
+        /** @var RoleRead[] $roleEntities */
+        $roleEntities = $entityManager->getRepository(RoleRead::class)->findAll();
+        $roles = [];
+        foreach ($roleEntities as $roleEntity) {
+            $roles[$roleEntity->getTitle()] = $roleEntity->getUuid();
+        }
+
         $formBuilder = $this->createFormBuilder([
             'color' => $userAggregate->color ?? $userRead->getColor(),
             'websites' => $userAggregate->websites,
+            'roles' => $userAggregate->roles,
             'avatarUrl' => $userAggregate->avatarUrl,
         ]);
 
@@ -91,6 +101,14 @@ class UserController extends AbstractController
         $formBuilder->add('websites', ChoiceType::class, [
             'label' => 'Website',
             'choices' => $websites,
+            'multiple' => true,
+            'expanded' => true,
+            'required' => false,
+        ]);
+
+        $formBuilder->add('roles', ChoiceType::class, [
+            'label' => 'Roles',
+            'choices' => $roles,
             'multiple' => true,
             'expanded' => true,
             'required' => false,
@@ -116,6 +134,7 @@ class UserController extends AbstractController
                 'color' => $data['color'],
                 'avatarUrl' => $data['avatarUrl'],
                 'websites' => array_values($data['websites']),
+                'roles' => array_values($data['roles']),
             ], $successCallback), false);
 
             if (!$success) {

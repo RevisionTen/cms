@@ -246,6 +246,7 @@ easy_admin:
                     - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username', label: 'Username' }
                     - { property: 'email', label: 'Email' }
+                    - { property: 'roles', label: 'Roles', template: '@cms/Admin/User/List/roles.html.twig' }
         RoleRead:
             label: 'Roles'
             class: RevisionTen\CMS\Model\RoleRead

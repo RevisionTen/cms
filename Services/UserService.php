@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
@@ -61,6 +62,11 @@ class UserService
             'id' => $aggregate->websites,
         ]);
 
+        // Get collection of roles from their uuids.
+        $roles = $this->em->getRepository(RoleRead::class)->findBy([
+            'uuid' => $aggregate->roles,
+        ]);
+
         $userRead->setUuid($userUuid);
         $userRead->setVersion($aggregate->getVersion());
         $userRead->setEmail($aggregate->email);
@@ -73,6 +79,7 @@ class UserService
         $userRead->setIps($aggregate->ips);
         $userRead->setResetToken($aggregate->resetToken);
         $userRead->setWebsites($websites);
+        $userRead->setRoles($roles);
 
         // Persist UserRead entity.
         $this->em->persist($userRead);

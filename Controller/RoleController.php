@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 /**
  * Class RoleController.
@@ -50,7 +51,7 @@ class RoleController extends AbstractController
         /** @var UserRead $user */
         $user = $this->getUser();
 
-        $form = $this->roleForm([]);
+        $form = $this->roleForm($translator, []);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -109,7 +110,7 @@ class RoleController extends AbstractController
         /** @var Role $roleAggregate */
         $roleAggregate = $aggregateFactory->build($roleRead->getUuid(), Role::class);
 
-        $form = $this->roleForm([
+        $form = $this->roleForm($translator, [
             'title' => $roleAggregate->title,
             'permissions' => $roleAggregate->permissions,
         ]);
@@ -150,13 +151,20 @@ class RoleController extends AbstractController
         return $this->redirect('/admin/?entity=RoleRead&action=list');
     }
 
-    private function roleForm(array $defaultData): FormInterface
+    private function roleForm(TranslatorInterface $translator, array $defaultData): FormInterface
     {
         $formBuilder = $this->createFormBuilder($defaultData);
 
         $formBuilder->add('title', TextType::class, [
             'label' => 'Title',
-            'constraints' => new NotBlank(),
+            'constraints' => [
+                new NotBlank(),
+                new Regex([
+                    'pattern' => '/\d|\W/',
+                    'match' => false,
+                    'message' => $translator->trans('Title must be letters only.'),
+                ]),
+            ],
         ]);
 
         $config = $this->getParameter('cms');

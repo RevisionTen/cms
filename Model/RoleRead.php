@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -54,6 +55,12 @@ class RoleRead
      * @ORM\Column(type="array", nullable=true)
      */
     private $permissions;
+
+    /**
+     * @var UserRead[]
+     * @ORM\ManyToMany(targetEntity="UserRead", mappedBy="roles")
+     */
+    private $users;
 
     /**
      * @return int
@@ -159,5 +166,13 @@ class RoleRead
         $this->permissions = $permissions;
 
         return $this;
+    }
+
+    /**
+     * @return ArrayCollection|UserRead[]
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 }
