@@ -23,4 +23,12 @@ class Text extends Element
             ],
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_text';
+    }
 }

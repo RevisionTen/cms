@@ -1,12 +1,12 @@
 {% extends ['bootstrap_4_layout.html.twig'] %}
 
-{%- block trix_widget -%}
+{%- block cms_trix_widget -%}
     {%- set type = type|default('hidden') -%}
     {{ block('form_widget_simple') }}
     <trix-editor input="{{ id }}"></trix-editor>
-{%- endblock trix_widget -%}
+{%- endblock cms_trix_widget -%}
 
-{% block upload_widget %}
+{% block cms_upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% if file %}
         <img class="img-responsive" src="{{ file }}" style="margin-bottom: 1em;">
@@ -14,9 +14,9 @@
     {% else %}
         {{ block('form_widget') }}
     {% endif %}
-{% endblock upload_widget %}
+{% endblock cms_upload_widget %}
 
-{% block managed_upload_widget %}
+{% block cms_managed_upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% set hasFile = file and file.uuid is defined and file.path is defined %}
 
@@ -27,11 +27,11 @@
             <a href="{{ file.path }}" target="_blank">{{ value.title }}</a> <span class="text-muted pull-right">{{ file.mimeType }} {{ file.size ? ((file.size / 1000)|number_format(2)) ~ ' KB' : '' }}</span>
         </div>
     {% else %}
-        <ul class="nav nav-tabs" role="tablist" style="margin: 0 0 1em 0;">
-            <li role="presentation" class="active"><a href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Upload File'|trans }}</a></li>
-            <li role="presentation"><a href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'Choose File'|trans }}</a></li>
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="nav-item"><a class="nav-link active bg-white" href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Upload File'|trans }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link bg-white" href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'Choose File'|trans }}</a></li>
         </ul>
-        <div class="tab-content">
+        <div class="tab-content bg-white p-3">
             <div role="tabpanel" class="tab-pane active" id="file_upload">
                 {{ form_row(form.file) }}
             </div>
@@ -44,7 +44,7 @@
     {% endif %}
 
     {{ block('form_widget') }}
-{% endblock managed_upload_widget %}
+{% endblock cms_managed_upload_widget %}
 
 {% block form_widget %}
     {% if form.parent.vars.allow_delete|default(false) %}

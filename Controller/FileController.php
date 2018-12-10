@@ -36,7 +36,7 @@ class FileController extends AbstractController
         usort($files, 'self::sortByCreated');
         $files = array_reverse($files);
 
-        return $this->render('@cms/File/list.html.twig', [
+        return $this->render('@cms/Admin/File/element-list.html.twig', [
             'files' => $files,
         ]);
     }

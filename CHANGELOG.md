@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added add-element modal instead of dropdown
 - Added user edit form
 - Added roles and permissions
+- Added "cms_*" block prefix to element form types
 
 ## [1.3.10] - 2018-11-22
 ### Added

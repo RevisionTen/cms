@@ -21,4 +21,12 @@ class Anchor extends Element
             'required' => true,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_anchor';
+    }
 }

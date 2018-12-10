@@ -97,4 +97,12 @@ class DoctrineType extends AbstractType
             'orderBy' => [],
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_doctrine';
+    }
 }

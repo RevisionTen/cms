@@ -52,4 +52,12 @@ class ElementSettings extends AbstractType
             ],
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_element_settings';
+    }
 }

@@ -41,4 +41,12 @@ class Form extends Element
             'choices' => $choices,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_form';
+    }
 }

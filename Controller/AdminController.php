@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Controller;
 
 use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
+use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\RoleRead;
@@ -106,7 +107,7 @@ class AdminController extends AbstractController
         /** @var MenuRead|null $menuRead */
         $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
         /** @var FileRead|null $fileRead */
-        $fileRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
+        $fileRead = $em->getRepository(FileRead::class)->findOneByUuid($uuid);
         /** @var RoleRead|null $roleRead */
         $roleRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
 

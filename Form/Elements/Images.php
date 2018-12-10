@@ -29,4 +29,12 @@ class Images extends Element
             'allow_delete' => true,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_images';
+    }
 }

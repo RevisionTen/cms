@@ -29,4 +29,12 @@ class Image extends Element
             ])
         ;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_image';
+    }
 }

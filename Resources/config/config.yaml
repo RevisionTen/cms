@@ -306,7 +306,6 @@ easy_admin:
                     - 'version'
                     - 'language'
                     - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
-
         FileRead:
             label: 'Files'
             class: RevisionTen\CMS\Model\FileRead

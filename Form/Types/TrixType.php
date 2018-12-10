@@ -13,6 +13,6 @@ class TrixType extends HiddenType
      */
     public function getBlockPrefix()
     {
-        return 'trix';
+        return 'cms_trix';
     }
 }

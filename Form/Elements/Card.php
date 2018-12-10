@@ -64,4 +64,12 @@ class Card extends Element
             ])
         ;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_card';
+    }
 }
