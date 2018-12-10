@@ -50,26 +50,6 @@ class FileController extends AbstractController
     }
 
     /**
-     * @Route("/file/list", name="cms_file_list")
-     *
-     * @param AggregateFactory $aggregateFactory
-     *
-     * @return Response
-     */
-    public function fileList(AggregateFactory $aggregateFactory): Response
-    {
-        /** @var File[] $files */
-        $files = $aggregateFactory->findAggregates(File::class);
-        // Sort by created date.
-        usort($files, 'self::sortByCreated');
-        $files = array_reverse($files);
-
-        return $this->render('@cms/Admin/File/list.html.twig', [
-            'files' => $files,
-        ]);
-    }
-
-    /**
      * @Route("/file/create", name="cms_file_create")
      *
      * @param Request     $request

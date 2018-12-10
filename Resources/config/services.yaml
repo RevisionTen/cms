@@ -49,6 +49,12 @@ services:
         tags: [console.command]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Command\Console\FileMigrateCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Services\SecretService:
         autowire: true
         arguments:

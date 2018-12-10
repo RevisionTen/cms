@@ -92,7 +92,7 @@ easy_admin:
             - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
             - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
             - { entity: Alias, icon: 'nope fas fa-link' }
-            - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
+            - { entity: FileRead, label: 'Files', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
             - { entity: Website, icon: 'nope fas fa-globe-africa' }
             - { entity: MenuRead, label: 'Menus', icon: 'bars' }
@@ -302,8 +302,27 @@ easy_admin:
                     - '-delete'
                     - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
                 fields:
-                    #- 'uuid'
                     - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
                     - 'version'
                     - 'language'
                     - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+
+        FileRead:
+            label: 'Files'
+            class: RevisionTen\CMS\Model\FileRead
+            templates:
+                list: '@cms/Admin/File/list.html.twig'
+            list:
+                sort: ['title', 'DESC']
+                actions:
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                    #- { name: 'cms_edit_file', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                fields:
+                    - { property: 'title', label: 'Title', css_class: 'title-truncate' }
+                    - 'version'
+                    - { property: 'mimeType', label: 'MimeType' }
+                    - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }
+                    - 'language'
+                    - { property: 'website', type: 'raw' }

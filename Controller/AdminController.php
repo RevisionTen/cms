@@ -105,6 +105,8 @@ class AdminController extends AbstractController
         $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
         /** @var MenuRead|null $menuRead */
         $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
+        /** @var FileRead|null $fileRead */
+        $fileRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
         /** @var RoleRead|null $roleRead */
         $roleRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
 
@@ -116,6 +118,8 @@ class AdminController extends AbstractController
             $title = $userRead->getUsername();
         } elseif ($menuRead) {
             $title = $translator->trans($menuRead->getTitle());
+        } elseif ($fileRead) {
+            $title = $translator->trans($fileRead->getTitle());
         } elseif ($roleRead) {
             $title = $translator->trans($roleRead->getTitle());
         }

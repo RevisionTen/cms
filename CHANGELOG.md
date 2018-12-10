@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded backend to EasyAdmin 2
 - **IMPORTANT:** Update your database schema
 - **IMPORTANT:** Added menu read model, run **`cms:menu:migrate`** after upgrading
+- **IMPORTANT:** Added file read model, run **`cms:file:migrate`** after upgrading
 - **IMPORTANT:** Please pass the page language and website to the renderMenu call in your page template. `{{ render(controller('RevisionTen\\CMS\\Controller\\MenuController::renderMenu', {name: 'Main Menu', alias: alias, language: page.language, website: page.website})) }}`
 - Added language and website fields to menus
 - Sorted and renamed admin templates

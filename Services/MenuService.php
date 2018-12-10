@@ -17,7 +17,7 @@ class MenuService
     /**
      * @var EntityManagerInterface
      */
-    private $em;
+    private $entityManager;
 
     /**
      * @var AggregateFactory
@@ -32,13 +32,13 @@ class MenuService
     /**
      * MenuService constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface        $em
+     * @param \Doctrine\ORM\EntityManagerInterface        $entityManager
      * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
      * @param \RevisionTen\CMS\Services\CacheService      $cacheService
      */
-    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, CacheService $cacheService)
+    public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CacheService $cacheService)
     {
-        $this->em = $em;
+        $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
         $this->cacheService = $cacheService;
     }
@@ -56,7 +56,7 @@ class MenuService
         $aggregate = $this->aggregateFactory->build($menuUuid, Menu::class);
 
         // Build MenuRead entity from Aggregate.
-        $menuRead = $this->em->getRepository(MenuRead::class)->findOneByUuid($menuUuid) ?? new MenuRead();
+        $menuRead = $this->entityManager->getRepository(MenuRead::class)->findOneByUuid($menuUuid) ?? new MenuRead();
         $menuRead->setVersion($aggregate->getStreamVersion());
         $menuRead->setUuid($menuUuid);
         $menuData = json_decode(json_encode($aggregate), true);
@@ -66,8 +66,8 @@ class MenuService
         $menuRead->setLanguage($aggregate->language);
 
         // Persist MenuRead entity.
-        $this->em->persist($menuRead);
-        $this->em->flush();
+        $this->entityManager->persist($menuRead);
+        $this->entityManager->flush();
 
         // Invalidate cache.
         $cacheKey = $aggregate->name.'_'.$aggregate->website.'_'.$aggregate->language;

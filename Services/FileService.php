@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
+use RevisionTen\CMS\Model\File;
+use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,6 +22,11 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class FileService
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
     /**
      * @var AggregateFactory
      */
@@ -41,16 +50,18 @@ class FileService
     /**
      * PageService constructor.
      *
-     * @param AggregateFactory      $aggregateFactory
-     * @param CommandBus            $commandBus
-     * @param TokenStorageInterface $tokenStorage
-     * @param string                $project_dir
+     * @param EntityManagerInterface $entityManager
+     * @param AggregateFactory       $aggregateFactory
+     * @param CommandBus             $commandBus
+     * @param TokenStorageInterface  $tokenStorage
+     * @param string                 $project_dir
      */
-    public function __construct(AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
+    public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
     {
+        $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
         $this->commandBus = $commandBus;
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->user = $tokenStorage->getToken() ? $tokenStorage->getToken()->getUser() : -1;
         $this->project_dir = $project_dir;
     }
 
@@ -226,5 +237,42 @@ class FileService
         // $uuid = $file['uuid'];
 
         return null;
+    }
+
+    /**
+     * Update the FileRead entity.
+     *
+     * @param string $fileUuid
+     */
+    public function updateFileRead(string $fileUuid): void
+    {
+        /**
+         * @var File $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($fileUuid, File::class);
+
+        /**
+         * Get website.
+         *
+         * @var Website|null $website
+         */
+        $website = $aggregate->website ? $this->entityManager->getRepository(Website::class)->find($aggregate->website) : null;
+
+        // Build FileRead entity from Aggregate.
+        $fileRead = $this->entityManager->getRepository(FileRead::class)->findOneByUuid($fileUuid) ?? new FileRead();
+        $fileRead->setVersion($aggregate->getStreamVersion());
+        $fileRead->setUuid($fileUuid);
+        $fileData = json_decode(json_encode($aggregate), true);
+        $fileRead->setPayload($fileData);
+        $fileRead->setTitle($aggregate->title);
+        $fileRead->setPath($aggregate->path);
+        $fileRead->setSize($aggregate->size);
+        $fileRead->setMimeType($aggregate->mimeType);
+        $fileRead->setWebsite($website);
+        $fileRead->setLanguage($aggregate->language);
+
+        // Persist FileRead entity.
+        $this->entityManager->persist($fileRead);
+        $this->entityManager->flush();
     }
 }

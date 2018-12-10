@@ -67,7 +67,7 @@ class Alias
     /**
      * @var Website
      * @ORM\ManyToOne(targetEntity="Website", inversedBy="aliases")
-     * @ORM\JoinColumn(onDelete="CASCADE", nullable=true)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $website;
 

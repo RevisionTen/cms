@@ -122,6 +122,7 @@ class ManagedUploadType extends AbstractType
                 ]);
             }
         });
+
     }
 
     /**
