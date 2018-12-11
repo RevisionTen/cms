@@ -44,6 +44,7 @@ class FileController extends AbstractController
 
     /**
      * @param AggregateFactory $aggregateFactory
+     * @param RequestStack     $requestStack
      *
      * @return Response
      */
