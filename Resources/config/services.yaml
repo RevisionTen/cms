@@ -3,6 +3,10 @@ services:
         autowire: true
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 20 }
+    RevisionTen\CMS\EventListener\CurrentWebsiteListener:
+        autowire: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: -10 }
     # TODO: Fix this listener.
     # RevisionTen\CMS\EventListener\LogoutListener:
     #     autowire: true

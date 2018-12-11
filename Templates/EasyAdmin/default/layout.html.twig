@@ -13,6 +13,9 @@
         </div>
         <span class="text-muted">{{ 'You are logged in as'|trans }}</span><br/>
         {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
+        <div>
+            {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteChooser')) }}
+        </div>
     </div>
     {{ parent() }}
     <div class="mt-auto sidebar-menu tree">

@@ -1,0 +1,20 @@
+{#
+<form>
+    <select id="currentWebsite" name="currentWebsite" class="form-control">
+        {% for website in websites %}
+            <option {{ website.id == currentWebsite ? 'selected' : '' }} value="{{ website.id }}">{{ website.title }}</option>
+        {% endfor %}
+    </select>
+</form>
+#}
+
+<div class="dropdown">
+    <button class="btn-website btn btn-sm bg-transparent border-0 text-muted dropdown-toggle" type="button" id="websiteChooser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% for website in websites %}{{ website.id == currentWebsite ? website.title : '' }}{% endfor %}
+    </button>
+    <div class="dropdown-menu" aria-labelledby="websiteChooser">
+        {% for website in websites %}
+            <a class="dropdown-item" href="{{ path('cms_set_website', {website: website.id}) }}">{{ website.title }}</a>
+        {% endfor %}
+    </div>
+</div>

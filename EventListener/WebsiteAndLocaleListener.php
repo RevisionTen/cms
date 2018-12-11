@@ -18,7 +18,7 @@ class WebsiteAndLocaleListener
         $this->entityManager = $entityManager;
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(GetResponseEvent $event): void
     {
         if ($event->isMasterRequest()) {
             /** @var \Symfony\Component\HttpFoundation\Request $request */

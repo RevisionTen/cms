@@ -20,8 +20,11 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -33,6 +36,40 @@ use Symfony\Component\Translation\TranslatorInterface;
  */
 class AdminController extends AbstractController
 {
+    /**
+     * @param RequestStack $requestStack
+     *
+     * @return Response
+     */
+    public function websiteChooser(RequestStack $requestStack): Response
+    {
+        $request = $requestStack->getMasterRequest();
+        $currentWebsite = $request ? $request->get('currentWebsite') : null;
+        $websites = $this->getUser()->getWebsites();
+
+        return $this->render('@cms/Admin/Website/chooser.html.twig', [
+            'currentWebsite' => $currentWebsite,
+            'websites' => $websites,
+        ]);
+    }
+
+    /**
+     * @Route("/set-website/{website}", name="cms_set_website")
+     *
+     * @param SessionInterface $session
+     * @param int              $website
+     *
+     * @return RedirectResponse
+     */
+    public function setCurrentWebsite(SessionInterface $session, int $website): RedirectResponse
+    {
+        $session->set('currentWebsite', $website);
+
+        $response = $this->redirectToRoute('cms_dashboard');
+        $response->headers->setCookie(new Cookie('cms_current_website', (string) $website, strtotime('now + 1 year')));
+
+        return $response;
+    }
 
     /**
      * Get the title from the website id.
