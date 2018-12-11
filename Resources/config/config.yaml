@@ -314,9 +314,9 @@ easy_admin:
                     - '-new'
                     - '-edit'
                     - '-delete'
-                    #- { name: 'cms_edit_file', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'cms_file_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
                 fields:
-                    - { property: 'title', label: 'Title', css_class: 'title-truncate' }
+                    - { property: 'title', label: 'Title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
                     - 'version'
                     - { property: 'mimeType', label: 'MimeType' }
                     - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }

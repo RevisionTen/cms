@@ -141,11 +141,9 @@ class FileService
         ];
     }
 
-    public function replaceFile(array $file, UploadedFile $newFile, string $title, string $upload_dir): ?array
+    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null): ?array
     {
         $uuid = $file['uuid'];
-        $mimeType = $newFile->getMimeType();
-        $size = $newFile->getSize();
 
         /**
          * Get Aggregate newest version.
@@ -155,24 +153,34 @@ class FileService
         $aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
         $version = $aggregate->getVersion();
 
-        $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
-
         // Update file aggregate.
-        $commandData = [];
+        $payload = [];
         if ($title !== $aggregate->title) {
-            $commandData['title'] = $title;
+            $payload['title'] = $title;
         }
-        if ($filePath !== $aggregate->path) {
-            $commandData['path'] = $filePath;
+        if ($language && $language !== $aggregate->language) {
+            $payload['language'] = $language;
         }
-        if ($mimeType !== $aggregate->mimeType) {
-            $commandData['mimeType'] = $mimeType;
+        if ($website && $website !== $aggregate->website) {
+            $payload['website'] = $website;
         }
-        if ($size !== $aggregate->size) {
-            $commandData['size'] = $size;
+        // Update file properties if new file was passed.
+        if (null !== $newFile) {
+            $mimeType = $newFile->getMimeType();
+            $size = $newFile->getSize();
+            $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
+            if ($filePath !== $aggregate->path) {
+                $payload['path'] = $filePath;
+            }
+            if ($mimeType !== $aggregate->mimeType) {
+                $payload['mimeType'] = $mimeType;
+            }
+            if ($size !== $aggregate->size) {
+                $payload['size'] = $size;
+            }
         }
 
-        $success = $this->runCommand(FileUpdateCommand::class, $commandData, $uuid, $version);
+        $success = $this->runCommand(FileUpdateCommand::class, $payload, $uuid, $version);
 
         if (!$success) {
             return null;
@@ -180,39 +188,11 @@ class FileService
 
         return [
             'uuid' => $uuid,
-            'path' => $filePath,
-            'mimeType' => $mimeType,
+            'path' => $filePath ?? $aggregate->path,
+            'mimeType' => $mimeType ?? $aggregate->mimeType,
             'version' => $version + 1,
-            'size' => $size,
+            'size' => $size ?? $aggregate->size,
         ];
-    }
-
-    public function updateFile(array $file, string $title): ?array
-    {
-        // Never update only the title.
-
-        //// Update the file.
-        //$uuid = $file['uuid'];
-        ///**
-        // * Get Aggregate newest version.
-        // *
-        // * @var \RevisionTen\CMS\Model\File $aggregate
-        // */
-        //$aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
-        //$version = $aggregate->getVersion();
-        //// Update file aggregate.
-        //$commandData = [];
-        //if ($title !== $aggregate->title) {
-        //    $commandData['title'] = $title;
-        //}
-        //if (!empty($commandData)) {
-        //    $success = $this->runCommand(FileUpdateCommand::class, $commandData, $uuid, $version);
-        //    if ($success) {
-        //        $file['version'] = ($version+1);
-        //    }
-        //}
-
-        return $file;
     }
 
     public function getFile(string $uuid, int $version): ?array
