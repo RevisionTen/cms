@@ -7,7 +7,7 @@ revision_ten_cms_controller_security:
     type: annotation
 
 easy_admin_bundle:
-    resource: '@EasyAdminBundle/Controller/AdminController.php'
+    resource: "@CmsBundle/Controller/EasyAdminController.php"
     prefix: /admin
     type: annotation
 

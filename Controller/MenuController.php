@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Command\MenuCreateCommand;
 use RevisionTen\CMS\Command\MenuDisableItemCommand;
@@ -188,31 +189,20 @@ class MenuController extends AbstractController
      *
      * @Route("/menu/create", name="cms_menu_create")
      *
-     * @param Request                $request
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     * @param EntityManagerInterface $entityManager
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param MessageBus $messageBus
      *
      * @return JsonResponse|Response
      *
      * @throws \Exception
      */
-    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, EntityManagerInterface $entityManager)
+    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus)
     {
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
-
-        /**
-         * Get a choice list of all websites.
-         *
-         * @var Website[] $websiteEntities
-         */
-        $websiteEntities = $entityManager->getRepository(Website::class)->findAll();
-        $websites = [];
-        foreach ($websiteEntities as $websiteEntity) {
-            $websites[$websiteEntity->getTitle()] = $websiteEntity->getId();
-        }
+        $currentWebsite = $request->get('currentWebsite');
 
         $formBuilder = $this->createFormBuilder();
 
@@ -220,13 +210,6 @@ class MenuController extends AbstractController
             'label' => 'Menu',
             'placeholder' => 'Menu',
             'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
-            'constraints' => new NotBlank(),
-        ]);
-
-        $formBuilder->add('website', ChoiceType::class, [
-            'label' => 'Website',
-            'placeholder' => 'Website',
-            'choices' => $websites,
             'constraints' => new NotBlank(),
         ]);
 
@@ -252,7 +235,7 @@ class MenuController extends AbstractController
 
             $payload = [
                 'name' => $data['title'],
-                'website' => (int) $data['website'],
+                'website' => (int) $currentWebsite,
                 'language' => $data['language'],
             ];
 

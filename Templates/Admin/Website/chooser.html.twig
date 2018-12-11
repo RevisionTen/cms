@@ -1,13 +1,4 @@
-{#
-<form>
-    <select id="currentWebsite" name="currentWebsite" class="form-control">
-        {% for website in websites %}
-            <option {{ website.id == currentWebsite ? 'selected' : '' }} value="{{ website.id }}">{{ website.title }}</option>
-        {% endfor %}
-    </select>
-</form>
-#}
-
+{% if websites|length > 1 %}
 <div class="dropdown">
     <button class="btn-website btn btn-sm bg-transparent border-0 text-muted dropdown-toggle" type="button" id="websiteChooser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         {% for website in websites %}{{ website.id == currentWebsite ? website.title : '' }}{% endfor %}
@@ -18,3 +9,4 @@
         {% endfor %}
     </div>
 </div>
+{% endif %}

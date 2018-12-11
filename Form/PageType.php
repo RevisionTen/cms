@@ -28,12 +28,14 @@ class PageType extends AbstractType
             'constraints' => new NotBlank(),
         ]);
 
-        $builder->add('website', ChoiceType::class, [
-            'label' => 'Website',
-            'multiple' => false,
-            'choices' => $options['page_websites'],
-            'constraints' => new NotBlank(),
-        ]);
+        if ($options['page_websites']) {
+            $builder->add('website', ChoiceType::class, [
+                'label' => 'Website',
+                'multiple' => false,
+                'choices' => $options['page_websites'],
+                'constraints' => new NotBlank(),
+            ]);
+        }
 
         $builder->add('template', ChoiceType::class, [
             'label' => 'Template',

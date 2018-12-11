@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\PageAddElementCommand;
 use RevisionTen\CMS\Command\PageCloneCommand;
 use RevisionTen\CMS\Command\PageDeleteCommand;
@@ -51,6 +52,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
 use Cocur\Slugify\Slugify;
@@ -120,27 +122,31 @@ class PageController extends AbstractController
      *
      * @param Request                $request
      * @param CommandBus             $commandBus
-     * @param EntityManagerInterface $entityManager
      * @param TranslatorInterface    $translator
      *
      * @return Response
+     *
+     * @throws \Exception
      */
-    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator)
+    public function createPage(Request $request, CommandBus $commandBus, TranslatorInterface $translator)
     {
+        /** @var UserRead $user */
+        $user = $this->getUser();
         $config = $this->getParameter('cms');
 
         $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $entityManager->getRepository(Website::class)->findAll();
+        $websites = $websites = $user->getWebsites();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
 
         $data = $request->get('page');
         $ignore_validation = $request->get('ignore_validation');
+        $currentWebsite = $request->get('currentWebsite');
 
         $form = $this->createForm(PageType::class, $data, [
-            'page_websites' => $pageWebsites,
+            'page_websites' => $currentWebsite ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
@@ -151,6 +157,10 @@ class PageController extends AbstractController
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
+
+                if ($currentWebsite) {
+                    $data['website'] = $currentWebsite;
+                }
 
                 $pageUuid = Uuid::uuid1()->toString();
                 $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
@@ -184,7 +194,7 @@ class PageController extends AbstractController
     {
         /** @var UserRead $user */
         $user = $this->getUser();
-
+        $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
 
         if (!$ignore_validation) {
@@ -196,17 +206,19 @@ class PageController extends AbstractController
             $aggregateData = $request->get('page');
         }
 
-        $config = $this->getParameter('cms');
-
-        $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $entityManager->getRepository(Website::class)->findAll();
+        $websites = $user->getWebsites();
+        $currentWebsite = $request->get('currentWebsite');
+        $pageWebsites = [];
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
+        if ($currentWebsite && $aggregateData['website'] !== $currentWebsite && !\in_array($currentWebsite, $pageWebsites, false)) {
+            throw new AccessDeniedHttpException('Page does not exist on this website');
+        }
 
         $form = $this->createForm(PageType::class, $aggregateData, [
-            'page_websites' => $pageWebsites,
+            'page_websites' => $currentWebsite && count($pageWebsites) === 1 ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
@@ -1034,6 +1046,7 @@ class PageController extends AbstractController
      *
      * @Route("/edit/{pageUuid}/{user}", name="cms_page_edit")
      *
+     * @param Request                $request
      * @param PageService            $pageService
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
@@ -1044,7 +1057,7 @@ class PageController extends AbstractController
      *
      * @return Response
      */
-    public function pageEdit(PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
+    public function pageEdit(Request $request, PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
     {
         $config = $this->getParameter('cms');
 
@@ -1062,6 +1075,18 @@ class PageController extends AbstractController
 
         /** @var Page $page */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
+
+        // Check if user has access to the aggregates current website.
+        /** @var ArrayCollection $websites */
+        $websites = $user->getWebsites();
+        $websites = array_map(function ($website) {
+            /** @var Website $website */
+            return $website->getId();
+        }, $websites->toArray());
+        $currentWebsite = $request->get('currentWebsite');
+        if ($currentWebsite && $page->website !== $currentWebsite && !\in_array($currentWebsite, $websites, false)) {
+            throw new AccessDeniedHttpException('Page does not exist on this website');
+        }
 
         /** @var PageRead $publishedPage */
         $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
@@ -1211,6 +1236,8 @@ class PageController extends AbstractController
      * @param TranslatorInterface    $translator
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function cloneAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {

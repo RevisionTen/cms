@@ -157,6 +157,8 @@ class FrontendController extends AbstractController
      * @param EntityManagerInterface $em
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function alias(Request $request, string $path, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {

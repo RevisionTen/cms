@@ -110,7 +110,6 @@ easy_admin:
             label: 'Paths'
             class: RevisionTen\CMS\Model\Alias
             list:
-                dql_filter: 'entity.controller IS NULL'
                 actions:
                     - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
                     - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
@@ -119,7 +118,7 @@ easy_admin:
                     - 'id'
                     - { property: 'path', template: '@cms/Admin/Alias/List/path.html.twig' }
                     - { property: 'language', template: '@cms/Admin/Alias/List/language.html.twig' }
-                    - { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }
                     - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/Alias/List/page.html.twig' }
                     #- { property: 'controller', template: '@cms/Admin/Alias/List/controller.html.twig' }
                     - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/Alias/List/redirect.html.twig' }
@@ -160,7 +159,6 @@ easy_admin:
                 list: '@cms/Admin/Page/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
-                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
                     - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
                     - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone' }
@@ -173,7 +171,7 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
                     - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
@@ -183,7 +181,6 @@ easy_admin:
             class: RevisionTen\CMS\Model\PageStreamRead
             list:
                 sort: ['modified', 'DESC']
-                dql_filter: 'entity.deleted = 1'
                 actions:
                     - '-new'
                     - '-edit'
@@ -193,7 +190,7 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
                     - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
@@ -305,7 +302,7 @@ easy_admin:
                     - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
         FileRead:
             label: 'Files'
             class: RevisionTen\CMS\Model\FileRead
@@ -324,4 +321,4 @@ easy_admin:
                     - { property: 'mimeType', label: 'MimeType' }
                     - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }
                     - 'language'
-                    - { property: 'website', type: 'raw' }
+                    #- { property: 'website', type: 'raw' }

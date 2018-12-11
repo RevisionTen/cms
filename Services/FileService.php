@@ -107,7 +107,7 @@ class FileService
         return $upload_dir.$newFileName;
     }
 
-    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir): ?array
+    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language): ?array
     {
         if (null === $uuid) {
             $uuid = Uuid::uuid1()->toString();
@@ -124,6 +124,8 @@ class FileService
             'path' => $filePath,
             'mimeType' => $mimeType,
             'size' => $size,
+            'website' => $website,
+            'language' => $language,
         ], $uuid, 0);
 
         if (!$success) {

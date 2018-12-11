@@ -8,10 +8,12 @@ use RevisionTen\CMS\Services\FileService;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use RevisionTen\CMS\Model\File;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -28,13 +30,22 @@ class FileController extends AbstractController
      *
      * @return Response
      */
-    public function files(AggregateFactory $aggregateFactory): Response
+    public function files(AggregateFactory $aggregateFactory, RequestStack $requestStack): Response
     {
         /** @var File[] $files */
         $files = $aggregateFactory->findAggregates(File::class);
         // Sort by created date.
         usort($files, 'self::sortByCreated');
         $files = array_reverse($files);
+
+        // Filter files by current website.
+        $request = $requestStack->getMasterRequest();
+        if ($request && $currentWebsite = $request->get('currentWebsite')) {
+            $files = array_filter($files, function ($file) use ($currentWebsite) {
+                /** @var File $file */
+                return $file->website === $currentWebsite;
+            });
+        }
 
         return $this->render('@cms/Admin/File/element-list.html.twig', [
             'files' => $files,
@@ -60,6 +71,8 @@ class FileController extends AbstractController
     public function fileCreate(Request $request, FileService $fileService): Response
     {
         $uploadDir = '/uploads/managed-files/';
+        $currentWebsite = $request->get('currentWebsite');
+        $config = $this->getParameter('cms');
 
         $builder = $this->createFormBuilder();
 
@@ -69,6 +82,16 @@ class FileController extends AbstractController
             'attr' => [
                 'placeholder' => 'Title',
             ],
+        ]);
+
+        $builder->add('language', ChoiceType::class, [
+            'label' => 'Language',
+            'choices' => $config['page_languages'] ?: [
+                'English' => 'en',
+                'German' => 'de',
+            ],
+            'placeholder' => 'Language',
+            'constraints' => new NotBlank(),
         ]);
 
         $builder->add('file', FileType::class, [
@@ -89,7 +112,7 @@ class FileController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir);
+            $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir, $currentWebsite, $data['language']);
 
             return $this->render('@cms/Admin/File/create-success.html.twig', $data);
         }
