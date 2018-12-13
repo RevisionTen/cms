@@ -220,6 +220,7 @@ easy_admin:
             class: RevisionTen\CQRS\Model\EventStreamObject
             permissions:
                 list: 'event_list'
+                show: 'event_show'
             show:
                 actions:
                     - '-edit'
@@ -230,7 +231,7 @@ easy_admin:
                 help: 'This list shows all persisted events.'
                 sort: ['id', 'DESC']
                 actions:
-                    #- { name: 'show', label: 'inspect payload', icon: 'eye' }
+                    - { name: 'show', label: '', title: 'inspect payload', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'

@@ -84,3 +84,5 @@ cms:
         Event:
             event_list:
                 label: 'List events'
+            event_show:
+                label: 'Show events'
