@@ -109,6 +109,11 @@ easy_admin:
         Alias:
             label: 'Paths'
             class: RevisionTen\CMS\Model\Alias
+            permissions:
+                list: 'alias_list'
+                new: 'alias_create'
+                edit: 'alias_edit'
+                delete: 'alias_delete'
             list:
                 actions:
                     - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
@@ -134,6 +139,10 @@ easy_admin:
         Website:
             label: 'Websites'
             class: RevisionTen\CMS\Model\Website
+            permissions:
+                list: 'website_list'
+                new: 'website_create'
+                edit: 'website_edit'
             list:
                 actions:
                     - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
@@ -155,6 +164,12 @@ easy_admin:
         PageStreamRead:
             label: 'Pages'
             class: RevisionTen\CMS\Model\PageStreamRead
+            permissions:
+                list: 'page_list'
+                new: 'page_create'
+                edit: 'page_edit'
+                delete: 'page_delete'
+                clone: 'page_clone'
             templates:
                 list: '@cms/Admin/Page/list.html.twig'
             list:
@@ -179,6 +194,12 @@ easy_admin:
         PageStreamReadArchive:
             label: 'Archive'
             class: RevisionTen\CMS\Model\PageStreamRead
+            permissions:
+                list: 'page_list'
+                new: 'page_create'
+                edit: 'page_edit'
+                delete: 'page_delete'
+                clone: 'page_clone'
             list:
                 sort: ['modified', 'DESC']
                 actions:
@@ -198,6 +219,8 @@ easy_admin:
         EventStreamObject:
             label: 'Log'
             class: RevisionTen\CQRS\Model\EventStreamObject
+            permissions:
+                list: 'event_list'
             show:
                 actions:
                     - '-edit'
@@ -221,6 +244,9 @@ easy_admin:
         UserRead:
             label: 'Users'
             class: RevisionTen\CMS\Model\UserRead
+            permissions:
+                list: 'user_list'
+                edit: 'user_edit'
             show:
                 actions:
                     - '-edit'
@@ -247,6 +273,10 @@ easy_admin:
         RoleRead:
             label: 'Roles'
             class: RevisionTen\CMS\Model\RoleRead
+            permissions:
+                list: 'role_list'
+                new: 'role_create'
+                edit: 'role_edit'
             templates:
                 list: '@cms/Admin/Role/list.html.twig'
             show:
@@ -269,6 +299,12 @@ easy_admin:
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead
+            permissions:
+                list: 'form_list'
+                new: 'form_create'
+                edit: 'form_edit'
+                delete: 'form_delete'
+                clone: 'form_clone'
             templates:
                 list: '@cms/Admin/Forms/list.html.twig'
             list:
@@ -289,6 +325,10 @@ easy_admin:
         MenuRead:
             label: 'Menus'
             class: RevisionTen\CMS\Model\MenuRead
+            permissions:
+                list: 'menu_list'
+                new: 'menu_create'
+                edit: 'menu_edit'
             templates:
                 list: '@cms/Admin/Menu/list.html.twig'
             list:
@@ -306,6 +346,10 @@ easy_admin:
         FileRead:
             label: 'Files'
             class: RevisionTen\CMS\Model\FileRead
+            permissions:
+                list: 'file_list'
+                new: 'file_create'
+                edit: 'file_edit'
             templates:
                 list: '@cms/Admin/File/list.html.twig'
             list:

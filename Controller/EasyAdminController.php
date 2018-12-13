@@ -21,6 +21,46 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class EasyAdminController extends BaseController
 {
+    protected function listAction(): Response
+    {
+        $permission = $this->entity['permissions']['list'] ?? 'list_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::listAction();
+    }
+
+    protected function editAction(): Response
+    {
+        $permission = $this->entity['permissions']['edit'] ?? 'edit_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::editAction();
+    }
+
+    protected function showAction(): Response
+    {
+        $permission = $this->entity['permissions']['show'] ?? 'show_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::showAction();
+    }
+
+    protected function newAction(): Response
+    {
+        $permission = $this->entity['permissions']['new'] ?? 'create_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::newAction();
+    }
+
+    protected function deleteAction(): Response
+    {
+        $permission = $this->entity['permissions']['delete'] ?? 'delete_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::deleteAction();
+    }
+
     protected function createAliasEntityFormBuilder($entity, $view)
     {
         $formOptions = $this->executeDynamicMethod('get<EntityName>EntityFormOptions', [$entity, $view]);

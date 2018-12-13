@@ -489,7 +489,7 @@ class UserRead implements UserInterface, \Serializable
     }
 
     /**
-     * @return ArrayCollection|RoleRead[]
+     * @return array]
      */
     public function getRoles()
     {
@@ -501,6 +501,15 @@ class UserRead implements UserInterface, \Serializable
 
         return $roles;
     }
+
+    /**
+     * @return ArrayCollection|RoleRead[]
+     */
+    public function getRoleEntities()
+    {
+        return $this->roles;
+    }
+
     /**
      * Return an array of the users role titles.
      *

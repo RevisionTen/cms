@@ -31,6 +31,10 @@ services:
         autowire: true
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Security\EntityVoter:
+        autoconfigure: true
+        autowire: true
+        tags: [security.voter]
     RevisionTen\CMS\Command\Console\UserCreateCommand:
         autoconfigure: true
         autowire: true
