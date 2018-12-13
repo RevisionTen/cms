@@ -72,11 +72,15 @@ cms:
                 label: 'Create role'
             role_edit:
                 label: 'Edit role'
+            role_show:
+                label: 'Show role'
         User:
             user_list:
                 label: 'List users'
             user_edit:
                 label: 'Edit user'
+            user_show:
+                label: 'Show user'
         Event:
             event_list:
                 label: 'List events'

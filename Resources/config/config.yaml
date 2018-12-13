@@ -146,7 +146,6 @@ easy_admin:
             list:
                 actions:
                     - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
-                    - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
                     - '-delete'
                 fields:
                     #- 'uuid'
@@ -247,6 +246,7 @@ easy_admin:
             permissions:
                 list: 'user_list'
                 edit: 'user_edit'
+                show: 'user_show'
             show:
                 actions:
                     - '-edit'
@@ -260,8 +260,8 @@ easy_admin:
             list:
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', title: 'View', label: '', icon: 'eye' }
-                    - { name: 'cms_user_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'show', title: 'View', label: '', icon: 'eye', permission: 'user_show' }
+                    - { name: 'cms_user_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'user_edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -277,6 +277,7 @@ easy_admin:
                 list: 'role_list'
                 new: 'role_create'
                 edit: 'role_edit'
+                show: 'role_show'
             templates:
                 list: '@cms/Admin/Role/list.html.twig'
             show:
@@ -290,7 +291,7 @@ easy_admin:
                 sort: ['id', 'DESC']
                 actions:
                     - { name: 'show', title: 'View', label: '', icon: 'eye' }
-                    - { name: 'cms_role_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'cms_role_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'role_edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -311,9 +312,9 @@ easy_admin:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit' }
-                    - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone' }
-                    - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit', permission: 'form_edit' }
+                    - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone', permission: 'form_clone' }
+                    - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -337,7 +338,7 @@ easy_admin:
                     - '-new'
                     - '-edit'
                     - '-delete'
-                    - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'menu_edit' }
                 fields:
                     - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
                     - 'version'
@@ -358,7 +359,7 @@ easy_admin:
                     - '-new'
                     - '-edit'
                     - '-delete'
-                    - { name: 'cms_file_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
+                    - { name: 'cms_file_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'file_edit' }
                 fields:
                     - { property: 'title', label: 'Title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
                     - 'version'
