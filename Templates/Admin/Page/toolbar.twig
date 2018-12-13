@@ -104,7 +104,7 @@
                     ] %}
 
                     {% for action in buttonActions %}
-                        {% if action.display %}
+                        {% if action and action.display %}
                             <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm {{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
                                 <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
                             </a>

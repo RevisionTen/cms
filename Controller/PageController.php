@@ -618,7 +618,7 @@ class PageController extends AbstractController
 
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
-        if (null === $aliases || empty($aliases) || 0 === \count($aliases)) {
+        if ($this->isGranted('alias_create') && (null === $aliases || empty($aliases) || 0 === \count($aliases))) {
             // The page has no aliases, show modal or page with alias create form.
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,

@@ -170,7 +170,7 @@ class ApiController extends AbstractController
                 'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'link',
             ],
-            'clone_aggregate' => [
+            'clone_aggregate' => $this->isGranted('page_clone') ? [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
@@ -180,8 +180,8 @@ class ApiController extends AbstractController
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
                     'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
                 ] : [],
-            ],
-            'delete_aggregate' => [
+            ] : null,
+            'delete_aggregate' => $this->isGranted('page_delete') ? [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
@@ -191,7 +191,7 @@ class ApiController extends AbstractController
                 'attributes' => [
                     'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
                 ],
-            ],
+            ] : null,
         ];
 
         $data = [

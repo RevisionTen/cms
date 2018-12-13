@@ -175,9 +175,9 @@ easy_admin:
             list:
                 sort: ['modified', 'DESC']
                 actions:
-                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit' }
-                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone' }
-                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'Delete page', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'page_edit' }
+                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone', permission: 'page_clone' }
+                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'Delete page', icon: 'trash', css_class: 'text-danger', permission: 'page_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
