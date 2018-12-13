@@ -10,7 +10,9 @@ class EntityVoter extends Voter
 {
     protected function supports($attribute, $subject): bool
     {
-        return isset($subject['class']);
+        // Todo: Check if attribute is in permissions config.
+
+        return true;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

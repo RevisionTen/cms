@@ -130,6 +130,8 @@ class PageController extends AbstractController
      */
     public function createPage(Request $request, CommandBus $commandBus, TranslatorInterface $translator)
     {
+        $this->denyAccessUnlessGranted('page_create');
+
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
@@ -192,6 +194,8 @@ class PageController extends AbstractController
      */
     public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
@@ -274,6 +278,8 @@ class PageController extends AbstractController
      */
     public function createSection(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $section)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Section',
             'data' => [
@@ -313,6 +319,8 @@ class PageController extends AbstractController
      */
     public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         // Check if breakpoint and size are valid.
         if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
             return new JsonResponse([
@@ -360,6 +368,8 @@ class PageController extends AbstractController
      */
     public function resizeColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $size, string $breakpoint)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
             'uuid' => $elementUuid,
             'size' => (int) $size,
@@ -395,6 +405,8 @@ class PageController extends AbstractController
      */
     public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -448,6 +460,8 @@ class PageController extends AbstractController
      */
     public function discardChanges(EventStore $eventStore, string $pageUuid): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -470,6 +484,8 @@ class PageController extends AbstractController
      */
     public function undoChange(EventStore $eventStore, string $pageUuid, int $version): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -491,6 +507,8 @@ class PageController extends AbstractController
      */
     public function createAlias(Request $request, string $pageUuid, EntityManagerInterface $entityManager)
     {
+        $this->denyAccessUnlessGranted('alias_create');
+
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
@@ -573,6 +591,8 @@ class PageController extends AbstractController
      */
     public function publishPage(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $version, EntityManagerInterface $entityManager)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
@@ -630,6 +650,8 @@ class PageController extends AbstractController
      */
     public function unpublishPage(CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /**
          * Get latest Page version first.
          *
@@ -684,6 +706,8 @@ class PageController extends AbstractController
      */
     public function addElement(AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $parent): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -750,6 +774,8 @@ class PageController extends AbstractController
      */
     public function createElementForm(Request $request, CommandBus $commandBus, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         if (isset($config['page_elements'][$elementName])) {
@@ -822,6 +848,8 @@ class PageController extends AbstractController
      */
     public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -919,6 +947,8 @@ class PageController extends AbstractController
      */
     public function deleteElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -967,6 +997,8 @@ class PageController extends AbstractController
      */
     public function shiftElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid, string $direction)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1059,6 +1091,8 @@ class PageController extends AbstractController
      */
     public function pageEdit(Request $request, PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         /** @var UserRead $user */
@@ -1170,6 +1204,8 @@ class PageController extends AbstractController
      */
     public function page(PageService $pageService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, string $pageUuid): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         /** @var UserRead $user */
@@ -1241,6 +1277,8 @@ class PageController extends AbstractController
      */
     public function cloneAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
+        $this->denyAccessUnlessGranted('page_clone');
+
         /** @var int $id PageStreamRead Id. */
         $id = $request->get('id');
 
@@ -1284,6 +1322,8 @@ class PageController extends AbstractController
      */
     public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, EventStore $eventStore, TranslatorInterface $translator): Response
     {
+        $this->denyAccessUnlessGranted('page_delete');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1331,6 +1371,8 @@ class PageController extends AbstractController
      */
     public function rollbackAggregateAction(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $version)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1401,6 +1443,8 @@ class PageController extends AbstractController
      */
     public function disableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1448,6 +1492,8 @@ class PageController extends AbstractController
      */
     public function enableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1495,6 +1541,8 @@ class PageController extends AbstractController
      */
     public function duplicateElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1539,6 +1587,8 @@ class PageController extends AbstractController
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, string $pageUuid, int $onVersion)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {

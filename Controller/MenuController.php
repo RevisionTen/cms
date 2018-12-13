@@ -160,6 +160,8 @@ class MenuController extends AbstractController
      */
     public function editMenu(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory): Response
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         $config = $this->getParameter('cms');
         $menuUuid = $request->get('uuid');
 
@@ -199,6 +201,8 @@ class MenuController extends AbstractController
      */
     public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus)
     {
+        $this->denyAccessUnlessGranted('menu_create');
+
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');

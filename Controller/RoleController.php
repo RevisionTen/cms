@@ -48,6 +48,8 @@ class RoleController extends AbstractController
      */
     public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, TranslatorInterface $translator)
     {
+        $this->denyAccessUnlessGranted('role_create');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -99,6 +101,8 @@ class RoleController extends AbstractController
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
+        $this->denyAccessUnlessGranted('role_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 

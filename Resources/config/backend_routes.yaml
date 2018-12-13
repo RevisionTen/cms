@@ -35,10 +35,12 @@ revision_ten_cms_controller_role:
     resource: "@CmsBundle/Controller/RoleController.php"
     type: annotation
 
+revision_ten_cms_controller_form:
+    resource: "@CmsBundle/Controller/FormController.php"
+    type: annotation
+
 revision_ten_cms_controller_page:
     resource: "@CmsBundle/Controller/PageController.php"
     type: annotation
 
-revision_ten_forms:
-    resource: "@FormsBundle/Resources/config/routes.yaml"
-    prefix:   /
+

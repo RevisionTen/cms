@@ -41,6 +41,8 @@ class ApiController extends AbstractController
      */
     public function getPageInfo(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore, string $pageUuid, int $userId = null): JsonResponse
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $user = $this->getApiUser($userId, $entityManager);
 
         if (null === $user) {
@@ -246,6 +248,8 @@ class ApiController extends AbstractController
      */
     public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $user = $this->getApiUser($userId, $entityManager);
         if (null === $user) {
             return new JsonResponse(false, 404);

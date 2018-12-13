@@ -50,6 +50,8 @@ class FileController extends AbstractController
      */
     public function files(AggregateFactory $aggregateFactory, RequestStack $requestStack): Response
     {
+        $this->denyAccessUnlessGranted('file_list');
+
         /** @var File[] $files */
         $files = $aggregateFactory->findAggregates(File::class);
         // Sort by created date.
@@ -88,6 +90,8 @@ class FileController extends AbstractController
      */
     public function fileCreate(Request $request, FileService $fileService): Response
     {
+        $this->denyAccessUnlessGranted('file_create');
+
         $uploadDir = '/uploads/managed-files/';
         $currentWebsite = $request->get('currentWebsite');
         $config = $this->getParameter('cms');
@@ -152,6 +156,8 @@ class FileController extends AbstractController
      */
     public function fileEdit(Request $request, FileService $fileService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('file_edit');
+
         $fileRead = $entityManager->getRepository(FileRead::class)->find($request->get('id'));
         if (null === $fileRead) {
             return $this->redirect('/admin');

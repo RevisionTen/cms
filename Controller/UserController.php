@@ -47,6 +47,8 @@ class UserController extends AbstractController
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
+        $this->denyAccessUnlessGranted('user_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 

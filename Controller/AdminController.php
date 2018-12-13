@@ -250,6 +250,8 @@ class AdminController extends AbstractController
      */
     public function editAggregateAction(Request $request, EntityManagerInterface $em): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         // Get Preview Size.
         $cookies = [];
         if ($previewSize = $request->get('previewSize')) {
