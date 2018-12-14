@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2018-12-14
+### Added
+- Added page publish/unpublish/submit-changes permission
+### Changed
+- Fixed permission check in templates for generic entities
+
 ## [1.4.3] - 2018-12-14
 ### Changed
 - Fixed btn color bug in editor

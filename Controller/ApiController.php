@@ -114,22 +114,22 @@ class ApiController extends AbstractController
                 'display' => false === $previewUser,
                 'type' => 'form',
             ],
-            'publish' => [
+            'publish' => $this->isGranted('page_publish') ? [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
                 'display' => (false === $previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() !== $publishedPage->getVersion() + 1),
                 'type' => 'ajax',
-            ],
-            'unpublish' => [
+            ] : null,
+            'unpublish' => $this->isGranted('page_unpublish') ? [
                 'css_class' => 'btn-danger',
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
                 'display' => false === $previewUser && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published,
                 'type' => 'ajax',
-            ],
+            ] : null,
             'optimize' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-sync',
@@ -146,14 +146,14 @@ class ApiController extends AbstractController
                 'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'link',
             ],
-            'submit_changes' => [
+            'submit_changes' => $this->isGranted('page_submit_changes') ? [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('Submit changes'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
                 'display' => $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'form',
-            ],
+            ] : null,
             'rollback_aggregate' => [
                 'css_class' => '',
                 'icon' => 'fas fa-history',

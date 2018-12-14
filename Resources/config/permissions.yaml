@@ -24,6 +24,12 @@ cms:
                 label: 'Delete page'
             page_clone:
                 label: 'Clone page'
+            page_publish:
+                label: 'Publish page'
+            page_unpublish:
+                label: 'Unpublish page'
+            page_submit_changes:
+                label: 'Submit page changes'
         Alias:
             alias_list:
                 label: 'List aliases'
