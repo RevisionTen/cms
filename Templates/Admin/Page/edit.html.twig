@@ -1,0 +1,38 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block page_title %}{{ 'Edit Page %title%'|trans({'%title%': pageStreamRead.title}) }}{% endblock %}
+
+{% block content_header %}
+    <div id="admin-bar" class="w-100"></div>
+{% endblock %}
+
+{% block body_class %}edit-page{% endblock %}
+
+{% block main %}
+    <input type="hidden" id="pageUuid" value="{{ pageStreamRead.uuid }}">
+    <input type="hidden" id="userId" value="{{ user.id }}">
+
+    <iframe
+            id="page-frame"
+            {% if previewSize %}class="size-{{ previewSize }}"{% endif %}
+            src="{{ path('cms_page_edit', {pageUuid: pageStreamRead.uuid, user: user.id}) }}"
+    ></iframe>
+
+    <div id="page-tree" class="hidden"></div>
+
+    <!-- Editor Modal -->
+    <div class="modal fade" id="editor-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editor-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span class="fa fa-times"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

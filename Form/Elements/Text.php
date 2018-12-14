@@ -17,10 +17,18 @@ class Text extends Element
         parent::buildForm($builder, $options);
 
         $builder->add('text', TextareaType::class, [
-            'label' => 'Please insert the text you want to show.',
+            'label' => 'Text',
             'attr' => [
                 'class' => 'ckeditor',
             ],
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_text';
     }
 }

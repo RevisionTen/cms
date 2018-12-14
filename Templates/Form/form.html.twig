@@ -1,7 +1,11 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
 {% block main %}
-    <div class="mt-5 mb-5">
-        {{ form(form) }}
-    </div>
+    {{ form(form) }}
 {% endblock %}

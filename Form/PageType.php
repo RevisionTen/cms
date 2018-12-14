@@ -24,25 +24,27 @@ class PageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('title', TextType::class, [
-            'label' => 'What is the title of your page?',
+            'label' => 'Title',
             'constraints' => new NotBlank(),
         ]);
 
-        $builder->add('website', ChoiceType::class, [
-            'label' => 'Website',
-            'multiple' => false,
-            'choices' => $options['page_websites'],
-            'constraints' => new NotBlank(),
-        ]);
+        if ($options['page_websites']) {
+            $builder->add('website', ChoiceType::class, [
+                'label' => 'Website',
+                'multiple' => false,
+                'choices' => $options['page_websites'],
+                'constraints' => new NotBlank(),
+            ]);
+        }
 
         $builder->add('template', ChoiceType::class, [
-            'label' => 'Page Template',
+            'label' => 'Template',
             'choices' => array_combine(array_keys($options['page_templates']), array_keys($options['page_templates'])),
             'constraints' => new NotBlank(),
         ]);
 
         $builder->add('description', TextareaType::class, [
-            'label' => 'What is the description of your page?',
+            'label' => 'Description',
             'constraints' => new NotBlank(),
         ]);
 

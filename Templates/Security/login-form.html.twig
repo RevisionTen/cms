@@ -1,14 +1,12 @@
 {% form_theme form '@cms/Form/form_theme.html.twig' %}
 
-<div class="mt-5 mb-5">
-    {{ form_start(form) }}
-    {% if form.username is defined %}
-        {{ form_row(form.username) }}
-        {{ form_row(form.password) }}
-        <div class="form-group">
-            <a href="{{ path('cms_reset_password')  }}">{{ 'Forgot password?'|trans }}</a>
-        </div>
-    {% endif  %}
-    {{ form_widget(form) }}
-    {{ form_end(form) }}
-</div>
+{{ form_start(form) }}
+{% if form.username is defined %}
+    {{ form_row(form.username) }}
+    {{ form_row(form.password) }}
+    <div class="form-group">
+        <a href="{{ path('cms_reset_password')  }}">{{ 'Forgot password?'|trans }}</a>
+    </div>
+{% endif  %}
+{{ form_widget(form) }}
+{{ form_end(form) }}

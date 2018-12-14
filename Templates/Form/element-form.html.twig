@@ -1,30 +1,34 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
 {% block main %}
-    <div class="mt-5 mb-5">
-        {{ form_start(form) }}
-            {% set hasSettingsForm = (form.data.settings is defined and form.data.settings.children is defined and form.data.settings.children|length > 0) %}
-            {% if hasSettingsForm %}
-                {% set saveButton = form_widget(form.save) %}
-                <ul class="nav nav-tabs" role="tablist" style="margin: 0 0 1em 0;">
-                    <li role="presentation" class="active"><a href="#element_content" aria-controls="element_content" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Element Content'|trans }}</a></li>
-                    <li role="presentation"><a href="#element_settings" aria-controls="element_settings" role="tab" data-toggle="tab">{{ 'Element Settings'|trans }}</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane" id="element_settings">
-                        {% if form.data.styles is defined %}
-                            {{ form_row(form.data.styles) }}
-                        {% endif %}
-                        {{ form_widget(form.data.settings) }}
-                    </div>
-                    <div role="tabpanel" class="tab-pane active" id="element_content">
-                        {{ form_widget(form) }}
-                    </div>
-                </div>
-                {{ saveButton|raw }}
-            {% else %}
+    {{ form_start(form) }}
+    {% set hasSettingsForm = (form.data.settings is defined and form.data.settings.children is defined and form.data.settings.children|length > 0) %}
+    {% if hasSettingsForm %}
+        {% set saveButton = form_widget(form.save) %}
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="nav-item"><a class="nav-link active" href="#element_content" aria-controls="element_content" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Element Content'|trans }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link" href="#element_settings" aria-controls="element_settings" role="tab" data-toggle="tab">{{ 'Element Settings'|trans }}</a></li>
+        </ul>
+        <div class="tab-content pt-3">
+            <div role="tabpanel" class="tab-pane" id="element_settings">
+                {% if form.data.styles is defined %}
+                    {{ form_row(form.data.styles) }}
+                {% endif %}
+                {{ form_widget(form.data.settings) }}
+            </div>
+            <div role="tabpanel" class="tab-pane active" id="element_content">
                 {{ form_widget(form) }}
-            {% endif %}
-        {{ form_end(form) }}
-    </div>
+            </div>
+        </div>
+        {{ saveButton|raw }}
+    {% else %}
+        {{ form_widget(form) }}
+    {% endif %}
+    {{ form_end(form) }}
 {% endblock %}

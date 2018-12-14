@@ -115,4 +115,12 @@ class UploadType extends AbstractType
             'keep_deleted_file' => true,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_upload';
+    }
 }

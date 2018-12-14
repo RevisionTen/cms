@@ -40,4 +40,12 @@ class Element extends AbstractType
             'elementConfig' => [],
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_element';
+    }
 }

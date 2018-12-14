@@ -53,10 +53,7 @@ class FrontendController extends AbstractController
      */
     private function getPageRead(EntityManagerInterface $em, string $pageUuid): ?PageRead
     {
-        /** @var PageRead $page */
-        $pageRead = $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
-
-        return $pageRead;
+        return $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
     }
 
     /**
@@ -157,6 +154,8 @@ class FrontendController extends AbstractController
      * @param EntityManagerInterface $em
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function alias(Request $request, string $path, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
@@ -179,9 +178,7 @@ class FrontendController extends AbstractController
             $response = $this->renderPage($pageService, $cacheService, $em, $pageUuid, $alias);
         } elseif (null !== $controller) {
             // Forward request to controller.
-            $parts = explode('::', $controller);
-            $class = $parts[0];
-            $method = $parts[1];
+            [$class, $method] = explode('::', $controller);
             if (class_exists($class) && method_exists($class, $method)) {
                 $response = $this->forward($controller, [
                     'alias' => $alias,

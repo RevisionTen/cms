@@ -60,7 +60,7 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (isset($payload['name']) && !empty($payload['name']) && 0 === $aggregate->getVersion()) {
+        if (!empty($payload['name']) && !empty($payload['website']) && !empty($payload['language']) && 0 === $aggregate->getVersion()) {
             return true;
         }
         if (0 !== $aggregate->getVersion()) {
@@ -74,7 +74,7 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
             return false;
         } else {
             $this->messageBus->dispatch(new Message(
-                'You must enter a name',
+                'You must enter a name, website and language',
                 CODE_BAD_REQUEST,
                 $command->getUuid(),
                 $command->getAggregateUuid()

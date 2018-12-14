@@ -13,7 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\EventStore;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -27,17 +29,20 @@ class ApiController extends AbstractController
     /**
      * @Route("/page-info/{pageUuid}/{userId}", name="cms_api_page_info")
      *
-     * @param string                 $pageUuid
-     * @param int                    $userId
+     * @param Request                $request
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param TranslatorInterface    $translator
      * @param EventStore             $eventStore
+     * @param string                 $pageUuid
+     * @param int                    $userId
      *
      * @return JsonResponse
      */
-    public function getPageInfo(string $pageUuid, int $userId = null, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore): JsonResponse
+    public function getPageInfo(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore, string $pageUuid, int $userId = null): JsonResponse
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $user = $this->getApiUser($userId, $entityManager);
 
         if (null === $user) {
@@ -52,50 +57,65 @@ class ApiController extends AbstractController
             return new JsonResponse(false, 404);
         }
 
+        $currentWebsite = $request->get('currentWebsite');
+        if ($currentWebsite && $pageStreamRead->getWebsite() !== $currentWebsite) {
+            throw new AccessDeniedHttpException('Page does not exist on this website');
+        }
+
         /** @var Page $page */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
         /** @var PageRead $publishedPage */
         $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
 
+        // Get Preview Size.
+        $previewSize = $request->get('previewSize');
+        if (null === $previewSize) {
+            $previewSize = $request->cookies->get('previewSize');
+        }
+        if (null === $previewSize) {
+            // Default Preview Size.
+            $previewSize = 'AutoWidth';
+        }
+
         $actions = [
             'toggle_contrast' => [
-                'css_class' => ' btn-tertiary toggle-contrast',
+                'css_class' => 'btn-tertiary toggle-contrast',
                 'icon' => 'fas fa-adjust',
                 'label' => $translator->trans('Toggle editor contrast'),
                 'url' => '#',
-                'display' => (false === $previewUser),
+                'display' => false === $previewUser,
                 'type' => 'link',
             ],
             'toggle_tree' => [
-                'css_class' => ' btn-tertiary toggle-tree',
+                'css_class' => 'btn-tertiary toggle-tree',
                 'icon' => 'fas fa-layer-group',
                 'label' => $translator->trans('Layers'),
                 'url' => '#',
-                'display' => (false === $previewUser),
+                'display' => false === $previewUser,
                 'type' => 'link',
             ],
             'preview' => [
-                'css_class' => ' btn-tertiary toggle-editor',
+                'css_class' => 'btn-tertiary toggle-editor',
                 'icon' => 'fas fa-toggle-on',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
-                'display' => (false === $previewUser),
+                'display' => false === $previewUser,
                 'type' => 'link',
                 'attributes' => [
                     'target' => '_blank',
                 ],
             ],
             'change_pagesettings' => [
-                'css_class' => 'info btn-tertiary',
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-edit',
                 'label' => $translator->trans('Change Page Settings'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => (false === $previewUser),
+                'display' => false === $previewUser,
                 'type' => 'form',
             ],
             'publish' => [
-                'css_class' => 'success',
+                'css_class' => 'btn-success',
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
@@ -103,19 +123,19 @@ class ApiController extends AbstractController
                 'type' => 'ajax',
             ],
             'unpublish' => [
-                'css_class' => 'danger',
+                'css_class' => 'btn-danger',
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
-                'display' => (false === $previewUser && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published),
+                'display' => false === $previewUser && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published,
                 'type' => 'ajax',
             ],
             'optimize' => [
-                'css_class' => 'success btn-tertiary',
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-sync',
                 'label' => $translator->trans('Optimize'),
                 'url' => $this->generateUrl('cms_save_snapshot', ['pageUuid' => $pageUuid]),
-                'display' => (false === $previewUser && $page->shouldTakeSnapshot()),
+                'display' => false === $previewUser && $page->shouldTakeSnapshot(),
                 'type' => 'ajax',
             ],
             'undo_change' => [
@@ -123,15 +143,15 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-undo',
                 'label' => $translator->trans('Undo last change'),
                 'url' => $this->generateUrl('cms_undo_change', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => (false === $previewUser && $page->getVersion() !== $page->getStreamVersion()),
+                'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'link',
             ],
             'submit_changes' => [
-                'css_class' => 'success',
+                'css_class' => 'btn-success',
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('Submit changes'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
-                'display' => ($page->getVersion() !== $page->getStreamVersion()),
+                'display' => $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'form',
             ],
             'rollback_aggregate' => [
@@ -139,39 +159,39 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-history',
                 'label' => $translator->trans('Rollback'),
                 'url' => $this->generateUrl('cms_rollback_aggregate', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => (false === $previewUser),
+                'display' => false === $previewUser,
                 'type' => 'form',
             ],
             'discard_changes' => [
-                'css_class' => 'danger',
+                'css_class' => 'btn-danger',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Discard changes'),
                 'url' => $this->generateUrl('cms_discard_changes', ['pageUuid' => $pageUuid]),
-                'display' => (false === $previewUser && $page->getVersion() !== $page->getStreamVersion()),
+                'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
                 'type' => 'link',
             ],
-            'clone_aggregate' => [
-                'css_class' => 'warning btn-tertiary',
+            'clone_aggregate' => $this->isGranted('page_clone') ? [
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => (false === $previewUser && false === $pageStreamRead->getDeleted()),
+                'display' => false === $previewUser && false === $pageStreamRead->getDeleted(),
                 'type' => 'link',
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
                     'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
                 ] : [],
-            ],
-            'delete_aggregate' => [
-                'css_class' => 'danger btn-tertiary',
+            ] : null,
+            'delete_aggregate' => $this->isGranted('page_delete') ? [
+                'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => (false === $previewUser && false === $pageStreamRead->getDeleted()),
+                'display' => false === $previewUser && false === $pageStreamRead->getDeleted(),
                 'type' => 'link',
                 'attributes' => [
                     'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
                 ],
-            ],
+            ] : null,
         ];
 
         $data = [
@@ -185,6 +205,7 @@ class ApiController extends AbstractController
             'user_id' => $user->getId(),
             'actions' => $actions,
             'previewUser' => $previewUser,
+            'previewSize' => $previewSize,
         ];
 
         $users = [];
@@ -210,7 +231,7 @@ class ApiController extends AbstractController
         $dataInfo['user'] = $user;
         $dataInfo['aliases'] = $pageStreamRead->getAliases();
 
-        $data['html'] = $this->render('@cms/Admin/page-info.html.twig', $dataInfo)->getContent();
+        $data['html'] = $this->render('@cms/Admin/Page/toolbar.twig', $dataInfo)->getContent();
 
         return new JsonResponse($data);
     }
@@ -227,6 +248,8 @@ class ApiController extends AbstractController
      */
     public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $user = $this->getApiUser($userId, $entityManager);
         if (null === $user) {
             return new JsonResponse(false, 404);
@@ -237,7 +260,7 @@ class ApiController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        return $this->render('@cms/Admin/tree.html.twig', [
+        return $this->render('@cms/Admin/Page/Tree/tree.html.twig', [
             'pageUuid' => $pageUuid,
             'onVersion' => $page->getVersion(),
             'tree' => $this->getChildren($page->elements, $config),

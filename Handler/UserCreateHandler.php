@@ -31,6 +31,8 @@ final class UserCreateHandler extends Handler implements HandlerInterface
         $aggregate->password = $payload['password'];
         $aggregate->secret = $payload['secret'];
         $aggregate->color = $payload['color'];
+        $aggregate->websites = $payload['websites'] ?? [];
+        $aggregate->roles = $payload['roles'] ?? [];
 
         return $aggregate;
     }

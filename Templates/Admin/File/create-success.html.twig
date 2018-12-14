@@ -1,0 +1,18 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}
+    {{ 'Files'|trans }}
+{% endblock %}
+
+{% block body_class %}files{% endblock %}
+
+{% block main %}
+    <div class="p-3">
+        <h4>
+            {{ 'Your file "%title%" has been saved!'|trans({'%title%': title}) }}
+        </h4>
+        <p>
+            <code>{{ file.path }}</code>
+        </p>
+    </div>
+{% endblock %}

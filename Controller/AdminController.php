@@ -6,7 +6,10 @@ namespace RevisionTen\CMS\Controller;
 
 use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
+use RevisionTen\CMS\Model\FileRead;
+use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\PageStreamRead;
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Model\EventQeueObject;
@@ -17,10 +20,14 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AdminController.
@@ -29,6 +36,40 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdminController extends AbstractController
 {
+    /**
+     * @param RequestStack $requestStack
+     *
+     * @return Response
+     */
+    public function websiteChooser(RequestStack $requestStack): Response
+    {
+        $request = $requestStack->getMasterRequest();
+        $currentWebsite = $request ? $request->get('currentWebsite') : null;
+        $websites = $this->getUser()->getWebsites();
+
+        return $this->render('@cms/Admin/Website/chooser.html.twig', [
+            'currentWebsite' => $currentWebsite,
+            'websites' => $websites,
+        ]);
+    }
+
+    /**
+     * @Route("/set-website/{website}", name="cms_set_website")
+     *
+     * @param SessionInterface $session
+     * @param int              $website
+     *
+     * @return RedirectResponse
+     */
+    public function setCurrentWebsite(SessionInterface $session, int $website): RedirectResponse
+    {
+        $session->set('currentWebsite', $website);
+
+        $response = $this->redirectToRoute('cms_dashboard');
+        $response->headers->setCookie(new Cookie('cms_current_website', (string) $website, strtotime('now + 1 year')));
+
+        return $response;
+    }
 
     /**
      * Get the title from the website id.
@@ -43,7 +84,7 @@ class AdminController extends AbstractController
         /** @var Website $website */
         $website = $entityManager->getRepository(Website::class)->find($id);
 
-        return $this->render('@cms/Admin/website_info.html.twig', [
+        return $this->render('@cms/Admin/Website/website_info.html.twig', [
             'website' => $website ?? [
                 'id' => '0',
                 'title' => 'unknown',
@@ -61,7 +102,7 @@ class AdminController extends AbstractController
      * @return Response
      *
      */
-    public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/user_info.html.twig'): Response
+    public function userName(EntityManagerInterface $entityManager, int $userId, string $template = '@cms/Admin/User/small.html.twig'): Response
     {
         if (-1 === $userId) {
             $unknownUser = new UserRead();
@@ -82,11 +123,12 @@ class AdminController extends AbstractController
     /**
      * Get the aggregate title from the uuid.
      *
-     * @param string $uuid
+     * @param TranslatorInterface $translator
+     * @param string              $uuid
      *
      * @return Response
      */
-    public function uuidTitle(string $uuid): Response
+    public function uuidTitle(TranslatorInterface $translator, string $uuid): Response
     {
         $title = $uuid;
 
@@ -99,6 +141,12 @@ class AdminController extends AbstractController
         $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
         /** @var UserRead|null $userRead */
         $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
+        /** @var MenuRead|null $menuRead */
+        $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
+        /** @var FileRead|null $fileRead */
+        $fileRead = $em->getRepository(FileRead::class)->findOneByUuid($uuid);
+        /** @var RoleRead|null $roleRead */
+        $roleRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
@@ -106,6 +154,12 @@ class AdminController extends AbstractController
             $title = $formRead->getTitle();
         } elseif ($userRead) {
             $title = $userRead->getUsername();
+        } elseif ($menuRead) {
+            $title = $translator->trans($menuRead->getTitle());
+        } elseif ($fileRead) {
+            $title = $translator->trans($fileRead->getTitle());
+        } elseif ($roleRead) {
+            $title = $translator->trans($roleRead->getTitle());
         }
 
         return new Response($title);
@@ -125,13 +179,17 @@ class AdminController extends AbstractController
         // Test If the cache is enabled.
         $shm_key = $this->getParameter('cms')['shm_key'] ?? 'none';
         if ('none' !== $shm_key) {
-            try {
-                // Create a 1MB shared memory segment for the UuidStore.
-                $shmSegment = shm_attach($shm_key, 1000000, 0666);
-            } catch (\Exception $exception) {
-                $shmSegment = false;
+            if (function_exists('shm_attach')) {
+                try {
+                    // Create a 1MB shared memory segment for the UuidStore.
+                    $shmSegment = shm_attach($shm_key, 1000000, 0666);
+                } catch (\Exception $exception) {
+                    $shmSegment = false;
+                }
+                $shm_enabled = $shmSegment ? true : false;
+            } else {
+                $shm_enabled = false;
             }
-            $shm_enabled = $shmSegment ? true : false;
         } else {
             $shm_enabled = true;
         }
@@ -147,12 +205,14 @@ class AdminController extends AbstractController
             'event' => PageSubmitEvent::class,
         ], ['id' => Criteria::DESC], 7);
 
+
+
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'shm_enabled' => $shm_enabled,
             'shm_key' => $shm_key,
-            'eventStreamObjects' => $eventStreamObjects,
-            'eventQeueObjects' => $eventQeueObjects,
-            'latestCommits' => $latestCommits,
+            'eventStreamObjects' => $this->groupEventsByUser($eventStreamObjects),
+            'eventQeueObjects' => $this->groupEventsByUser($eventQeueObjects),
+            'latestCommits' => $this->groupEventsByUser($latestCommits),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
             'php_version' => PHP_VERSION,
@@ -166,6 +226,20 @@ class AdminController extends AbstractController
         ]);
     }
 
+    private function groupEventsByUser(array $events = null): array
+    {
+        $grouped = [];
+        foreach ($events as $event) {
+            $eventUser = $event->getUser();
+            if (!isset($grouped[$eventUser])) {
+                $grouped[$eventUser] = [];
+            }
+            $grouped[$eventUser][] = $event;
+        }
+
+        return $grouped;
+    }
+
     /**
      * @Route("/edit-aggregate", name="cms_edit_aggregate")
      *
@@ -176,15 +250,17 @@ class AdminController extends AbstractController
      */
     public function editAggregateAction(Request $request, EntityManagerInterface $em): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
+        // Get Preview Size.
         $cookies = [];
         if ($previewSize = $request->get('previewSize')) {
             $cookies[] = new Cookie('previewSize', $previewSize);
         } else {
             $previewSize = $request->cookies->get('previewSize');
         }
-
-        // Default Preview Size.
         if (!$previewSize) {
+            // Default Preview Size.
             $previewSize = 'AutoWidth';
         }
 
@@ -210,7 +286,7 @@ class AdminController extends AbstractController
             return $this->redirect('/admin');
         }
 
-        $response = $this->render('@cms/Admin/edit-aggregate.html.twig', [
+        $response = $this->render('@cms/Admin/Page/edit.html.twig', [
             'pageStreamRead' => $pageStreamRead,
             'user' => $user,
             'edit' => $edit,

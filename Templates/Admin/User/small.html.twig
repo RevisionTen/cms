@@ -1,0 +1,8 @@
+{% if user.avatarUrl %}
+    <img src="{{ user.avatarUrl }}" class="editor-avatar-small rounded-circle svg-inline--fa">
+{% else %}
+    <div class="editor-avatar-color-small" style="background: {{ user.color }};">
+        {{ user.username|first }}
+    </div>
+{% endif %}
+{{ user.username }}

@@ -137,4 +137,12 @@ class ManagedUploadType extends AbstractType
             'upload_dir' => '/uploads/managed-files/',
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_managed_upload';
+    }
 }

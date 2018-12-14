@@ -51,6 +51,9 @@ class SecurityController extends AbstractController
 
         $formBuilder->add('send', SubmitType::class, [
             'label' => 'Send',
+            'attr' => [
+                'class' => 'btn-primary',
+            ],
         ]);
 
         return $formBuilder->getForm();
@@ -84,7 +87,10 @@ class SecurityController extends AbstractController
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Send',
+            'label' => 'Login',
+            'attr' => [
+                'class' => 'btn-primary',
+            ],
         ]);
 
         return $formBuilder->getForm();
@@ -184,6 +190,9 @@ class SecurityController extends AbstractController
 
         $formBuilder->add('send', SubmitType::class, [
             'label' => 'Request new Password',
+            'attr' => [
+                'class' => 'btn-primary',
+            ],
         ]);
 
         $form = $formBuilder->getForm();

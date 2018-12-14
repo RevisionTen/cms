@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Command\MenuCreateCommand;
 use RevisionTen\CMS\Command\MenuDisableItemCommand;
@@ -16,7 +17,9 @@ use RevisionTen\CMS\Form\ElementType;
 use RevisionTen\CMS\Handler\MenuBaseHandler;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -26,6 +29,8 @@ use RevisionTen\CQRS\Services\MessageBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +40,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class MenuController.
@@ -138,33 +144,44 @@ class MenuController extends AbstractController
      */
     private function redirectToMenu(string $menuUuid): RedirectResponse
     {
-        return $this->redirectToRoute('cms_list_menus');
+        return $this->redirectToRoute('cms_edit_menu', [
+            'uuid' => $menuUuid,
+        ]);
     }
 
     /**
-     * @Route("/list-menus", name="cms_list_menus")
+     * @Route("/edit-menu", name="cms_edit_menu")
      *
-     * @param AggregateFactory $aggregateFactory
+     * @param Request                $request
+     * @param EntityManagerInterface $entityManager
+     * @param AggregateFactory       $aggregateFactory
      *
      * @return Response
      */
-    public function listMenus(AggregateFactory $aggregateFactory): Response
+    public function editMenu(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory): Response
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         $config = $this->getParameter('cms');
+        $menuUuid = $request->get('uuid');
 
-        /** @var Menu[] $menus */
-        $menus = $aggregateFactory->findAggregates(Menu::class);
-
-        $missingMenus = $config['menus'];
-        foreach ($menus as $menu) {
-            if (isset($missingMenus[$menu->name])) {
-                unset($missingMenus[$menu->name]);
+        // Get menuUuid by read model id.
+        if (null === $menuUuid) {
+            /** @var int $id MenuRead Id. */
+            $id = $request->get('id');
+            /** @var MenuRead $menuRead */
+            $menuRead = $entityManager->getRepository(MenuRead::class)->find($id);
+            if (null === $menuRead) {
+                return $this->redirect('/admin');
             }
+            $menuUuid = $menuRead->getUuid();
         }
 
-        return $this->render('@cms/Admin/list-menus.html.twig', [
-            'menus' => $menus,
-            'missingMenus' => $missingMenus,
+        /** @var Menu $menu */
+        $menu = $aggregateFactory->build($menuUuid, Menu::class);
+
+        return $this->render('@cms/Admin/Menu/edit.html.twig', [
+            'menu' => $menu,
             'config' => $config,
         ]);
     }
@@ -172,64 +189,98 @@ class MenuController extends AbstractController
     /**
      * Create a menu.
      *
-     * @Route("/menu/create/{name}", name="cms_menu_create")
+     * @Route("/menu/create", name="cms_menu_create")
      *
+     * @param Request    $request
      * @param CommandBus $commandBus
      * @param MessageBus $messageBus
-     * @param string     $name
      *
      * @return JsonResponse|Response
      *
      * @throws \Exception
      */
-    public function create(CommandBus $commandBus, MessageBus $messageBus, string $name)
+    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus)
     {
+        $this->denyAccessUnlessGranted('menu_create');
+
         /** @var UserRead $user */
         $user = $this->getUser();
-
         $config = $this->getParameter('cms');
+        $currentWebsite = $request->get('currentWebsite');
 
-        if (isset($config['menus'][$name])) {
-            $data = [
-                'name' => $name,
+        $formBuilder = $this->createFormBuilder();
+
+        $formBuilder->add('title', ChoiceType::class, [
+            'label' => 'Menu',
+            'placeholder' => 'Menu',
+            'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('language', ChoiceType::class, [
+            'label' => 'Language',
+            'placeholder' => 'Language',
+            'choices' => $config['page_languages'],
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'Add menu',
+            'attr' => [
+                'class' => 'btn-primary',
+            ],
+        ]);
+
+        $form = $formBuilder->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $payload = [
+                'name' => $data['title'],
+                'website' => (int) $currentWebsite,
+                'language' => $data['language'],
             ];
 
-            $uuid = Uuid::uuid1()->toString();
             $aggregateUuid = Uuid::uuid1()->toString();
 
             // Execute Command.
             $success = false;
-
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), $uuid, $aggregateUuid, 0, $data, function ($commandBus, $event) use (&$success) {
+            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, function ($commandBus, $event) use (&$success) {
                 // Callback.
                 $success = true;
             }));
 
             return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
-        } else {
-            throw new \Exception('Menu with the name '.$name.' is not defined in the cms config');
         }
+
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Add menu',
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
      * @Route("/menu/add/{itemName}/{menuUuid}/{onVersion}/{parent}", name="cms_menu_additem")
      *
-     * @param Request     $request
-     * @param CommandBus  $commandBus
-     * @param MessageBus  $messageBus
-     * @param string      $itemName
-     * @param string      $menuUuid
-     * @param int         $onVersion
-     * @param string|null $parent
-     * @param array|null  $data
-     * @param string      $form_template
+     * @param Request             $request
+     * @param TranslatorInterface $translator
+     * @param CommandBus          $commandBus
+     * @param MessageBus          $messageBus
+     * @param string              $itemName
+     * @param string              $menuUuid
+     * @param int                 $onVersion
+     * @param string|null         $parent
+     * @param array|null          $data
+     * @param string              $form_template
      *
      * @return JsonResponse|Response
      *
      * @throws InterfaceException
      * @throws \Exception
      */
-    public function addItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
+    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
     {
         $config = $this->getParameter('cms');
 
@@ -263,9 +314,10 @@ class MenuController extends AbstractController
                     return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                 }
 
-                return $this->render($form_template, array(
+                return $this->render($form_template, [
+                    'title' => $translator->trans('Add %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
                     'form' => $form->createView(),
-                ));
+                ]);
             } else {
                 // Not a valid form type.
                 throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -352,9 +404,10 @@ class MenuController extends AbstractController
                         return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
                     }
 
-                    return $this->render($form_template, array(
+                    return $this->render($form_template, [
+                        'title' => $translator->trans('Edit %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
                         'form' => $form->createView(),
-                    ));
+                    ]);
                 } else {
                     // Not a valid form type.
                     throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -619,24 +672,26 @@ class MenuController extends AbstractController
             }
         }
 
+        return $menu;
+    }
+
+    private function getPaths(EntityManagerInterface $entityManager, array $items): array
+    {
         // Get all aliases.
         $paths = [];
-        $items = $menu['data']['items'];
-        if ($items) {
-            $aliasIds = $this->getAliasIds($items);
-            /** @var Alias[] $aliases */
-            $aliases = $entityManager->getRepository(Alias::class)->findBy([
-                'id' => $aliasIds,
-            ]);
-            foreach ($aliases as $alias) {
-                if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-                    $paths[$alias->getId()] = $alias->getPath();
-                }
+
+        $aliasIds = $this->getAliasIds($items);
+        /** @var Alias[] $aliases */
+        $aliases = $entityManager->getRepository(Alias::class)->findBy([
+            'id' => $aliasIds,
+        ]);
+        foreach ($aliases as $alias) {
+            if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
+                $paths[$alias->getId()] = $alias->getPath();
             }
         }
-        $menu['paths'] = $paths;
 
-        return $menu;
+        return $paths;
     }
 
     /**
@@ -649,10 +704,12 @@ class MenuController extends AbstractController
      * @param string                 $name
      * @param Alias                  $alias
      * @param string                 $template
+     * @param string                 $language
+     * @param int                    $website
      *
      * @return Response
      */
-    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null): Response
+    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
         $request = $requestStack->getMasterRequest();
         $config = $this->getParameter('cms');
@@ -660,16 +717,56 @@ class MenuController extends AbstractController
             return new Response('Menu '.$name.' does not exist.');
         }
 
-        $menuData = $cacheService->get($name);
+        if (null === $website || null === $language) {
+            // Get website and language from alias or request.
+            if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
+                // Alias does not exist or is neutral, get website and language from request.
+                /** @var Website $website */
+                $website = $entityManager->getRepository(Website::class)->find($request->get('website'));
+                $language = $request->getLocale();
+            } else {
+                $website = $alias->getWebsite();
+                $language = $alias->getLanguage();
+            }
+        } else {
+            /** @var Website $website */
+            $website = $entityManager->getRepository(Website::class)->find($website);
+        }
 
+        $cacheKey = $name.'_'.$website->getId().'_'.$language;
+        $menuData = $cacheService->get($cacheKey);
         if (null === $menuData) {
-            $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
+            /** @var MenuRead $menuRead */
+            $menuRead = $entityManager->getRepository(MenuRead::class)->findOneBy([
+                'title' => $name,
+                'website' => $website,
+                'language' => $language,
+            ]);
+
+            if (null === $menuRead) {
+                $version = 1;
+                // No matching read model found, fallback to language neutral menu.
+                $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
+                if (isset($menuData['data']['language'], $menuData['data']['website'])) {
+                    // Aggregate isn`t neutral.
+                    $menuData = null;
+                }
+            } else {
+                $version = $menuRead->getVersion();
+                $menuData = $config['menus'][$name];
+                $menuData['data'] = json_decode(json_encode($menuRead->getPayload()), true);
+            }
 
             if ($menuData) {
+                // Get paths.
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items']);
+
                 // Populate cache.
-                $cacheService->put($name, 1, $menuData);
+                $cacheService->put($cacheKey, $version, $menuData);
             }
         }
+
+
 
         return $this->render($template ?: $config['menus'][$name]['template'], [
             'request' => $request,
@@ -677,42 +774,6 @@ class MenuController extends AbstractController
             'menu' => $menuData,
             'config' => $config,
         ]);
-    }
-
-    /**
-     * Clear the cache for a menu.
-     *
-     * @Route("/menu/clear-cache/{name}", name="cms_menu_clearmenucache")
-     *
-     * @param TranslatorInterface $translator
-     * @param CacheService        $cacheService
-     * @param string              $name
-     *
-     * @return RedirectResponse
-     *
-     * @throws \Exception
-     */
-    public function clearCache(TranslatorInterface $translator, CacheService $cacheService, string $name): RedirectResponse
-    {
-        $config = $this->getParameter('cms');
-
-        if (!isset($config['menus'][$name])) {
-            throw new \Exception('Menu does not exist.');
-        }
-
-        if ($cacheService->delete($name, 1)) {
-            $this->addFlash(
-                'success',
-                $translator->trans('Menu cache cleared.')
-            );
-        } else {
-            $this->addFlash(
-                'danger',
-                $translator->trans('Cache is not enabled.')
-            );
-        }
-
-        return $this->redirectToRoute('cms_list_menus');
     }
 
     /**

@@ -39,4 +39,12 @@ class Controller extends Element
             'choices' => $this->controller,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_controller';
+    }
 }

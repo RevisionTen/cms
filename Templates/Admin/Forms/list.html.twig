@@ -1,0 +1,13 @@
+{% extends '@EasyAdminBase/default/list.html.twig' %}
+
+{% block global_actions %}
+    {{- parent() -}}
+
+    {% if is_granted('form_create') %}
+        <div class="button-action">
+            <a class="btn btn-success" href="{{ path('forms_create_form') }}">
+                <span class="fa fa-plus"></span> {{ 'Add Form'|trans }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock global_actions %}

@@ -19,4 +19,10 @@ final class File extends Aggregate
 
     /** @var int */
     public $size;
+
+    /** @var string */
+    public $language;
+
+    /** @var int */
+    public $website;
 }

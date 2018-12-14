@@ -1,0 +1,16 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+    {% if form.data is defined %}
+        {{ form_widget(form.data) }}
+    {% endif %}
+    {{ form_end(form) }}
+{% endblock %}

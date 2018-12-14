@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -99,6 +100,14 @@ class PageStreamRead
      * @ORM\OneToMany(targetEntity="Alias", mappedBy="pageStreamRead")
      */
     private $aliases;
+
+    /**
+     * PageStreamRead constructor.
+     */
+    public function __construct()
+    {
+        $this->aliases = new ArrayCollection();
+    }
 
     /**
      * @return string
