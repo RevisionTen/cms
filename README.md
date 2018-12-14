@@ -155,6 +155,60 @@ If for whatever reason the SHM can't be created, the cache will be disabled.
 Page access is determined by the alias that is visited, not by the properties of the page.
 The language and website of the alias must match the locale and host of the request.
 
+## Adding and using permissions
+
+You can add your own permissions to the config:
+
+```YAML
+cms:
+    permissions:
+        # The permission group name can be anything, but see the permission.yaml 
+        # for existing group names if you don't want to accidentally override them.
+        My custom permission group:
+            access_thing: # The permission name can be anything.
+                label: 'Access a thing'
+```
+
+and use them in your controller for example:
+
+```PHP
+public function accessThing(): Response
+{
+    // Check access.
+    $this->denyAccessUnlessGranted('access_thing');
+    
+    // Code here is only executed if the user has the access_thing permission.
+}
+```
+
+or your template:
+
+```TWIG
+{% if is_granted('access_thing') %}
+    <p>Hey, you can access a thing!</p>
+{% endif %}
+```
+
+You can also add permissions to your EasyAdmin entity configuration:
+
+```YAML
+easy_admin:
+    entities:
+        Thing:
+            class: App\Entity\Thing
+            permissions:
+                list: 'access_thing'
+                new: 'create_thing'
+                edit: 'edit_thing'
+                delete: 'delete_thing'
+            list:
+                # You can also add them to your custom actions to avoid displaying 
+                # action links the user has no access to.
+                actions:
+                    - { name: 'custom_thing_route', type: 'route', label: 'Check thing', permission: 'check_thing' }
+```
+
+
 [packagist]: https://packagist.org/packages/revision-ten/cms
 [composer]: http://getcomposer.org/
 [use-gmail]: https://symfony.com/doc/current/email.html#using-gmail-to-send-emails

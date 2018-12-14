@@ -205,8 +205,6 @@ class AdminController extends AbstractController
             'event' => PageSubmitEvent::class,
         ], ['id' => Criteria::DESC], 7);
 
-
-
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'shm_enabled' => $shm_enabled,
             'shm_key' => $shm_key,
