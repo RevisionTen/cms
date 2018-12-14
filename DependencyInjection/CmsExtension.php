@@ -23,10 +23,24 @@ class CmsExtension extends Extension implements PrependExtensionInterface
     private static function mergeCMSConfig(array $configs): array
     {
         $configs = array_reverse($configs);
+
+        $permissions = [];
+        $page_elements = [];
         $config = [];
         foreach ($configs as $subConfig) {
             $config = array_merge($config, $subConfig);
+
+            // Aggregate all permissions, dont override.
+            if (isset($subConfig['permissions'])) {
+                $permissions = array_merge($permissions, $subConfig['permissions']);
+            }
+            // Aggregate all page elements, dont override.
+            if (isset($subConfig['page_elements'])) {
+                $page_elements = array_merge($page_elements, $subConfig['page_elements']);
+            }
         }
+        $config['permissions'] = $permissions;
+        $config['page_elements'] = $page_elements;
 
         // Use deprecated "page_menues" config If it is set.
         if (!empty($config['page_menues'])) {
