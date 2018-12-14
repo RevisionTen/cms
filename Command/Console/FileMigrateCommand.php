@@ -40,7 +40,7 @@ class FileMigrateCommand extends Command
     private $config;
 
     /**
-     * UserCreateCommand constructor.
+     * FileMigrateCommand constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory

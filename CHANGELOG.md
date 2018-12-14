@@ -4,21 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2018-12-04
+## [1.4.0] - 2018-12-14
+### Added
+- Added menu read model
+- Added file read model
+- Added device preview
+- Added user editing
+- Added roles and permissions
 ### Changed
 - Upgraded backend to EasyAdmin 2
-- **IMPORTANT:** Update your database schema
-- **IMPORTANT:** Added menu read model, run **`cms:menu:migrate`** after upgrading
-- **IMPORTANT:** Added file read model, run **`cms:file:migrate`** after upgrading
+- **IMPORTANT:** Update your database schema and run the following commands:
+  - **`cms:menu:migrate`** To migrate your menus
+  - **`cms:file:migrate`** To migrate your files
+  - **`cms:install:roles`** To add default roles
 - **IMPORTANT:** Please pass the page language and website to the renderMenu call in your page template. `{{ render(controller('RevisionTen\\CMS\\Controller\\MenuController::renderMenu', {name: 'Main Menu', alias: alias, language: page.language, website: page.website})) }}`
-- Added language and website fields to menus
-- Sorted and renamed admin templates
-- Added device preview
 - Improved youtube id parsing in youtube element
-- Added add-element modal instead of dropdown
-- Added user edit form
-- Added roles and permissions
+- Sorted and renamed admin templates
 - Added "cms_*" block prefix to element form types
+- Added language and website fields to menus
+- Use modal for add-element dialog instead of dropdown
 
 ## [1.3.10] - 2018-11-22
 ### Added
