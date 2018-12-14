@@ -63,10 +63,12 @@ class CurrentWebsiteListener
                     $currentWebsite = $request->cookies->get('cms_current_website') ?? $this->session->get('currentWebsite');
 
                     if (null === $currentWebsite || !\in_array($currentWebsite, $websiteIds, false)) {
-                        // Current Website is null or does not exist in the users websites, set first website as current.
+                        // Current Website is null or does not exist in the users websites, set first website as current
+                        // or If the user has no assigned website set it to website with id 1 if the user is an admin.
                         /** @var Website $currentWebsite */
                         $currentWebsite = $websites->first();
-                        $currentWebsite = $currentWebsite->getId();
+                        $fallbackWebsite = \in_array('ROLE_ADMINISTRATOR', $user->getRoles(), true) ? 1 : 0;
+                        $currentWebsite = $currentWebsite instanceOf Website ? $currentWebsite->getId() : $fallbackWebsite;
                     }
                 }
 
