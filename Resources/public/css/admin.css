@@ -30,6 +30,7 @@
 .editor-dark .editor-resizing:not([data-type="Column"]) > .editor-add-button {
   background: #54667a;
 }
+body .editor .text-dark,
 body:not(.editor-dark) .editor .text-white {
   color: #54667a!important;
 }
@@ -68,6 +69,7 @@ body:not(.editor-dark) .editor .text-white {
 /* ----------------- Element Backgrounds ----------------- */
 [data-uuid] {
   position: relative;
+  z-index: 3;
 }
 [data-uuid]::before {
   z-index: -1;

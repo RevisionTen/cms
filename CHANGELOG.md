@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2018-12-14
+### Changed
+- Fixed btn color bug in editor
+- Fixed unsaved-changes-box appearance
+
 ## [1.4.2] - 2018-12-14
 ### Changed
 - Fixed bug in current website listener
@@ -11,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.1] - 2018-12-14
 ### Changed
-- Fixed bug in cms:install:roles command
+- Fixed bug in install roles command
 
 ## [1.4.0] - 2018-12-14
 ### Added
@@ -23,9 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgraded backend to EasyAdmin 2
 - **IMPORTANT:** Update your database schema and run the following commands:
-  - **`cms:menu:migrate`** To migrate your menus
-  - **`cms:file:migrate`** To migrate your files
-  - **`cms:install:roles`** To add default roles
+  - **`bin/console cms:menu:migrate`** To migrate your menus
+  - **`bin/console cms:file:migrate`** To migrate your files
+  - **`bin/console cms:install:roles`** To add default roles
+  - **`bin/console assets:install --symlink`** To update the cms assets
+- **IMPORTANT:** Assign a website to all alias entities in your database, otherwise they wont be listed in the backend
 - **IMPORTANT:** Please pass the page language and website to the renderMenu call in your page template. `{{ render(controller('RevisionTen\\CMS\\Controller\\MenuController::renderMenu', {name: 'Main Menu', alias: alias, language: page.language, website: page.website})) }}`
 - Improved youtube id parsing in youtube element
 - Sorted and renamed admin templates
