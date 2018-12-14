@@ -62,6 +62,8 @@ You will be mailed a QR-code that you need for logging in.
 
 If you lost your QR-code you can use this command to generate a new one: `bin/console cms:user:generate_secret`
 
+Install the default roles with the command `bin/console cms:install:roles`, and assign the admin role to your user.
+
 Start your web-server and login at `/login`.
 
 ## Configuration
@@ -152,13 +154,6 @@ If for whatever reason the SHM can't be created, the cache will be disabled.
 
 Page access is determined by the alias that is visited, not by the properties of the page.
 The language and website of the alias must match the locale and host of the request.
-
-## Multi-site and multi-language Menus
-
-Menus are language neutral and show all of their items regardless If the items language or website matches the request.
-To support language/website specific menus just create multiple menus, and only show the menu that matches the requests language and website.
-
-Hint: `{{ app.request.get('website') }}` returns the current website id in twig templates.
 
 [packagist]: https://packagist.org/packages/revision-ten/cms
 [composer]: http://getcomposer.org/
