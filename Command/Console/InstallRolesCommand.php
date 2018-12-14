@@ -88,7 +88,7 @@ class InstallRolesCommand extends Command
         $helper = $this->getHelper('question');
 
         // Check if there is an admin role.
-        $adminRole = $this->entityManager->getRepository(RoleRead::class)->findByTitle('Administrator');
+        $adminRole = $this->entityManager->getRepository(RoleRead::class)->findOneByTitle('Administrator');
         if (null === $adminRole) {
             // Install the admin role.
             $adminRoleUuid = Uuid::uuid1()->toString();
@@ -106,7 +106,7 @@ class InstallRolesCommand extends Command
         }
 
         // Check if there is an editor role.
-        $editorRole = $this->entityManager->getRepository(RoleRead::class)->findByTitle('Editor');
+        $editorRole = $this->entityManager->getRepository(RoleRead::class)->findOneByTitle('Editor');
         if (null === $editorRole) {
             // Install the editor role.
             $editorRoleUuid = Uuid::uuid1()->toString();
