@@ -405,7 +405,7 @@ class PageController extends AbstractController
      */
     public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
     {
-        $this->denyAccessUnlessGranted('page_edit');
+        $this->denyAccessUnlessGranted('page_submit_changes');
 
         /** @var UserRead $user */
         $user = $this->getUser();
@@ -591,7 +591,7 @@ class PageController extends AbstractController
      */
     public function publishPage(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $version, EntityManagerInterface $entityManager)
     {
-        $this->denyAccessUnlessGranted('page_edit');
+        $this->denyAccessUnlessGranted('page_publish');
 
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
@@ -650,7 +650,7 @@ class PageController extends AbstractController
      */
     public function unpublishPage(CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid)
     {
-        $this->denyAccessUnlessGranted('page_edit');
+        $this->denyAccessUnlessGranted('page_unpublish');
 
         /**
          * Get latest Page version first.

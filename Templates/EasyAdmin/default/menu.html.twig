@@ -24,7 +24,7 @@
         {% set hasAccess = true %}
         {% if item.entity is defined %}
             {% set permission  = easyadmin_config('entities.'~item.entity~'.permissions.list') %}
-            {% set hasAccess = is_granted(permission) %}
+            {% set hasAccess = is_granted(permission ?? 'list_generic') %}
         {% endif %}
 
         {% if hasAccess %}

@@ -3,7 +3,7 @@
 {% block new_action %}
     {# Check if the user has the permission to list the entity #}
     {% set permission  = action.permission ?? easyadmin_config('entities.'~_request_parameters.entity~'.permissions.new') %}
-    {% set hasAccess = is_granted(permission) %}
+    {% set hasAccess = is_granted(permission ?? 'create_generic') %}
 
     {% if hasAccess %}
         <div class="button-action">
