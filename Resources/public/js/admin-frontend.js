@@ -107,7 +107,7 @@
 
         let label = element.data('label');
 
-        let textColor = '';
+        let textColor = 'text-dark';
         if ('Section' === type ||'Row' === type ||'Column' === type) {
             textColor = 'text-white';
         }
