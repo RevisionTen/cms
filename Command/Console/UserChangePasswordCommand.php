@@ -142,7 +142,7 @@ class UserChangePasswordCommand extends Command
         } else {
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserChangePasswordCommand failed.');
-            $output->writeln($messages);
+            print_r($messages);
         }
     }
 }

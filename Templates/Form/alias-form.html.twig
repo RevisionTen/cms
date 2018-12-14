@@ -1,21 +1,23 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
-{% if contentTitle is defined and contentTitle %}
-    {% block content_title %}
-        {{ contentTitle|trans }}
-    {% endblock %}
-{% endif %}
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
 
 {% block main %}
-    <div class="mt-5 mb-5">
-        {{ form_start(form) }}
-            <div class="form-group">
-                {{ form_label(form.path) }}
-                <div class="input-group">
-                    {% if websiteUrl %}<span class="input-group-addon">{{ websiteUrl }}</span>{% endif %}
-                    {{ form_widget(form.path) }}
+    {{ form_start(form) }}
+    <div class="form-group">
+        {{ form_label(form.path) }}
+        <div class="input-group">
+            {% if websiteUrl %}
+                <div class="input-group-prepend">
+                    <span class="input-group-text">{{ websiteUrl }}</span>
                 </div>
-            </div>
-        {{ form_end(form) }}
+            {% endif %}
+            {{ form_widget(form.path) }}
+        </div>
     </div>
+    {{ form_end(form) }}
 {% endblock %}

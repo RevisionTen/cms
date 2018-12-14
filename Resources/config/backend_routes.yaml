@@ -7,7 +7,7 @@ revision_ten_cms_controller_security:
     type: annotation
 
 easy_admin_bundle:
-    resource: '@EasyAdminBundle/Controller/AdminController.php'
+    resource: "@CmsBundle/Controller/EasyAdminController.php"
     prefix: /admin
     type: annotation
 
@@ -27,10 +27,20 @@ revision_ten_cms_controller_menu:
     resource: "@CmsBundle/Controller/MenuController.php"
     type: annotation
 
+revision_ten_cms_controller_user:
+    resource: "@CmsBundle/Controller/UserController.php"
+    type: annotation
+
+revision_ten_cms_controller_role:
+    resource: "@CmsBundle/Controller/RoleController.php"
+    type: annotation
+
+revision_ten_cms_controller_form:
+    resource: "@CmsBundle/Controller/FormController.php"
+    type: annotation
+
 revision_ten_cms_controller_page:
     resource: "@CmsBundle/Controller/PageController.php"
     type: annotation
 
-revision_ten_forms:
-    resource: "@FormsBundle/Resources/config/routes.yaml"
-    prefix:   /
+

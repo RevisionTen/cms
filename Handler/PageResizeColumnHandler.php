@@ -68,7 +68,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
         $breakpoint = $payload['breakpoint'];
 
         // Check if breakpoint and size are valid.
-        if ($size < 1 || $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'xl'])) {
+        if ($size < 1 || $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
             $this->messageBus->dispatch(new Message(
                 'Size or breakpoint is invalid',
                 CODE_BAD_REQUEST,

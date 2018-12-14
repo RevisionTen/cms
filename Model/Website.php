@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -49,10 +48,16 @@ class Website
     private $domains;
 
     /**
-     * @var Collection
+     * @var Alias[]
      * @ORM\OneToMany(targetEntity="Alias", mappedBy="website")
      */
     private $aliases;
+
+    /**
+     * @var UserRead[]
+     * @ORM\ManyToMany(targetEntity="UserRead", mappedBy="websites")
+     */
+    private $users;
 
     /**
      * Website constructor.
@@ -61,6 +66,8 @@ class Website
     {
         $this->title = '';
         $this->domains = new ArrayCollection();
+        $this->aliases = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     /**
@@ -152,19 +159,19 @@ class Website
     }
 
     /**
-     * @return Collection
+     * @return ArrayCollection|Domain[]
      */
-    public function getDomains(): Collection
+    public function getDomains()
     {
         return $this->domains;
     }
 
     /**
-     * @param Collection $domains
+     * @param ArrayCollection|Domain[] $domains
      *
      * @return Website
      */
-    public function setDomains(Collection $domains): self
+    public function setDomains($domains): self
     {
         $this->domains = $domains;
 
@@ -205,10 +212,18 @@ class Website
     }
 
     /**
-     * @return Collection
+     * @return ArrayCollection|Alias[]
      */
-    public function getAliases(): ?Collection
+    public function getAliases()
     {
         return $this->aliases;
+    }
+
+    /**
+     * @return ArrayCollection|UserRead[]
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 }

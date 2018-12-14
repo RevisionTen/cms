@@ -57,7 +57,7 @@ function bindLinks()
     $('.toggle-contrast').on('click', function (event) {
         event.preventDefault();
         $(this).toggleClass('active');
-        $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');;
+        $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');
     });
 }
 
@@ -306,6 +306,10 @@ function bindModal(linkSrc) {
         btn.parentsUntil('.tab-content').parent().find('input.existing-file-version').val(version);
         btn.parentsUntil('form').parent().find('input.file-title').val(title);
     });
+    // Bind create buttons.
+    modalBody.find('.btn-create').on('click', function (event) {
+        $('body').trigger('createElement', {'parent': $(this).data('uuid'), 'elementName': $(this).data('element-name')});
+    });
 }
 
 $(document).ready(function () {
@@ -366,9 +370,21 @@ $(document).ready(function () {
     // Event that opens a bootstrap modal with dynamic content.
     body.on('openModal', function (event, linkSrc) {
         linkSrc = linkSrc + '?ajax=1';
-        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper', [], function () {
+        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper .content', [], function () {
             bindModal(linkSrc);
         });
+    });
+
+    // Fix mobile preview iframe size.
+    body.on('iframeReady', function () {
+        if (!$('#page-frame').hasClass('size-AutoWidth')) {
+            let contentWidth = $('#page-frame')[0].contentWindow.$('body').innerWidth();
+            let iframeWidth = $('#page-frame').width();
+            let scrollbarWidth = iframeWidth - contentWidth;
+            if (scrollbarWidth > 0) {
+                $('#page-frame').width(iframeWidth + scrollbarWidth);
+            }
+        }
     });
 
     // Events to trigger PageController methods.
@@ -393,6 +409,13 @@ $(document).ready(function () {
         let elementUuid = data.uuid;
         let url = `/admin/page/delete-element/${pageUuid}/${onVersion}/${elementUuid}`;
         $('body').trigger('openAjax', url);
+    });
+    body.on('addElement', function (event, data) {
+        let pageUuid = window.pageData.uuid;
+        let onVersion = window.pageData.version;
+        let parent = data.parent;
+        let url = `/admin/page/add-element/${pageUuid}/${onVersion}/${parent}`;
+        $('body').trigger('openModal', url);
     });
     body.on('createElement', function (event, data) {
         let pageUuid = window.pageData.uuid;

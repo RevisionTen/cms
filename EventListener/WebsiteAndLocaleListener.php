@@ -18,7 +18,7 @@ class WebsiteAndLocaleListener
         $this->entityManager = $entityManager;
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(GetResponseEvent $event): void
     {
         if ($event->isMasterRequest()) {
             /** @var \Symfony\Component\HttpFoundation\Request $request */
@@ -36,10 +36,10 @@ class WebsiteAndLocaleListener
             if (null !== $domain) {
                 $website = $domain->getWebsite();
                 if (null !== $website) {
-                    $website = $domain->getWebsite();
-
                     // Set website id in request.
-                    $request->request->set('website', $website->getId());
+                    if (null === $request->get('website')) {
+                        $request->request->set('website', $website->getId());
+                    }
 
                     // Set default locale for this website.
                     $request->setLocale($website->getDefaultLanguage());

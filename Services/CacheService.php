@@ -45,12 +45,12 @@ class CacheService
     {
         $this->issuer = $config['site_name'] ?? 'revisionTen';
 
-        if (\extension_loaded('apcu') && ini_get('apc.enabled')) {
+        if (function_exists('shm_attach') && \extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
 
             try {
                 // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
-                $key = (int) $config['shm_key'] ?? 1;
+                $key = (int) ($config['shm_key'] ?? 1);
                 $this->shmVarKey = 1;
                 // Create a 1MB shared memory segmanet for the UuidStore.
                 $this->shmSegment = shm_attach($key, 1000000, 0666);

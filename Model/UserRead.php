@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -90,16 +91,33 @@ class UserRead implements UserInterface, \Serializable
     private $ips;
 
     /**
+     * @var Website[]
+     * @ORM\ManyToMany(targetEntity="Website", inversedBy="users")
+     * @ORM\JoinTable(name="users_websites")
+     */
+    private $websites;
+
+    /**
+     * @var RoleRead[]
+     * @ORM\ManyToMany(targetEntity="RoleRead", inversedBy="users")
+     * @ORM\JoinTable(name="users_roles")
+     */
+    private $roles;
+
+    /**
      * @var bool
      */
     private $imposter = false;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRoles()
+    public function __construct()
     {
-        return array('ROLE_USER');
+        $this->websites = new ArrayCollection();
+        $this->roles = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getUsername();
     }
 
     /**
@@ -420,6 +438,127 @@ class UserRead implements UserInterface, \Serializable
     public function setIps(array $ips = null): self
     {
         $this->ips = $ips;
+
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|Website[]
+     */
+    public function getWebsites()
+    {
+        return $this->websites;
+    }
+
+    /**
+     * @param null|ArrayCollection|Website[] $websites
+     *
+     * @return UserRead
+     */
+    public function setWebsites($websites = null): self
+    {
+        $this->websites = $websites;
+
+        return $this;
+    }
+
+    /**
+     * @param Website $website
+     * @return UserRead
+     */
+    public function addWebsite(Website $website): self
+    {
+        if (!$this->websites->contains($website)) {
+            $this->websites[] = $website;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Website $website
+     * @return UserRead
+     */
+    public function removeWebsite(Website $website): self
+    {
+        if ($this->websites->contains($website)) {
+            $this->websites->removeElement($website);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return array]
+     */
+    public function getRoles()
+    {
+        $roles = ['ROLE_USER'];
+
+        foreach ($this->roles as $role) {
+            $roles[] = 'ROLE_'.strtoupper($role->getTitle());
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @return ArrayCollection|RoleRead[]
+     */
+    public function getRoleEntities()
+    {
+        return $this->roles;
+    }
+
+    /**
+     * Return an array of the users role titles.
+     *
+     * @return array
+     */
+    public function getRoleTitles(): array
+    {
+        $roles = [];
+        foreach ($this->roles as $role) {
+            $roles[] = $role->getTitle();
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @param null|ArrayCollection|RoleRead[] $roles
+     *
+     * @return UserRead
+     */
+    public function setRoles($roles = null): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @param RoleRead $role
+     * @return UserRead
+     */
+    public function addRoles(RoleRead $role): self
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param RoleRead $role
+     * @return UserRead
+     */
+    public function removeRoles(RoleRead $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+        }
 
         return $this;
     }

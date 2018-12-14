@@ -150,6 +150,17 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('permissions')
+                    ->info('Permissions that can be assigned to roles.')
+                    ->arrayPrototype()
+                        ->arrayPrototype()
+                            ->children()
+                                ->scalarNode('name')->end()
+                                ->scalarNode('label')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

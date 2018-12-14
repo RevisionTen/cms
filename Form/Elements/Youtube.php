@@ -36,9 +36,9 @@ class Youtube extends Element
                 $youtubeId = $data['youtubeId'];
 
                 if (strpos($youtubeId, 'youtu')) {
-                    preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=embed/)‌​[^&\n]+|(?<=v=)[^&\n‌​]+|(?<=youtu.be/)[^&‌​\n]+#/u", $youtubeId, $matches);
-                    if (isset($matches[0]) && $matches[0]) {
-                        $youtubeId = $matches[0];
+                    preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $youtubeId, $matches);
+                    if (isset($matches[1]) && $matches[1]) {
+                        $youtubeId = $matches[1];
                     }
                 }
 
@@ -47,5 +47,13 @@ class Youtube extends Element
                 $event->setData($data);
             }
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_youtube';
     }
 }

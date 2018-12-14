@@ -46,4 +46,12 @@ class Column extends Element
             'empty_data' => $empty_data,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_column';
+    }
 }

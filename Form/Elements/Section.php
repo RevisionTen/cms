@@ -20,4 +20,12 @@ class Section extends Element
             'label' => 'Choose to which layout section this section belongs.',
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_section';
+    }
 }

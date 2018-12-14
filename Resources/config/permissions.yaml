@@ -1,0 +1,88 @@
+cms:
+    permissions:
+        General:
+            do_everything:
+                label: 'Do everything'
+            list_generic:
+                label: 'List generic entity'
+            edit_generic:
+                label: 'Edit generic entity'
+            show_generic:
+                label: 'Show generic entity'
+            create_generic:
+                label: 'Create generic entity'
+            delete_generic:
+                label: 'Delete generic entity'
+        Page:
+            page_list:
+                label: 'List pages'
+            page_create:
+                label: 'Create page'
+            page_edit:
+                label: 'Edit page'
+            page_delete:
+                label: 'Delete page'
+            page_clone:
+                label: 'Clone page'
+        Alias:
+            alias_list:
+                label: 'List aliases'
+            alias_create:
+                label: 'Create alias'
+            alias_edit:
+                label: 'Edit alias'
+            alias_delete:
+                label: 'Delete alias'
+        Menu:
+            menu_list:
+                label: 'List menus'
+            menu_create:
+                label: 'Create menu'
+            menu_edit:
+                label: 'Edit menu'
+        Form:
+            form_list:
+                label: 'List forms'
+            form_create:
+                label: 'Create form'
+            form_edit:
+                label: 'Edit form'
+            form_delete:
+                label: 'Delete form'
+            form_clone:
+                label: 'Clone form'
+        File:
+            file_list:
+                label: 'List files'
+            file_create:
+                label: 'Create file'
+            file_edit:
+                label: 'Edit file'
+        Website:
+            website_list:
+                label: 'List websites'
+            website_create:
+                label: 'Create website'
+            website_edit:
+                label: 'Edit website'
+        Role:
+            role_list:
+                label: 'List roles'
+            role_create:
+                label: 'Create role'
+            role_edit:
+                label: 'Edit role'
+            role_show:
+                label: 'Show role'
+        User:
+            user_list:
+                label: 'List users'
+            user_edit:
+                label: 'Edit user'
+            user_show:
+                label: 'Show user'
+        Event:
+            event_list:
+                label: 'List events'
+            event_show:
+                label: 'Show events'

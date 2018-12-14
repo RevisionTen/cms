@@ -77,7 +77,6 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
         $payload = $command->getPayload();
 
         if (
-            isset($payload['originalUuid'], $payload['originalVersion']) &&
             !empty($payload['originalUuid']) &&
             !empty($payload['originalVersion']) &&
             0 === $aggregate->getVersion()

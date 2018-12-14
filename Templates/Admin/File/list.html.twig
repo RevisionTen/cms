@@ -1,0 +1,14 @@
+{% extends '@EasyAdminBase/default/list.html.twig' %}
+
+
+{% block global_actions %}
+    {{- parent() -}}
+
+    {% if is_granted('file_create') %}
+        <div class="button-action">
+            <a class="btn btn-success" href="{{ path('cms_file_create') }}">
+                <span class="fa fa-plus"></span> {{ 'Add file'|trans }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock global_actions %}

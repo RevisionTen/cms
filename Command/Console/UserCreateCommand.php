@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Command\Console;
 
 use Ramsey\Uuid\Uuid;
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
@@ -143,6 +145,62 @@ class UserCreateCommand extends Command
             $avatarUrl = $helper->ask($input, $output, $avatarUrlQuestion);
         }
 
+        /**
+         * Get a choice list of all websites.
+         *
+         * @var Website[] $websiteEntities
+         */
+        $websiteEntities = $this->entityManager->getRepository(Website::class)->findAll();
+        $websiteChoices = [];
+        foreach ($websiteEntities as $websiteEntity) {
+            $websiteChoices[$websiteEntity->getTitle()] = $websiteEntity->getId();
+        }
+        $websites = [];
+        if (!empty($websiteChoices)) {
+            // Aks what website the menu aggregate belongs to.
+            $websiteQuestion = new ChoiceQuestion('What website does this user belong to? ', array_keys($websiteChoices));
+            $websiteQuestion->setErrorMessage('Answer %s is invalid.');
+            $websiteQuestion->setAutocompleterValues(array_keys($websiteChoices));
+            $websiteQuestion->setValidator(function ($answer) use ($websiteChoices) {
+                if (!isset($websiteChoices[$answer])) {
+                    throw new \RuntimeException('This website does not exist.');
+                }
+
+                return $answer;
+            });
+            $websiteQuestion->setMaxAttempts(5);
+            $websiteAnswer = $helper->ask($input, $output, $websiteQuestion);
+            $websites = [$websiteChoices[$websiteAnswer]];
+        }
+
+        /**
+         * Get a choice list of all roles.
+         *
+         * @var RoleRead[] $roleEntities
+         */
+        $roleEntities = $this->entityManager->getRepository(RoleRead::class)->findAll();
+        $roleChoices = [];
+        foreach ($roleEntities as $roleEntity) {
+            $roleChoices[$roleEntity->getTitle()] = $roleEntity->getUuid();
+        }
+        $roles = [];
+        if (!empty($roleChoices)) {
+            // Aks what website the menu aggregate belongs to.
+            $roleQuestion = new ChoiceQuestion('What role does this user have? ', array_keys($roleChoices));
+            $roleQuestion->setErrorMessage('Answer %s is invalid.');
+            $roleQuestion->setAutocompleterValues(array_keys($roleChoices));
+            $roleQuestion->setValidator(function ($answer) use ($roleChoices) {
+                if (!isset($roleChoices[$answer])) {
+                    throw new \RuntimeException('This role does not exist.');
+                }
+
+                return $answer;
+            });
+            $roleQuestion->setMaxAttempts(5);
+            $roleAnswer = $helper->ask($input, $output, $roleQuestion);
+            $roles = [$roleChoices[$roleAnswer]];
+        }
+
         // Ask If the login data should be sent via mail.
         $sendLoginMail = $input->getOption('sendLoginMail');
         if (!$sendLoginMail) {
@@ -183,6 +241,8 @@ class UserCreateCommand extends Command
             'password' => $encodedPassword,
             'secret' => $secret,
             'color' => null,
+            'websites' => $websites,
+            'roles' => $roles,
         ];
 
         $success = false;
@@ -205,7 +265,7 @@ class UserCreateCommand extends Command
         } else {
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserCreateCommand failed.');
-            $output->writeln($messages);
+            print_r($messages);
         }
     }
 }

@@ -1,0 +1,22 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        {% for elementName, element in children %}
+            <div class="col-3 pt-3 pb-3">
+                <div data-element-name="{{ elementName }}" data-uuid="{{ parent }}" class="btn-create card" style="cursor: pointer;">
+                    <div class="card-body text-center">
+                        <h2><span class="{{ element.icon }}"></span></h2>
+                        <h6>{{ elementName|trans }}</h6>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

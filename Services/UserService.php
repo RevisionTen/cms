@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -49,8 +51,21 @@ class UserService
          */
         $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
+        // Clear the EntityManager to avoid inserting duplicate UserRead entities.
+        $this->em->clear();
+
         // Build UserRead entity from Aggregate.
         $userRead = $this->em->getRepository(UserRead::class)->findOneByUuid($userUuid) ?? new UserRead();
+
+        // Get collection of websites from their ids.
+        $websites = $this->em->getRepository(Website::class)->findBy([
+            'id' => $aggregate->websites,
+        ]);
+
+        // Get collection of roles from their uuids.
+        $roles = $this->em->getRepository(RoleRead::class)->findBy([
+            'uuid' => $aggregate->roles,
+        ]);
 
         $userRead->setUuid($userUuid);
         $userRead->setVersion($aggregate->getVersion());
@@ -63,10 +78,13 @@ class UserService
         $userRead->setDevices($aggregate->devices);
         $userRead->setIps($aggregate->ips);
         $userRead->setResetToken($aggregate->resetToken);
+        $userRead->setWebsites($websites);
+        $userRead->setRoles($roles);
 
         // Persist UserRead entity.
         $this->em->persist($userRead);
         $this->em->flush();
+        $this->em->clear();
     }
 
     public function sendSecret(string $userUuid)

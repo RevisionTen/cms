@@ -32,4 +32,12 @@ class Timing extends Element
             'required' => false,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_timing';
+    }
 }

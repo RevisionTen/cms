@@ -20,7 +20,7 @@ class Image extends Element
 
         $builder
             ->add('title', TextType::class, [
-                'label' => 'What is the title of your image?',
+                'label' => 'Title',
                 'constraints' => new NotBlank(),
             ])
             ->add('image', UploadType::class, [
@@ -28,5 +28,13 @@ class Image extends Element
                 'required' => false,
             ])
         ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_image';
     }
 }

@@ -30,11 +30,14 @@ final class UserAggregate extends Aggregate
     public $avatarUrl;
 
     /** @var array */
-    public $permissions;
-
-    /** @var array */
     public $devices = [];
 
     /** @var array */
     public $ips = [];
+
+    /** @var array */
+    public $websites = [];
+
+    /** @var array */
+    public $roles = [];
 }

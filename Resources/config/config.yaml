@@ -36,140 +36,10 @@ twig:
     paths:
         '%kernel.project_dir%/vendor/revision-ten/cms/Templates': cms
         '%kernel.project_dir%/vendor/easycorp/easyadmin-bundle/src/Resources/views': EasyAdminBase
+        '%kernel.project_dir%/vendor/revision-ten/cms/Templates/FormsBundle': forms
         '%kernel.project_dir%/vendor/revision-ten/cms/Templates/EasyAdmin': EasyAdmin
     form_themes:
           - '@cms/Form/form_theme.html.twig'
-
-services:
-    RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
-        autowire: true
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
-    # TODO: Fix this listener.
-    # RevisionTen\CMS\EventListener\LogoutListener:
-    #     autowire: true
-    #     tags:
-    #         - { name: security.logout_listener.main, event: security.logout_listener }
-    RevisionTen\CMS\Controller\:
-        autowire: true
-        autoconfigure: true
-        resource: '../../Controller'
-        tags: ['controller.service_arguments']
-    RevisionTen\CMS\Twig\CmsExtension:
-        autowire: true
-        public: true
-        tags: [twig.extension]
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Security\CodeAuthenticator:
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Security\BasicAuthenticator:
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Command\Console\UserCreateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserSecretCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserMigrateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Services\SecretService:
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Services\PageService:
-        autowire: true
-    RevisionTen\CMS\Services\UserService:
-        autowire: true
-    RevisionTen\CMS\Services\CacheService:
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Services\FileService:
-        autowire: true
-        arguments:
-            $project_dir: '%kernel.project_dir%'
-    RevisionTen\CMS\Form\Types\UploadType:
-        autoconfigure: true
-        autowire: true
-        arguments:
-            $project_dir: '%kernel.project_dir%'
-        tags: [form.type]
-    RevisionTen\CMS\Form\Types\ManagedUploadType:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-    RevisionTen\CMS\Form\Types\DoctrineType:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-    RevisionTen\CMS\Form\Elements\Form:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-    RevisionTen\CMS\Form\Menu\Page:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-    RevisionTen\CMS\Form\Elements\Controller:
-        autoconfigure: true
-        autowire: true
-        public: true
-        arguments:
-            $config: '%cms%'
-        tags: [form.type]
-    RevisionTen\CMS\EventSubscriber\:
-        resource: '../../EventSubscriber/*'
-        autowire: true
-        autoconfigure: true
-    # Listeners must be public!
-    RevisionTen\CMS\Listener\:
-        public: true
-        resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php}'
-        autowire: true
-    RevisionTen\CMS\Listener\UserCreateListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserGenerateSecretListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserChangePasswordListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserLoginListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserLogoutListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserResetPasswordListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
 
 framework:
     translator:
@@ -199,36 +69,37 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
-    site_name: '<span class="sidebar-toggle sidebar-toggle-editor" data-toggle="push-menu" role="button"><img class="appicon" src="/bundles/cms/icons/logo.svg"></span> <span class="text-muted">%cms.site_name%</span>'
+    site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
     design:
-        color_scheme: 'light'
-        brand_color: '#2f323e'
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'
-                - 'https://use.fontawesome.com/releases/v5.4.1/css/all.css'
+                - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
+                - 'https://use.fontawesome.com/releases/v5.5.0/css/v4-shims.css'
                 - 'bundles/cms/css/trix.css?v=%cms.version%'
                 - 'bundles/cms/css/jquery-ui.min.css?v=%cms.version%'
                 - 'bundles/cms/css/easyadmin.css?v=%cms.version%'
             js:
+                - 'bundles/cms/js/bootstrap/popper.min.js?v=%cms.version%'
+                - 'bundles/cms/js/bootstrap/bootstrap.min.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/trix.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
-        form_theme: '@cms/Form/form_theme_easyadmin.html.twig'
         menu:
             - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
-            - { label: 'Contents' }
+            - { label: 'Content' }
             - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
             - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
             - { entity: Alias, icon: 'nope fas fa-link' }
-            - { label: 'Files', route: 'cms_file_list', icon: 'nope fas fa-download' }
+            - { entity: FileRead, label: 'Files', icon: 'nope fas fa-download' }
             - { label: 'Structure' }
             - { entity: Website, icon: 'nope fas fa-globe-africa' }
-            - { label: 'Menus', route: 'cms_list_menus', icon: 'bars' }
+            - { entity: MenuRead, label: 'Menus', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
             - { label: 'Settings' }
             - { entity: UserRead, icon: 'users' }
+            - { entity: RoleRead, icon: 'nope fas fa-user-shield' }
             - { entity: EventStreamObject, icon: 'clock' }
     formats:
         date:     'd.m.Y'
@@ -238,18 +109,25 @@ easy_admin:
         Alias:
             label: 'Paths'
             class: RevisionTen\CMS\Model\Alias
+            permissions:
+                list: 'alias_list'
+                new: 'alias_create'
+                edit: 'alias_edit'
+                delete: 'alias_delete'
             list:
-                dql_filter: 'entity.controller IS NULL'
+                actions:
+                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
+                    - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
                 fields:
                     #- 'uuid'
                     - 'id'
-                    - { property: 'path', template: '@cms/Admin/alias_path_column.html.twig' }
-                    - { property: 'language', template: '@cms/Admin/alias_language_column.html.twig' }
-                    - { property: 'website', template: '@cms/Admin/alias_website_column.html.twig' }
-                    - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/alias_pagestreamred_column.html.twig' }
-                    #- { property: 'controller', template: '@cms/Admin/alias_controller_column.html.twig' }
-                    - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/alias_redirect_column.html.twig' }
-                    - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/alias_priority_column.html.twig' }
+                    - { property: 'path', template: '@cms/Admin/Alias/List/path.html.twig' }
+                    - { property: 'language', template: '@cms/Admin/Alias/List/language.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }
+                    - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/Alias/List/page.html.twig' }
+                    #- { property: 'controller', template: '@cms/Admin/Alias/List/controller.html.twig' }
+                    - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/Alias/List/redirect.html.twig' }
+                    - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/Alias/List/priority.html.twig' }
             form:
                 fields:
                     - 'path'
@@ -261,31 +139,44 @@ easy_admin:
         Website:
             label: 'Websites'
             class: RevisionTen\CMS\Model\Website
+            permissions:
+                list: 'website_list'
+                new: 'website_create'
+                edit: 'website_edit'
             list:
+                actions:
+                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
+                    - '-delete'
                 fields:
                     #- 'uuid'
                     - 'title'
                     - 'defaultLanguage'
+                    - 'users'
                     - 'domains'
                     - 'aliases'
             form:
                 fields:
-                    - 'title'
-                    - { property: 'siteVerification', label: 'Google Site Verification Meta-Tag' }
+                    - { property: 'title', type: 'text' }
+                    - { property: 'siteVerification', type: 'text', label: 'Google Site Verification Meta-Tag' }
                     - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
                     - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
         PageStreamRead:
             label: 'Pages'
             class: RevisionTen\CMS\Model\PageStreamRead
+            permissions:
+                list: 'page_list'
+                new: 'page_create'
+                edit: 'page_edit'
+                delete: 'page_delete'
+                clone: 'page_clone'
             templates:
-                list: '@cms/Admin/list-pages.html.twig'
+                list: '@cms/Admin/Page/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
-                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'cms_edit_aggregate', type: 'route', label: 'Edit aggregate', icon: 'edit' }
-                    - { name: 'cms_clone_aggregate', type: 'route', label: 'Clone page', icon: 'clone' }
-                    - { name: 'cms_delete_aggregate', type: 'route', label: 'Delete page', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'page_edit' }
+                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone', permission: 'page_clone' }
+                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'Delete page', icon: 'trash', css_class: 'text-danger', permission: 'page_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -294,17 +185,22 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
-                    - { property: 'website', template: '@cms/Admin/website_column.html.twig' }
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         PageStreamReadArchive:
             label: 'Archive'
             class: RevisionTen\CMS\Model\PageStreamRead
+            permissions:
+                list: 'page_list'
+                new: 'page_create'
+                edit: 'page_edit'
+                delete: 'page_delete'
+                clone: 'page_clone'
             list:
                 sort: ['modified', 'DESC']
-                dql_filter: 'entity.deleted = 1'
                 actions:
                     - '-new'
                     - '-edit'
@@ -314,42 +210,50 @@ easy_admin:
                     - { property: 'title', css_class: 'title-truncate' }
                     - 'version'
                     - 'language'
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
                     - { property: 'published', type: 'boolean' }
-                    - { property: 'template', label: "Page Template", template: '@cms/Admin/template_column.html.twig' }
+                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
         EventStreamObject:
             label: 'Log'
             class: RevisionTen\CQRS\Model\EventStreamObject
+            permissions:
+                list: 'event_list'
+                show: 'event_show'
             show:
                 actions:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'payload', template: '@cms/Admin/payload_column.html.twig' }
+                    - { property: 'payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
             list:
                 help: 'This list shows all persisted events.'
                 sort: ['id', 'DESC']
                 actions:
-                    #- { name: 'show', label: 'inspect payload', icon: 'eye' }
+                    - { name: 'show', label: '', title: 'inspect payload', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'uuid', label: 'Title', template: '@cms/Admin/uuid_column.html.twig' }
-                    - { property: 'message', label: 'Message', template: '@cms/Admin/message_column.html.twig' }
+                    - { property: 'uuid', label: 'Title', template: '@cms/Admin/User/List/uuid.html.twig' }
+                    - { property: 'message', label: 'Message', template: '@cms/Admin/Event/List/message.html.twig' }
                     - 'version'
                     - { property: 'created', type: 'datetime' }
-                    - { property: 'user', template: '@cms/Admin/user_column.html.twig' }
+                    - { property: 'user', template: '@cms/Admin/User/List/small.html.twig' }
         UserRead:
             label: 'Users'
             class: RevisionTen\CMS\Model\UserRead
+            permissions:
+                list: 'user_list'
+                edit: 'user_edit'
+                show: 'user_show'
             show:
                 actions:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username' }
                     - { property: 'email' }
                     - { property: 'devices' }
@@ -357,26 +261,61 @@ easy_admin:
             list:
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', icon: 'eye' }
+                    - { name: 'show', title: 'View', label: '', icon: 'eye', permission: 'user_show' }
+                    - { name: 'cms_user_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'user_edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/user_column_medium.html.twig' }
+                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
                     - { property: 'username', label: 'Username' }
                     - { property: 'email', label: 'Email' }
+                    - { property: 'roles', label: 'Roles', template: '@cms/Admin/User/List/roles.html.twig' }
+        RoleRead:
+            label: 'Roles'
+            class: RevisionTen\CMS\Model\RoleRead
+            permissions:
+                list: 'role_list'
+                new: 'role_create'
+                edit: 'role_edit'
+                show: 'role_show'
+            templates:
+                list: '@cms/Admin/Role/list.html.twig'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title' }
+                    - { property: 'permissions' }
+            list:
+                sort: ['id', 'DESC']
+                actions:
+                    - { name: 'show', title: 'View', label: '', icon: 'eye' }
+                    - { name: 'cms_role_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'role_edit' }
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title', label: 'Title' }
         FormRead:
             label: 'Forms'
             class: RevisionTen\Forms\Model\FormRead
+            permissions:
+                list: 'form_list'
+                new: 'form_create'
+                edit: 'form_edit'
+                delete: 'form_delete'
+                clone: 'form_clone'
             templates:
-                list: '@cms/Admin/list-forms.html.twig'
+                list: '@cms/Admin/Forms/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'forms_edit_aggregate', type: 'route', label: 'edit form', icon: 'edit' }
-                    - { name: 'forms_clone_aggregate', type: 'route', label: 'clone form', icon: 'clone' }
-                    - { name: 'forms_delete_aggregate', type: 'route', label: 'delete form', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit', permission: 'form_edit' }
+                    - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone', permission: 'form_clone' }
+                    - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
@@ -385,3 +324,47 @@ easy_admin:
                     - 'version'
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
+        MenuRead:
+            label: 'Menus'
+            class: RevisionTen\CMS\Model\MenuRead
+            permissions:
+                list: 'menu_list'
+                new: 'menu_create'
+                edit: 'menu_edit'
+            templates:
+                list: '@cms/Admin/Menu/list.html.twig'
+            list:
+                sort: ['title', 'DESC']
+                actions:
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                    - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'menu_edit' }
+                fields:
+                    - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
+                    - 'version'
+                    - 'language'
+                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+        FileRead:
+            label: 'Files'
+            class: RevisionTen\CMS\Model\FileRead
+            permissions:
+                list: 'file_list'
+                new: 'file_create'
+                edit: 'file_edit'
+            templates:
+                list: '@cms/Admin/File/list.html.twig'
+            list:
+                sort: ['title', 'DESC']
+                actions:
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                    - { name: 'cms_file_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'file_edit' }
+                fields:
+                    - { property: 'title', label: 'Title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
+                    - 'version'
+                    - { property: 'mimeType', label: 'MimeType' }
+                    - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }
+                    - 'language'
+                    #- { property: 'website', type: 'raw' }

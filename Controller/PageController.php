@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\PageAddElementCommand;
 use RevisionTen\CMS\Command\PageCloneCommand;
 use RevisionTen\CMS\Command\PageDeleteCommand;
@@ -51,6 +52,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\TranslatorInterface;
 use Cocur\Slugify\Slugify;
@@ -120,26 +122,33 @@ class PageController extends AbstractController
      *
      * @param Request                $request
      * @param CommandBus             $commandBus
-     * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface    $translator
      *
      * @return Response
+     *
+     * @throws \Exception
      */
-    public function createPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager)
+    public function createPage(Request $request, CommandBus $commandBus, TranslatorInterface $translator)
     {
+        $this->denyAccessUnlessGranted('page_create');
+
+        /** @var UserRead $user */
+        $user = $this->getUser();
         $config = $this->getParameter('cms');
 
         $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $entityManager->getRepository(Website::class)->findAll();
+        $websites = $websites = $user->getWebsites();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
 
         $data = $request->get('page');
         $ignore_validation = $request->get('ignore_validation');
+        $currentWebsite = $request->get('currentWebsite');
 
         $form = $this->createForm(PageType::class, $data, [
-            'page_websites' => $pageWebsites,
+            'page_websites' => $currentWebsite ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
@@ -151,6 +160,10 @@ class PageController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
 
+                if ($currentWebsite) {
+                    $data['website'] = $currentWebsite;
+                }
+
                 $pageUuid = Uuid::uuid1()->toString();
                 $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
 
@@ -158,9 +171,10 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => $translator->trans('Add page'),
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -180,9 +194,11 @@ class PageController extends AbstractController
      */
     public function changePageSettings(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
-
+        $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
 
         if (!$ignore_validation) {
@@ -194,17 +210,19 @@ class PageController extends AbstractController
             $aggregateData = $request->get('page');
         }
 
-        $config = $this->getParameter('cms');
-
-        $pageWebsites = [];
         /** @var Website[] $websites */
-        $websites = $entityManager->getRepository(Website::class)->findAll();
+        $websites = $user->getWebsites();
+        $currentWebsite = $request->get('currentWebsite');
+        $pageWebsites = [];
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
+        if ($currentWebsite && $aggregateData['website'] !== $currentWebsite && !\in_array($currentWebsite, $pageWebsites, false)) {
+            throw new AccessDeniedHttpException('Page does not exist on this website');
+        }
 
         $form = $this->createForm(PageType::class, $aggregateData, [
-            'page_websites' => $pageWebsites,
+            'page_websites' => $currentWebsite && count($pageWebsites) === 1 ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
@@ -239,9 +257,10 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Change Page Settings',
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -259,6 +278,8 @@ class PageController extends AbstractController
      */
     public function createSection(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $section)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Section',
             'data' => [
@@ -298,8 +319,10 @@ class PageController extends AbstractController
      */
     public function createColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $parent, string $size, string $breakpoint)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         // Check if breakpoint and size are valid.
-        if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'xl'])) {
+        if ((int) $size < 1 || (int) $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
             return new JsonResponse([
                 'success' => false,
                 'refresh' => null, // Refreshes whole page.
@@ -345,6 +368,8 @@ class PageController extends AbstractController
      */
     public function resizeColumn(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $size, string $breakpoint)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
             'uuid' => $elementUuid,
             'size' => (int) $size,
@@ -380,6 +405,8 @@ class PageController extends AbstractController
      */
     public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -415,9 +442,10 @@ class PageController extends AbstractController
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Submit changes',
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -432,6 +460,8 @@ class PageController extends AbstractController
      */
     public function discardChanges(EventStore $eventStore, string $pageUuid): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -454,6 +484,8 @@ class PageController extends AbstractController
      */
     public function undoChange(EventStore $eventStore, string $pageUuid, int $version): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -475,6 +507,8 @@ class PageController extends AbstractController
      */
     public function createAlias(Request $request, string $pageUuid, EntityManagerInterface $entityManager)
     {
+        $this->denyAccessUnlessGranted('alias_create');
+
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
@@ -534,11 +568,11 @@ class PageController extends AbstractController
             ]) : $this->redirectToPage($pageUuid);
         }
 
-        return $this->render('@cms/Form/alias-form.html.twig', array(
+        return $this->render('@cms/Form/alias-form.html.twig', [
+            'title' => 'Create alias',
             'form' => $form->createView(),
-            'contentTitle' => 'Create alias',
             'websiteUrl' => $websiteUrl,
-        ));
+        ]);
     }
 
     /**
@@ -557,6 +591,8 @@ class PageController extends AbstractController
      */
     public function publishPage(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $version, EntityManagerInterface $entityManager)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
@@ -582,7 +618,7 @@ class PageController extends AbstractController
 
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
-        if (null === $aliases || empty($aliases) || 0 === \count($aliases)) {
+        if ($this->isGranted('alias_create') && (null === $aliases || empty($aliases) || 0 === \count($aliases))) {
             // The page has no aliases, show modal or page with alias create form.
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,
@@ -614,6 +650,8 @@ class PageController extends AbstractController
      */
     public function unpublishPage(CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /**
          * Get latest Page version first.
          *
@@ -657,6 +695,67 @@ class PageController extends AbstractController
     }
 
     /**
+     * @Route("/page/add-element/{pageUuid}/{onVersion}/{parent}", name="cms_add_element")
+     *
+     * @param AggregateFactory $aggregateFactory
+     * @param string $pageUuid
+     * @param int $onVersion
+     * @param string $parent
+     * @return Response
+     * @throws \Exception
+     */
+    public function addElement(AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $parent): Response
+    {
+        $this->denyAccessUnlessGranted('page_edit');
+
+        /** @var UserRead $user */
+        $user = $this->getUser();
+
+        /** @var Page $page */
+        $page = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
+        if (empty($page->elements)) {
+            // Aggregate does not exist, or is empty.
+            return $this->errorResponse();
+        }
+
+        $config = $this->getParameter('cms');
+
+        // Get the element from the Aggregate.
+        $element = PageBaseHandler::getElement($page, $parent);
+
+        // Get an array of accepted children.
+        if ($element && isset($element['data'], $element['elementName'], $config['page_elements'][$element['elementName']])) {
+            $elementConfig = $config['page_elements'][$element['elementName']];
+            $allowedChildren = $elementConfig['children'] ?? null;
+
+            if (empty($allowedChildren)) {
+                throw new \Exception('Element type '.$element['elementName'].' does not accept child elements.');
+            }
+
+            if (\in_array('all', $allowedChildren, true)) {
+                // Filter list of accepted children
+                $acceptedChildren = array_filter($config['page_elements'], function ($element) {
+                    return isset($element['public']) && $element['public'];
+                });
+            } else {
+                // Filter list of accepted children
+                $acceptedChildren = array_filter($config['page_elements'], function ($elementName) use ($allowedChildren) {
+                    return \in_array($elementName, $allowedChildren, true);
+                }, ARRAY_FILTER_USE_KEY);
+            }
+        } else {
+            // Not a valid element.
+            throw new \Exception('Element with uuid '.$parent.' is not a valid parent element.');
+        }
+
+        return $this->render('@cms/Form/add-element.html.twig', [
+            'title' => 'Add Element',
+            'parent' => $parent,
+            'children' => $acceptedChildren,
+        ]);
+    }
+
+    /**
      * @Route("/page/create-element/{elementName}/{pageUuid}/{onVersion}/{parent}", name="cms_create_element")
      *
      * @param Request     $request
@@ -675,6 +774,8 @@ class PageController extends AbstractController
      */
     public function createElementForm(Request $request, CommandBus $commandBus, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         if (isset($config['page_elements'][$elementName])) {
@@ -713,9 +814,10 @@ class PageController extends AbstractController
                     return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                 }
 
-                return $this->render($form_template, array(
+                return $this->render($form_template, [
+                    'title' => 'Add Element',
                     'form' => $form->createView(),
-                ));
+                ]);
             } else {
                 // Not a valid form type.
                 throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -746,6 +848,8 @@ class PageController extends AbstractController
      */
     public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -810,9 +914,10 @@ class PageController extends AbstractController
                         return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
                     }
 
-                    return $this->render($form_template, array(
+                    return $this->render($form_template, [
+                        'title' => 'Edit Element',
                         'form' => $form->createView(),
-                    ));
+                    ]);
                 } else {
                     // Not a valid form type.
                     throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
@@ -842,6 +947,8 @@ class PageController extends AbstractController
      */
     public function deleteElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -890,6 +997,8 @@ class PageController extends AbstractController
      */
     public function shiftElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid, string $direction)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -969,6 +1078,7 @@ class PageController extends AbstractController
      *
      * @Route("/edit/{pageUuid}/{user}", name="cms_page_edit")
      *
+     * @param Request                $request
      * @param PageService            $pageService
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
@@ -979,8 +1089,10 @@ class PageController extends AbstractController
      *
      * @return Response
      */
-    public function pageEdit(PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
+    public function pageEdit(Request $request, PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EventStore $eventStore, TranslatorInterface $translator, string $pageUuid, int $user)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         /** @var UserRead $user */
@@ -997,6 +1109,18 @@ class PageController extends AbstractController
 
         /** @var Page $page */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
+
+        // Check if user has access to the aggregates current website.
+        /** @var ArrayCollection $websites */
+        $websites = $user->getWebsites();
+        $websites = array_map(function ($website) {
+            /** @var Website $website */
+            return $website->getId();
+        }, $websites->toArray());
+        $currentWebsite = $request->get('currentWebsite');
+        if ($currentWebsite && $page->website !== $currentWebsite && !\in_array($currentWebsite, $websites, false)) {
+            throw new AccessDeniedHttpException('Page does not exist on this website');
+        }
 
         /** @var PageRead $publishedPage */
         $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
@@ -1080,6 +1204,8 @@ class PageController extends AbstractController
      */
     public function page(PageService $pageService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, string $pageUuid): Response
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $config = $this->getParameter('cms');
 
         /** @var UserRead $user */
@@ -1146,9 +1272,13 @@ class PageController extends AbstractController
      * @param TranslatorInterface    $translator
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function cloneAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
+        $this->denyAccessUnlessGranted('page_clone');
+
         /** @var int $id PageStreamRead Id. */
         $id = $request->get('id');
 
@@ -1192,6 +1322,8 @@ class PageController extends AbstractController
      */
     public function deleteAggregateAction(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, EventStore $eventStore, TranslatorInterface $translator): Response
     {
+        $this->denyAccessUnlessGranted('page_delete');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1239,6 +1371,8 @@ class PageController extends AbstractController
      */
     public function rollbackAggregateAction(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $version)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1309,6 +1443,8 @@ class PageController extends AbstractController
      */
     public function disableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1356,6 +1492,8 @@ class PageController extends AbstractController
      */
     public function enableElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1403,6 +1541,8 @@ class PageController extends AbstractController
      */
     public function duplicateElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $elementUuid)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         /** @var UserRead $user */
         $user = $this->getUser();
 
@@ -1447,6 +1587,8 @@ class PageController extends AbstractController
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, string $pageUuid, int $onVersion)
     {
+        $this->denyAccessUnlessGranted('page_edit');
+
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {
