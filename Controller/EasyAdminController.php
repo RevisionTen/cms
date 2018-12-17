@@ -29,6 +29,14 @@ class EasyAdminController extends BaseController
         return parent::listAction();
     }
 
+    protected function searchAction(): Response
+    {
+        $permission = $this->entity['permissions']['search'] ?? 'search_generic';
+        $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        return parent::searchAction();
+    }
+
     protected function editAction(): Response
     {
         $permission = $this->entity['permissions']['edit'] ?? 'edit_generic';

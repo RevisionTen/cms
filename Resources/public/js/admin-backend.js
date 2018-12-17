@@ -192,30 +192,6 @@ function updateElement(data)
     }
 }
 
-// CKEditor Config.
-let blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-CKEDITOR.stylesSet.add('bootstrap4styles', [
-    { name: 'lead', element: 'p', attributes: { 'class': 'lead' } },
-    { name: 'align left', element: blockElements, attributes: { 'class': 'text-left' } },
-    { name: 'align right', element: blockElements, attributes: { 'class': 'text-right' } },
-    { name: 'align center', element: blockElements, attributes: { 'class': 'text-center' } },
-    { name: 'justify', element: blockElements, attributes: { 'class': 'text-justify' } },
-    { name: 'small', element: 'small' }
-]);
-
-const ckeditorConfig = {
-    toolbar: [
-        { name: 'basicstyles', items: [ 'Source', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-        '/',
-        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'Link', 'Unlink', 'Anchor', 'Table', 'HorizontalRule', 'Iframe' ] },
-        '/',
-        { name: 'basicstyles', items: [ 'Styles', 'Format' ] },
-    ],
-    contentsCss: [CKEDITOR.basePath + 'contents.css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css'],
-    allowedContent: true,
-    stylesSet: 'bootstrap4styles'
-};
-
 function bindPageSettingsForm(linkSrc = false) {
     let formSelector = 'form[name=page]';
     let pageForm = $(formSelector);
@@ -281,8 +257,7 @@ function bindModal(linkSrc) {
     editorModal.modal('show');
     // Enable CKEditor.
     modalBody.find('.ckeditor').each(function () {
-        let textArea = $(this)[0];
-        CKEDITOR.replace(textArea, ckeditorConfig);
+        CKEDITOR.replace($(this)[0], $(this).data('config'));
     });
     // Initialize selects.
     let selectsSelector = 'select[data-widget="select2"]:not(.select2-hidden-accessible)';
@@ -317,6 +292,11 @@ $(document).ready(function () {
     bindPageSettingsForm();
 
     let body = $('body');
+
+    // Enable CKEditor.
+    body.find('.ckeditor').each(function () {
+        CKEDITOR.replace($(this)[0], $(this).data('config'));
+    });
 
     // Menu sorting and saving.
     $('.cms-admin-menu-root').each(function () {

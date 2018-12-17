@@ -14,3 +14,13 @@
         </div>
     {% endif %}
 {% endblock new_action %}
+
+{% block search_action %}
+    {# Check if the user has the permission to search the entity #}
+    {% set permission  = action.permission ?? easyadmin_config('entities.'~_request_parameters.entity~'.permissions.search') %}
+    {% set hasAccess = is_granted(permission ?? 'search_generic') %}
+
+    {% if hasAccess %}
+        {{ parent() }}
+    {% endif %}
+{% endblock search_action %}
