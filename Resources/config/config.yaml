@@ -111,6 +111,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\Alias
             permissions:
                 list: 'alias_list'
+                search: 'alias_search'
                 new: 'alias_create'
                 edit: 'alias_edit'
                 delete: 'alias_delete'
@@ -141,6 +142,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\Website
             permissions:
                 list: 'website_list'
+                search: 'website_search'
                 new: 'website_create'
                 edit: 'website_edit'
             list:
@@ -165,6 +167,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\PageStreamRead
             permissions:
                 list: 'page_list'
+                search: 'page_search'
                 new: 'page_create'
                 edit: 'page_edit'
                 delete: 'page_delete'
@@ -195,6 +198,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\PageStreamRead
             permissions:
                 list: 'page_list'
+                search: 'page_search'
                 new: 'page_create'
                 edit: 'page_edit'
                 delete: 'page_delete'
@@ -220,6 +224,7 @@ easy_admin:
             class: RevisionTen\CQRS\Model\EventStreamObject
             permissions:
                 list: 'event_list'
+                search: 'event_search'
                 show: 'event_show'
             show:
                 actions:
@@ -246,6 +251,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\UserRead
             permissions:
                 list: 'user_list'
+                search: 'user_search'
                 edit: 'user_edit'
                 show: 'user_show'
             show:
@@ -276,6 +282,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\RoleRead
             permissions:
                 list: 'role_list'
+                search: 'role_search'
                 new: 'role_create'
                 edit: 'role_edit'
                 show: 'role_show'
@@ -303,6 +310,7 @@ easy_admin:
             class: RevisionTen\Forms\Model\FormRead
             permissions:
                 list: 'form_list'
+                search: 'form_search'
                 new: 'form_create'
                 edit: 'form_edit'
                 delete: 'form_delete'
@@ -329,6 +337,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\MenuRead
             permissions:
                 list: 'menu_list'
+                search: 'menu_search'
                 new: 'menu_create'
                 edit: 'menu_edit'
             templates:
@@ -350,6 +359,7 @@ easy_admin:
             class: RevisionTen\CMS\Model\FileRead
             permissions:
                 list: 'file_list'
+                search: 'file_search'
                 new: 'file_create'
                 edit: 'file_edit'
             templates:

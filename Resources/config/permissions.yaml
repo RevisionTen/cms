@@ -5,6 +5,8 @@ cms:
                 label: 'Do everything'
             list_generic:
                 label: 'List generic entity'
+            search_generic:
+                label: 'Search generic entity'
             edit_generic:
                 label: 'Edit generic entity'
             show_generic:
@@ -16,6 +18,8 @@ cms:
         Page:
             page_list:
                 label: 'List pages'
+            page_search:
+                label: 'Search pages'
             page_create:
                 label: 'Create page'
             page_edit:
@@ -33,6 +37,8 @@ cms:
         Alias:
             alias_list:
                 label: 'List aliases'
+            alias_search:
+                label: 'Search aliases'
             alias_create:
                 label: 'Create alias'
             alias_edit:
@@ -42,6 +48,8 @@ cms:
         Menu:
             menu_list:
                 label: 'List menus'
+            menu_search:
+                label: 'Search menus'
             menu_create:
                 label: 'Create menu'
             menu_edit:
@@ -49,6 +57,8 @@ cms:
         Form:
             form_list:
                 label: 'List forms'
+            form_search:
+                label: 'Search forms'
             form_create:
                 label: 'Create form'
             form_edit:
@@ -60,6 +70,8 @@ cms:
         File:
             file_list:
                 label: 'List files'
+            file_search:
+                label: 'Search files'
             file_create:
                 label: 'Create file'
             file_edit:
@@ -67,6 +79,8 @@ cms:
         Website:
             website_list:
                 label: 'List websites'
+            website_search:
+                label: 'Search websites'
             website_create:
                 label: 'Create website'
             website_edit:
@@ -74,6 +88,8 @@ cms:
         Role:
             role_list:
                 label: 'List roles'
+            role_search:
+                label: 'Search roles'
             role_create:
                 label: 'Create role'
             role_edit:
@@ -83,6 +99,8 @@ cms:
         User:
             user_list:
                 label: 'List users'
+            user_search:
+                label: 'Search users'
             user_edit:
                 label: 'Edit user'
             user_show:
@@ -90,5 +108,7 @@ cms:
         Event:
             event_list:
                 label: 'List events'
+            event_search:
+                label: 'Search events'
             event_show:
                 label: 'Show events'

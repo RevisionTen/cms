@@ -197,10 +197,12 @@ easy_admin:
         Thing:
             class: App\Entity\Thing
             permissions:
-                list: 'access_thing'
-                new: 'create_thing'
-                edit: 'edit_thing'
-                delete: 'delete_thing'
+                list: 'access_thing' # Defaults to 'list_generic'
+                show: 'view_thing' # Defaults to 'show_generic'
+                search: 'find_thing' # Defaults to 'search_generic'
+                new: 'create_thing' # Defaults to 'create_generic'
+                edit: 'edit_thing' # Defaults to 'edit_generic'
+                delete: 'delete_thing' # Defaults to 'delete_generic'
             list:
                 # You can also add them to your custom actions to avoid displaying 
                 # action links the user has no access to.

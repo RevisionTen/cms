@@ -1,5 +1,11 @@
 {% extends ['bootstrap_4_layout.html.twig'] %}
 
+{% block cms_ckeditor_widget -%}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control ckeditor')|trim}) %}
+    {% set attr = attr|merge({'data-config': config|json_encode}) %}
+    {{- block('textarea_widget') -}}
+{%- endblock cms_ckeditor_widget %}
+
 {%- block cms_trix_widget -%}
     {%- set type = type|default('hidden') -%}
     {{ block('form_widget_simple') }}

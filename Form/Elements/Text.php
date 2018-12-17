@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Form\Elements;
 
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use RevisionTen\CMS\Form\Types\CKEditorType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class Text extends Element
@@ -16,11 +16,8 @@ class Text extends Element
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('text', TextareaType::class, [
+        $builder->add('text', CKEditorType::class, [
             'label' => 'Text',
-            'attr' => [
-                'class' => 'ckeditor',
-            ],
         ]);
     }
 
