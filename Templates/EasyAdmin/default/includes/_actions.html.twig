@@ -7,6 +7,18 @@
         {% set action_href = path(action.name, request_parameters|merge({ action: action.name, id: item_id })) %}
     {% endif %}
 
+    {# Override default action link appearance #}
+    {% if 'edit' == action.name or 'show' == action.name or 'delete' == action.name %}
+        {% if 'edit' == action.name %}
+            {% set icon = 'edit' %}
+        {% elseif 'show' == action.name %}
+            {% set icon = 'eye' %}
+        {% elseif 'delete' == action.name %}
+            {% set icon = 'trash' %}
+        {% endif %}
+        {% set action = action|merge({ title: action.label, label: null, icon: icon }) %}
+    {% endif %}
+
     {# Check if the user has the permission to list the entity #}
     {% set permission = action.permission ?? easyadmin_config('entities.'~request_parameters.entity~'.permissions.'~action.name) %}
     {% if permission is null %}

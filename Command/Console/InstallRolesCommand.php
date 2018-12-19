@@ -8,6 +8,7 @@ use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Command\RoleCreateCommand;
 use RevisionTen\CMS\Command\UserEditCommand;
+use RevisionTen\CMS\Model\Domain;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CMS\Model\FileRead;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,6 +41,9 @@ class InstallRolesCommand extends Command
     /** @var AggregateFactory $aggregateFactory */
     private $aggregateFactory;
 
+    /** @var string $locale */
+    private $locale;
+
     /**
      * InstallRolesCommand constructor.
      *
@@ -47,12 +51,13 @@ class InstallRolesCommand extends Command
      * @param CommandBus             $commandBus
      * @param MessageBus             $messageBus
      */
-    public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory)
+    public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $locale)
     {
         $this->entityManager = $entityManager;
         $this->commandBus = $commandBus;
         $this->messageBus = $messageBus;
         $this->aggregateFactory = $aggregateFactory;
+        $this->locale = $locale;
 
         parent::__construct();
     }
@@ -85,6 +90,22 @@ class InstallRolesCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // Install default website.
+        $websites = $this->entityManager->getRepository(Website::class)->findAll();
+        if (empty($websites)) {
+            $defaultWebsite = new Website();
+            $defaultWebsite->setTitle('Localhost');
+            $defaultWebsite->setDefaultLanguage($this->locale);
+            $defaultDomain = new Domain();
+            $defaultDomain->setDomain('localhost');
+            $defaultWebsite->setDomains([$defaultDomain]);
+
+            $this->entityManager->persist($defaultWebsite);
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+        }
+
+
         $helper = $this->getHelper('question');
 
         // Check if there is an admin role.
@@ -158,41 +179,43 @@ class InstallRolesCommand extends Command
             }
         }
 
-        $userQuestion = new ChoiceQuestion('Choose an admin user', array_keys($userChoice));
-        $userQuestion->setErrorMessage('Answer %s is invalid.');
-        $userQuestion->setAutocompleterValues(array_keys($userChoice));
-        $userQuestion->setValidator(function ($answer) use ($userChoice) {
-            if (!isset($userChoice[$answer])) {
-                throw new \RuntimeException('This user does not exist.');
+        if (!empty($userChoice)) {
+            $userQuestion = new ChoiceQuestion('Choose an admin user', array_keys($userChoice));
+            $userQuestion->setErrorMessage('Answer %s is invalid.');
+            $userQuestion->setAutocompleterValues(array_keys($userChoice));
+            $userQuestion->setValidator(function ($answer) use ($userChoice) {
+                if (!isset($userChoice[$answer])) {
+                    throw new \RuntimeException('This user does not exist.');
+                }
+
+                return $answer;
+            });
+            $userQuestion->setMaxAttempts(5);
+            $userAnswer = $helper->ask($input, $output, $userQuestion);
+            $userUuid = $userChoice[$userAnswer];
+
+            // Get admin role and assign it to the user.
+            $this->entityManager->clear();
+            /** @var RoleRead $adminRole */
+            $adminRole = $this->entityManager->getRepository(RoleRead::class)->findOneByTitle('Administrator');
+            $adminRoleUuid = $adminRole->getUuid();
+            /** @var UserAggregate $user */
+            $user = $this->aggregateFactory->build($userUuid, UserAggregate::class);
+
+            if (!\in_array($adminRoleUuid, $user->roles, true)) {
+                $user->roles[] = $adminRoleUuid;
             }
 
-            return $answer;
-        });
-        $userQuestion->setMaxAttempts(5);
-        $userAnswer = $helper->ask($input, $output, $userQuestion);
-        $userUuid = $userChoice[$userAnswer];
-
-        // Get admin role and assign it to the user.
-        $this->entityManager->clear();
-        /** @var RoleRead $adminRole */
-        $adminRole = $this->entityManager->getRepository(RoleRead::class)->findOneByTitle('Administrator');
-        $adminRoleUuid = $adminRole->getUuid();
-        /** @var UserAggregate $user */
-        $user = $this->aggregateFactory->build($userUuid, UserAggregate::class);
-
-        if (!\in_array($adminRoleUuid, $user->roles, true)) {
-            $user->roles[] = $adminRoleUuid;
-        }
-
-        $assignedAdmin = $this->runCommand(UserEditCommand::class, $user->getUuid(), $user->getVersion(), [
-            'roles' => $user->roles,
-        ]);
-        if ($assignedAdmin) {
-            $output->writeln('Admin role assigned.');
-        } else {
-            $messages = $this->messageBus->getMessagesJson();
-            $output->writeln('Assigning admin role failed.');
-            print_r($messages);
+            $assignedAdmin = $this->runCommand(UserEditCommand::class, $user->getUuid(), $user->getVersion(), [
+                'roles' => $user->roles,
+            ]);
+            if ($assignedAdmin) {
+                $output->writeln('Admin role assigned.');
+            } else {
+                $messages = $this->messageBus->getMessagesJson();
+                $output->writeln('Assigning admin role failed.');
+                print_r($messages);
+            }
         }
     }
 }

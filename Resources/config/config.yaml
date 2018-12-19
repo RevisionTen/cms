@@ -71,6 +71,7 @@ gregwar_image:
 easy_admin:
     site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
     design:
+        menu: "%cms.admin_menu%"
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'
@@ -86,21 +87,6 @@ easy_admin:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
-        menu:
-            - { label: 'Dashboard', route: 'cms_dashboard', icon: 'nope fas fa-tachometer-alt' }
-            - { label: 'Content' }
-            - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
-            - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
-            - { entity: Alias, icon: 'nope fas fa-link' }
-            - { entity: FileRead, label: 'Files', icon: 'nope fas fa-download' }
-            - { label: 'Structure' }
-            - { entity: Website, icon: 'nope fas fa-globe-africa' }
-            - { entity: MenuRead, label: 'Menus', icon: 'bars' }
-            - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
-            - { label: 'Settings' }
-            - { entity: UserRead, icon: 'users' }
-            - { entity: RoleRead, icon: 'nope fas fa-user-shield' }
-            - { entity: EventStreamObject, icon: 'clock' }
     formats:
         date:     'd.m.Y'
         time:     'H:i'

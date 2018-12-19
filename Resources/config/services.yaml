@@ -39,6 +39,8 @@ services:
         autoconfigure: true
         autowire: true
         tags: [console.command]
+        arguments:
+            $locale: '%locale%'
     RevisionTen\CMS\Command\Console\UserCreateCommand:
         autoconfigure: true
         autowire: true

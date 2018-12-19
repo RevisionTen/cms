@@ -11,6 +11,22 @@ cms:
     use_mail_codes: false # Set this to true If you want to receive login codes by mail, set this to false to use Google Authenticator.
     mail_code_lifetime: 5 # Minutes until mailed code expires.
 
+    # Admin menu configuration.
+    admin_menu:
+        Content:
+            - { entity: PageStreamRead, icon: 'nope fas fa-file-alt' }
+            - { entity: PageStreamReadArchive, icon: 'nope fas fa-archive' }
+            - { entity: Alias, icon: 'nope fas fa-link' }
+            - { entity: FileRead, label: 'Files', icon: 'nope fas fa-download' }
+        Structure:
+            - { entity: Website, icon: 'nope fas fa-globe-africa' }
+            - { entity: MenuRead, label: 'Menus', icon: 'bars' }
+            - { label: 'Forms', entity: 'FormRead', icon: 'nope fas fa-mail-bulk' }
+        Settings:
+            - { entity: UserRead, icon: 'users' }
+            - { entity: RoleRead, icon: 'nope fas fa-user-shield' }
+            - { entity: EventStreamObject, icon: 'clock' }
+
     # Menu configuration.
     menus:
         Main Menu:
