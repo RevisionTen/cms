@@ -26,6 +26,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
 
         $permissions = [];
         $page_elements = [];
+        $admin_menu = [];
         $config = [];
         foreach ($configs as $subConfig) {
             $config = array_merge($config, $subConfig);
@@ -38,9 +39,15 @@ class CmsExtension extends Extension implements PrependExtensionInterface
             if (isset($subConfig['page_elements'])) {
                 $page_elements = array_merge($page_elements, $subConfig['page_elements']);
             }
+            // Aggregate all page elements, dont override.
+            if (isset($subConfig['admin_menu'])) {
+                $admin_menu = array_merge_recursive($admin_menu, $subConfig['admin_menu']);
+            }
         }
+
         $config['permissions'] = $permissions;
         $config['page_elements'] = $page_elements;
+        $config['admin_menu'] = $admin_menu;
 
         // Use deprecated "page_menues" config If it is set.
         if (!empty($config['page_menues'])) {
@@ -63,30 +70,59 @@ class CmsExtension extends Extension implements PrependExtensionInterface
 
     public function prepend(ContainerBuilder $container)
     {
-        $container->setParameter('cms.version', CmsBundle::VERSION);
+        $fs = new Filesystem();
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+
+        // Load default cms config.
+        $loader->load('cms.yaml');
+        $loader->load('permissions.yaml');
 
         // Get configured site name and set the cms.site_name parameter.
         $configs = $container->getExtensionConfig('cms');
         $config = self::mergeCMSConfig($configs);
+
+        // Get site name.
         $siteName = $config['site_name'] ?? 'CMS';
-        $container->setParameter('cms.site_name', $siteName);
         // Get configured languages and set the cms.page_languages parameter.
         $pageLanguages = $config['page_languages'] ?? [
             'English' => 'en',
             'German' => 'de',
             'French' => 'fr',
         ];
+        // Build admin menu config.
+        $adminMenu = [
+            ['label' => 'Dashboard', 'route' => 'cms_dashboard', 'icon' => 'nope fas fa-tachometer-alt'],
+        ];
+        $adminMenu[] = ['label' => 'Content'];
+        if (isset($config['admin_menu']['Content'])) {
+            foreach ($config['admin_menu']['Content'] as $menuItem) {
+                $adminMenu[] = $menuItem;
+            }
+        }
+        $adminMenu[] = ['label' => 'Structure'];
+        if (isset($config['admin_menu']['Structure'])) {
+            foreach ($config['admin_menu']['Structure'] as $menuItem) {
+                $adminMenu[] = $menuItem;
+            }
+        }
+        $adminMenu[] = ['label' => 'Settings'];
+        if (isset($config['admin_menu']['Settings'])) {
+            foreach ($config['admin_menu']['Settings'] as $menuItem) {
+                $adminMenu[] = $menuItem;
+            }
+        }
+
+        // Set parameters that are used in other configurations.
+        $container->setParameter('cms.version', CmsBundle::VERSION);
+        $container->setParameter('cms.site_name', $siteName);
         $container->setParameter('cms.page_languages', $pageLanguages);
+        $container->setParameter('cms.admin_menu', $adminMenu);
 
         // Load the cms bundle config.
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
         $loader->load('config.yaml');
-        $loader->load('cms.yaml');
-        $loader->load('permissions.yaml');
 
         // Only load default security If none exists.
-        $fs = new Filesystem();
         if (!$fs->exists($container->getParameter('kernel.project_dir').'/config/packages/security.yaml')) {
             $loader->load('security.yaml');
         }

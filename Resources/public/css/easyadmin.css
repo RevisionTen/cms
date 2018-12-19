@@ -79,6 +79,10 @@ body.show .field-integer .form-widget {
     max-width: none;
 }
 /* Fix checkboxes in EasyAdmin compound forms */
+.field-checkbox .form-widget,
+.form-group.field-collection-action {
+    margin-left: auto;
+}
 .form-widget-compound .form-check > label {
     display: inline-block;
 }
