@@ -15,10 +15,10 @@
         {% block styles %}
             <!-- Full Bootstrap -->
             <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
-            <link rel="stylesheet" href="{{ asset('bundles/cms/example-template-files/bootstrap.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/example-template-files/bootstrap.min.css') }}">
 
             {% if edit %}
-                <script defer src="{{ asset('bundles/cms/libs/dist/main.js') }}"></script>
+                <script defer src="{{ asset('/bundles/cms/libs/dist/main.js') }}"></script>
             {% endif %}
 
             {% include '@cms/Admin/admin-styles.html.twig' %}
@@ -120,9 +120,9 @@
         {% block scripts %}
             <!-- Full Bootstrap and jQuery -->
             <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
-            <script src="{{ asset('bundles/cms/example-template-files/jquery.min.js') }}"></script>
-            <script src="{{ asset('bundles/cms/example-template-files/popper.min.js') }}"></script>
-            <script src="{{ asset('bundles/cms/example-template-files/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/example-template-files/jquery.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/example-template-files/popper.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/example-template-files/bootstrap.min.js') }}"></script>
 
             {% include '@cms/Admin/admin-scripts.html.twig' %}
         {% endblock %}

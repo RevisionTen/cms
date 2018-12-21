@@ -50,6 +50,8 @@ class InstallRolesCommand extends Command
      * @param EntityManagerInterface $entityManager
      * @param CommandBus             $commandBus
      * @param MessageBus             $messageBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param string                 $locale
      */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $locale)
     {

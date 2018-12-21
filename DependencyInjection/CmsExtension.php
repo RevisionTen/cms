@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RevisionTen\CMS\DependencyInjection;
 
 use RevisionTen\CMS\CmsBundle;
@@ -58,7 +60,10 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         return $config;
     }
 
-    public function load(array $configs, ContainerBuilder $container)
+    /**
+     * {@inheritdoc}
+     */
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $config = self::mergeCMSConfig($configs);
 
@@ -68,7 +73,10 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         $container->setParameter('cms', $config);
     }
 
-    public function prepend(ContainerBuilder $container)
+    /**
+     * {@inheritdoc}
+     */
+    public function prepend(ContainerBuilder $container): void
     {
         $fs = new Filesystem();
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));

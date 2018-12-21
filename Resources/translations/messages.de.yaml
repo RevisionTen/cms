@@ -270,6 +270,8 @@ Create role: "Rolle erstellen"
 Edit role: "Rolle bearbeiten"
 Save role: "Rolle speichern"
 Permissions: "Berechtigungen"
+Administrator: "Administrator"
+Editor: "Editor"
 # Event translations
 Role created: "Rolle erstellt"
 Role edited: "Rolle bearbeitet"

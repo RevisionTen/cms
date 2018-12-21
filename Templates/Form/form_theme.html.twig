@@ -1,5 +1,33 @@
 {% extends ['bootstrap_4_layout.html.twig'] %}
 
+{% block choice_widget_expanded %}
+    <div {{ block('widget_container_attributes') }}>
+        {% for group_label, choice in choices %}
+            {%- if choice is iterable -%}
+                {# Grouped expanded choices #}
+                <fieldset>
+                    <legend>
+                        {{ choice_translation_domain is same as(false) ? group_label : group_label|trans({}, choice_translation_domain) }}
+                    </legend>
+                    {% for key, choice in choice.choices %}
+                        {{- form_widget(form[key], {
+                            parent_label_class: label_attr.class|default(''),
+                            translation_domain: choice_translation_domain,
+                            valid: valid,
+                        }) -}}
+                    {% endfor %}
+                </fieldset>
+            {%- else -%}
+                {{- form_widget(form[group_label], {
+                    parent_label_class: label_attr.class|default(''),
+                    translation_domain: choice_translation_domain,
+                    valid: valid,
+                }) -}}
+            {%- endif -%}
+        {% endfor %}
+    </div>
+{% endblock %}
+
 {% block cms_ckeditor_widget -%}
     {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control ckeditor')|trim}) %}
     {% set attr = attr|merge({'data-config': config|json_encode}) %}
@@ -15,7 +43,13 @@
 {% block cms_upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% if file %}
-        <img class="mw-100 h-auto pb-3" src="{{ file }}">
+        {% if file|slice(-4) in ['jpeg', '.jpg', '.png', '.gif'] %}
+            <a href="{{ file }}">
+                <img style="max-width: 200px;" class="rounded img-thumbnail h-auto pb-3" src="{{ file }}">
+            </a>
+        {% else %}
+            <a href="{{ file }}">{{ file }}</a>
+        {% endif %}
         {{ block('form_widget') }}
     {% else %}
         {{ block('form_widget') }}

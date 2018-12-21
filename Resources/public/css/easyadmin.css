@@ -172,6 +172,10 @@ a {
 .sidebar-menu a {
     color: var(--color-sidebar);
 }
+.sidebar-menu .treeview-menu a {
+    padding: 7px 5px 7px 30px;
+}
+.sidebar-menu .treeview-menu a .fa,
 .sidebar-menu .fa {
     filter: none;
     color: var(--color-sidebar);

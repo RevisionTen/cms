@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RevisionTen\CMS\DependencyInjection;
 
 use RevisionTen\CMS\Form\PageMetaType;
@@ -8,7 +10,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    public function getConfigTreeBuilder()
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
 
