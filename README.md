@@ -107,8 +107,11 @@ $builder->add('Link', DoctrineType::class, [
     'orderBy' => [
         'path' => 'DESC',
     ],
+    'filterByWebsite' => true,
 ]);
 ```
+
+You can also limit the choice list to entities that match the users current website by using `filterByWebsite` (if the website property on the entity is a relationship) or 'filterByWebsiteId' (if the website property is an id).
 
 You can then use the entity in your twig template. Dumping it will print something like this:
 

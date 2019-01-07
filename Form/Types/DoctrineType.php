@@ -5,22 +5,34 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Model\Website;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DoctrineType extends AbstractType
 {
+    /** @var Website|null */
+    private $website;
+
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
+
+        $request = $requestStack->getMasterRequest();
+        $website = $request ? $request->get('currentWebsite') : null;
+
+        if (null !== $website) {
+            $this->website = $this->entityManager->getRepository(Website::class)->find($website);
+        }
     }
 
     /**
@@ -31,6 +43,13 @@ class DoctrineType extends AbstractType
         parent::buildForm($builder, $options);
 
         $choices = [];
+
+        // Filter list of entities by website entity or id.
+        if ($options['filterByWebsite']) {
+            $options['findBy']['website'] = $this->website;
+        } elseif ($options['filterByWebsiteId']) {
+            $options['findBy']['website'] = $this->website->getId();
+        }
 
         /** @var array $entities */
         $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy'], $options['orderBy']);
@@ -95,6 +114,8 @@ class DoctrineType extends AbstractType
             'entityClass' => null,
             'findBy' => [],
             'orderBy' => [],
+            'filterByWebsite' => false,
+            'filterByWebsiteId' => false,
         ]);
     }
 
