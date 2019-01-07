@@ -43,7 +43,7 @@
 {% block cms_upload_widget %}
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% if file %}
-        {% if file|slice(-4) in ['jpeg', '.jpg', '.png', '.gif'] %}
+        {% if file|slice(-4) in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
             <a href="{{ file }}">
                 <img style="max-width: 200px;" class="rounded img-thumbnail h-auto pb-3" src="{{ file }}">
             </a>
