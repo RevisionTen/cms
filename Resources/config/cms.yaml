@@ -11,6 +11,10 @@ cms:
     use_mail_codes: false # Set this to true If you want to receive login codes by mail, set this to false to use Google Authenticator.
     mail_code_lifetime: 5 # Minutes until mailed code expires.
 
+    # Solr configuration.
+    solr_port: 8983
+    solr_collection: 'cms'
+
     # Admin menu configuration.
     admin_menu:
         Content:
@@ -48,6 +52,8 @@ cms:
     controller:
         Login Form:
             action: 'RevisionTen\CMS\Controller\SecurityController::loginForm'
+        Fulltext Search Results:
+            action: 'RevisionTen\CMS\Controller\FrontendController::fulltextSearch'
 
     # Page configuration.
     page_metatype: RevisionTen\CMS\Form\PageMetaType
@@ -60,6 +66,7 @@ cms:
             template: '@cms/layout.html.twig'
             # Options to further customize the page type:
             #metatype: RevisionTen\CMS\Form\Meta\LocalBusinessMetaType
+            #solr_serializer: App\Serializer\PageSerializer # Must implement RevisionTen\CMS\Interface\SolrSerializerInterface
             #alias_prefix:
             #    en: '/simple-page/' # Defaults to '/'
             #    de: '/einfache-seite/'

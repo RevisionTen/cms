@@ -10,9 +10,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Services\PageService;
+use RevisionTen\CMS\Services\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -234,5 +236,25 @@ class FrontendController extends AbstractController
         }
 
         return $response;
+    }
+
+    /**
+     * @param RequestStack  $requestStack
+     * @param SearchService $searchService
+     *
+     * @return Response
+     */
+    public function fulltextSearch(RequestStack $requestStack, SearchService $searchService): Response
+    {
+        $request = $requestStack->getMasterRequest();
+
+        $query = $request->get('q');
+
+        $results = (null !== $query) ? $searchService->getFulltextResults($query) : null;
+
+        return $this->render('@cms/Search/fulltext.html.twig', [
+            'query' => $query,
+            'results' => $results,
+        ]);
     }
 }

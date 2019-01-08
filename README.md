@@ -162,6 +162,12 @@ If for whatever reason the SHM can't be created, the cache will be disabled.
 Page access is determined by the alias that is visited, not by the properties of the page.
 The language and website of the alias must match the locale and host of the request.
 
+## Indexing pages in solr
+
+Configure your solr collection and port with `cms.solr_collection` and `cms.solr_port`.
+Use `bin/console cms:solr:index` to index your pages.
+If you want to add more data to solr implement the `SolrSerializerInterface` and reference the class in the `solr_serializer` option under the corresponding page template configuration.
+
 ## Adding and using permissions
 
 You can add your own permissions to the config:
