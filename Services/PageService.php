@@ -281,7 +281,10 @@ class PageService
                 if (!isset($groups[$parsedHydrationId['class']])) {
                     $groups[$parsedHydrationId['class']] = [];
                 }
-                $groups[$parsedHydrationId['class']][$parsedHydrationId['id']] = $parsedHydrationId['id'];
+                $entityIds = explode(',', $parsedHydrationId['id']);
+                foreach ($entityIds as $entityId) {
+                    $groups[$parsedHydrationId['class']][$entityId] = $entityId;
+                }
             }
 
             // Get doctrine entities.
@@ -293,10 +296,16 @@ class PageService
                 }
             }
 
+            // Replace references in page data with entity objects.
             array_walk_recursive($pageData, function (&$value, $key) use ($groups) {
                 if ('doctrineEntity' === $key) {
                     $parsedHydrationId = $this->parseHydrationId($value);
-                    $value = $groups[$parsedHydrationId['class']][$parsedHydrationId['id']] ?? null;
+                    $entityIds = explode(',', $parsedHydrationId['id']);
+                    $entities = [];
+                    foreach ($entityIds as $entityId) {
+                        $entities[] = $groups[$parsedHydrationId['class']][$entityId] ?? null;
+                    }
+                    $value = count($entities) > 1 ? $entities : $entities[0];
                 }
             });
         }

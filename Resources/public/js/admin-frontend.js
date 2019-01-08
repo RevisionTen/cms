@@ -229,30 +229,39 @@
 
         // Bind actions to the control elements.
         element.find('.btn-add').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('addElement', {'parent': element.data('uuid')});
         });
         element.find('.btn-create').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('createElement', {'parent': element.data('uuid'), 'elementName': $(this).data('element-name')});
         });
         element.find('.btn-edit').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('editElement', {'uuid': element.data('uuid')});
         });
         element.find('.btn-delete').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('deleteElement', {'uuid': element.data('uuid')});
         });
         element.find('.btn-up').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('shiftElement', {'uuid': element.data('uuid'), 'direction': 'up'});
         });
         element.find('.btn-down').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('shiftElement', {'uuid': element.data('uuid'), 'direction': 'down'});
         });
         element.find('.btn-disable').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('disableElement', {'uuid': element.data('uuid')});
         });
         element.find('.btn-enable').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('enableElement', {'uuid': element.data('uuid')});
         });
         element.find('.btn-duplicate').on('click', function (event) {
+            event.preventDefault();
             parent.$('body').trigger('duplicateElement', {'uuid': element.data('uuid')});
         });
 

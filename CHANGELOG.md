@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.11] - 2019-01-08
+### Added
+- Added `multiple` and `expanded` option to DoctrineType
+- Added `alias_prefix` option to `page_templates` configuration, see `cms/Resources/config/cms.yaml` on how to use
+### Changed
+- Fixed file extension guessing in UploadType
+- Added event.preventDefault() to editor control buttons
+
 ## [1.4.10] - 2019-01-07
 ### Changed
 - Improved form_theme

@@ -62,6 +62,8 @@ class DoctrineType extends AbstractType
 
         $choiceOptions = [
             'required' => $options['required'],
+            'expanded' => $options['expanded'],
+            'multiple' => $options['multiple'],
             'label' => false,
             'choices' => $choices,
         ];
@@ -81,7 +83,13 @@ class DoctrineType extends AbstractType
             $data = $event->getData();
 
             if (isset($data['entityId'], $data['entityClass'])) {
-                $data['doctrineEntity'] = $data['entityClass'].':'.$data['entityId'];
+                if (is_array($data['entityId'])) {
+                    // Implode multiple.
+                    $data['doctrineEntity'] = $data['entityClass'].':'.implode(',', $data['entityId']);
+                } else {
+                    // Single.
+                    $data['doctrineEntity'] = $data['entityClass'].':'.$data['entityId'];
+                }
                 // Remove unneeded data.
                 unset($data['entityId'], $data['entityClass']);
             } else {
@@ -92,11 +100,18 @@ class DoctrineType extends AbstractType
         });
 
         // Parse hydrationId.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($options) {
             $data = $event->getData();
             if (null !== $data) {
                 if (isset($data['doctrineEntity'])) {
                     $data['entityId'] = explode(':', $data['doctrineEntity'])[1];
+                    // Always convert to multiple array.
+                    $data['entityId'] = explode(',', $data['entityId']);
+                    // Convert back to single if single choice.
+                    if (!$options['multiple']) {
+                        $data['entityId'] = $data['entityId'][0];
+                    }
+                    unset($data['doctrineEntity']);
                 }
                 $event->setData($data);
             }
@@ -110,6 +125,8 @@ class DoctrineType extends AbstractType
     {
         $resolver->setDefaults([
             'required' => true,
+            'expanded' => false,
+            'multiple' => false,
             'placeholder' => false,
             'entityClass' => null,
             'findBy' => [],
