@@ -1,0 +1,37 @@
+{% if results %}
+    <form method="get">
+        <div class="input-group mb-3">
+            <input type="text" placeholder="{{ 'search term'|trans }}" class="form-control" name="q" value="{{ query }}">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </form>
+
+    <p class="lead">
+        {% if results.numFound == 1 %}
+            {{ 'Your search for "%query%" yielded 1 result'|trans({'%query%': query}) }}:
+        {% elseif results.numFound > 1 %}
+            {{ 'Your search for "%query%" yielded %count% results'|trans({'%query%': query, '%count%': results.numFound}) }}:
+        {% else %}
+            {{ 'Your search for "%query%" yielded no results'|trans({'%query%': query}) }}.
+        {% endif %}
+    </p>
+
+    <ul class="list-group">
+        {% for result in results.pages %}
+            {% if result.url_s is defined %}
+                <li class="list-group-item">
+                    <a href="{{ result.url_s }}">
+                        {{ result.title_s }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+{% else %}
+    <p>
+        <strong>{{ 'Please enter search words'|trans }}.</strong>
+    </p>
+{% endif %}

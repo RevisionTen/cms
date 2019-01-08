@@ -69,6 +69,23 @@ services:
         tags: [console.command]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Command\Console\IndexCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
+    RevisionTen\CMS\Services\IndexService:
+        autoconfigure: true
+        autowire: true
+        public: true
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Services\SearchService:
+        autoconfigure: true
+        autowire: true
+        public: true
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Services\SecretService:
         autowire: true
         arguments:
