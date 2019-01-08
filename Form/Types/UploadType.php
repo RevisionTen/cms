@@ -12,7 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UploadType extends AbstractType
@@ -64,11 +64,11 @@ class UploadType extends AbstractType
             } elseif (isset($data['file']) && null !== $data['file']) {
                 if (\is_object($data['file'])) {
                     // Save the image and set the field to the upload path.
-                    /** @var File $image */
+                    /** @var UploadedFile $image */
                     $image = $data['file'];
 
                     // Move the file to the uploads directory.
-                    $newFileName = $image->getFilename().'.'.$image->guessExtension();
+                    $newFileName = $image->getFilename().'.'.$image->getClientOriginalExtension();
                     $image->move($public_dir.$upload_dir, $newFileName);
 
                     // Overwrite uploaded File with file path string.

@@ -89,6 +89,8 @@ Use this form type to reference a doctrine entity in your element. Example:
 ```PHP
 $builder->add('Link', DoctrineType::class, [
     'required' => false,
+    'multiple' => false,
+    'expanded' => false,
     'label' => 'Link',
     'entityClass' => Alias::class,
 ]);
@@ -99,6 +101,8 @@ You can also pass a findBy and orderBy parameter to filter your choice list.
 ```PHP
 $builder->add('Link', DoctrineType::class, [
     'required' => false,
+    'multiple' => false,
+    'expanded' => false,
     'label' => 'Link',
     'entityClass' => Alias::class,
     'findBy' => [

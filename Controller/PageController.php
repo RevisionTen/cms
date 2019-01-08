@@ -509,6 +509,8 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('alias_create');
 
+        $config = $this->getParameter('cms');
+
         /** @var PageStreamRead|null $pageStreamRead */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
@@ -530,7 +532,8 @@ class PageController extends AbstractController
             $websiteUrl = null;
         }
         $slugify = new Slugify();
-        $pathSuggestion = '/'.$slugify->slugify($pageStreamRead->getTitle());
+        $alias_prefix = $config['page_templates'][$pageStreamRead->getTemplate()]['alias_prefix'][$pageStreamRead->getLanguage()] ?? '/';
+        $pathSuggestion = $alias_prefix.$slugify->slugify($pageStreamRead->getTitle());
 
         $form = $this->createFormBuilder(['path' => $pathSuggestion])
             ->add('path', TextType::class, [

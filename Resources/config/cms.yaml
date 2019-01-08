@@ -58,6 +58,11 @@ cms:
     page_templates:
         Simple Page:
             template: '@cms/layout.html.twig'
+            # Options to further customize the page type:
+            #metatype: RevisionTen\CMS\Form\Meta\LocalBusinessMetaType
+            #alias_prefix:
+            #    en: '/simple-page/' # Defaults to '/'
+            #    de: '/einfache-seite/'
     page_elements:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section
