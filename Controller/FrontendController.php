@@ -250,7 +250,7 @@ class FrontendController extends AbstractController
 
         $query = $request->get('q');
 
-        $results = (null !== $query) ? $searchService->getFulltextResults($query) : null;
+        $results = !empty($query) ? $searchService->getFulltextResults($query) : null;
 
         return $this->render('@cms/Search/fulltext.html.twig', [
             'query' => $query,
