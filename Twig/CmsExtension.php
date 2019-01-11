@@ -68,19 +68,19 @@ class CmsExtension extends AbstractExtension
         $right = $spacing['right'] ?? null;
         $bottom = $spacing['bottom'] ?? null;
         $left = $spacing['left'] ?? null;
-        if ($top) {
+        if (null !== $top) {
             $key = $propertyAbr.'t'.$breakpoint;
             $classes[$key] = $key.'-'.$top;
         }
-        if ($right) {
+        if (null !== $right) {
             $key = $propertyAbr.'r'.$breakpoint;
             $classes[$key] = $key.'-'.$right;
         }
-        if ($bottom) {
+        if (null !== $bottom) {
             $key = $propertyAbr.'b'.$breakpoint;
             $classes[$key] = $key.'-'.$bottom;
         }
-        if ($left) {
+        if (null !== $left) {
             $key = $propertyAbr.'l'.$breakpoint;
             $classes[$key] = $key.'-'.$left;
         }
