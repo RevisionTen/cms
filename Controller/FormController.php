@@ -114,4 +114,14 @@ class FormController extends AbstractController
 
         return $this->forward('\RevisionTen\Forms\Controller\FormController::cloneAggregateAction', [], $request->query->all());
     }
+
+    /**
+     * @Route("/submissions", name="forms_submissions")
+     */
+    public function submissions(Request $request)
+    {
+        $this->denyAccessUnlessGranted('form_submissions');
+
+        return $this->forward('\RevisionTen\Forms\Controller\FormController::submissions', [], $request->query->all());
+    }
 }
