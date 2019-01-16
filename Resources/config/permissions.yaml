@@ -67,6 +67,8 @@ cms:
                 label: 'Delete form'
             form_clone:
                 label: 'Clone form'
+            form_submissions:
+                label: 'List form submissions'
         File:
             file_list:
                 label: 'List files'

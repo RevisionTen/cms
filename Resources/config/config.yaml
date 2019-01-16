@@ -307,6 +307,7 @@ easy_admin:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
+                    - { name: 'forms_submissions', type: 'route', title: 'List form submissions', label: '', icon: 'download', permission: 'form_submissions' }
                     - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit', permission: 'form_edit' }
                     - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone', permission: 'form_clone' }
                     - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
