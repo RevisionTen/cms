@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.17] - 2019-01-17
+### Changed
+- Fixed an inconsistency with date types in the PageStreamRead entity
+- Added option to index only a specific aggregate
+
 ## [1.4.16] - 2019-01-16
 ### Added
 - **Added `form_submissions` permission**

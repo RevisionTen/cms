@@ -66,13 +66,13 @@ class PageStreamRead
     private $template;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      * @ORM\Column(type="datetime")
      */
     private $created;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      * @ORM\Column(type="datetime")
      */
     private $modified;
@@ -250,10 +250,13 @@ class PageStreamRead
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getCreated(): \DateTime
+    public function getCreated(): \DateTimeImmutable
     {
+        if ($this->created instanceof \DateTime) {
+            $this->created = \DateTimeImmutable::createFromMutable($this->created);
+        }
         return $this->created;
     }
 
@@ -270,10 +273,13 @@ class PageStreamRead
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getModified(): \DateTime
+    public function getModified(): \DateTimeImmutable
     {
+        if ($this->modified instanceof \DateTime) {
+            $this->modified = \DateTimeImmutable::createFromMutable($this->modified);
+        }
         return $this->modified;
     }
 

@@ -57,7 +57,7 @@ class IndexService
         ];
     }
 
-    private function logError(OutputInterface &$output, string $title, string $message, int $code = 500): void
+    private function logError(OutputInterface $output, string $title, string $message, int $code = 500): void
     {
         $this->logger->critical($title, [
             'message' => $message,
@@ -69,20 +69,34 @@ class IndexService
         $output->writeln('');
     }
 
-    public function index(OutputInterface &$output): void
+    public function index(OutputInterface $output, string $uuid = null): void
     {
         $client = new Client($this->solrConfig);
 
-        /** @var PageRead[] $pageReads */
-        $pageReads = $this->entityManager->getRepository(PageRead::class)->findAll();
+        if (null === $uuid) {
+            /** @var PageRead[] $pageReads */
+            $pageReads = $this->entityManager->getRepository(PageRead::class)->findAll();
+        } else {
+            /** @var PageRead[] $pageReads */
+            $pageReads = $this->entityManager->getRepository(PageRead::class)->findBy([
+                'uuid' => $uuid,
+            ]);
+        }
         $pageReadsByUuid = [];
         array_walk($pageReads, function ($page, $key) use(&$pageReadsByUuid) {
             /** @var PageRead $page */
             $pageReadsByUuid[$page->getUuid()] = $page;
         });
 
-        /** @var PageStreamRead[] $pages */
-        $pages = $this->entityManager->getRepository(PageStreamRead::class)->findAll();
+        if (null === $uuid) {
+            /** @var PageStreamRead[] $pages */
+            $pages = $this->entityManager->getRepository(PageStreamRead::class)->findAll();
+        } else {
+            /** @var PageStreamRead[] $pages */
+            $pages = $this->entityManager->getRepository(PageStreamRead::class)->findBy([
+                'uuid' => $uuid,
+            ]);
+        }
 
         $update = $client->createUpdate();
         $helper = $update->getHelper();
@@ -108,7 +122,7 @@ class IndexService
             }
 
             // Don't index if no alias path exists or page is deleted or unpublished.
-            if (null === $path || $page->getDeleted() || $page->isPublished() === false) {
+            if (null === $path || null === $pageRead || $page->getDeleted() || false === $page->isPublished()) {
                 // Delete page from index.
                 $update->addDeleteById($id);
                 $output->writeln('<info>Marked page '.$page->getTitle().' as deleted.</info>');
