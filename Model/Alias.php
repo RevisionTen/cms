@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Model;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Alias.
  *
- * @ORM\Entity(repositoryClass="RevisionTen\CMS\Model\AliasRepository")
+ * @ORM\Entity(repositoryClass="RevisionTen\CMS\Repository\AliasRepository")
  * @ORM\Table(name="alias")
  */
 class Alias
@@ -24,6 +25,7 @@ class Alias
 
     /**
      * @var string
+     * @Assert\NotNull()
      * @ORM\Column(type="string")
      */
     private $path;

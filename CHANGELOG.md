@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.18] - 2019-01-21
+### Added
+- Added LanguageAndWebsiteTrait
+- Added docs for LanguageAndWebsiteTrait
+- Added path constraint to alias entity
+### Changed
+- Set default values for website and language property in entity new form
+
 ## [1.4.17] - 2019-01-17
 ### Changed
 - Fixed an inconsistency with date types in the PageStreamRead entity

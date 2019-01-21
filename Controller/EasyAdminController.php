@@ -26,6 +26,16 @@ class EasyAdminController extends BaseController
         $permission = $this->entity['permissions']['list'] ?? 'list_generic';
         $this->denyAccessUnlessGranted($permission, $this->entity);
 
+        // Always filter entities that have a website relation.
+        $currentWebsite = $this->request->get('currentWebsite');
+        if ($currentWebsite && method_exists($this->entity['class'], 'getWebsite')) {
+            if (!empty($this->entity['list']['dql_filter'])) {
+                $this->entity['list']['dql_filter'] .= ' AND entity.website = '.$currentWebsite;
+            } else {
+                $this->entity['list']['dql_filter'] = 'entity.website = '.$currentWebsite;
+            }
+        }
+
         return parent::listAction();
     }
 
@@ -33,6 +43,16 @@ class EasyAdminController extends BaseController
     {
         $permission = $this->entity['permissions']['search'] ?? 'search_generic';
         $this->denyAccessUnlessGranted($permission, $this->entity);
+
+        // Always filter entities that have a website relation.
+        $currentWebsite = $this->request->get('currentWebsite');
+        if ($currentWebsite && method_exists($this->entity['class'], 'getWebsite')) {
+            if (!empty($this->entity['search']['dql_filter'])) {
+                $this->entity['search']['dql_filter'] .= ' AND entity.website = '.$currentWebsite;
+            } else {
+                $this->entity['search']['dql_filter'] = 'entity.website = '.$currentWebsite;
+            }
+        }
 
         return parent::searchAction();
     }
@@ -69,24 +89,30 @@ class EasyAdminController extends BaseController
         return parent::deleteAction();
     }
 
-    protected function createAliasEntityFormBuilder($entity, $view)
+    protected function createEntityFormBuilder($entity, $view)
     {
-        $formOptions = $this->executeDynamicMethod('get<EntityName>EntityFormOptions', [$entity, $view]);
+        $currentWebsite = $this->request->get('currentWebsite');
+        /** @var Website $website */
+        $website = $this->em->getRepository(Website::class)->find($currentWebsite);
+        $overrideWebsite = $website && method_exists($this->entity['class'], 'getWebsite') && method_exists($entity, 'setWebsite');
+        $overrideLanguage = $website && method_exists($this->entity['class'], 'getWebsite') && method_exists($entity, 'setLanguage');
 
+        // Set default website.
+        if ($overrideWebsite && null === $entity->getWebsite() && 'new' === $view) {
+            $entity->setWebsite($website);
+        }
+        // Set default language.
+        if ($overrideLanguage && null === $entity->getLanguage() && 'new' === $view) {
+            $defaultLanguage = $website->getDefaultLanguage() ?? $this->request->getLocale();
+            $entity->setLanguage($defaultLanguage);
+        }
+
+        $formOptions = $this->executeDynamicMethod('get<EntityName>EntityFormOptions', [$entity, $view]);
         $formBuilder = $this->get('form.factory')->createNamedBuilder(\mb_strtolower($this->entity['name']), EasyAdminFormType::class, $entity, $formOptions);
 
-        // Override website choice form.
-        if ($this->getUser()) {
-            /** @var Website[] $websites */
-            $websites = $this->getUser()->getWebsites();
-            $formBuilder->add('website', EntityType::class, [
-                'class' => Website::class,
-                'choice_label' => 'title',
-                'label' => 'Website',
-                'placeholder' => 'Website',
-                'choices' => $websites,
-                'constraints' => new NotBlank(),
-            ]);
+        // Don't allow the website field to appear in the form.
+        if ($formBuilder->has('website')) {
+            $formBuilder->remove('website');
         }
 
         return $formBuilder;
@@ -94,34 +120,14 @@ class EasyAdminController extends BaseController
 
     protected function filteredListAction(string $dqlFilter = null): Response
     {
-        $currentWebsite = $this->request->get('currentWebsite');
-
-        if ($currentWebsite) {
-            if (null !== $dqlFilter) {
-                $this->entity['list']['dql_filter'] = '('.$dqlFilter.') AND entity.website = '.$currentWebsite;
-            } else {
-                $this->entity['list']['dql_filter'] = 'entity.website = '.$currentWebsite;
-            }
-        } else {
-            $this->entity['list']['dql_filter'] = $dqlFilter;
-        }
+        $this->entity['list']['dql_filter'] = $dqlFilter;
 
         return $this->listAction();
     }
 
     protected function filteredSearchAction(string $dqlFilter = null): Response
     {
-        $currentWebsite = $this->request->get('currentWebsite');
-
-        if ($currentWebsite) {
-            if (null !== $dqlFilter) {
-                $this->entity['search']['dql_filter'] = '('.$dqlFilter.') AND entity.website = '.$currentWebsite;
-            } else {
-                $this->entity['search']['dql_filter'] = 'entity.website = '.$currentWebsite;
-            }
-        } else {
-            $this->entity['search']['dql_filter'] = $dqlFilter;
-        }
+        $this->entity['search']['dql_filter'] = $dqlFilter;
 
         return $this->searchAction();
     }
@@ -154,25 +160,5 @@ class EasyAdminController extends BaseController
     protected function searchAliasAction(): Response
     {
         return $this->filteredSearchAction('entity.controller IS NULL');
-    }
-
-    protected function listMenuReadAction(): Response
-    {
-        return $this->filteredListAction();
-    }
-
-    protected function searchMenuReadAction(): Response
-    {
-        return $this->filteredSearchAction();
-    }
-
-    protected function listFileReadAction(): Response
-    {
-        return $this->filteredListAction();
-    }
-
-    protected function searchFileReadAction(): Response
-    {
-        return $this->filteredSearchAction();
     }
 }
