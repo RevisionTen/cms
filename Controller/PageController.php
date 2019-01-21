@@ -132,20 +132,24 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_create');
 
+        $data = $request->get('page');
+        $ignore_validation = $request->get('ignore_validation');
+        $currentWebsite = (int) $request->get('currentWebsite');
+
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
 
+        $data['language'] = $request->getLocale();
         $pageWebsites = [];
         /** @var Website[] $websites */
         $websites = $websites = $user->getWebsites();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
+            if ($website->getId() === $currentWebsite && $website->getDefaultLanguage()) {
+                $data['language'] = $website->getDefaultLanguage();
+            }
         }
-
-        $data = $request->get('page');
-        $ignore_validation = $request->get('ignore_validation');
-        $currentWebsite = $request->get('currentWebsite');
 
         $form = $this->createForm(PageType::class, $data, [
             'page_websites' => $currentWebsite ? false : $pageWebsites,

@@ -82,7 +82,7 @@ class DoctrineType extends AbstractType
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
 
-            if (isset($data['entityId'], $data['entityClass'])) {
+            if (!empty($data['entityId']) && !empty($data['entityClass'])) {
                 if (is_array($data['entityId'])) {
                     // Implode multiple.
                     $data['doctrineEntity'] = $data['entityClass'].':'.implode(',', $data['entityId']);
@@ -103,16 +103,34 @@ class DoctrineType extends AbstractType
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($options) {
             $data = $event->getData();
             if (null !== $data) {
+
                 if (isset($data['doctrineEntity'])) {
-                    $data['entityId'] = explode(':', $data['doctrineEntity'])[1];
-                    // Always convert to multiple array.
-                    $data['entityId'] = explode(',', $data['entityId']);
-                    // Convert back to single if single choice.
-                    if (!$options['multiple']) {
-                        $data['entityId'] = $data['entityId'][0];
-                    }
+                    // Reference is set, parse the reference.
+                    // Get the entity id or ids.
+                    $entityIds = explode(':', $data['doctrineEntity'])[1];
+                    // Always convert the id(s) to an array of ids.
+                    $entityIds = explode(',', $entityIds);
+
+                    // Set the data on the form.
+                    $data['entityId'] = $entityIds;
+                    // Unset the reference.
                     unset($data['doctrineEntity']);
                 }
+
+                // Make sure the entityId field data has the correct format.
+                if (!empty($data['entityId'])) {
+                    if ($options['multiple'] && !is_array($data['entityId'])) {
+                        // Form is multiple, but data is not an array, convert.
+                        $data['entityId'] = [$data['entityId']];
+                    } elseif (!$options['multiple'] && is_array($data['entityId'])) {
+                        // Form in single, but data is an array, get first choice.
+                        $data['entityId'] = array_values($data['entityId'])[0];
+                    }
+                } else {
+                    // Data is empty.
+                    $data['entityId'] = $options['multiple'] ? [] : null;
+                }
+
                 $event->setData($data);
             }
         });
