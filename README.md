@@ -58,7 +58,7 @@ Make sure your website is able to send emails first. [Use gmail If you can't sen
 
 Install the default roles with the command `bin/console cms:install:roles`.
 
-Create an admin user with the command: `bin/console cms:user:create`,
+Create an admin user with the command: `bin/console cms:user:create`.
 
 You will be mailed a QR-code that you need for logging in.
 
