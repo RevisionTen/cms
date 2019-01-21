@@ -119,7 +119,6 @@ easy_admin:
                 fields:
                     - 'path'
                     - { property: 'language', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
-                    - 'website'
                     - 'pageStreamRead'
                     - 'redirect'
                     - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 } } }

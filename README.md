@@ -56,13 +56,13 @@ Run `bin/console assets:install --symlink` to install the bundle assets.
 
 Make sure your website is able to send emails first. [Use gmail If you can't send emails locally][use-gmail].
 
-Create an admin user with the interactive command: `bin/console cms:user:create`
+Install the default roles with the command `bin/console cms:install:roles`.
+
+Create an admin user with the command: `bin/console cms:user:create`,
 
 You will be mailed a QR-code that you need for logging in.
 
 If you lost your QR-code you can use this command to generate a new one: `bin/console cms:user:generate_secret`
-
-Install the default roles with the command `bin/console cms:install:roles`, and assign the admin role to your user.
 
 Start your web-server and login at `/login`.
 
@@ -70,7 +70,7 @@ Start your web-server and login at `/login`.
 
 You can find the full configuration in `/vendor/revision-ten/cms/Resources/config/cms.yaml`.
 
-## Editor Javascript Events
+## Editor javascript events
 
 All editor events are triggered on the body element of the page.
 
@@ -80,7 +80,7 @@ All editor events are triggered on the body element of the page.
 | `bindElement` | event, elementUuid | Occurs after an element is refreshed. |
 
 
-## Form Types
+## Form types
 
 #### DoctrineType
 
@@ -144,6 +144,11 @@ $builder->add('image', UploadType::class, [
 ]);
 ```
 
+## LanguageAndWebsiteTrait & EasyAdmin entities
+
+You can add the LanguageAndWebsiteTrait to your custom easyadmin entities to show only entities that match the current website.
+When you create a new entity in easyadmin the website property will be set to the users current website.
+
 ## Caching
 
 The cms uses a shared memory segment to keep the cache consistent across multiple apcu processes.
@@ -157,7 +162,7 @@ key        shmid      owner      perms      bytes      nattch     status
 ```
 If for whatever reason the SHM can't be created, the cache will be disabled.
 
-## Access to Pages
+## Access to pages
 
 Page access is determined by the alias that is visited, not by the properties of the page.
 The language and website of the alias must match the locale and host of the request.

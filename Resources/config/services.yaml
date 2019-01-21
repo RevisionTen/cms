@@ -7,6 +7,11 @@ services:
         autowire: true
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: -10 }
+    RevisionTen\CMS\Repository\AliasRepository:
+        autowire: true
+        autoconfigure: true
+        arguments:
+            $entityClass: 'RevisionTen\CMS\Model\Alias'
     # TODO: Fix this listener.
     # RevisionTen\CMS\EventListener\LogoutListener:
     #     autowire: true
