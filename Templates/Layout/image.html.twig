@@ -1,3 +1,39 @@
 <div {{ editorAttr(element, edit, 'bg-warning') }} class="{{ elementClasses(element) }}">
-    <img class="img-fluid" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ web_image(element.data.image).cropResize(1920, 1920) }}">
+    {% if element.data.image is defined and element.data.image %}
+        {% if (element.data.settings.showOriginal is defined and element.data.settings.showOriginal) or element.data.image|slice(-4) == '.svg' %}
+            <img class="img-fluid" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ element.data.image }}">
+        {% else %}
+            {% set src = web_image(element.data.image) %}
+
+            {% set width = element.data.settings.width ?? 1920 %}
+            {% set height = element.data.settings.height ?? 1920 %}
+
+            {% set scaling = element.data.settings.scaling ?? null %}
+            {% if scaling == 'cropResize' %}
+                {% set src = src.cropResize(width, height) %}
+            {% elseif scaling == 'resize' %}
+                {% set src = src.resize(width, height) %}
+            {% elseif scaling == 'scaleResize' %}
+                {% set src = src.scaleResize(width, height) %}
+            {% elseif scaling == 'forceResize' %}
+                {% set src = src.forceResize(width, height) %}
+            {% elseif scaling == 'zoomCrop' %}
+                {% set src = src.zoomCrop(width, height) %}
+            {% else %}
+                {% set src = src.cropResize(width, height) %}
+            {% endif %}
+
+            {% set grayscale = element.data.settings.grayscale ?? false %}
+            {% if grayscale %}
+                {% set src = src.grayscale() %}
+            {% endif %}
+
+            {% set fixOrientation = element.data.settings.fixOrientation ?? false %}
+            {% if fixOrientation %}
+                {% set src = src.fixOrientation() %}
+            {% endif %}
+
+            <img class="img-fluid" title="{{ element.data.title }}" alt="{{ element.data.title }}" src="{{ src }}">
+        {% endif %}
+    {% endif %}
 </div>
