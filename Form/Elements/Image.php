@@ -18,6 +18,11 @@ class Image extends Element
     {
         parent::buildForm($builder, $options);
 
+        $builder->add('settings', ImageSettings::class, [
+            'label' => false,
+            'required' => false,
+        ]);
+
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Title',
