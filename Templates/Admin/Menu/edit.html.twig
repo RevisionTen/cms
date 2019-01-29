@@ -9,14 +9,14 @@
             {% include '@cms/Admin/Menu/edit-item.html.twig' %}
         {% endfor %}
     </ul>
+{% endblock %}
 
-    <div class="p-3">
-        <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
+{% block content_footer %}
+    <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
 
-        {% for itemName, itemConfig in config.menu_items %}
-            <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
-                {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
-            </a>
-        {% endfor %}
-    </div>
+    {% for itemName, itemConfig in config.menu_items %}
+        <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+            {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+        </a>
+    {% endfor %}
 {% endblock %}

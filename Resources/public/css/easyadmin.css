@@ -114,6 +114,7 @@ body.show .field-integer .form-widget {
 body {
     color: var(--text-color);
 }
+.btn-link,
 a {
     color: var(--color-primary);
 }
@@ -124,9 +125,18 @@ a {
 .bg-light {
     background-color: #fafbfc !important;
 }
+#sidebar-resizer-handler,
+#content-resizer-handler {
+    display: none;
+}
+body:not(.easyadmin-content-width-full) .wrapper,
 .wrapper {
     max-width: none;
+    width: 100%;
     min-height: 100vh;
+    margin: 0;
+    display: flex;
+    grid-column-gap: 0;
 }
 .main-sidebar {
     background: var(--color-main-sidebar);
@@ -134,6 +144,16 @@ a {
     margin: 0;
     padding: 0;
     height: auto;
+    width: 215px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    position: static;
+    top: auto;
+    left: auto;
+}
+.wrapper > .main-header {
+    /** dont show default easyadmin header wrapper */
+    display: none;
 }
 .main-header {
     background: var(--color-main-header);
@@ -164,16 +184,20 @@ a {
     color: var(--color-sidebar);
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 .sidebar-menu {
     margin: 0;
-    padding: 30px 15px;
+    padding: 30px;
+}
+.sidebar-menu .header {
+    padding-left: 0;
 }
 .sidebar-menu a {
     color: var(--color-sidebar);
 }
 .sidebar-menu .treeview-menu a {
-    padding: 7px 5px 7px 30px;
+    padding: 7px 5px 7px 15px;
 }
 .sidebar-menu .treeview-menu a .fa,
 .sidebar-menu .fa {
@@ -185,8 +209,10 @@ a {
 }
 .content-wrapper {
     margin: 0;
-    /*padding: 0 30px 30px 30px;*/
     padding: 30px;
+    display: block; /* dont display as grid */
+    width: auto;
+    flex-grow: 1;
 }
 .content-top {
     font-size: 1em;
@@ -205,6 +231,12 @@ a {
 }
 .btn {
     box-shadow: none;
+}
+body.show .field-association .form-widget, body.show .field-text .form-widget {
+    max-width: none;
+}
+body.show .field-text .form-widget {
+    max-height: none;
 }
 /* Page Edit */
 .edit-page > .wrapper {
@@ -296,6 +328,9 @@ a {
 }
 #page-info .dropdown-toggle::after {
     display: none;
+}
+.btn-tertiary {
+    color: var(--text-color);
 }
 #page-info .btn {
     margin: 0 3px;
