@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.21] - 2019-01-29
+### Changed
+- Backend style fixes
+
 ## [1.4.20] - 2019-01-22
 ### Added
 - Added image manipulation options to image element settings. **Update your image template & form-type**, If you have replaced the default template and form-type, to take advantage of this new functionality
