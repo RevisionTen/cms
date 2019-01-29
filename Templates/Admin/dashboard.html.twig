@@ -10,7 +10,7 @@
                         {% include '@cms/Admin/User/List/medium.html.twig' %}
                     </div>
                 </td>
-                <td class="small">
+                <td>
                     {% for event in events|slice(0, 3) %}
                         {% set groupedEvent = {} %}
                         <div class="row mb-1">
@@ -137,4 +137,8 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block content_footer_wrapper %}
+    {# Replace with nothing, because the footer is not needed here. #}
 {% endblock %}

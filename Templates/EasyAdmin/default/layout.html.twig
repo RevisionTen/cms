@@ -1,6 +1,21 @@
 {% extends '@EasyAdminBase/default/layout.html.twig' %}
 
+{% block header %}
+    {# Removes easyadmin default header #}
+{% endblock header %}
+
 {% block main_menu_wrapper %}
+    <div class="main-header">
+        {% block header_logo %}
+            <div id="header-logo">
+                <a class="logo {{ easyadmin_config('site_name')|length > 14 ? 'logo-long' }}" title="{{ easyadmin_config('site_name')|striptags }}" href="{{ path('cms_dashboard') }}">
+                    {{ easyadmin_config('site_name')|raw }}
+                </a>
+            </div>
+        {% endblock header_logo %}
+    </div>
+
+
     <div class="hidden-xs text-center editor-userinfo">
         <div>
             {% if app.user.avatarUrl is defined and app.user.avatarUrl %}
