@@ -44,9 +44,12 @@ class SecurityController extends AbstractController
         $formBuilder->setAction('/admin/dashboard');
 
         $formBuilder->add('code', TextType::class, [
-            'label' => 'Code',
+            'label' => false,
             'required' => true,
             'constraints' => new NotBlank(),
+            'attr' => [
+                'placeholder' => 'Code',
+            ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
@@ -72,17 +75,21 @@ class SecurityController extends AbstractController
         $formBuilder->setAction('/code');
 
         $formBuilder->add('username', TextType::class, [
-            'label' => 'Username',
+            'label' => false,
             'required' => true,
             'constraints' => new NotBlank(),
+            'attr' => [
+                'placeholder' => 'Username',
+            ],
         ]);
 
         $formBuilder->add('password', PasswordType::class, [
-            'label' => 'Password',
+            'label' => false,
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
                 'autocomplete' => 'off',
+                'placeholder' => 'Password',
             ],
         ]);
 
@@ -183,15 +190,19 @@ class SecurityController extends AbstractController
         $formBuilder->setMethod('POST');
 
         $formBuilder->add('username_email', TextType::class, [
-            'label' => 'Username or email',
+            'label' => false,
             'required' => true,
             'constraints' => new NotBlank(),
+            'attr' => [
+                'placeholder' => 'Username or email',
+                'class' => 'mt-3',
+            ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
             'label' => 'Request new Password',
             'attr' => [
-                'class' => 'btn-primary',
+                'class' => 'btn-primary btn-block',
             ],
         ]);
 
