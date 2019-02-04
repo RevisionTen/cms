@@ -1,0 +1,16 @@
+{% extends '@cms/Security/security-page.html.twig' %}
+{% form_theme form '@cms/Form/form_theme.html.twig' %}
+
+{% block security_form %}
+    {{ form_start(form) }}
+        <div class="form-group">
+            <div class="input-group">
+                {{ form_widget(form.code) }}
+                <div class="input-group-append">
+                    {{ form_widget(form.send) }}
+                </div>
+            </div>
+        </div>
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock security_form %}

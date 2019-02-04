@@ -53,7 +53,7 @@ class SecurityController extends AbstractController
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Send',
+            'label' => 'Login',
             'attr' => [
                 'class' => 'btn-primary',
             ],
@@ -146,7 +146,7 @@ class SecurityController extends AbstractController
             $form->handleRequest($request);
         }
 
-        return $this->render('@cms/Security/login.html.twig', [
+        return $this->render('@cms/Security/code.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -243,7 +243,7 @@ class SecurityController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Security/reset-password-form.html.twig', [
+        return $this->render('@cms/Security/reset-password.html.twig', [
             'form' => $form->createView(),
             'success' => $success,
         ]);
@@ -330,7 +330,7 @@ class SecurityController extends AbstractController
             $this->addFlash('success', 'Password was changed!');
         }
 
-        return $this->render('@cms/Security/reset-password-form.html.twig', [
+        return $this->render('@cms/Security/reset-password.html.twig', [
             'form' => $form->createView(),
             'success' => $success,
         ]);
