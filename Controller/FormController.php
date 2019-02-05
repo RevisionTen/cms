@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class FormController.
@@ -17,6 +18,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FormController extends AbstractController
 {
+    /** @var \RevisionTen\Forms\Controller\FormController  */
+    private $formController;
+
+    public function __construct(\RevisionTen\Forms\Controller\FormController $formController)
+    {
+        $this->formController = $formController;
+    }
+
     /**
      * @Route("/create-form", name="forms_create_form")
      */
@@ -24,7 +33,7 @@ class FormController extends AbstractController
     {
         $this->denyAccessUnlessGranted('form_create');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::createFormAggregate', [], $request->query->all());
+        return $this->formController->createFormAggregate($request);
     }
 
     /**
@@ -34,7 +43,7 @@ class FormController extends AbstractController
     {
         $this->denyAccessUnlessGranted('form_delete');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::deleteAggregateAction', [], $request->query->all());
+        return $this->formController->deleteAggregateAction($request);
     }
 
     /**
@@ -44,65 +53,47 @@ class FormController extends AbstractController
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::editAggregateAction', [], $request->query->all());
+        return $this->formController->editAggregateAction($request);
     }
 
     /**
      * @Route("/add-item/{formUuid}/{onVersion}/{itemName}/{parent}", name="forms_add_item")
      */
-    public function addItem(Request $request, $formUuid, $onVersion, $itemName, $parent = null)
+    public function addItem(Request $request, string $formUuid, int $onVersion, string $itemName, string $parent = null)
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::formAddItem', [
-            'formUuid' => $formUuid,
-            'onVersion' => $onVersion,
-            'itemName' => $itemName,
-            'parent' => $parent,
-        ], $request->query->all());
+        return $this->formController->formAddItem($request, $formUuid, $onVersion, $parent, $itemName);
     }
 
     /**
      * @Route("/edit-item/{formUuid}/{onVersion}/{itemUuid}", name="forms_edit_item")
      */
-    public function editItem(Request $request, $formUuid, $onVersion, $itemUuid)
+    public function editItem(Request $request, string $formUuid, int $onVersion, string $itemUuid)
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::formEditItem', [
-            'formUuid' => $formUuid,
-            'onVersion' => $onVersion,
-            'itemUuid' => $itemUuid,
-        ], $request->query->all());
+        return $this->formController->formEditItem($request, $formUuid, $onVersion, $itemUuid);
     }
 
     /**
      * @Route("/remove-item/{formUuid}/{onVersion}/{itemUuid}", name="forms_remove_item")
      */
-    public function removeItem(Request $request, $formUuid, $onVersion, $itemUuid)
+    public function removeItem(string $formUuid, int $onVersion, string $itemUuid)
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::formRemoveItem', [
-            'formUuid' => $formUuid,
-            'onVersion' => $onVersion,
-            'itemUuid' => $itemUuid,
-        ], $request->query->all());
+        return $this->formController->formRemoveItem($formUuid, $onVersion, $itemUuid);
     }
 
     /**
      * @Route("/shift-item/{formUuid}/{onVersion}/{itemUuid}/{direction}", name="forms_shift_item")
      */
-    public function shiftItem(Request $request, $formUuid, $onVersion, $itemUuid, $direction)
+    public function shiftItem(string $formUuid, int $onVersion, string $itemUuid, string $direction)
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::formShiftItem', [
-            'formUuid' => $formUuid,
-            'onVersion' => $onVersion,
-            'itemUuid' => $itemUuid,
-            'direction' => $direction,
-        ], $request->query->all());
+        return $this->formController->formShiftItem($formUuid, $onVersion, $itemUuid, $direction);
     }
 
     /**
@@ -112,16 +103,16 @@ class FormController extends AbstractController
     {
         $this->denyAccessUnlessGranted('form_clone');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::cloneAggregateAction', [], $request->query->all());
+        return $this->formController->cloneAggregateAction($request);
     }
 
     /**
      * @Route("/submissions", name="forms_submissions")
      */
-    public function submissions(Request $request)
+    public function submissions(SerializerInterface $serializer, Request $request)
     {
         $this->denyAccessUnlessGranted('form_submissions');
 
-        return $this->forward('\RevisionTen\Forms\Controller\FormController::submissions', [], $request->query->all());
+        return $this->formController->submissions($serializer, $request);
     }
 }
