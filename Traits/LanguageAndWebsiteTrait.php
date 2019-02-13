@@ -32,6 +32,8 @@ trait LanguageAndWebsiteTrait
 
     /**
      * @param string|null $language
+     *
+     * @return self
      */
     public function setLanguage(string $language = null): self
     {
@@ -50,6 +52,8 @@ trait LanguageAndWebsiteTrait
 
     /**
      * @param Website|null $website
+     *
+     * @return self
      */
     public function setWebsite(Website $website = null): self
     {
