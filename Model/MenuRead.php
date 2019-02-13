@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Model;
 
 use Doctrine\ORM\Mapping as ORM;
+use RevisionTen\CMS\Traits\ReadModelTrait;
 
 /**
  * Class MenuRead.
@@ -19,37 +20,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class MenuRead
 {
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     */
-    private $id;
-
-    /**
-     * @var string
-     * @ORM\Column(type="string")
-     */
-    private $uuid;
+    use ReadModelTrait;
 
     /**
      * @var string
      * @ORM\Column(type="string")
      */
     private $title;
-
-    /**
-     * @var int
-     * @ORM\Column(type="integer")
-     */
-    private $version;
-
-    /**
-     * @var array
-     * @ORM\Column(type="json")
-     */
-    private $payload;
 
     /**
      * @var int
@@ -64,34 +41,6 @@ class MenuRead
     private $language;
 
     /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUuid(): string
-    {
-        return $this->uuid;
-    }
-
-    /**
-     * @param string $uuid
-     *
-     * @return MenuRead
-     */
-    public function setUuid($uuid): self
-    {
-        $this->uuid = $uuid;
-
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getTitle(): string
@@ -101,51 +50,12 @@ class MenuRead
 
     /**
      * @param string $title
+     *
      * @return MenuRead
      */
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getVersion(): int
-    {
-        return $this->version;
-    }
-
-    /**
-     * @param int $version
-     *
-     * @return MenuRead
-     */
-    public function setVersion($version): self
-    {
-        $this->version = $version;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPayload(): array
-    {
-        return $this->payload;
-    }
-
-    /**
-     * @param array $payload
-     *
-     * @return MenuRead
-     */
-    public function setPayload($payload): self
-    {
-        $this->payload = $payload;
 
         return $this;
     }
