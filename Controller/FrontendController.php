@@ -125,21 +125,7 @@ class FrontendController extends AbstractController
      */
     public function frontpage(Request $request, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
     {
-        /** @var Alias $alias */
-        $alias = $em->getRepository(Alias::class)->findMatchingAlias('/', $request->get('website'), $request->getLocale());
-        $pageStreamRead = $alias ? $alias->getPageStreamRead() : null;
-        $pageUuid = $pageStreamRead ? $pageStreamRead->getUuid() : null;
-
-        if (null === $pageUuid || null === $alias) {
-            throw $this->createNotFoundException();
-        }
-
-        $response = $this->renderPage($pageService, $cacheService, $em, $pageUuid, $alias);
-
-        // Add tracking cookies.
-        $response = $this->addTrackingCookies($request, $response);
-
-        return $response;
+        return $this->alias($request, '', $pageService, $cacheService, $em);
     }
 
     /**
