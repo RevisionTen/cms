@@ -13,24 +13,31 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ManagedUploadType extends AbstractType
 {
     /**
-     * @var string
+     * @var FileService
      */
     private $fileService;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
 
     /**
      * UploadType constructor.
      *
      * @param FileService $fileService
      */
-    public function __construct(FileService $fileService)
+    public function __construct(FileService $fileService, RequestStack $requestStack)
     {
         $this->fileService = $fileService;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -38,6 +45,16 @@ class ManagedUploadType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $website = null;
+        $language = null;
+        $request = $this->requestStack->getMasterRequest();
+        if (null !== $request) {
+            $website = $request->get('currentWebsite');
+            $language = $request->getLocale();
+        }
+        // Fallback to first website.
+        $website = (int) $website ?: 1;
+
         $builder->add('title', TextType::class, [
             'label' => 'Title',
             'constraints' => new NotBlank(),
@@ -53,14 +70,14 @@ class ManagedUploadType extends AbstractType
             'attr' => $options['attr'],
         ]);
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options) {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options, $website, $language) {
             $data = $event->getData();
 
             if (isset($data['delete']) && $data['delete']) {
                 // Request to delete, set the file property to null.
                 $data['file'] = $this->fileService->deleteFile($data['file']);
                 $data['delete'] = null;
-            } elseif (isset($data['existingFileUuid'], $data['existingFileVersion']) && null !== $data['existingFileUuid'] && null !== $data['existingFileVersion']) {
+            } elseif (!empty($data['existingFileUuid']) && !empty($data['existingFileVersion'])) {
                 $existingFileUuid = $data['existingFileUuid'];
                 $existingFileVersion = (int) $data['existingFileVersion'];
 
@@ -76,10 +93,10 @@ class ManagedUploadType extends AbstractType
             } elseif (isset($data['file']) && null !== $data['file']) {
                 if (\is_object($data['file'])) {
                     // Store the uploaded file on submit and save the filename in the data.
-                    $data['file'] = $this->fileService->createFile(null, $data['file'], $data['title'], $options['upload_dir']);
+                    $data['file'] = $this->fileService->createFile(null, $data['file'], $data['title'], $options['upload_dir'], $website, $language);
                 } elseif (\is_array($data['file'])) {
                     // File is already stored.
-                    $data['file'] = $this->fileService->updateFile($data['file'], $data['title']);
+                    $data['file'] = $this->fileService->replaceFile($data['file'], null, $data['title'], $options['upload_dir']);
                 }
             } else {
                 // Set to null when no image was set and is set.
