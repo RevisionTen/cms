@@ -20,6 +20,7 @@ class Timing extends Element
             'label' => 'Start date',
             'input' => 'timestamp',
             'date_widget' => 'single_text',
+            'time_widget' => 'single_text',
             'html5' => true,
             'required' => false,
         ]);
@@ -28,6 +29,7 @@ class Timing extends Element
             'label' => 'End date',
             'input' => 'timestamp',
             'date_widget' => 'single_text',
+            'time_widget' => 'single_text',
             'html5' => true,
             'required' => false,
         ]);

@@ -78,6 +78,10 @@ body.show .field-float .form-widget,
 body.show .field-integer .form-widget {
     max-width: none;
 }
+div.form-control.is-invalid:not(.custom-select),
+.was-validated div.form-control:invalid:not(.custom-select) {
+    height: auto;
+}
 /* Fix checkboxes in EasyAdmin compound forms */
 .field-checkbox .form-widget,
 .form-group.field-collection-action {

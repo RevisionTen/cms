@@ -211,7 +211,7 @@ function bindPageSettingsForm(linkSrc = false) {
                 url: pageForm.attr('action'),
                 data: formData,
                 success: function (data) {
-                    newForm = $(data).find(formSelector);
+                    let newForm = $(data).find(formSelector);
                     if (newForm.length > 0) {
                         pageForm.replaceWith(newForm);
                         if (linkSrc) {
@@ -246,6 +246,13 @@ function bindModal(linkSrc) {
         if ('success' === type && data.success) {
             editorModal.modal('hide');
             updateElement(data);
+        } else {
+            // Get first form from standalone form page.
+            let newForm = $(data).find('#main form').first();
+            if (newForm.length > 0) {
+                form.replaceWith(newForm);
+                bindModal(linkSrc);
+            }
         }
     });
     // Copy the page title.
