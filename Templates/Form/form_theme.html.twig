@@ -118,13 +118,15 @@
     {% set file = (value.file is defined and value.file) ? value.file : value %}
     {% set hasFile = file and file.uuid is defined and file.path is defined %}
 
-    {{ form_row(form.title) }}
+    {% if enable_title and form.title is defined %}
+        {{ form_row(form.title) }}
+    {% endif %}
 
     {% if hasFile %}
         <div class="well">
-            <a href="{{ file.path }}" target="_blank">{{ value.title }}</a> <span class="text-muted pull-right">{{ file.mimeType }} {{ file.size ? ((file.size / 1000)|number_format(2)) ~ ' KB' : '' }}</span>
+            <a href="{{ file.path }}" target="_blank">{{ value.title is defined and value.title ? value.title : file.path }}</a> <span class="text-muted pull-right">{{ file.mimeType }} {{ file.size ? ((file.size / 1000)|number_format(2)) ~ ' KB' : '' }}</span>
         </div>
-    {% else %}
+    {% elseif enable_chooser %}
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="nav-item"><a class="nav-link active bg-white" href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Upload File'|trans }}</a></li>
             <li role="presentation" class="nav-item"><a class="nav-link bg-white" href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'Choose File'|trans }}</a></li>
@@ -139,6 +141,8 @@
                 {{ render(controller('RevisionTen\\CMS\\Controller\\FileController::files')) }}
             </div>
         </div>
+    {% else %}
+        {{ form_row(form.file) }}
     {% endif %}
 
     {{ block('form_widget') }}
