@@ -20,6 +20,7 @@ class OpeningHoursSpecificationType extends AbstractType
         $builder->add('opens', TimeType::class, [
             'label' => 'Opens',
             'required' => false,
+            'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
             'attr' => [
@@ -30,6 +31,7 @@ class OpeningHoursSpecificationType extends AbstractType
         $builder->add('closes', TimeType::class, [
             'label' => 'Closes',
             'required' => false,
+            'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
             'attr' => [
@@ -56,15 +58,27 @@ class OpeningHoursSpecificationType extends AbstractType
         $builder->add('validFrom', DateType::class, [
             'label' => 'Valid from',
             'required' => false,
+            'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
+            'format' => DateType::HTML5_FORMAT,
         ]);
 
         $builder->add('validThrough', DateType::class, [
             'label' => 'Valid through',
             'required' => false,
+            'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
+            'format' => DateType::HTML5_FORMAT,
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_opening_hours_specification';
     }
 }

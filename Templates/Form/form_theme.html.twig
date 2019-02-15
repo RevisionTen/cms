@@ -42,6 +42,48 @@
     </div>
 {% endblock %}
 
+{% block cms_opening_hours_specification_widget -%}
+    {{- block('cms_shift_buttons') -}}
+
+    {% if compound %}
+        <div {{ block('widget_container_attributes') }}>
+            {%- if form is rootform -%}
+                {{ form_errors(form) }}
+            {%- endif -%}
+
+            <div class="form-row">
+                <div class="col">
+                    {{ form_row(form.dayOfWeek) }}
+                </div>
+                <div class="col">
+                    <div class="form-row">
+                        <div class="col">
+                            {{ form_row(form.opens) }}
+                        </div>
+                        <div class="col">
+                            {{ form_row(form.closes) }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            {{ form_row(form.validFrom) }}
+                        </div>
+                        <div class="col">
+                            {{ form_row(form.validThrough) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{- block('form_rows') -}}
+
+            {{- form_rest(form) -}}
+        </div>
+    {% else %}
+        {{- block('form_widget_simple') -}}
+    {% endif %}
+{%- endblock cms_opening_hours_specification_widget %}
+
 {% block cms_ckeditor_widget -%}
     {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control ckeditor')|trim}) %}
     {% set attr = attr|merge({'data-config': config|json_encode}) %}
@@ -49,9 +91,11 @@
 {%- endblock cms_ckeditor_widget %}
 
 {%- block cms_trix_widget -%}
-    {%- set type = type|default('hidden') -%}
-    {{ block('form_widget_simple') }}
-    <trix-editor input="{{ id }}"></trix-editor>
+    <div class="w-100">
+        {%- set type = type|default('hidden') -%}
+        {{ block('form_widget_simple') }}
+        <trix-editor input="{{ id }}"></trix-editor>
+    </div>
 {%- endblock cms_trix_widget -%}
 
 {% block cms_upload_widget %}
@@ -100,18 +144,20 @@
     {{ block('form_widget') }}
 {% endblock cms_managed_upload_widget %}
 
-{% block form_widget %}
+{% block cms_shift_buttons %}
     {% if form.parent.vars.allow_delete|default(false) %}
         {% set shift_item_up_javascript %}
             $(function() {
                 if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
 
+                var containerDiv = $('#{{ id }}').parents('.form-group:first');
+                var parentDiv = containerDiv.parents('[data-prototype]:first');
+
                 /* Shift item up */
-                var item = $(this.activeElement).parent().parent();
-                item.insertBefore(item.prev());
+                containerDiv.insertBefore(containerDiv.prev());
 
                 /* Update index of all collection items */
-                item.parent().children().each(function() {
+                parentDiv.children().each(function() {
                     var index = $(this).index();
                     $(this).find('[name]').each(function() {
                         var input = $(this);
@@ -125,12 +171,14 @@
             $(function() {
                 if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
 
+                var containerDiv = $('#{{ id }}').parents('.form-group:first');
+                var parentDiv = containerDiv.parents('[data-prototype]:first');
+
                 /* Shift item down */
-                var item = $(this.activeElement).parent().parent();
-                item.insertAfter(item.next());
+                containerDiv.insertAfter(containerDiv.next());
 
                 /* Update index of all collection items */
-                item.parent().children().each(function() {
+                parentDiv.children().each(function() {
                     var index = $(this).index();
                     $(this).find('[name]').each(function() {
                         var input = $(this);
@@ -162,19 +210,21 @@
             });
         {% endset %}
         <div class="text-right field-collection-item-action">
-            <a title="{{ 'Shift up'|trans() }}" href="#" onclick="{{ shift_item_up_javascript|raw }}" class="text-muted">
+            <span title="{{ 'Shift up'|trans() }}" onclick="{{ shift_item_up_javascript|raw }}" class="btn btn-sm">
                 <i class="fas fa-arrow-circle-up"></i>
-            </a>
-
-            <a title="{{ 'Shift down'|trans() }}" href="#" onclick="{{ shift_item_down_javascript|raw }}" class="text-muted">
+            </span>
+            <span title="{{ 'Shift down'|trans() }}" onclick="{{ shift_item_down_javascript|raw }}" class="btn btn-sm">
                 <i class="fas fa-arrow-circle-down"></i>
-            </a>
-            &nbsp;&nbsp;&nbsp;
-            <a title="{{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}" href="#" onclick="{{ remove_item_javascript|raw }}" class="text-danger">
+            </span>
+            <span title="{{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}" onclick="{{ remove_item_javascript|raw }}" class="btn btn-sm text-danger">
                 <i class="fas fa-times-circle"></i>
-            </a>
+            </span>
         </div>
     {% endif %}
+{% endblock cms_shift_buttons %}
+
+{% block form_widget %}
+    {{- block('cms_shift_buttons') -}}
 
     {% if compound %}
         {{- block('form_widget_compound') -}}
@@ -211,10 +261,10 @@
         {% endset %}
 
         <div class="text-right field-collection-action">
-            <a href="#" onclick="{{ js_add_item|raw }}" class="text-primary">
+            <span onclick="{{ js_add_item|raw }}" class="btn btn-secondary">
                 <i class="fa fa-plus-square"></i>
                 {{ (form|length == 0 ? 'action.add_new_item' : 'action.add_another_item')|trans({}, 'EasyAdminBundle') }}
-            </a>
+            </span>
         </div>
     {% endif %}
 {% endblock collection_row %}
