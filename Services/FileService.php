@@ -153,6 +153,14 @@ class FileService
         $aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
         $version = $aggregate->getVersion();
 
+        // Check If the file really needs to be updated.
+        $sameLanguage = null === $language || $language === $aggregate->language;
+        $sameWebsite = null === $website || $website === $aggregate->website;
+        if (null === $newFile && $title === $aggregate->title && $sameLanguage && $sameWebsite) {
+            // Nothing to update.
+            return $file;
+        }
+
         // Update file aggregate.
         $payload = [];
         if ($title !== $aggregate->title) {

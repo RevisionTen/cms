@@ -361,10 +361,6 @@ body.show .field-text .form-widget {
 .modal-body .content-body form {
     padding: 0;
 }
-.modal-body .btn {
-    background: var(--color-primary);
-    color: white;
-}
 /* Card */
 .card-header h6 {
     margin: 0;

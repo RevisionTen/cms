@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Form\Meta;
 
+use RevisionTen\CMS\Form\Types\TimeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class OpeningHoursSpecificationType extends AbstractType
@@ -23,6 +23,7 @@ class OpeningHoursSpecificationType extends AbstractType
             'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
+            'with_seconds' => false,
             'attr' => [
                 'placeholder' => 'The time the business location opens, in hh:mm:ss format.',
             ],
@@ -34,6 +35,7 @@ class OpeningHoursSpecificationType extends AbstractType
             'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
+            'with_seconds' => false,
             'attr' => [
                 'placeholder' => 'The time the business location closes, in hh:mm:ss format.',
             ],

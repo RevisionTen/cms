@@ -211,7 +211,8 @@ function bindPageSettingsForm(linkSrc = false) {
                 url: pageForm.attr('action'),
                 data: formData,
                 success: function (data) {
-                    let newForm = $(data).find(formSelector);
+                    let html = $.parseHTML(data, document, true);
+                    let newForm = $(html).find(formSelector);
                     if (newForm.length > 0) {
                         pageForm.replaceWith(newForm);
                         if (linkSrc) {
@@ -247,8 +248,9 @@ function bindModal(linkSrc) {
             editorModal.modal('hide');
             updateElement(data);
         } else {
+            let html = $.parseHTML(data, document, true);
             // Get first form from standalone form page.
-            let newForm = $(data).find('#main form').first();
+            let newForm = $(html).find('#main form').first();
             if (newForm.length > 0) {
                 form.replaceWith(newForm);
                 bindModal(linkSrc);
@@ -357,8 +359,25 @@ $(document).ready(function () {
     // Event that opens a bootstrap modal with dynamic content.
     body.on('openModal', function (event, linkSrc) {
         linkSrc = linkSrc + '?ajax=1';
-        $('#editor-modal .modal-body').load(linkSrc + ' .content-wrapper .content', [], function () {
-            bindModal(linkSrc);
+        let modalContent = $('#editor-modal .modal-body');
+        $.ajax({
+            type: 'GET',
+            url: linkSrc,
+            success: function (data) {
+                let html = $.parseHTML(data, document, true);
+                let newModalContent = $(html).find('.content-wrapper .content');
+                if (newModalContent.length > 0) {
+                    modalContent.html('');
+                    newModalContent.appendTo(modalContent);
+                    bindModal(linkSrc);
+                }
+            },
+            error: function (data) {
+                // Failed.
+            },
+            cache: false,
+            contentType: false,
+            processData: false
         });
     });
 
