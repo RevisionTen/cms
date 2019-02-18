@@ -46,7 +46,7 @@ class IndexService
         $this->pageService = $pageService;
         $this->config = $config;
 
-        $this->solrConfig = [
+        $this->solrConfig = $config['solr_collection'] ? [
             'endpoint' => [
                 'localhost' => [
                     'host' => 'localhost',
@@ -54,7 +54,7 @@ class IndexService
                     'path' => '/solr/'.$config['solr_collection'].'/',
                 ]
             ]
-        ];
+        ] : null;
     }
 
     private function logError(OutputInterface $output, string $title, string $message, int $code = 500): void
@@ -71,6 +71,11 @@ class IndexService
 
     public function index(OutputInterface $output, string $uuid = null): void
     {
+        if (null === $this->solrConfig) {
+            // Do nothing if solr is not configured.
+            return;
+        }
+
         $client = new Client($this->solrConfig);
 
         if (null === $uuid) {

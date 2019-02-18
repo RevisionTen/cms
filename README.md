@@ -36,8 +36,6 @@ If not add them manually:
 RevisionTen\CQRS\CqrsBundle::class => ['all' => true],
 RevisionTen\CMS\CmsBundle::class => ['all' => true],
 RevisionTen\Forms\FormsBundle::class => ['all' => true],
-EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
-Gregwar\ImageBundle\GregwarImageBundle::class => ['all' => true],
 ```
 
 #### Update you database schema
@@ -170,7 +168,8 @@ The language and website of the alias must match the locale and host of the requ
 ## Indexing pages in solr
 
 Configure your solr collection and port with `cms.solr_collection` and `cms.solr_port`.
-Use `bin/console cms:solr:index` to index your pages.
+Use `bin/console cms:solr:index` to manually index your pages.
+Pages are automatically updated when they are published or unpublished.
 If you want to add more data to solr implement the `SolrSerializerInterface` and reference the class in the `solr_serializer` option under the corresponding page template configuration.
 
 ## Adding and using permissions
