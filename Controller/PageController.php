@@ -132,14 +132,13 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_create');
 
-        $data = $request->get('page');
-        $ignore_validation = $request->get('ignore_validation');
-        $currentWebsite = (int) $request->get('currentWebsite');
-
         /** @var UserRead $user */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
+        $ignore_validation = $request->get('ignore_validation');
+        $currentWebsite = (int) $request->get('currentWebsite');
 
+        $data = [];
         $data['language'] = $request->getLocale();
         $pageWebsites = [];
         /** @var Website[] $websites */
@@ -151,28 +150,32 @@ class PageController extends AbstractController
             }
         }
 
+        if (!empty($request->get('page'))) {
+            $data = null;
+        }
+
         $form = $this->createForm(PageType::class, $data, [
             'page_websites' => $currentWebsite ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
+            'validation_groups' => !$ignore_validation,
+            'allow_extra_fields' => true,
         ]);
 
-        if (!$ignore_validation) {
-            $form->handleRequest($request);
+        $form->handleRequest($request);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
+        if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
 
-                if ($currentWebsite) {
-                    $data['website'] = $currentWebsite;
-                }
-
-                $pageUuid = Uuid::uuid1()->toString();
-                $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
-
-                return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
+            if ($currentWebsite) {
+                $data['website'] = $currentWebsite;
             }
+
+            $pageUuid = Uuid::uuid1()->toString();
+            $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
+
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', [
@@ -230,34 +233,34 @@ class PageController extends AbstractController
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
+            'validation_groups' => !$ignore_validation,
+            'allow_extra_fields' => true,
         ]);
 
-        if (!$ignore_validation) {
-            $form->handleRequest($request);
+        $form->handleRequest($request);
 
-            // Get differences in data and check if data has changed.
-            if ($form->isSubmitted()) {
-                $data = $form->getData();
+        // Get differences in data and check if data has changed.
+        if (!$ignore_validation && $form->isSubmitted()) {
+            $data = $form->getData();
 
-                // Remove data that hasn't changed.
-                $data = $this->diff($aggregateData, $data);
+            // Remove data that hasn't changed.
+            $data = $this->diff($aggregateData, $data);
 
-                if (empty($data)) {
-                    $form->addError(new FormError($translator->trans('Data has not changed.')));
+            if (empty($data)) {
+                $form->addError(new FormError($translator->trans('Data has not changed.')));
+            }
+
+            if ($form->isValid()) {
+                $success = $this->runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
+
+                if ($request->get('ajax')) {
+                    return new JsonResponse([
+                        'success' => $success,
+                        'refresh' => null, // Refreshes whole page.
+                    ]);
                 }
 
-                if ($form->isValid()) {
-                    $success = $this->runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
-
-                    if ($request->get('ajax')) {
-                        return new JsonResponse([
-                            'success' => $success,
-                            'refresh' => null, // Refreshes whole page.
-                        ]);
-                    }
-
-                    return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
-                }
+                return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
             }
         }
 

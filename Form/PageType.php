@@ -78,22 +78,33 @@ class PageType extends AbstractType
 
         $builder->add('meta', $options['page_metatype'], [
             'label' => false,
+            'allow_extra_fields' => true,
         ]);
 
         // Change the meta type depending on the chosen template.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
-            $data = $event->getData();
-            $form = $event->getForm();
-
-            if (isset($data['template'])) {
-                $metaType = $options['page_templates'][$data['template']]['metatype'] ?? $options['page_metatype'];
+        $formModifier = function ($form, $template = null) use ($options) {
+            if ($template) {
+                $metaType = $options['page_templates'][$template]['metatype'] ?? $options['page_metatype'];
             } else {
                 $metaType = $options['page_metatype'];
             }
 
             $form->add('meta', $metaType, [
                 'label' => false,
+                'allow_extra_fields' => true,
             ]);
+        };
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifier) {
+            $data = $event->getData();
+            $form = $event->getForm();
+            $template = $data['template'] ?? null;
+            $formModifier($event->getForm(), $template);
+        });
+
+        $builder->get('template')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($formModifier) {
+            $template = $event->getForm()->getData();
+            $formModifier($event->getForm()->getParent(), $template);
         });
 
         $builder->add('save', SubmitType::class);
