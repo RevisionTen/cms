@@ -17,19 +17,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 class IndexService
 {
     /** @var EntityManagerInterface */
-    private $entityManager;
+    protected $entityManager;
 
     /** @var LoggerInterface */
-    private $logger;
+    protected $logger;
 
     /** @var PageService */
-    private $pageService;
+    protected $pageService;
 
     /** @var array */
-    private $config;
+    protected $config;
 
     /** @var array */
-    private $solrConfig;
+    protected $solrConfig;
 
     /**
      * IndexService constructor.

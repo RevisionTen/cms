@@ -26,32 +26,32 @@ class PageService
     /**
      * @var EntityManagerInterface
      */
-    private $em;
+    protected $em;
 
     /**
      * @var AggregateFactory
      */
-    private $aggregateFactory;
+    protected $aggregateFactory;
 
     /**
      * @var EventStore
      */
-    private $eventStore;
+    protected $eventStore;
 
     /**
      * @var EventBus
      */
-    private $eventBus;
+    protected $eventBus;
 
     /**
      * @var CacheService
      */
-    private $cacheService;
+    protected $cacheService;
 
     /**
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    protected $eventDispatcher;
 
     /**
      * PageService constructor.

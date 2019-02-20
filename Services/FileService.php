@@ -25,27 +25,27 @@ class FileService
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    protected $entityManager;
 
     /**
      * @var AggregateFactory
      */
-    private $aggregateFactory;
+    protected $aggregateFactory;
 
     /**
      * @var CommandBus
      */
-    private $commandBus;
+    protected $commandBus;
 
     /**
      * @var UserRead
      */
-    private $user;
+    protected $user;
 
     /**
      * @var string
      */
-    private $project_dir;
+    protected $project_dir;
 
     /**
      * PageService constructor.

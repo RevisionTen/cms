@@ -17,10 +17,10 @@ use Doctrine\ORM\EntityManagerInterface;
 class UserService
 {
     /** @var EntityManagerInterface */
-    private $em;
+    protected $em;
 
     /** @var AggregateFactory */
-    private $aggregateFactory;
+    protected $aggregateFactory;
 
     /** @var SecretService */
     protected $secretService;
@@ -87,7 +87,7 @@ class UserService
         $this->em->clear();
     }
 
-    public function sendSecret(string $userUuid)
+    public function sendSecret(string $userUuid): void
     {
         /**
          * @var UserAggregate $aggregate
@@ -97,7 +97,7 @@ class UserService
         $this->secretService->sendSecret($aggregate->secret, $aggregate->username, $aggregate->email);
     }
 
-    public function sendLoginInfo(string $userUuid, string $password)
+    public function sendLoginInfo(string $userUuid, string $password): void
     {
         /**
          * @var UserAggregate $aggregate
@@ -107,7 +107,7 @@ class UserService
         $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email);
     }
 
-    public function sendPasswordResetMail(string $userUuid, string $token)
+    public function sendPasswordResetMail(string $userUuid, string $token): void
     {
         /**
          * @var UserAggregate $aggregate

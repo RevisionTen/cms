@@ -17,12 +17,12 @@ class RoleService
     /**
      * @var EntityManagerInterface
      */
-    private $em;
+    protected $em;
 
     /**
      * @var AggregateFactory
      */
-    private $aggregateFactory;
+    protected $aggregateFactory;
 
     /**
      * RoleService constructor.

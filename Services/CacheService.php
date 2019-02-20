@@ -136,6 +136,7 @@ class CacheService
      * @param array  $data
      *
      * @return bool|null
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function put(string $uuid, int $version, array $data): ?bool
     {
@@ -157,6 +158,7 @@ class CacheService
      * @param string $uuid
      *
      * @return array|null
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function get(string $uuid): ?array
     {
