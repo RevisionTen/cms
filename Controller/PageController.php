@@ -72,6 +72,16 @@ class PageController extends AbstractController
         $this->messageBus = $messageBus;
     }
 
+    private function getToolbarRefreshHeaders(): array
+    {
+        $headers = [];
+        if ('dev' === $this->getParameter('kernel.environment')) {
+            $headers['Symfony-Debug-Toolbar-Replace'] = 1;
+        }
+
+        return $headers;
+    }
+
     /**
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
@@ -348,7 +358,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $parent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -387,7 +397,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementUuid,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -443,7 +453,7 @@ class PageController extends AbstractController
             if ($request->get('ajax')) {
                 return new JsonResponse([
                     'success' => $success,
-                ]);
+                ], 200, $this->getToolbarRefreshHeaders());
             }
 
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
@@ -626,6 +636,7 @@ class PageController extends AbstractController
             return $this->errorResponse();
         }
 
+
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
         if ($this->isGranted('alias_create') && (null === $aliases || empty($aliases) || 0 === \count($aliases))) {
@@ -633,15 +644,14 @@ class PageController extends AbstractController
             $url = $this->generateUrl('cms_create_alias', [
                 'pageUuid' => $pageUuid,
             ]);
-
             return $request->get('ajax') ? new JsonResponse([
                 'success' => $success,
                 'modal' => $url,
-            ]) : $this->redirect($url);
+            ], 200, $this->getToolbarRefreshHeaders()) : $this->redirect($url);
         } elseif ($request->get('ajax')) {
             return new JsonResponse([
                 'success' => $success,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         } else {
             return $this->redirectToPage($pageUuid);
         }
@@ -818,7 +828,7 @@ class PageController extends AbstractController
                         return new JsonResponse([
                             'success' => $success,
                             'refresh' => $parent,
-                        ]);
+                        ], 200, $this->getToolbarRefreshHeaders());
                     }
 
                     return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
@@ -918,7 +928,7 @@ class PageController extends AbstractController
                             return new JsonResponse([
                                 'success' => $success,
                                 'refresh' => $elementUuid,
-                            ]);
+                            ], 200, $this->getToolbarRefreshHeaders());
                         }
 
                         return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
@@ -980,7 +990,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -1032,7 +1042,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -1476,7 +1486,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -1525,7 +1535,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -1574,7 +1584,7 @@ class PageController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ]);
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
@@ -1621,7 +1631,7 @@ class PageController extends AbstractController
             if ($request->get('ajax')) {
                 return new JsonResponse([
                     'success' => $success,
-                    'refresh' => null,
+                    'refresh' => null, // refreshes whole page.
                 ]);
             }
         }

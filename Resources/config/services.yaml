@@ -1,4 +1,11 @@
 services:
+    RevisionTen\CMS\DataCollector\CmsCollector:
+        autowire: true
+        tags:
+            - name:     data_collector
+              template: '@cms/Profiler/layout.html.twig'
+              id:       'cms.cms_collector'
+        public: false
     RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
         autowire: true
         tags:
