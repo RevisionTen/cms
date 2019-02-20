@@ -10,10 +10,10 @@ use Solarium\Client;
 class SearchService
 {
     /** @var array */
-    private $solrConfig;
+    protected $solrConfig;
 
     /** @var LoggerInterface */
-    private $logger;
+    protected $logger;
 
     public function __construct(LoggerInterface $logger, array $config)
     {
@@ -44,7 +44,7 @@ class SearchService
         // Escape special characters in search string.
         $queryString = addcslashes($queryString, '+-&&||!(){}[]^"~*?:\\');
         $queryString = str_replace(' ', '+', $queryString);
-        
+
         $filterQuery = $query->createFilterQuery('fulltext');
 
         // Split words.

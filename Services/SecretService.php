@@ -19,27 +19,27 @@ class SecretService
     /**
      * @var \Swift_Mailer
      */
-    private $swift_Mailer;
+    protected $swift_Mailer;
 
     /**
      * @var array
      */
-    private $config;
+    protected $config;
 
     /**
      * @var TranslatorInterface
      */
-    private $translator;
+    protected $translator;
 
     /**
      * @var RequestStack
      */
-    private $requestStack;
+    protected $requestStack;
 
     /**
      * @var RouterInterface
      */
-    private $router;
+    protected $router;
 
     /**
      * SecretService constructor.

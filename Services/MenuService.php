@@ -17,17 +17,17 @@ class MenuService
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    protected $entityManager;
 
     /**
      * @var AggregateFactory
      */
-    private $aggregateFactory;
+    protected $aggregateFactory;
 
     /**
      * @var CacheService
      */
-    private $cacheService;
+    protected $cacheService;
 
     /**
      * MenuService constructor.
