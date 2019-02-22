@@ -41,6 +41,9 @@ class PageType extends AbstractType
             'label' => 'Template',
             'choices' => array_combine(array_keys($options['page_templates']), array_keys($options['page_templates'])),
             'constraints' => new NotBlank(),
+            'attr' => [
+                'data-condition' => true,
+            ],
         ]);
 
         $builder->add('description', TextareaType::class, [
