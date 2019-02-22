@@ -192,11 +192,10 @@ function updateElement(data)
     }
 }
 
-function bindPageSettingsForm(linkSrc = false) {
-    let formSelector = 'form[name=page]';
-    let pageForm = $(formSelector);
-    if (pageForm.length > 0) {
-        pageForm.find('select#page_template').on('change', function (event) {
+function bindConditionalForm(formSelector, linkSrc = false) {
+    let conditionalForm = $(formSelector).first();
+    if (conditionalForm.length > 0) {
+        conditionalForm.find('[data-condition]').on('change', function (event) {
             // Reload the form with new template.
 
             // Update CKEditor Textarea Element.
@@ -204,21 +203,21 @@ function bindPageSettingsForm(linkSrc = false) {
                 CKEDITOR.instances[i].updateElement();
             }
 
-            let formData = new FormData(pageForm[0]);
+            let formData = new FormData(conditionalForm[0]);
             formData.set('ignore_validation', 1);
             $.ajax({
-                type: pageForm.attr('method'),
-                url: pageForm.attr('action'),
+                type: conditionalForm.attr('method'),
+                url: conditionalForm.attr('action'),
                 data: formData,
                 success: function (data) {
                     let html = $.parseHTML(data, document, true);
                     let newForm = $(html).find(formSelector);
                     if (newForm.length > 0) {
-                        pageForm.replaceWith(newForm);
+                        conditionalForm.replaceWith(newForm);
                         if (linkSrc) {
                             bindModal(linkSrc);
                         } else {
-                            bindPageSettingsForm();
+                            bindConditionalForm(formSelector);
                         }
                     }
                 },
@@ -236,11 +235,19 @@ function bindPageSettingsForm(linkSrc = false) {
 function bindModal(linkSrc) {
     let editorModal = $('#editor-modal');
     let modalBody = editorModal.find('.modal-body');
+    let form = modalBody.find('form').first();
+    let formName = form.attr('name');
+
+    // Default: Get first form in content.
+    let formSelector = '#main form';
+    if (formName) {
+        // This modals form has a name, always get forms with this name.
+        formSelector = 'form[name="'+formName+'"]';
+    }
 
     // Remove content wrapper css class.
     modalBody.find('.content-wrapper').removeClass('content-wrapper');
     // Set the action on the form.
-    let form = modalBody.find('form').first();
     form.attr('action', linkSrc);
     // Ajaxify the form.
     form.postAjax(function(data, type) {
@@ -250,7 +257,7 @@ function bindModal(linkSrc) {
         } else {
             let html = $.parseHTML(data, document, true);
             // Get first form from standalone form page.
-            let newForm = $(html).find('#main form').first();
+            let newForm = $(html).find(formSelector).first();
             if (newForm.length > 0) {
                 form.replaceWith(newForm);
                 bindModal(linkSrc);
@@ -275,8 +282,8 @@ function bindModal(linkSrc) {
         // Initialize selects.
         modalBody.find(selectsSelector).select2();
     });
-    // Ajaxify if its the page settings form.
-    bindPageSettingsForm(linkSrc);
+    // Ajaxify if its the the form has conditionals.
+    bindConditionalForm(formSelector, linkSrc);
     // Bind file chooser.
     modalBody.find('.btn-file-select').on('click', function (event) {
         event.preventDefault();
@@ -298,7 +305,7 @@ function bindModal(linkSrc) {
 
 $(document).ready(function () {
     // Ajaxify if its the page settings form.
-    bindPageSettingsForm();
+    bindConditionalForm('form[name=page]');
 
     let body = $('body');
 

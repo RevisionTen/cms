@@ -217,24 +217,21 @@ class PageController extends AbstractController
         $user = $this->getUser();
         $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
+        $currentWebsite = $request->get('currentWebsite');
 
-        if (!$ignore_validation) {
-            // Convert Aggregate to data array for form and remove properties we don't want changed.
-            $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
-            $aggregateData = json_decode(json_encode($aggregate), true);
-            unset($aggregateData['uuid'], $aggregateData['elements']);
-        } else {
-            $aggregateData = $request->get('page');
-        }
+        // Convert Aggregate to data array for form and remove properties we don't want changed.
+        $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
+        $aggregateData = json_decode(json_encode($aggregate), true);
+        unset($aggregateData['uuid'], $aggregateData['elements']);
+        $aggregateWebsite = $aggregateData['website'] ?? $currentWebsite;
 
         /** @var Website[] $websites */
         $websites = $user->getWebsites();
-        $currentWebsite = $request->get('currentWebsite');
         $pageWebsites = [];
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
         }
-        if ($currentWebsite && $aggregateData['website'] !== $currentWebsite && !\in_array($currentWebsite, $pageWebsites, false)) {
+        if ($currentWebsite && $aggregateWebsite !== $currentWebsite && !\in_array($currentWebsite, $pageWebsites, false)) {
             throw new AccessDeniedHttpException('Page does not exist on this website');
         }
 
@@ -810,12 +807,15 @@ class PageController extends AbstractController
             }
 
             if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
+
+                $ignore_validation = $request->get('ignore_validation');
                 $form = $this->createForm(ElementType::class, ['data' => $data], [
                     'elementConfig' => $elementConfig,
+                    'validation_groups' => !$ignore_validation,
                 ]);
                 $form->handleRequest($request);
 
-                if ($form->isSubmitted() && $form->isValid()) {
+                if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
                     $data = $form->getData()['data'];
 
                     $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
@@ -899,13 +899,16 @@ class PageController extends AbstractController
                 }
 
                 if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
+
+                    $ignore_validation = $request->get('ignore_validation');
                     $form = $this->createForm(ElementType::class, $data, [
                         'elementConfig' => $elementConfig,
+                        'validation_groups' => !$ignore_validation,
                     ]);
                     $form->handleRequest($request);
 
                     // Get differences in data and check if data has changed.
-                    if ($form->isSubmitted()) {
+                    if (!$ignore_validation && $form->isSubmitted()) {
                         $data = $form->getData()['data'];
                         // Remove data that hasn't changed.
                         $data = $this->diff($element['data'], $data);
@@ -915,7 +918,7 @@ class PageController extends AbstractController
                         }
                     }
 
-                    if ($form->isSubmitted() && $form->isValid()) {
+                    if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
                         $success = $this->runCommand($commandBus, PageEditElementCommand::class, [
                             'uuid' => $elementUuid,
                             'data' => $data,
