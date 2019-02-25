@@ -192,10 +192,49 @@ function updateElement(data)
     }
 }
 
-function bindConditionalForm(formSelector, linkSrc = false) {
-    let conditionalForm = $(formSelector).first();
-    if (conditionalForm.length > 0) {
-        conditionalForm.find('[data-condition]').on('change', function (event) {
+function bindWidgets(element) {
+    // Enabled select2.
+    element.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2();
+    // Enable CKEditor.
+    element.find('.ckeditor').each(function () {
+        let textArea = $(this)[0];
+        let textAreaInstanceName = textArea.id;
+        if (CKEDITOR.instances[textAreaInstanceName]) {
+            // CKEditor is already running.
+            if ($(this).next('.cke').length < 1) {
+                // CKEditor instance is old, destroy and replace.
+                CKEDITOR.remove(textAreaInstanceName);
+                CKEDITOR.replace(textArea, $(this).data('config'));
+            }
+        } else {
+            CKEDITOR.replace(textArea, $(this).data('config'));
+        }
+    });
+    // Bind file chooser.
+    element.find('.btn-file-select').on('click', function (event) {
+        event.preventDefault();
+        let btn = $(this);
+        element.find('.btn-file-select').not(btn).removeClass('text-success');
+        btn.addClass('text-success');
+        let uuid = btn.data('uuid');
+        let version = btn.data('version');
+        let title = btn.data('title');
+        btn.parentsUntil('.tab-content').parent().find('input.existing-file-uuid').val(uuid);
+        btn.parentsUntil('.tab-content').parent().find('input.existing-file-version').val(version);
+        btn.parentsUntil('form').parent().find('input.file-title').val(title);
+    });
+    // Bind create buttons.
+    element.find('.btn-create').on('click', function (event) {
+        $('body').trigger('createElement', {'parent': $(this).data('uuid'), 'elementName': $(this).data('element-name')});
+    });
+}
+
+function bindForm(formSelector, linkSrc = false) {
+    let form = $(formSelector).first();
+    if (form.length > 0) {
+        bindWidgets(form);
+
+        form.find('[data-condition]').on('change', function (event) {
             // Reload the form with new template.
 
             // Update CKEditor Textarea Element.
@@ -203,21 +242,21 @@ function bindConditionalForm(formSelector, linkSrc = false) {
                 CKEDITOR.instances[i].updateElement();
             }
 
-            let formData = new FormData(conditionalForm[0]);
+            let formData = new FormData(form[0]);
             formData.set('ignore_validation', 1);
             $.ajax({
-                type: conditionalForm.attr('method'),
-                url: conditionalForm.attr('action'),
+                type: form.attr('method'),
+                url: form.attr('action'),
                 data: formData,
                 success: function (data) {
                     let html = $.parseHTML(data, document, true);
                     let newForm = $(html).find(formSelector);
                     if (newForm.length > 0) {
-                        conditionalForm.replaceWith(newForm);
+                        form.replaceWith(newForm);
                         if (linkSrc) {
                             bindModal(linkSrc);
                         } else {
-                            bindConditionalForm(formSelector);
+                            bindForm(formSelector);
                         }
                     }
                 },
@@ -271,47 +310,19 @@ function bindModal(linkSrc) {
     modalBody.find('.content-header').remove();
     // Show the modal.
     editorModal.modal('show');
-    // Enable CKEditor.
-    modalBody.find('.ckeditor').each(function () {
-        CKEDITOR.replace($(this)[0], $(this).data('config'));
-    });
-    // Initialize selects.
-    let selectsSelector = 'select[data-widget="select2"]:not(.select2-hidden-accessible)';
-    modalBody.find(selectsSelector).select2();
-    modalBody.on('easyadmin.collection.item-added', function () {
-        // Initialize selects.
-        modalBody.find(selectsSelector).select2();
-    });
-    // Ajaxify if its the the form has conditionals.
-    bindConditionalForm(formSelector, linkSrc);
-    // Bind file chooser.
-    modalBody.find('.btn-file-select').on('click', function (event) {
-        event.preventDefault();
-        let btn = $(this);
-        modalBody.find('.btn-file-select').not(btn).removeClass('text-success');
-        btn.addClass('text-success');
-        let uuid = btn.data('uuid');
-        let version = btn.data('version');
-        let title = btn.data('title');
-        btn.parentsUntil('.tab-content').parent().find('input.existing-file-uuid').val(uuid);
-        btn.parentsUntil('.tab-content').parent().find('input.existing-file-version').val(version);
-        btn.parentsUntil('form').parent().find('input.file-title').val(title);
-    });
-    // Bind create buttons.
-    modalBody.find('.btn-create').on('click', function (event) {
-        $('body').trigger('createElement', {'parent': $(this).data('uuid'), 'elementName': $(this).data('element-name')});
-    });
+
+    // Bind form.
+    bindForm(formSelector, linkSrc);
 }
 
 $(document).ready(function () {
-    // Ajaxify if its the page settings form.
-    bindConditionalForm('form[name=page]');
+    // Bind the page form.
+    bindForm('form[name=page]');
 
     let body = $('body');
 
-    // Enable CKEditor.
-    body.find('.ckeditor').each(function () {
-        CKEDITOR.replace($(this)[0], $(this).data('config'));
+    $(document).on('easyadmin.collection.item-added', function (event) {
+        bindWidgets(body);
     });
 
     // Menu sorting and saving.
