@@ -255,6 +255,43 @@
     {% endif %}
 {% endblock form_widget %}
 
+{% block cms_spacing_widget %}
+    {{- block('cms_shift_buttons') -}}
+    <div id="{{ form.vars.id }}">
+        <div class="row justify-content-center">
+            <div class="col-4">
+                <div class="w-100">
+                    {{ form_widget(form.top) }}
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-between">
+            <div class="col-4">
+                <div class="w-100">
+                    {{ form_widget(form.left) }}
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="w-100">
+                    {{ form_widget(form.breakpoint) }}
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="w-100">
+                    {{ form_widget(form.right) }}
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-4">
+                <div class="w-100">
+                    {{ form_widget(form.bottom) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock cms_spacing_widget %}
+
 {% block collection_row %}
     {{ block('form_row') }}
 

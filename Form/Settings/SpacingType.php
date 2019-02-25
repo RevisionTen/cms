@@ -51,4 +51,12 @@ class SpacingType extends AbstractType
             'placeholder' => $label,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_spacing';
+    }
 }
