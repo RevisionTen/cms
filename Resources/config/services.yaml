@@ -121,8 +121,6 @@ services:
     RevisionTen\CMS\Form\Types\UploadType:
         autoconfigure: true
         autowire: true
-        arguments:
-            $project_dir: '%kernel.project_dir%'
         tags: [form.type]
     RevisionTen\CMS\Form\Types\ManagedUploadType:
         autoconfigure: true

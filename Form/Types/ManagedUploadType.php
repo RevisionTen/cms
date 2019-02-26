@@ -24,15 +24,20 @@ class ManagedUploadType extends AbstractType
     /**
      * @var FileService
      */
-    private $fileService;
+    protected $fileService;
 
     /**
-     * @var RequestStack
+     * @var int
      */
-    private $requestStack;
+    protected $website = 1;
 
     /**
-     * UploadType constructor.
+     * @var string
+     */
+    protected $language = 'en';
+
+    /**
+     * ManagedUploadType constructor.
      *
      * @param FileService  $fileService
      * @param RequestStack $requestStack
@@ -40,7 +45,12 @@ class ManagedUploadType extends AbstractType
     public function __construct(FileService $fileService, RequestStack $requestStack)
     {
         $this->fileService = $fileService;
-        $this->requestStack = $requestStack;
+
+        $request = $requestStack->getMasterRequest();
+        if (null !== $request) {
+            $this->website = $request->get('currentWebsite') ?? ($request->get('website') ?? $this->website);
+            $this->language = $request->getLocale();
+        }
     }
 
     /**
@@ -48,16 +58,6 @@ class ManagedUploadType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $website = null;
-        $language = null;
-        $request = $this->requestStack->getMasterRequest();
-        if (null !== $request) {
-            $website = $request->get('currentWebsite');
-            $language = $request->getLocale();
-        }
-        // Fallback to first website.
-        $website = (int) $website ?: 1;
-
         if ($options['enable_title']) {
             $builder->add('title', TextType::class, [
                 'label' => 'Title',
@@ -75,7 +75,7 @@ class ManagedUploadType extends AbstractType
             'attr' => $options['attr'],
         ]);
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options, $website, $language) {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options) {
             $data = $event->getData();
 
             $defaultImageTitle = 'Image';
@@ -102,7 +102,7 @@ class ManagedUploadType extends AbstractType
                 $title = $data['title'] ?? $defaultImageTitle;
                 if (\is_object($data['file'])) {
                     // Store the uploaded file on submit and save the filename in the data.
-                    $data['file'] = $this->fileService->createFile(null, $data['file'], $title, $options['upload_dir'], $website, $language);
+                    $data['file'] = $this->fileService->createFile(null, $data['file'], $title, $options['upload_dir'], $this->website, $this->language);
                 } elseif (\is_array($data['file'])) {
                     // File is already stored.
                     $data['file'] = $this->fileService->replaceFile($data['file'], null, $title, $options['upload_dir']);

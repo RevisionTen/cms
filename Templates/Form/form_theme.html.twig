@@ -99,8 +99,8 @@
 {%- endblock cms_trix_widget -%}
 
 {% block cms_upload_widget %}
-    {% set file = (value.file is defined and value.file) ? value.file : value %}
-    {% if file %}
+    {% set file = value.file ?? null %}
+    {% if file and file is not iterable %}
         {% if file|slice(-4) in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
             <a href="{{ file }}">
                 <img style="max-width: 200px;" class="rounded img-thumbnail h-auto pb-3" src="{{ file }}">
@@ -108,10 +108,8 @@
         {% else %}
             <a href="{{ file }}">{{ file }}</a>
         {% endif %}
-        {{ block('form_widget') }}
-    {% else %}
-        {{ block('form_widget') }}
     {% endif %}
+    {{ block('form_widget') }}
 {% endblock cms_upload_widget %}
 
 {% block cms_managed_upload_widget %}
