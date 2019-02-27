@@ -153,7 +153,7 @@ services:
     RevisionTen\CMS\Listener\:
         public: true
         resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserChangePasswordListener.php,UserLoginListener.php,UserLogoutListener.php,UserResetPasswordListener.php,UserEditListener.php}'
+        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserResetPasswordListener.php}'
         autowire: true
     RevisionTen\CMS\Listener\UserCreateListener:
         public: true
@@ -165,27 +165,7 @@ services:
         autowire: true
         arguments:
             $config: '%cms%'
-    RevisionTen\CMS\Listener\UserChangePasswordListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserLoginListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserLogoutListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
     RevisionTen\CMS\Listener\UserResetPasswordListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserEditListener:
         public: true
         autowire: true
         arguments:

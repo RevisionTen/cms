@@ -16,11 +16,7 @@ class UserCreateListener extends UserBaseListener implements ListenerInterface
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
         $payload = $event->getCommand()->getPayload();
-
-        // Update the UserRead Model.
         $userUuid = $event->getCommand()->getAggregateUuid();
-        $this->userService->updateUserRead($userUuid);
-
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
         $migrated = $payload['migrated'] ?? false;
         if (!$useMailCodes && !$migrated) {

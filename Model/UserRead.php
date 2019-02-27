@@ -105,6 +105,12 @@ class UserRead implements UserInterface, \Serializable
     private $roles;
 
     /**
+     * @var array|null
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $extra;
+
+    /**
      * @var bool
      */
     private $imposter = false;
@@ -559,6 +565,26 @@ class UserRead implements UserInterface, \Serializable
         if ($this->roles->contains($role)) {
             $this->roles->removeElement($role);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getExtra(): ?array
+    {
+        return \is_string($this->extra) ? json_decode($this->extra, true) : $this->extra;
+    }
+
+    /**
+     * @param array|null $extra
+     *
+     * @return UserRead
+     */
+    public function setExtra(array $extra = null): self
+    {
+        $this->extra = is_array($extra) ? json_encode($extra) : null;
 
         return $this;
     }
