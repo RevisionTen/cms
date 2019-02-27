@@ -78,6 +78,7 @@ class UserService
         $userRead->setDevices($aggregate->devices);
         $userRead->setIps($aggregate->ips);
         $userRead->setResetToken($aggregate->resetToken);
+        $userRead->setExtra($aggregate->extra);
         $userRead->setWebsites($websites);
         $userRead->setRoles($roles);
 

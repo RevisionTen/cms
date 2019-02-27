@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.39] - 2019-02-27
+### Added
+- Added "extra" array field to UserAggregate to save custom data
+- Update the UserRead via the AggregrateSubscriber instead of using listeners
+
 ## [1.4.38] - 2019-02-26
 ### Changed
 - Improved UploadType, files uploaded with this type now also appear in the file overview

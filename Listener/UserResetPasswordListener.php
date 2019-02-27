@@ -15,10 +15,7 @@ class UserResetPasswordListener extends UserBaseListener implements ListenerInte
      */
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
-        // Update the UserRead Model.
         $userUuid = $event->getCommand()->getAggregateUuid();
-        $this->userService->updateUserRead($userUuid);
-
         // Get the token from the payload.
         $payload = $event->getCommand()->getPayload();
         $token = $payload['token'] ?? null;

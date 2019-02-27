@@ -40,4 +40,7 @@ final class UserAggregate extends Aggregate
 
     /** @var array */
     public $roles = [];
+
+    /** @var array */
+    public $extra = [];
 }

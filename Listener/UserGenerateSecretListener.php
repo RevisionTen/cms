@@ -15,10 +15,7 @@ class UserGenerateSecretListener extends UserBaseListener implements ListenerInt
      */
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
-        // Update the UserRead Model.
         $userUuid = $event->getCommand()->getAggregateUuid();
-        $this->userService->updateUserRead($userUuid);
-
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
         if (!$useMailCodes) {
             // Send the secret QRCode via mail.
