@@ -15,9 +15,8 @@ class PageDeleteListener extends PageBaseListener implements ListenerInterface
      */
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
-        // Update the PageStreamRead Model.
+        // Unpublish the page.
         $pageUuid = $event->getCommand()->getAggregateUuid();
-        // Unpublish the Page and update the PageStreamRead Model.
         $this->pageService->unpublishPage($pageUuid);
     }
 }
