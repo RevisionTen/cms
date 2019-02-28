@@ -166,6 +166,9 @@ class PageService
         // Remove all other qeued Events for this Page.
         $this->removeQeuedEvents($pageUuid);
 
+        // Update the PageStreamRead because this here happens before the AggregateUpdatedEvent.
+        $this->updatePageStreamRead($pageUuid);
+
         $this->eventDispatcher->dispatch(PagePublishedEvent::NAME, new PagePublishedEvent($pageUuid));
     }
 
@@ -193,6 +196,9 @@ class PageService
 
         // Remove all other qeued Events for this Page.
         $this->removeQeuedEvents($pageUuid);
+
+        // Update the PageStreamRead because this here happens before the AggregateUpdatedEvent.
+        $this->updatePageStreamRead($pageUuid);
 
         $this->eventDispatcher->dispatch(PageUnpublishedEvent::NAME, new PageUnpublishedEvent($pageUuid));
     }
