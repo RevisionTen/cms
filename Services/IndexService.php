@@ -126,8 +126,8 @@ class IndexService
                 }
             }
 
-            // Don't index if no alias path exists or page is deleted or unpublished.
-            if (null === $path || null === $pageRead || $page->getDeleted() || false === $page->isPublished()) {
+            // Don't index if no alias path exists or no page read exists (page is likely deleted or unpublished).
+            if (null === $path || null === $pageRead) {
                 // Delete page from index.
                 $update->addDeleteById($id);
                 $output->writeln('<info>Marked page '.$page->getTitle().' as deleted.</info>');
