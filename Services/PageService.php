@@ -118,6 +118,7 @@ class PageService
      * @param int    $version
      *
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function publishPage(string $pageUuid, int $version): void
     {
@@ -165,9 +166,6 @@ class PageService
         // Remove all other qeued Events for this Page.
         $this->removeQeuedEvents($pageUuid);
 
-        // Update the PageStreamRead Model.
-        $this->updatePageStreamRead($pageUuid);
-
         $this->eventDispatcher->dispatch(PagePublishedEvent::NAME, new PagePublishedEvent($pageUuid));
     }
 
@@ -196,9 +194,6 @@ class PageService
         // Remove all other qeued Events for this Page.
         $this->removeQeuedEvents($pageUuid);
 
-        // Update the PageStreamRead Model.
-        $this->updatePageStreamRead($pageUuid);
-
         $this->eventDispatcher->dispatch(PageUnpublishedEvent::NAME, new PageUnpublishedEvent($pageUuid));
     }
 
@@ -226,9 +221,6 @@ class PageService
         if ($published) {
             $this->removeQeuedEvents($pageUuid);
         }
-
-        // Update the PageStreamRead Model.
-        $this->updatePageStreamRead($pageUuid);
     }
 
     /**
