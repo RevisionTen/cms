@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Listener;
 
+use RevisionTen\CMS\SymfonyEvent\PagePublishedEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -15,13 +16,8 @@ class PagePublishListener extends PageBaseListener implements ListenerInterface
      */
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
-        $payload = $event->getCommand()->getPayload();
         $pageUuid = $event->getCommand()->getAggregateUuid();
-
-        if ($payload && $payload['version']) {
-            $version = (int) $payload['version'];
-
-            $this->pageService->publishPage($pageUuid, $version);
-        }
+        $version = $event->getCommand()->getOnVersion() + 1;
+        $this->eventDispatcher->dispatch(PagePublishedEvent::NAME, new PagePublishedEvent($pageUuid, $version));
     }
 }

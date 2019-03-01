@@ -13,13 +13,24 @@ class PagePublishedEvent extends \Symfony\Component\EventDispatcher\Event
      */
     protected $pageUuid;
 
-    public function __construct(string $pageUuid)
+    /**
+     * @var int
+     */
+    protected $version;
+
+    public function __construct(string $pageUuid, int $version)
     {
         $this->pageUuid = $pageUuid;
+        $this->version = $version;
     }
 
     public function getPageUuid(): string
     {
         return $this->pageUuid;
+    }
+
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 }
