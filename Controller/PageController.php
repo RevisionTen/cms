@@ -633,7 +633,6 @@ class PageController extends AbstractController
             return $this->errorResponse();
         }
 
-
         // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
         if ($this->isGranted('alias_create') && (null === $aliases || empty($aliases) || 0 === \count($aliases))) {
@@ -645,13 +644,15 @@ class PageController extends AbstractController
                 'success' => $success,
                 'modal' => $url,
             ], 200, $this->getToolbarRefreshHeaders()) : $this->redirect($url);
-        } elseif ($request->get('ajax')) {
+        }
+
+        if ($request->get('ajax')) {
             return new JsonResponse([
                 'success' => $success,
             ], 200, $this->getToolbarRefreshHeaders());
-        } else {
-            return $this->redirectToPage($pageUuid);
         }
+
+        return $this->redirectToPage($pageUuid);
     }
 
     /**

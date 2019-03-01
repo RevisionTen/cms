@@ -9,14 +9,11 @@ use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
-use RevisionTen\CMS\SymfonyEvent\PagePublishedEvent;
-use RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent;
 use RevisionTen\CQRS\Model\EventQeueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
 use RevisionTen\CQRS\Services\EventStore;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class PageService.
@@ -49,11 +46,6 @@ class PageService
     protected $cacheService;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
-
-    /**
      * PageService constructor.
      *
      * @param \Doctrine\ORM\EntityManagerInterface        $em
@@ -61,16 +53,14 @@ class PageService
      * @param \RevisionTen\CQRS\Services\EventStore       $eventStore
      * @param \RevisionTen\CQRS\Services\EventBus         $eventBus
      * @param \RevisionTen\CMS\Services\CacheService      $cacheService
-     * @param EventDispatcherInterface                    $eventDispatcher
      */
-    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, EventBus $eventBus, CacheService $cacheService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, EventBus $eventBus, CacheService $cacheService)
     {
         $this->em = $em;
         $this->aggregateFactory = $aggregateFactory;
         $this->eventStore = $eventStore;
         $this->eventBus = $eventBus;
         $this->cacheService = $cacheService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -112,7 +102,7 @@ class PageService
     }
 
     /**
-     * Publishes a Page.
+     * Updates the PageRead.
      *
      * @param string $pageUuid
      * @param int    $version
@@ -120,7 +110,7 @@ class PageService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function publishPage(string $pageUuid, int $version): void
+    public function updatePageRead(string $pageUuid, int $version): void
     {
         /**
          * Get Aggregate for version.
@@ -162,22 +152,14 @@ class PageService
             // Persist to cache.
             $this->cacheService->put($pageUuid, $version, $pageData);
         }
-
-        // Remove all other qeued Events for this Page.
-        $this->removeQeuedEvents($pageUuid);
-
-        // Update the PageStreamRead because this here happens before the AggregateUpdatedEvent.
-        $this->updatePageStreamRead($pageUuid);
-
-        $this->eventDispatcher->dispatch(PagePublishedEvent::NAME, new PagePublishedEvent($pageUuid));
     }
 
     /**
-     * Unpublishes a Page.
+     * Delete the PageRead.
      *
      * @param string $pageUuid
      */
-    public function unpublishPage(string $pageUuid): void
+    public function deletePageRead(string $pageUuid): void
     {
         // Remove read model.
         /** @var PageRead $pageRead */
@@ -193,14 +175,6 @@ class PageService
             // Remove from cache.
             $this->cacheService->delete($pageUuid, $version);
         }
-
-        // Remove all other qeued Events for this Page.
-        $this->removeQeuedEvents($pageUuid);
-
-        // Update the PageStreamRead because this here happens before the AggregateUpdatedEvent.
-        $this->updatePageStreamRead($pageUuid);
-
-        $this->eventDispatcher->dispatch(PageUnpublishedEvent::NAME, new PageUnpublishedEvent($pageUuid));
     }
 
     /**
@@ -222,11 +196,7 @@ class PageService
         /**
          * Publish the qeued events.
          */
-        $published = $this->eventBus->publishQeued($eventQeueObjects);
-
-        if ($published) {
-            $this->removeQeuedEvents($pageUuid);
-        }
+        $this->eventBus->publishQeued($eventQeueObjects);
     }
 
     /**
@@ -280,6 +250,9 @@ class PageService
         // Persist PageStreamRead entity.
         $this->em->persist($pageStream);
         $this->em->flush();
+
+        // Remove old no longer valid qeued events.
+        $this->removeQeuedEvents($pageUuid);
     }
 
     public function hydratePage(array $pageData): array

@@ -119,7 +119,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
-                'display' => (false === $previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() !== $publishedPage->getVersion() + 1),
+                'display' => (false === $previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() > $publishedPage->getVersion() + 1),
                 'type' => 'ajax',
             ] : null,
             'unpublish' => $this->isGranted('page_unpublish') ? [
@@ -127,7 +127,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
-                'display' => false === $previewUser && null !== $publishedPage && $page->getVersion() === $publishedPage->getVersion() + 1 && $page->published,
+                'display' => false === $previewUser && null !== $publishedPage && $page->getVersion() <= $publishedPage->getVersion() + 1 && $page->published,
                 'type' => 'ajax',
             ] : null,
             'optimize' => [

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Listener;
 
-use RevisionTen\CMS\Services\PageService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class PageBaseListener
 {
-    /** @var PageService */
-    protected $pageService;
+    /** @var EventDispatcherInterface */
+    protected $eventDispatcher;
 
     /**
      * PageBaseListener constructor.
      *
-     * @param PageService $pageService
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(PageService $pageService)
+    public function __construct(EventDispatcherInterface $eventDispatcher)
     {
-        $this->pageService = $pageService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 }
