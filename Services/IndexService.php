@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
+use RevisionTen\CMS\Serializer\PageSerializer;
 use Solarium\Client;
 use Solarium\Core\Query\Helper;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -104,65 +105,32 @@ class IndexService
         }
 
         $update = $client->createUpdate();
-        $helper = $update->getHelper();
-        $docs = [];
+        $allDocuments = [];
 
         foreach ($pages as $page) {
-            // Create solr document.
-            $id = $page->getUuid();
-
             /** @var PageRead $pageRead */
-            $pageRead = $pageReadsByUuid[$id] ?? null;
-
-            // Get path of first alias attached to the pageStreamRead entity.
-            $path = null;
-            $aliases = $page->getAliases();
-            if (null !== $aliases && !empty($aliases)) {
-                if ($aliases instanceof Collection) {
-                    $aliases = $aliases->toArray();
-                }
-                if (is_array($aliases) && !empty($aliases) && null !== array_values($aliases)[0]) {
-                    $path = array_values($aliases)[0]->getPath();
-                }
+            $pageRead = $pageReadsByUuid[$page->getUuid()] ?? null;
+            if ($pageRead) {
+                $payload = $pageRead->getPayload();
+                $payload = $this->pageService->hydratePage($payload);
+            } else {
+                $payload = null;
             }
 
-            // Don't index if no alias path exists or no page read exists (page is likely deleted or unpublished).
-            if (null === $path || null === $pageRead) {
-                // Delete page from index.
-                $update->addDeleteById($id);
-                $output->writeln('<info>Marked page '.$page->getTitle().' as deleted.</info>');
-                continue;
-            }
-
-            $docs[$id] = $update->createDocument();
-            $docs[$id]->id = $id;
-            $docs[$id]->ispage_b = true;
-            $docs[$id]->url_s = $path;
-            $docs[$id]->title_s = $helper->filterControlCharacters($page->getTitle());
-            $docs[$id]->website_i = $page->getWebsite();
-            $docs[$id]->language_s = $page->getLanguage();
-            $docs[$id]->template_s = $helper->filterControlCharacters($page->getTemplate());
-            $docs[$id]->created_dt = $helper->formatDate($page->getCreated());
-            $docs[$id]->modified_dt = $helper->formatDate($page->getModified());
-
-            $payload = $pageRead->getPayload();
-            $payload = $this->pageService->hydratePage($payload);
-            $docs[$id]->fulltext = self::reducePayload($payload, $helper);
-
-            // Add extra data provided by the pages serializer.
-            /** @var SolrSerializerInterface $serializer */
+            // Add documents provided by the pages serializer.
             $serializer = $this->config['page_templates'][$page->getTemplate()]['solr_serializer'] ?? false;
             if ($serializer && class_exists($serializer) && in_array(SolrSerializerInterface::class, class_implements($serializer), true)) {
+                /** @var SolrSerializerInterface $serializer */
                 $serializer = new $serializer();
-                $extraFields = $serializer->serialize($page, $payload, $helper);
-                foreach ($extraFields as $field => $value) {
-                    $docs[$id]->{$field} = $value;
-                }
+            } else {
+                $serializer = new PageSerializer();
             }
+            $documents = $serializer->serialize($update, $page, $payload);
+            array_push($allDocuments, ...array_values($documents));
         }
 
         // Commit solr documents.
-        $update->addDocuments($docs);
+        $update->addDocuments($allDocuments);
         $update->addCommit();
 
         try {
@@ -172,7 +140,8 @@ class IndexService
         }
 
         if (isset($result) && $result && $result->getResponse()->getStatusCode() === 200) {
-            $output->writeln('<info>Pushed '.count($pages).' documents: '.$result->getResponse()->getStatusMessage().'</info>');
+            $output->writeln('<info>Indexed '.count($pages).' pages: '.$result->getResponse()->getStatusMessage().'</info>');
+            $output->writeln('<info>('.count($allDocuments).' documents)</info>');
         } else {
             $errorMessage = isset($result) ? $result->getResponse()->getStatusMessage() : 'No solr result';
             $errorCode = isset($result) ? $result->getResponse()->getStatusCode() : 500;

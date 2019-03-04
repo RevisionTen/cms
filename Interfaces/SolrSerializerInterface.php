@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Interfaces;
 
 use RevisionTen\CMS\Model\PageStreamRead;
-use Solarium\Core\Query\Helper;
+use Solarium\QueryType\Update\Query\Query;
 
 interface SolrSerializerInterface
 {
     /**
-     * @param PageStreamRead $pageStreamRead
-     * @param array          $payload
-     * @param Helper         $helper
+     * @param Query           $update
+     * @param PageStreamRead  $pageStreamRead
+     * @param array|NULL      $payload
      *
      * @return array
      */
-    public function serialize(PageStreamRead $pageStreamRead, array $payload, Helper $helper): array;
+    public function serialize(Query $update, PageStreamRead $pageStreamRead, array $payload = null): array;
 }
