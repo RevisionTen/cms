@@ -78,13 +78,27 @@ class ApiController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
+        $canSubmitChanges = $page->getVersion() !== $page->getStreamVersion();
+        $canToggleContrast = !$previewUser;
+        $canToggleTree = !$previewUser;
+        $canPreview = !$previewUser;
+        $canChangePagesettings = !$previewUser;
+        $canRollbackAggregate = !$previewUser;
+        $canOptimize = !$previewUser && $page->shouldTakeSnapshot();
+        $canPublish = (!$previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() > $publishedPage->getVersion() + 1);
+        $canUnpublish = !$canSubmitChanges && !$previewUser && null !== $publishedPage && $page->published && ($page->getVersion() === $publishedPage->getVersion() + 1 || $page->getVersion() === $publishedPage->getVersion());
+        $canUndoChange = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
+        $canDiscardChanges = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
+        $canCloneAggregate = !$previewUser && !$pageStreamRead->getDeleted();
+        $canDeleteAggregate = !$previewUser && !$pageStreamRead->getDeleted();
+
         $actions = [
             'toggle_contrast' => [
                 'css_class' => 'btn-tertiary toggle-contrast',
                 'icon' => 'fas fa-adjust',
                 'label' => $translator->trans('Toggle editor contrast'),
                 'url' => '#',
-                'display' => false === $previewUser,
+                'display' => $canToggleContrast,
                 'type' => 'link',
             ],
             'toggle_tree' => [
@@ -92,7 +106,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-layer-group',
                 'label' => $translator->trans('Layers'),
                 'url' => '#',
-                'display' => false === $previewUser,
+                'display' => $canToggleTree,
                 'type' => 'link',
             ],
             'preview' => [
@@ -100,7 +114,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-toggle-on',
                 'label' => $translator->trans('Preview'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
-                'display' => false === $previewUser,
+                'display' => $canPreview,
                 'type' => 'link',
                 'attributes' => [
                     'target' => '_blank',
@@ -111,7 +125,7 @@ class ApiController extends AbstractController
                 'icon' => 'fa fa-edit',
                 'label' => $translator->trans('Change Page Settings'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => false === $previewUser,
+                'display' => $canChangePagesettings,
                 'type' => 'form',
             ],
             'publish' => $this->isGranted('page_publish') ? [
@@ -119,7 +133,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
-                'display' => (false === $previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() > $publishedPage->getVersion() + 1),
+                'display' => $canPublish,
                 'type' => 'ajax',
             ] : null,
             'unpublish' => $this->isGranted('page_unpublish') ? [
@@ -127,7 +141,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
-                'display' => false === $previewUser && null !== $publishedPage && $page->getVersion() <= $publishedPage->getVersion() + 1 && $page->published,
+                'display' => $canUnpublish,
                 'type' => 'ajax',
             ] : null,
             'optimize' => [
@@ -135,7 +149,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-sync',
                 'label' => $translator->trans('Optimize'),
                 'url' => $this->generateUrl('cms_save_snapshot', ['pageUuid' => $pageUuid]),
-                'display' => false === $previewUser && $page->shouldTakeSnapshot(),
+                'display' => $canOptimize,
                 'type' => 'ajax',
             ],
             'undo_change' => [
@@ -143,7 +157,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-undo',
                 'label' => $translator->trans('Undo last change'),
                 'url' => $this->generateUrl('cms_undo_change', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
+                'display' => $canUndoChange,
                 'type' => 'link',
             ],
             'submit_changes' => $this->isGranted('page_submit_changes') ? [
@@ -151,7 +165,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('Submit changes'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
-                'display' => $page->getVersion() !== $page->getStreamVersion(),
+                'display' => $canSubmitChanges,
                 'type' => 'form',
             ] : null,
             'rollback_aggregate' => [
@@ -159,7 +173,7 @@ class ApiController extends AbstractController
                 'icon' => 'fas fa-history',
                 'label' => $translator->trans('Rollback'),
                 'url' => $this->generateUrl('cms_rollback_aggregate', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
-                'display' => false === $previewUser,
+                'display' => $canRollbackAggregate,
                 'type' => 'form',
             ],
             'discard_changes' => [
@@ -167,7 +181,7 @@ class ApiController extends AbstractController
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Discard changes'),
                 'url' => $this->generateUrl('cms_discard_changes', ['pageUuid' => $pageUuid]),
-                'display' => false === $previewUser && $page->getVersion() !== $page->getStreamVersion(),
+                'display' => $canDiscardChanges,
                 'type' => 'link',
             ],
             'clone_aggregate' => $this->isGranted('page_clone') ? [
@@ -175,7 +189,7 @@ class ApiController extends AbstractController
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => false === $previewUser && false === $pageStreamRead->getDeleted(),
+                'display' => $canCloneAggregate,
                 'type' => 'link',
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
                     'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
@@ -186,7 +200,7 @@ class ApiController extends AbstractController
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),
-                'display' => false === $previewUser && false === $pageStreamRead->getDeleted(),
+                'display' => $canDeleteAggregate,
                 'type' => 'link',
                 'attributes' => [
                     'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
