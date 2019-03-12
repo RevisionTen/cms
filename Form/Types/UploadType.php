@@ -84,18 +84,12 @@ class UploadType extends AbstractType
             'attr' => $options['attr'],
         ]);
 
-        $fileOptions = [
+        $builder->add('uploadedFile', FileType::class, [
             'label' => false,
             'required' => $options['required'],
             'attr' => $options['attr'],
-            'mapped' => true,
-            'constraints' => $options['required'] ? new NotBlank() : null,
-        ];
-        if ($options['file_options']) {
-            $fileOptions = array_merge($fileOptions, $options['file_options']);
-        }
-
-        $builder->add('uploadedFile', FileType::class, $fileOptions);
+            'constraints' => $options['constraints'],
+        ]);
 
         $builder->addModelTransformer(new FileTransformer());
 
@@ -115,7 +109,7 @@ class UploadType extends AbstractType
             }
         });
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options, $addDeleteReplaceForm, $fileOptions): void {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options, $addDeleteReplaceForm): void {
             $form = $event->getForm();
             $requestHandler = $form->getConfig()->getRequestHandler();
             $data = $event->getData();
@@ -124,7 +118,7 @@ class UploadType extends AbstractType
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
-            $constraints = $fileOptions['constraints'] ?? NULL;
+            $constraints = $options['constraints'] ?? NULL;
 
             if ($isFileUpload) {
                 // Validate file field.
@@ -198,7 +192,7 @@ class UploadType extends AbstractType
             'attr' => [],
             'upload_dir' => '/uploads/files/',
             'keep_deleted_file' => true,
-            'file_options' => null,
+            'constraints' => null,
         ]);
 
         $resolver->setDeprecated('keep_deleted_file');
