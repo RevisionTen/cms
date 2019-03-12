@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2019-03-12
+### Added
+- Added `file_options` option to UploadType, use it to set custom options on the UploadTypes file field (a validation constraint for example).
+### Changed
+- Improved uploadType form template
+- Updated readme
+
 ## [1.5.1] - 2019-03-08
 ### Changed
 - Fixed search template
