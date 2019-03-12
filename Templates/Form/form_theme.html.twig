@@ -102,8 +102,8 @@
     {% set file = value.file ?? null %}
     {% if file and file is not iterable %}
         {% if file|slice(-4) in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
-            <a href="{{ file }}">
-                <img style="max-width: 200px;" class="rounded img-thumbnail h-auto pb-3" src="{{ file }}">
+            <a href="{{ file }}" class="d-block">
+                <img style="max-width: 200px;" class="rounded img-thumbnail h-auto mb-3" src="{{ file }}">
             </a>
         {% else %}
             <a href="{{ file }}">{{ file }}</a>

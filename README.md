@@ -139,6 +139,11 @@ $builder->add('image', UploadType::class, [
     'required' => false,
     'upload_dir' => '/uploads/files/', // Optional, where the files are stored in the public folder.
     'keep_deleted_file' => true, // Optional, "false" deletes the file.
+    'file_options' => [ // Optional, use it to set options for the file field.
+        'constraints' => new Image([
+            'maxSize' => '2M',
+        ]),
+    ],
 ]);
 ```
 

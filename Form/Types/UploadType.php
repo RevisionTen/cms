@@ -10,7 +10,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Validator\ViolationMapper\ViolationMapper;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -19,6 +21,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UploadType extends AbstractType
 {
@@ -26,6 +31,11 @@ class UploadType extends AbstractType
      * @var FileService
      */
     private $fileService;
+
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
     /**
      * @var int
@@ -40,12 +50,14 @@ class UploadType extends AbstractType
     /**
      * UploadType constructor.
      *
-     * @param FileService  $fileService
-     * @param RequestStack $requestStack
+     * @param FileService        $fileService
+     * @param RequestStack       $requestStack
+     * @param ValidatorInterface $validator
      */
-    public function __construct(FileService $fileService, RequestStack $requestStack)
+    public function __construct(FileService $fileService, RequestStack $requestStack, ValidatorInterface $validator)
     {
         $this->fileService = $fileService;
+        $this->validator = $validator;
 
         $request = $requestStack->getMasterRequest();
         if (null !== $request) {
@@ -72,22 +84,22 @@ class UploadType extends AbstractType
             'attr' => $options['attr'],
         ]);
 
-        $builder->add('uploadedFile', FileType::class, [
+        $fileOptions = [
             'label' => false,
             'required' => $options['required'],
             'attr' => $options['attr'],
-            'mapped' => false,
-        ]);
+            'mapped' => true,
+            'constraints' => $options['required'] ? new NotBlank() : null,
+        ];
+        if ($options['file_options']) {
+            $fileOptions = array_merge($fileOptions, $options['file_options']);
+        }
+
+        $builder->add('uploadedFile', FileType::class, $fileOptions);
 
         $builder->addModelTransformer(new FileTransformer());
 
-        $addDeleteReplaceForm = function (FormInterface $form) use ($options): void {
-            $form->add('uploadedFile', FileType::class, [
-                'label' => 'replace file',
-                'required' => $options['required'],
-                'attr' => $options['attr'],
-                'mapped' => false,
-            ]);
+        $addDeleteReplaceForm = function (FormInterface $form): void {
             $form->add('delete', CheckboxType::class, [
                 'label' => 'delete the existing file',
                 'mapped' => false,
@@ -103,7 +115,7 @@ class UploadType extends AbstractType
             }
         });
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options, $addDeleteReplaceForm): void {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options, $addDeleteReplaceForm, $fileOptions): void {
             $form = $event->getForm();
             $requestHandler = $form->getConfig()->getRequestHandler();
             $data = $event->getData();
@@ -112,14 +124,35 @@ class UploadType extends AbstractType
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
+            $constraints = $fileOptions['constraints'] ?? NULL;
 
             if ($isFileUpload) {
-                // Save the file.
-                $file = $this->storeFile($uploadedFile, $options['upload_dir']);
-                // Overwrite uploaded File with file path string.
-                $event->setData([
-                    'file' => $file,
-                ]);
+                // Validate file field.
+                $valid = true;
+                if ($constraints) {
+                    /** @var \Symfony\Component\Validator\ConstraintViolationListInterface $violations */
+                    $violations = $this->validator->validate($uploadedFile, $constraints);
+                    foreach ($violations as $violation) {
+                        /** @var \Symfony\Component\Validator\ConstraintViolationInterface $violation */
+                        $formError = new FormError(
+                            $violation->getMessage(),
+                            $violation->getMessageTemplate(),
+                            $violation->getParameters(),
+                            $violation->getPlural()
+                        );
+                        $uploadedFileForm = $form->get('uploadedFile');
+                        $uploadedFileForm->addError($formError);
+                        $valid = false;
+                    }
+                }
+                if ($valid) {
+                    // Save the file.
+                    $file = $this->storeFile($uploadedFile, $options['upload_dir']);
+                    // Overwrite uploaded File with file path string.
+                    $event->setData([
+                        'file' => $file,
+                    ]);
+                }
             } elseif ($delete) {
                 // Delete the file.
                 $event->setData(null);
@@ -165,6 +198,7 @@ class UploadType extends AbstractType
             'attr' => [],
             'upload_dir' => '/uploads/files/',
             'keep_deleted_file' => true,
+            'file_options' => null,
         ]);
 
         $resolver->setDeprecated('keep_deleted_file');
