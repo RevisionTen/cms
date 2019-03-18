@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -49,11 +50,11 @@ class FormController extends AbstractController
     /**
      * @Route("/edit-aggregate", name="forms_edit_aggregate")
      */
-    public function edit(Request $request)
+    public function edit(Request $request, ContainerInterface $container)
     {
         $this->denyAccessUnlessGranted('form_edit');
 
-        return $this->formController->editAggregateAction($request);
+        return $this->formController->editAggregateAction($request, $container);
     }
 
     /**
