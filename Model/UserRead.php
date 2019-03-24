@@ -126,6 +126,15 @@ class UserRead implements UserInterface, \Serializable
         return (string) $this->getUsername();
     }
 
+    public function serializeToSolrArray(): array
+    {
+        return [
+            'username_s' => $this->getUsername(),
+            'avatarurl_s' => $this->getAvatarUrl(),
+            'color_s' => $this->getColor(),
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
