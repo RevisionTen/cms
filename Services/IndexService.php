@@ -126,7 +126,9 @@ class IndexService
                 $serializer = new PageSerializer();
             }
             $documents = $serializer->serialize($update, $page, $payload);
-            array_push($allDocuments, ...array_values($documents));
+            if (!empty($documents)) {
+                array_push($allDocuments, ...array_values($documents));
+            }
         }
 
         // Commit solr documents.
@@ -197,10 +199,15 @@ class IndexService
             if (is_string($fieldName)) {
                 if ('doctrineEntity' === $fieldName && is_object($item)) {
                     // Serialize hydrated doctrine entities.
-                    if (method_exists($item, 'serialize')) {
-                        foreach ($item->serialize() as $value) {
-                            $reducedData[] = html_entity_decode(strip_tags((string) $value));
+                    if (method_exists($item, 'serializeToSolrArray')) {
+                        $solrArray = $item->serializeToSolrArray();
+                        if ($solrArray && is_array($solrArray)) {
+                            foreach ($solrArray as $value) {
+                                $reducedData[] = html_entity_decode(strip_tags((string) $value));
+                            }
                         }
+                    } elseif (method_exists($item, '__toString')) {
+                        $reducedData[] = html_entity_decode((string) $item);
                     }
                 } elseif (is_string($item) && !empty($item) && in_array($fieldName, $fieldNames, true)) {
                     $reducedData[] = html_entity_decode(strip_tags($item));
