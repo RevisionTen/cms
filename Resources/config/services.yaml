@@ -147,8 +147,13 @@ services:
         tags: [form.type]
     RevisionTen\CMS\EventSubscriber\:
         resource: '../../EventSubscriber/*'
+        exclude: '../../EventSubscriber/{AliasSubscriber.php}'
         autowire: true
         autoconfigure: true
+    RevisionTen\CMS\EventSubscriber\AliasSubscriber:
+        autowire: true
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
     # Listeners must be public!
     RevisionTen\CMS\Listener\:
         public: true
