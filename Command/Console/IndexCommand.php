@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use RevisionTen\CMS\Services\IndexService;
@@ -12,7 +12,7 @@ use RevisionTen\CMS\Services\IndexService;
 /**
  * Class IndexCommand.
  */
-class IndexCommand extends ContainerAwareCommand
+class IndexCommand extends Command
 {
     /** @var IndexService $indexService */
     private $indexService;
