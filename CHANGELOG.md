@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.8] - 2019-03-28
+### Changed
+- Remove useless and deprecated use of ContainerAwareCommand in IndexCommand
+
 ## [1.5.7] - 2019-03-28
 ### Changed
 - Set utf8_unicode_ci collaction on uuid fields to make it MySQL 5.5. compatible
