@@ -38,7 +38,7 @@ class Alias
 
     /**
      * @var string
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $controller;
 

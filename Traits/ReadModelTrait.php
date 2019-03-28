@@ -18,7 +18,7 @@ trait ReadModelTrait
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
     private $uuid;
 
@@ -30,7 +30,7 @@ trait ReadModelTrait
 
     /**
      * @var array
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="text")
      */
     private $payload;
 
@@ -87,7 +87,7 @@ trait ReadModelTrait
      */
     public function getPayload(): array
     {
-        return $this->payload;
+        return \is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
     }
 
     /**
@@ -97,7 +97,7 @@ trait ReadModelTrait
      */
     public function setPayload($payload): self
     {
-        $this->payload = $payload;
+        $this->payload = json_encode($payload);
 
         return $this;
     }

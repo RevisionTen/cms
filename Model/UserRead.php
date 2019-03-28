@@ -26,7 +26,7 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
     private $uuid;
 

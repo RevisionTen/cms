@@ -31,7 +31,7 @@ class PageStreamRead
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
     private $uuid;
 
@@ -166,8 +166,6 @@ class PageStreamRead
     }
 
     /**
-     * TODO: simplify method once https://github.com/doctrine/doctrine2/pull/6988 is fixed.
-     *
      * @return array
      */
     public function getPayload(): array
@@ -176,11 +174,9 @@ class PageStreamRead
     }
 
     /**
-     * TODO: simplify method once https://github.com/doctrine/doctrine2/pull/6988 is fixed.
-     *
      * @param array $payload
      *
-     * @return PageStreamRead
+     * @return self
      */
     public function setPayload($payload): self
     {
