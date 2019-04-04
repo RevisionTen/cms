@@ -32,6 +32,7 @@ class AliasSubscriber implements EventSubscriber
     public function getSubscribedEvents(): array
     {
         return [
+            Events::postUpdate,
             Events::postPersist,
             Events::postRemove,
         ];
@@ -41,6 +42,15 @@ class AliasSubscriber implements EventSubscriber
     {
         $output = new DummyOutput();
         $this->indexService->index($output, $pageStreamRead->getUuid());
+    }
+
+    public function postUpdate(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+
+        if ($entity instanceof Alias && null !== $entity->getPageStreamRead()) {
+            $this->indexPage($entity->getPageStreamRead());
+        }
     }
 
     public function postPersist(LifecycleEventArgs $args): void
