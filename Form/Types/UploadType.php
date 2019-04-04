@@ -96,7 +96,7 @@ class UploadType extends AbstractType
         $addDeleteReplaceForm = function (FormInterface $form): void {
             $form->add('delete', CheckboxType::class, [
                 'label' => 'delete the existing file',
-                'mapped' => false,
+                'mapped' => true,
                 'required' => false,
             ]);
         };
