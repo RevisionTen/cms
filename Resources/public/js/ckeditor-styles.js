@@ -7,3 +7,5 @@ CKEDITOR.stylesSet.add('bootstrap4styles', [
     { name: 'justify', element: blockElements, attributes: { 'class': 'text-justify' } },
     { name: 'small', element: 'small' }
 ]);
+CKEDITOR.dtd.$removeEmpty.span = 0;
+CKEDITOR.dtd.$removeEmpty.i = 0;
