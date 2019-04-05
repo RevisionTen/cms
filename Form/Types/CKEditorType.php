@@ -14,8 +14,10 @@ class CKEditorType extends TextareaType
     private static $config = [
         'uiColor' => '#ffffff',
         'allowedContent' => true,
+        'extraAllowedContent' => 'span(*);i(*)',
         'stylesSet' => 'bootstrap4styles:/bundles/cms/js/ckeditor-styles.js', // To use ckeditor defaults use: default:/bundles/cms/libs/dist/ckeditor/styles.js
         'contentsCss' => [
+            'https://use.fontawesome.com/releases/v5.5.0/css/all.css',
             '/bundles/cms/example-template-files/bootstrap.min.css',
             '/bundles/cms/libs/dist/ckeditor/contents.css',
         ],
