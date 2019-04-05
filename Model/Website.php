@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -60,6 +61,17 @@ class Website
     private $users;
 
     /**
+     * @var PageStreamRead[]
+     *
+     * @ORM\ManyToMany(targetEntity="PageStreamRead")
+     * @ORM\JoinTable(name="website_errorpages",
+     *      joinColumns={@ORM\JoinColumn(name="website_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="page_id", referencedColumnName="id", unique=true)}
+     * )
+     */
+    private $errorPages;
+
+    /**
      * Website constructor.
      */
     public function __construct()
@@ -68,6 +80,7 @@ class Website
         $this->domains = new ArrayCollection();
         $this->aliases = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->errorPages = new ArrayCollection();
     }
 
     /**
@@ -225,5 +238,74 @@ class Website
     public function getUsers()
     {
         return $this->users;
+    }
+
+    public function addAlias(Alias $alias): self
+    {
+        if (!$this->aliases->contains($alias)) {
+            $this->aliases[] = $alias;
+            $alias->setWebsite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlias(Alias $alias): self
+    {
+        if ($this->aliases->contains($alias)) {
+            $this->aliases->removeElement($alias);
+            // set the owning side to null (unless already changed)
+            if ($alias->getWebsite() === $this) {
+                $alias->setWebsite(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addUser(UserRead $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addWebsite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(UserRead $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            $user->removeWebsite($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|PageStreamRead[]
+     */
+    public function getErrorPages(): Collection
+    {
+        return $this->errorPages;
+    }
+
+    public function addErrorPage(PageStreamRead $errorPage): self
+    {
+        if (!$this->errorPages->contains($errorPage)) {
+            $this->errorPages[] = $errorPage;
+        }
+
+        return $this;
+    }
+
+    public function removeErrorPage(PageStreamRead $errorPage): self
+    {
+        if ($this->errorPages->contains($errorPage)) {
+            $this->errorPages->removeElement($errorPage);
+        }
+
+        return $this;
     }
 }

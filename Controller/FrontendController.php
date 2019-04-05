@@ -23,18 +23,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FrontendController extends AbstractController
 {
+    /** @var PageService */
+    protected $pageService;
+
+    /** @var CacheService */
+    protected $cacheService;
+
+    /** @var EntityManagerInterface */
+    protected $entityManager;
+
+    /** @var array */
+    protected $config;
+
+    public function __construct(PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, array $config)
+    {
+        $this->pageService = $pageService;
+        $this->cacheService = $cacheService;
+        $this->entityManager = $entityManager;
+        $this->config = $config;
+    }
+
     /**
      * @Route("/sitemap.xml", name="cms_page_sitemap")
      *
-     * @param EntityManagerInterface $em
-     * @param Request                $request
+     * @param Request $request
      *
      * @return Response
      */
-    public function sitemap(EntityManagerInterface $em, Request $request): Response
+    public function sitemap(Request $request): Response
     {
         /** @var Alias[] $aliases */
-        $aliases = $em->getRepository(Alias::class)->findAllMatchingAlias($request->get('website'), $request->getLocale());
+        $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('website'), $request->getLocale());
 
         $response = $this->render('@cms/sitemap.xml.twig', [
             'aliases' => $aliases,
@@ -48,42 +67,37 @@ class FrontendController extends AbstractController
     /**
      * Gets a PageRead entity for a Page Aggregate by its uuid.
      *
-     * @param EntityManagerInterface $em
-     * @param string                 $pageUuid
+     * @param string $pageUuid
      *
      * @return PageRead|null
      */
-    private function getPageRead(EntityManagerInterface $em, string $pageUuid): ?PageRead
+    private function getPageRead(string $pageUuid): ?PageRead
     {
-        return $em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        return $this->entityManager->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
     }
 
     /**
      * Render a page by a given uuid.
      *
-     * @param PageService            $pageService
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $entityManager
-     * @param string                 $pageUuid
-     * @param Alias|null             $alias
+     * @param string     $pageUuid
+     * @param Alias|null $alias
      *
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    private function renderPage(PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, string $pageUuid, Alias $alias = null): Response
+    private function renderPage(string $pageUuid, Alias $alias = null): Response
     {
-        $config = $this->getParameter('cms');
-
         // Get page from cache.
-        $pageData = $cacheService->get($pageUuid);
+        $pageData = $this->cacheService->get($pageUuid);
 
         if (null === $pageData) {
             // Get Page from read model.
-            $pageRead = $this->getPageRead($entityManager, $pageUuid);
+            $pageRead = $this->getPageRead($pageUuid);
             $pageData = $pageRead ? $pageRead->getPayload() : false;
 
             if ($pageData) {
                 // Populate cache.
-                $cacheService->put($pageUuid, $pageRead->getVersion(), $pageData);
+                $this->cacheService->put($pageUuid, $pageRead->getVersion(), $pageData);
             }
         }
 
@@ -92,21 +106,26 @@ class FrontendController extends AbstractController
         }
 
         // Get the pages website.
-        $website = isset($pageData['website']) ? $entityManager->getRepository(Website::class)->find($pageData['website']) : null;
+        $website = isset($pageData['website']) ? $this->entityManager->getRepository(Website::class)->find($pageData['website']) : null;
 
+        return $this->getPageResponse($pageData, $website, $alias);
+    }
+
+    public function getPageResponse(array $pageData, Website $website = null, Alias $alias = null): Response
+    {
         // Get the page template from the template name.
         $templateName = $pageData['template'];
-        $template = $config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
+        $template = $this->config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
 
         // Hydrate the page with doctrine entities.
-        $pageData = $pageService->hydratePage($pageData);
+        $pageData = $this->pageService->hydratePage($pageData);
 
         return $this->render($template, [
             'website' => $website,
             'alias' => $alias,
             'page' => $pageData,
             'edit' => false,
-            'config' => $config,
+            'config' => $this->config,
         ]);
     }
 
@@ -116,16 +135,14 @@ class FrontendController extends AbstractController
      *     "_locale": "ad|ae|af|ag|ai|al|am|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bl|bm|bn|bo|bq|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|en|eg|eh|er|es|et|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mf|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tr|tt|tv|tw|tz|ua|ug|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw"
      * })
      *
-     * @param Request                $request
-     * @param PageService            $pageService
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $em
+     * @param Request $request
      *
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function frontpage(Request $request, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
+    public function frontpage(Request $request): Response
     {
-        return $this->alias($request, '', $pageService, $cacheService, $em);
+        return $this->alias($request, '');
     }
 
     /**
@@ -135,20 +152,16 @@ class FrontendController extends AbstractController
      * })
      * @Route("/{path}", name="cms_page_alias", requirements={"path"=".+"})
      *
-     * @param Request                $request
-     * @param string                 $path
-     * @param PageService            $pageService
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param string  $path
      *
      * @return Response
-     *
-     * @throws \Exception
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function alias(Request $request, string $path, PageService $pageService, CacheService $cacheService, EntityManagerInterface $em): Response
+    public function alias(Request $request, string $path): Response
     {
         /** @var Alias|null $alias */
-        $alias = $em->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('website'), $request->getLocale());
+        $alias = $this->entityManager->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('website'), $request->getLocale());
 
         if (null === $alias) {
             throw $this->createNotFoundException();
@@ -163,7 +176,7 @@ class FrontendController extends AbstractController
         if (null !== $pageStreamRead && $pageStreamRead->isPublished()) {
             // Render PageStreamRead Entity.
             $pageUuid = $pageStreamRead->getUuid();
-            $response = $this->renderPage($pageService, $cacheService, $em, $pageUuid, $alias);
+            $response = $this->renderPage($pageUuid, $alias);
         } elseif (null !== $controller) {
             // Forward request to controller.
             [$class, $method] = explode('::', $controller);

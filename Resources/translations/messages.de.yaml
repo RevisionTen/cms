@@ -284,6 +284,7 @@ Save role: "Rolle speichern"
 Permissions: "Berechtigungen"
 Administrator: "Administrator"
 Editor: "Editor"
+Error pages: "404 Fehlerseiten"
 # Event translations
 Role created: "Rolle erstellt"
 Role edited: "Rolle bearbeitet"

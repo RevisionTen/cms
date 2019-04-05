@@ -28,7 +28,14 @@ services:
         autowire: true
         autoconfigure: true
         resource: '../../Controller'
+        exclude: '../../Controller/{FrontendController.php}'
         tags: ['controller.service_arguments']
+    RevisionTen\CMS\Controller\FrontendController:
+        autoconfigure: true
+        autowire: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Twig\CmsExtension:
         autowire: true
         public: true
