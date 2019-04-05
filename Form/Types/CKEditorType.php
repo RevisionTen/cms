@@ -20,6 +20,7 @@ class CKEditorType extends TextareaType
             'https://use.fontawesome.com/releases/v5.5.0/css/all.css',
             '/bundles/cms/example-template-files/bootstrap.min.css',
             '/bundles/cms/libs/dist/ckeditor/contents.css',
+            '/bundles/cms/css/ckeditor.css',
         ],
         'toolbar' => [
             [
