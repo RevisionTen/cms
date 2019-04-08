@@ -4,12 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.16] - 2019-04-08
-### Changed
-- Set utf8_unicode_ci collaction on more user string fields to make it MySQL 5.5. compatible
-- **Update your database schema**
-
-## [1.5.15] - 2019-04-08
+## [1.5.15, 1.5.16, 1.5.17] - 2019-04-08
 ### Changed
 - Set utf8_unicode_ci collaction on user string fields to make it MySQL 5.5. compatible
 - **Update your database schema**

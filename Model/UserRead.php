@@ -32,13 +32,13 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @var string
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="string", unique=true, options={"collation": "utf8_unicode_ci"})
      */
     private $username;
 
     /**
      * @var string
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="string", unique=true, options={"collation": "utf8_unicode_ci"})
      */
     private $email;
 
