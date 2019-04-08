@@ -80,13 +80,13 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @var array
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="array", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $devices;
 
     /**
      * @var array
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="array", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $ips;
 
@@ -106,7 +106,7 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @var array|null
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $extra;
 
