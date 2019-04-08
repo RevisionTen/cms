@@ -44,31 +44,31 @@ class UserRead implements UserInterface, \Serializable
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
     private $password;
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
     private $secret;
 
     /**
      * @var string
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $resetToken;
 
     /**
      * @var string
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $color;
 
     /**
      * @var string
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, options={"collation": "utf8_unicode_ci"})
      */
     private $avatarUrl;
 
