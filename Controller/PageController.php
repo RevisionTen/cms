@@ -1146,11 +1146,12 @@ class PageController extends AbstractController
             throw new AccessDeniedHttpException('Page does not exist on this website');
         }
 
-        /** @var PageRead $publishedPage */
-        $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        // Get the first alias for this page.
+        /** @var PageStreamRead $pageStreamRead */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
+        $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
 
         // Get all qeued Events for this page.
-
         /** @var UserRead[] $adminUsers */
         $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
@@ -1202,9 +1203,8 @@ class PageController extends AbstractController
 
         return $this->render($template, [
             'website' => $website,
-            'alias' => null,
+            'alias' => $alias,
             'page' => $pageData,
-            'publishedVersion' => $publishedPage ? $publishedPage->getVersion() : null,
             'edit' => $edit,
             'user' => $user,
             'users' => $users,
