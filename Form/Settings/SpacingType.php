@@ -47,6 +47,7 @@ class SpacingType extends AbstractType
                 'Medium' => '3',
                 'Big' => '4',
                 'Extra Big' => '5',
+                'Huge' => '6',
             ],
             'placeholder' => $label,
         ]);
