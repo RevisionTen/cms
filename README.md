@@ -68,6 +68,28 @@ Start your web-server and login at `/login`.
 
 You can find the full configuration in `/vendor/revision-ten/cms/Resources/config/cms.yaml`.
 
+## Extend your Bootstrap spacing classes
+
+Add a 6er-spacing Bootstrap utility class to your css.
+
+_variables.scss
+```SCSS
+$spacer: 1rem !default;
+$spacers: () !default;
+$spacers: map-merge(
+    (
+        0: 0,
+        1: ($spacer * .25),
+        2: ($spacer * .5),
+        3: $spacer,
+        4: ($spacer * 1.5),
+        5: ($spacer * 3),
+        6: ($spacer * 6), // Additional spacer definition for extra large spacing
+    ),
+    $spacers
+);
+```
+
 ## Editor javascript events
 
 All editor events are triggered on the body element of the page.
