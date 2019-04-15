@@ -137,6 +137,12 @@ services:
         autoconfigure: true
         autowire: true
         tags: [form.type]
+    RevisionTen\CMS\Form\Types\CKEditorType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Form\Elements\Form:
         autoconfigure: true
         autowire: true
