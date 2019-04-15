@@ -196,7 +196,7 @@ function bindWidgets(element) {
     // Enabled select2.
     element.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2();
     // Enable CKEditor.
-    element.find('.ckeditor').each(function () {
+    element.find('.ckeditor-custom').each(function () {
         let textArea = $(this)[0];
         let textAreaInstanceName = textArea.id;
         if (CKEDITOR.instances[textAreaInstanceName]) {
@@ -320,6 +320,11 @@ $(document).ready(function () {
     bindForm('form[name=page]');
 
     let body = $('body');
+
+    // Initialize widgets on "edit" and "new" EasyAdmin entity form pages.
+    if ((body.hasClass('edit') || body.hasClass('new')) && (body.find('form.edit-form').length > 0 || body.find('form.new-form').length > 0)) {
+        bindWidgets(body);
+    }
 
     $(document).on('easyadmin.collection.item-added', function (event) {
         bindWidgets(body);

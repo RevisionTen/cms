@@ -11,32 +11,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CKEditorType extends TextareaType
 {
-    private static $config = [
-        'uiColor' => '#ffffff',
-        'allowedContent' => true,
-        'extraAllowedContent' => 'span(*);i(*)',
-        'stylesSet' => 'bootstrap4styles:/bundles/cms/js/ckeditor-styles.js', // To use ckeditor defaults use: default:/bundles/cms/libs/dist/ckeditor/styles.js
-        'contentsCss' => [
-            'https://use.fontawesome.com/releases/v5.5.0/css/all.css',
-            '/bundles/cms/example-template-files/bootstrap.min.css',
-            '/bundles/cms/libs/dist/ckeditor/contents.css',
-            '/bundles/cms/css/ckeditor.css',
-        ],
-        'toolbar' => [
-            [
-                'name' => 'basicstyles',
-                'items' => [ 'Source', 'PasteFromWord', 'RemoveFormat', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ],
-            ],
-            [
-                'name' => 'paragraph',
-                'items' => [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'Link', 'Unlink', 'Anchor', 'Table', 'HorizontalRule', 'Iframe' ],
-            ],
-            [
-                'name' => 'basicstyles2',
-                'items' => [ 'Styles', 'Format' ],
-            ],
-        ],
-    ];
+    /** @var array */
+    protected $config;
+
+    /**
+     * CKEditorType constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $this->config = $config['ckeditor_config'] ?? [];
+    }
 
     /**
      * {@inheritdoc}
@@ -53,7 +39,7 @@ class CKEditorType extends TextareaType
     {
         parent::buildView($view, $form, $options);
 
-        $view->vars['config'] = array_merge(self::$config, $options['config']);
+        $view->vars['config'] = array_merge($this->config, $options['config']);
     }
 
     /**
@@ -62,7 +48,7 @@ class CKEditorType extends TextareaType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'config' => self::$config,
+            'config' => $this->config,
         ]);
     }
 }

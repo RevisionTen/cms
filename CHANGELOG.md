@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.21] - 2019-04-15
+### Added
+- Added CKEditorType configuration to cms configuration [[see default config here](https://github.com/RevisionTen/cms/blob/master/Resources/config/cms.yaml) and [full configuration reference here](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html)]
+- **Run bin/console assets:install --symlink**
+
 ## [1.5.20] - 2019-04-11
 ### Changed
 - Improved timing element template

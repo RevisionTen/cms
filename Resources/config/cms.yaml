@@ -15,6 +15,22 @@ cms:
     solr_port: 8983
     solr_collection: null # The name of your collection
 
+    # CKEditor configuration.
+    ckeditor_config:
+        uiColor: '#ffffff'
+        allowedContent: true
+        extraAllowedContent: 'span(*);i(*)'
+        stylesSet: 'bootstrap4styles:/bundles/cms/js/ckeditor-styles.js' # To use ckeditor defaults use: default:/bundles/cms/libs/dist/ckeditor/styles.js
+        contentsCss:
+            - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
+            - '/bundles/cms/example-template-files/bootstrap.min.css'
+            - '/bundles/cms/libs/dist/ckeditor/contents.css'
+            - '/bundles/cms/css/ckeditor.css'
+        toolbar:
+            - { name: 'basicstyles', items: [ 'Source', 'PasteFromWord', 'RemoveFormat', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] }
+            - { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'Link', 'Unlink', 'Anchor', 'Table', 'HorizontalRule', 'Iframe' ] }
+            - { name: 'basicstyles2', items: [ 'Styles', 'Format' ] }
+
     # Admin menu configuration.
     admin_menu:
         Content:
