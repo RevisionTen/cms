@@ -134,6 +134,7 @@ class IndexService
         // Commit solr documents.
         $update->addDocuments($allDocuments);
         $update->addCommit();
+        $update->addOptimize();
 
         try {
             $result = $client->update($update);
