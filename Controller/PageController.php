@@ -1119,7 +1119,7 @@ class PageController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        /** @var UserRead $user */
+        /** @var UserRead|null $user */
         $user = $entityManager->getRepository(UserRead::class)->find($user);
 
         /** @var UserRead $realUser */

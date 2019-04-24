@@ -213,7 +213,7 @@ class AdminController extends AbstractController
             'latestCommits' => $this->groupEventsByUser($latestCommits),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
-            'php_version' => PHP_VERSION,
+            'php_version' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
             'apc_enabled' => (\extension_loaded('apcu') && ini_get('apc.enabled') && \function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
             'memory_limit' => ini_get('memory_limit'),
             'upload_limit' => ini_get('upload_max_filesize'),

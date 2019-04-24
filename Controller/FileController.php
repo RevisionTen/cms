@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -36,8 +37,12 @@ class FileController extends AbstractController
      */
     public function fileShow(EntityManagerInterface $entityManager, string $fileUuid): RedirectResponse
     {
-        /** @var FileRead $fileRead */
-        $fileRead = $entityManager->getRepository(FileRead::class)->findOneByUuid($fileUuid);
+        /** @var FileRead|null $fileRead */
+        $fileRead = $entityManager->getRepository(FileRead::class)->findOneBy(['uuid' => $fileUuid]);
+
+        if (null === $fileRead) {
+            throw new NotFoundHttpException();
+        }
 
         return $this->redirect($fileRead->getPath());
     }
