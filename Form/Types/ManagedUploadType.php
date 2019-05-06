@@ -48,7 +48,7 @@ class ManagedUploadType extends AbstractType
 
         $request = $requestStack->getMasterRequest();
         if (null !== $request) {
-            $this->website = $request->get('currentWebsite') ?? ($request->get('website') ?? $this->website);
+            $this->website = $request->get('currentWebsite') ?? ($request->get('websiteId') ?? $this->website);
             $this->language = $request->getLocale();
         }
     }

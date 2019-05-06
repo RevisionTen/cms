@@ -49,7 +49,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
         if ($exception instanceof NotFoundHttpException) {
 
             $request = $event->getRequest();
-            $websiteId = $request->get('website');
+            $websiteId = $request->get('websiteId') ?? 1;
             $locale = $request->getLocale();
 
             if (null !== $websiteId && $locale) {

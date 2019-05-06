@@ -53,7 +53,7 @@ class FrontendController extends AbstractController
     public function sitemap(Request $request): Response
     {
         /** @var Alias[] $aliases */
-        $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('website'), $request->getLocale());
+        $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('websiteId'), $request->getLocale());
 
         $response = $this->render('@cms/sitemap.xml.twig', [
             'aliases' => $aliases,
@@ -161,7 +161,7 @@ class FrontendController extends AbstractController
     public function alias(Request $request, string $path): Response
     {
         /** @var Alias|null $alias */
-        $alias = $this->entityManager->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('website'), $request->getLocale());
+        $alias = $this->entityManager->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('websiteId'), $request->getLocale());
 
         if (null === $alias) {
             throw $this->createNotFoundException();
