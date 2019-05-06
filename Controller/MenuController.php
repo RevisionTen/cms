@@ -702,12 +702,13 @@ class MenuController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @param AggregateFactory       $aggregateFactory
      * @param string                 $name
-     * @param Alias                  $alias
-     * @param string                 $template
-     * @param string                 $language
-     * @param int                    $website
+     * @param Alias|null             $alias
+     * @param string|null            $template
+     * @param string|null            $language
+     * @param int|null               $website
      *
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
@@ -721,8 +722,9 @@ class MenuController extends AbstractController
             // Get website and language from alias or request.
             if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
                 // Alias does not exist or is neutral, get website and language from request.
+                $websiteId = $request->get('websiteId') ?? 1;
                 /** @var Website $website */
-                $website = $entityManager->getRepository(Website::class)->find($request->get('website'));
+                $website = $entityManager->getRepository(Website::class)->find($websiteId);
                 $language = $request->getLocale();
             } else {
                 $website = $alias->getWebsite();

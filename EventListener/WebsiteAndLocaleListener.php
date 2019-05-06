@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Domain;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 class WebsiteAndLocaleListener
@@ -13,9 +14,13 @@ class WebsiteAndLocaleListener
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /** @var RequestStack */
+    private $requestStack;
+
+    public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
+        $this->requestStack = $requestStack;
     }
 
     public function onKernelRequest(GetResponseEvent $event): void
@@ -23,7 +28,11 @@ class WebsiteAndLocaleListener
         if ($event->isMasterRequest()) {
             /** @var \Symfony\Component\HttpFoundation\Request $request */
             $request = $event->getRequest();
+        } else {
+            $request = $this->requestStack->getMasterRequest();
+        }
 
+        if ($request && null === $request->get('websiteId')) {
             // Get the website.
             $host = $request->getHost();
 
@@ -37,10 +46,8 @@ class WebsiteAndLocaleListener
                 $website = $domain->getWebsite();
                 if (null !== $website) {
                     // Set website id in request.
-                    if (null === $request->get('website')) {
-                        $request->request->set('website', $website->getId());
-                    }
-
+                    $request->request->set('website', $website->getId()); // Deprecated.
+                    $request->request->set('websiteId', $website->getId());
                     // Set default locale for this website.
                     $request->setLocale($website->getDefaultLanguage());
                 }
