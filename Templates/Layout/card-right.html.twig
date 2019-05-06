@@ -12,7 +12,7 @@
                 {{ element.data.text|raw }}
 
                 {% if element.data.buttonText is defined %}
-                    {% if element.data.page.doctrineEntity is defined  %}
+                    {% if element.data.page.doctrineEntity is defined and element.data.page.doctrineEntity %}
                         {% set path = element.data.page.doctrineEntity.path %}
                         <a class="btn btn-primary" href="{{ path }}">{{ element.data.buttonText }}</a>
                     {% endif %}
