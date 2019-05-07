@@ -58,6 +58,7 @@ class Configuration implements ConfigurationInterface
                     ->cannotBeEmpty()
                 ->end()
                 ->arrayNode('ckeditor_config')
+                    ->performNoDeepMerging()
                     ->info('CKEditor configuration')
                     ->normalizeKeys(false)
                     ->ignoreExtraKeys(false)
