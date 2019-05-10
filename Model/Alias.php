@@ -141,6 +141,10 @@ class Alias
      */
     public function setPath(string $path): self
     {
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/'.$path;
+        }
+
         $this->path = $path;
 
         return $this;
