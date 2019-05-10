@@ -15,9 +15,15 @@
         </div>
     {% else %}
         <a
-            target="{{ item.data.targetBlank is defined and item.data.targetBlank ? '_blank' : '_self' }}"
+            {% if item.data.targetBlank is defined and item.data.targetBlank %}
+                target="_blank"
+                rel="noopener"
+            {% else %}
+                target="_self"
+            {% endif %}
             class="{{ itemClasses|join(' ') }}"
             href="{{ item.data.url }}"
+            aria-label="{{ 'Read more about "%title%"'|trans({'%title%': item.data.title|striptags}) }}"
         >
             {{ item.data.title|raw }}
         </a>
