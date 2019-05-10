@@ -22,6 +22,7 @@
                     target="{{ item.data.targetBlank is defined and item.data.targetBlank ? '_blank' : '_self' }}"
                     class="{{ itemClasses|join(' ') }} {{ isActive ? 'active' : '' }}"
                     href="{{ path }}"
+                    aria-label="{{ 'Read more about "%title%"'|trans({'%title%': item.data.title|striptags}) }}"
             >
                 {{ item.data.title|raw }}
             </a>

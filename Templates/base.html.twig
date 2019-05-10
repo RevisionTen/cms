@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ page.language }}">
     <head>
         <title>{% block title %}{{ page.title }} | {{ website.title }}{% endblock %}</title>
         <meta charset="utf-8" />
+        <meta name="referrer" content="no-referrer">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
         {% block metatags %}
             {% if website is defined and website.siteVerification %}<meta name="google-site-verification" content="{{ website.siteVerification }}">{% endif %}
