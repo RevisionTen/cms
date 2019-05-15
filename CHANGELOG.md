@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.29] - 2019-05-15
+### Changed
+- Added `website` and `alias` objects to element templates. **Update your page templates**. [See a before/after example here](https://github.com/RevisionTen/cms/blob/master/Resources/docs/section-helper-update.md).
+
 ## [1.5.28] - 2019-05-10
 ### Changed
 - SEO and accessability improvements

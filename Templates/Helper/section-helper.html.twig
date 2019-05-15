@@ -1,4 +1,4 @@
-{% macro render(sectionName, defaultSectionTemplate, page, edit, config) %}
+{% macro render(sectionName, defaultSectionTemplate, page, edit, config, website = null, alias = null) %}
 
     {% set bodyExists = false %}
     {% for element in page.elements %}
