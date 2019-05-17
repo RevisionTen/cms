@@ -45,8 +45,12 @@ class WebsiteAndLocaleListener
             if (null !== $domain) {
                 $website = $domain->getWebsite();
                 if (null !== $website) {
+                    // Deprecated.
+                    if (null === $request->get('website')) {
+                        $request->request->set('website', $website->getId());
+                    }
+
                     // Set website id in request.
-                    $request->request->set('website', $website->getId()); // Deprecated.
                     $request->request->set('websiteId', $website->getId());
                     // Set default locale for this website.
                     $request->setLocale($website->getDefaultLanguage());
