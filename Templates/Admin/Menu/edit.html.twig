@@ -12,11 +12,23 @@
 {% endblock %}
 
 {% block content_footer %}
-    <button class="btn-save-order btn" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
-
-    {% for itemName, itemConfig in config.menu_items %}
-        <a class="btn btn-primary" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
-            {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
-        </a>
-    {% endfor %}
+    <div class="row">
+        <div class="col-auto">
+            <div class="dropup" style="display: inline-block;">
+                <span class="dropdown-toggle btn btn-primary" data-toggle="dropdown">
+                    <span class="fas fa-plus"></span> {{ 'Add menu item'|trans }}
+                </span>
+                <div class="dropdown-menu">
+                    {% for itemName, itemConfig in config.menu_items %}
+                        <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+                            {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-auto ml-auto">
+            <button class="btn-save-order btn btn-success" data-uuid="{{ menu.uuid }}">{{ 'Save menu order'|trans }}</button>
+        </div>
+    </div>
 {% endblock %}

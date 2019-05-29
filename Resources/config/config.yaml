@@ -307,7 +307,7 @@ easy_admin:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'forms_submissions', type: 'route', title: 'List form submissions', label: '', icon: 'download', permission: 'form_submissions' }
+                    - { name: 'forms_submissions_download', type: 'route', title: 'Download form submissions', label: '', icon: 'download', permission: 'form_submissions' }
                     - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit', permission: 'form_edit' }
                     - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone', permission: 'form_clone' }
                     - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
@@ -319,6 +319,37 @@ easy_admin:
                     - 'version'
                     - { property: 'created', type: 'datetime' }
                     - { property: 'modified', type: 'datetime' }
+        FormSubmission:
+            label: 'Submissions'
+            class: RevisionTen\Forms\Model\FormSubmission
+            permissions:
+                list: 'form_submissions'
+                show: 'form_submissions'
+                search: 'form_submissions'
+                delete: 'form_submissions_delete'
+            list:
+                actions:
+                    - 'show'
+                    - '-new'
+                    - '-edit'
+                fields:
+                    - 'id'
+                    - 'toEmail'
+                    - { property: 'form', type: 'string' }
+                    - { property: 'opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', type: 'datetime' }
+            show:
+                actions:
+                    - '-edit'
+                fields:
+                    - 'id'
+                    - { property: 'toEmail', type: 'string' }
+                    - { property: 'ccEmail', type: 'string' }
+                    - { property: 'bccEmail', type: 'string' }
+                    - { property: 'form', type: 'string' }
+                    - { property: 'opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', type: 'datetime' }
+                    - { property: 'payload', template: '@forms/Admin/submission-payload.html.twig' }
         MenuRead:
             label: 'Menus'
             class: RevisionTen\CMS\Model\MenuRead

@@ -28,6 +28,7 @@ cms:
             - '/bundles/cms/css/ckeditor.css'
         toolbar:
             - { name: 'basicstyles', items: [ 'Source', 'PasteFromWord', 'RemoveFormat', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] }
+            - { name: 'tools', items: [ 'Maximize' ] }
             - { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'Link', 'Unlink', 'Anchor', 'Table', 'HorizontalRule', 'Iframe' ] }
             - { name: 'basicstyles2', items: [ 'Styles', 'Format' ] }
 
@@ -42,6 +43,7 @@ cms:
             - { entity: Website, icon: 'globe-africa' }
             - { entity: MenuRead, label: 'Menus', icon: 'bars' }
             - { label: 'Forms', entity: 'FormRead', icon: 'mail-bulk' }
+            - { label: 'Submissions', entity: 'FormSubmission', icon: 'envelope' }
         Settings:
             - { entity: UserRead, icon: 'users' }
             - { entity: RoleRead, icon: 'user-shield' }

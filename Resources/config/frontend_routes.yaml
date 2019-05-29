@@ -1,3 +1,8 @@
+revision_ten_forms_controller_tracking:
+    resource: "@FormsBundle/Controller/TrackingController.php"
+    type: annotation
+
 revision_ten_cms_controller_frontend:
     resource: "@CmsBundle/Controller/FrontendController.php"
     type: annotation
+

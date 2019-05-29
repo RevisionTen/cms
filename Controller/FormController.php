@@ -108,12 +108,22 @@ class FormController extends AbstractController
     }
 
     /**
-     * @Route("/submissions", name="forms_submissions")
+     * @Route("/submissions-download", name="forms_submissions_download")
      */
-    public function submissions(SerializerInterface $serializer, Request $request)
+    public function submissionsDownload(SerializerInterface $serializer, Request $request)
     {
         $this->denyAccessUnlessGranted('form_submissions');
 
-        return $this->formController->submissions($serializer, $request);
+        return $this->formController->submissionsDownload($serializer, $request);
+    }
+
+    /**
+     * @Route("/submissions", name="forms_submissions")
+     */
+    public function submissions(Request $request)
+    {
+        $this->denyAccessUnlessGranted('form_submissions');
+
+        return $this->formController->submissions($request);
     }
 }

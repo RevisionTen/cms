@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.31] - 2019-05-29
+### Added
+- Added new `form_submissions_delete` permission
+- Added form submission entity list
+### Changed
+- Updated forms dependency
+- **Update your database schema**
+- Added maximize button to default CKEditor configuration
+- Improved menu edit admin template
+
 ## [1.5.30] - 2019-05-17
 ### Changed
 - Fixed website entity editing bug
