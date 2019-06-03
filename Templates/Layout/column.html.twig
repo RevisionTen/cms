@@ -1,10 +1,10 @@
-<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }} {% spaceless %}
+<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }} {% apply spaceless %}
 {{ element.data.widthXS is defined and element.data.widthXS ? ' col-'~element.data.widthXS : '' }}
 {{ element.data.widthSM is defined and element.data.widthSM ? ' col-sm-'~element.data.widthSM : '' }}
 {{ element.data.widthMD is defined and element.data.widthMD ? ' col-md-'~element.data.widthMD : '' }}
 {{ element.data.widthLG is defined and element.data.widthLG ? ' col-lg-'~element.data.widthLG : '' }}
 {{ element.data.widthXL is defined and element.data.widthXL ? ' col-xl-'~element.data.widthXL : '' }}
-{% endspaceless %} {{ edit ? 'no-outline': '' }}">
+{% endapply %} {{ edit ? 'no-outline': '' }}">
     {% if element.elements is defined and element.elements|length > 0 %}
         {% for element in element.elements %}
             {% include config.page_elements[element.elementName].template %}

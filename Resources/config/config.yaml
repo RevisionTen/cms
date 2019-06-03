@@ -71,7 +71,8 @@ gregwar_image:
 easy_admin:
     site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
     design:
-        menu: "%cms.admin_menu%"
+        menu: '%cms.admin_menu%'
+        brand_color: '#41b3f9'
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'

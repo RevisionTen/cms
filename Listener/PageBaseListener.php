@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Listener;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 
 abstract class PageBaseListener
 {
@@ -18,6 +19,6 @@ abstract class PageBaseListener
      */
     public function __construct(EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
+        $this->eventDispatcher = LegacyEventDispatcherProxy::decorate($eventDispatcher);
     }
 }

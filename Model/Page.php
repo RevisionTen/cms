@@ -52,4 +52,7 @@ final class Page extends Aggregate
 
     /** @var string */
     public $state;
+
+    /** @var array */
+    public $schedule;
 }

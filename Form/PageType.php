@@ -37,6 +37,16 @@ class PageType extends AbstractType
             ]);
         }
 
+        $builder->add('language', ChoiceType::class, [
+            'label' => 'Language',
+            'choices' => $options['page_languages'] ?: [
+                'English' => 'en',
+                'German' => 'de',
+            ],
+            'placeholder' => 'Language',
+            'constraints' => new NotBlank(),
+        ]);
+
         $builder->add('template', ChoiceType::class, [
             'label' => 'Template',
             'choices' => array_combine(array_keys($options['page_templates']), array_keys($options['page_templates'])),
@@ -67,16 +77,6 @@ class PageType extends AbstractType
             'multiple' => true,
             'expanded' => true,
             'required' => false,
-        ]);
-
-        $builder->add('language', ChoiceType::class, [
-            'label' => 'Language',
-            'choices' => $options['page_languages'] ?: [
-                'English' => 'en',
-                'German' => 'de',
-            ],
-            'placeholder' => 'Language',
-            'constraints' => new NotBlank(),
         ]);
 
         $builder->add('meta', $options['page_metatype'], [

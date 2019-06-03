@@ -91,6 +91,7 @@ class ApiController extends AbstractController
         $canDiscardChanges = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
         $canCloneAggregate = !$previewUser && !$pageStreamRead->getDeleted();
         $canDeleteAggregate = !$previewUser && !$pageStreamRead->getDeleted();
+        $canSchedule = $canPublish || $canUnpublish;
 
         $actions = [
             'toggle_contrast' => [
@@ -143,6 +144,14 @@ class ApiController extends AbstractController
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
                 'display' => $canUnpublish,
                 'type' => 'ajax',
+            ] : null,
+            'schedule' => $this->isGranted('page_schedule') ? [
+                'css_class' => 'btn-tertiary',
+                'icon' => 'fas fa-hourglass-half',
+                'label' => $translator->trans('Schedule'),
+                'url' => $this->generateUrl('cms_schedule_page', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
+                'display' => $canSchedule,
+                'type' => 'form',
             ] : null,
             'optimize' => [
                 'css_class' => 'btn-tertiary',

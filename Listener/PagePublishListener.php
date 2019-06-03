@@ -18,6 +18,6 @@ class PagePublishListener extends PageBaseListener implements ListenerInterface
     {
         $pageUuid = $event->getCommand()->getAggregateUuid();
         $version = $event->getCommand()->getOnVersion() + 1;
-        $this->eventDispatcher->dispatch(PagePublishedEvent::NAME, new PagePublishedEvent($pageUuid, $version));
+        $this->eventDispatcher->dispatch(new PagePublishedEvent($pageUuid, $version), PagePublishedEvent::NAME);
     }
 }

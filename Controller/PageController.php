@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\PageAddElementCommand;
+use RevisionTen\CMS\Command\PageAddScheduleCommand;
 use RevisionTen\CMS\Command\PageCloneCommand;
 use RevisionTen\CMS\Command\PageDeleteCommand;
 use RevisionTen\CMS\Command\PageDisableElementCommand;
@@ -43,6 +44,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -463,6 +465,72 @@ class PageController extends AbstractController
     }
 
     /**
+     * Schedule a page.
+     *
+     * @Route("/schedule/{pageUuid}/{version}", name="cms_schedule_page")
+     *
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $version
+     *
+     * @return JsonResponse|Response
+     */
+    public function schedule(Request $request, CommandBus $commandBus, string $pageUuid, int $version)
+    {
+        $this->denyAccessUnlessGranted('page_schedule');
+
+        /** @var UserRead $user */
+        $user = $this->getUser();
+
+        $form = $this->createFormBuilder()
+            ->add('startDate', DateTimeType::class, [
+                'label' => 'Start date',
+                'input' => 'timestamp',
+                'date_widget' => 'single_text',
+                'time_widget' => 'single_text',
+                'html5' => true,
+                'required' => false,
+            ])
+            ->add('endDate', DateTimeType::class, [
+                'label' => 'End date',
+                'input' => 'timestamp',
+                'date_widget' => 'single_text',
+                'time_widget' => 'single_text',
+                'html5' => true,
+                'required' => false,
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => 'Schedule',
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $success = $this->runCommand($commandBus, PageAddScheduleCommand::class, [
+                'startDate' => $data['startDate'],
+                'endDate' => $data['endDate'],
+            ], $pageUuid, $version, false, null, $user->getId());
+
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                ], 200, $this->getToolbarRefreshHeaders());
+            }
+
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
+        }
+
+        return $this->render('@cms/Form/form.html.twig', [
+            'title' => 'Schedule',
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * Delete all qeued events for a specific Page Aggregate and user.
      *
      * @Route("/discard-changes/{pageUuid}", name="cms_discard_changes")
@@ -626,7 +694,7 @@ class PageController extends AbstractController
         $onVersion = $page->getVersion();
 
         $success = $this->runCommand($commandBus, PagePublishCommand::class, [
-            'version' => $version,
+            'version' => $version, // Todo: Not needed anymore, see listener.
         ], $pageUuid, $onVersion);
 
         if (!$success) {

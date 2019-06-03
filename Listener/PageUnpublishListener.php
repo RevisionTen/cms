@@ -17,6 +17,6 @@ class PageUnpublishListener extends PageBaseListener implements ListenerInterfac
     public function __invoke(CommandBus $commandBus, EventInterface $event): void
     {
         $pageUuid = $event->getCommand()->getAggregateUuid();
-        $this->eventDispatcher->dispatch(PageUnpublishedEvent::NAME, new PageUnpublishedEvent($pageUuid));
+        $this->eventDispatcher->dispatch(new PageUnpublishedEvent($pageUuid), PageUnpublishedEvent::NAME);
     }
 }

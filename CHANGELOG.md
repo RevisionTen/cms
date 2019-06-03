@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2019-06-03
+### Added
+- Added Task entity
+- **Update your database schema**
+- Added TaskService
+- Added PageAddScheduleCommand and PageRemoveScheduleCommand
+- Added `cms:tasks:run` console command
+- Added `page_schedule` permission
+### Changed
+- Increased requirements to symfony 4.3
+- Updated EasyAdmin dependency
+- Fixed deprecations
+- Use RepeatType in password reset form
+- Test If password in password reset form is compromised
+
 ## [1.5.31] - 2019-05-29
 ### Added
 - Added new `form_submissions_delete` permission

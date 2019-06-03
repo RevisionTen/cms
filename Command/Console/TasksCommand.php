@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
+use RevisionTen\CMS\Services\TaskService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
-use RevisionTen\CMS\Services\IndexService;
 
 /**
- * Class IndexCommand.
+ * Class TasksCommand.
  */
-class IndexCommand extends Command
+class TasksCommand extends Command
 {
-    /** @var IndexService */
-    private $indexService;
+    /** @var TaskService */
+    private $taskService;
 
     /**
      * IndexCommand constructor.
      *
-     * @param IndexService $indexService
+     * @param TaskService $taskService
      */
-    public function __construct(IndexService $indexService)
+    public function __construct(TaskService $taskService)
     {
-        $this->indexService = $indexService;
+        $this->taskService = $taskService;
 
         parent::__construct();
     }
@@ -35,8 +35,8 @@ class IndexCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('cms:solr:index')
-            ->setDescription('Index pages.')
+            ->setName('cms:tasks:run')
+            ->setDescription('Run due tasks.')
         ;
     }
 
@@ -45,6 +45,6 @@ class IndexCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->indexService->index($output);
+        $this->taskService->runTasks($output);
     }
 }
