@@ -3,7 +3,7 @@ security:
     erase_credentials: false
     encoders:
         RevisionTen\CMS\Model\UserRead:
-            algorithm: bcrypt
+            algorithm: auto
     providers:
         db_provider:
             entity:

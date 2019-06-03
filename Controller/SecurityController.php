@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -25,6 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class SecurityController.
@@ -261,10 +264,11 @@ class SecurityController extends AbstractController
      * @param EntityManagerInterface       $entityManager
      * @param CommandBus                   $commandBus
      * @param UserPasswordEncoderInterface $encoder
+     * @param TranslatorInterface          $translator
      *
      * @return Response
      */
-    public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder): Response
+    public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder, TranslatorInterface $translator): Response
     {
         $formBuilder = $formFactory->createBuilder(FormType::class, [
             'username' => $username,
@@ -283,10 +287,16 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
         ]);
 
-        $formBuilder->add('password', PasswordType::class, [
-            'label' => 'New Password',
+        $formBuilder->add('password', RepeatedType::class, [
+            'type' => PasswordType::class,
             'required' => true,
-            'constraints' => new NotBlank(),
+            'constraints' => [
+                new NotBlank(),
+                new NotCompromisedPassword(),
+            ],
+            'first_options'  => ['label' => 'New Password'],
+            'second_options' => ['label' => 'Repeat New Password'],
+            'invalid_message' => $translator->trans('The password fields must match'),
         ]);
 
         $formBuilder->add('send', SubmitType::class, [

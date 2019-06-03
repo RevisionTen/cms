@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PagePublishCommand;
-use RevisionTen\CMS\Event\PagePublishEvent;
+use RevisionTen\CMS\Command\PageAddScheduleCommand;
+use RevisionTen\CMS\Event\PageAddScheduleEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Handler\Handler;
 
-final class PagePublishHandler extends PageBaseHandler implements HandlerInterface
+final class PageAddScheduleHandler extends Handler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -22,8 +23,16 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {
-        $aggregate->published = true;
-        $aggregate->state = Page::STATE_PUBLISHED;
+        $payload = $command->getPayload();
+
+        $scheduleUuid = $command->getUuid();
+        $startDate = $payload['startDate'] ?? null;
+        $endDate = $payload['endDate'] ?? null;
+
+        $aggregate->schedule[$scheduleUuid] = [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ];
 
         return $aggregate;
     }
@@ -33,7 +42,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      */
     public static function getCommandClass(): string
     {
-        return PagePublishCommand::class;
+        return PageAddScheduleCommand::class;
     }
 
     /**
@@ -41,7 +50,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PagePublishEvent($command);
+        return new PageAddScheduleEvent($command);
     }
 
     /**
@@ -49,11 +58,11 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      */
     public function validateCommand(CommandInterface $command, AggregateInterface $aggregate): bool
     {
-        if ($aggregate->getVersion() > 0) {
-            return true;
-        } else {
+        $payload = $command->getPayload();
+
+        if (empty($payload['startDate']) || empty($payload['endDate'])) {
             $this->messageBus->dispatch(new Message(
-                'You must chose an exisiting page',
+                'You must chose a time when to publish or unpublish',
                 CODE_BAD_REQUEST,
                 $command->getUuid(),
                 $command->getAggregateUuid()
@@ -61,5 +70,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
 
             return false;
         }
+
+        return true;
     }
 }

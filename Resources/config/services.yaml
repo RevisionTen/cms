@@ -93,6 +93,11 @@ services:
         autowire: true
         public: false
         tags: [console.command]
+    RevisionTen\CMS\Command\Console\TasksCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
     RevisionTen\CMS\Services\IndexService:
         autoconfigure: true
         autowire: true
@@ -110,6 +115,8 @@ services:
         arguments:
             $config: '%cms%'
     RevisionTen\CMS\Services\PageService:
+        autowire: true
+    RevisionTen\CMS\Services\TaskService:
         autowire: true
     RevisionTen\CMS\Services\MenuService:
         autowire: true

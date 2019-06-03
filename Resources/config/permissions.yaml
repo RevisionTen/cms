@@ -32,6 +32,8 @@ cms:
                 label: 'Publish page'
             page_unpublish:
                 label: 'Unpublish page'
+            page_schedule:
+                label: 'Schedule page'
             page_submit_changes:
                 label: 'Submit page changes'
         Alias:

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\SymfonyEvent;
 
-class PageUnpublishedEvent extends \Symfony\Component\EventDispatcher\Event
+class PageUnpublishedEvent extends \Symfony\Contracts\EventDispatcher\Event
 {
     public const NAME = 'cms.page.unpublished';
 
