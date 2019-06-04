@@ -90,6 +90,12 @@ class PageStreamRead
     private $deleted;
 
     /**
+     * @var string|null
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $state;
+
+    /**
      * @var int
      * @ORM\Column(type="integer")
      */
@@ -327,6 +333,26 @@ class PageStreamRead
     public function setDeleted(bool $deleted): self
     {
         $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    /**
+     * @param string|null $state
+     *
+     * @return PageStreamRead
+     */
+    public function setState(?string $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

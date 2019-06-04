@@ -23,12 +23,48 @@
                     </div>
                 </div>
             {% endif %}
-            <h3 class="m-0">
-                {{ 'Page'|trans }} <span class="text-muted">{{ title }}</span> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
-            </h3>
+            <span class="btn btn-sm font-weight-bold">
+                {% if state == 'published' %}
+                    {% set color = 'success' %}
+                {% elseif state == 'unpublished' %}
+                    {% set color = 'danger' %}
+                {% elseif state == 'scheduled' %}
+                    {% set color = 'warning' %}
+                {% else %}
+                    {% set color = 'info' %}
+                {% endif %}
+                <span class="text-muted">{{ 'Page'|trans }}</span> {{ title }} <small class="text-{{ color }}">({{ state|capitalize|trans }})</small> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
+            </span>
+
+            {% if actions.schedule.display %}
+                <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="fas fa-clock"></span> <span class="label-text">{{ 'Schedule'|trans }}</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item {{ actions.schedule.css_class }}" {{ actions.schedule.attributes is defined ? helper.attributes(actions.schedule.attributes) : '' }} title="{{ actions.schedule.label }}" {{ actions.schedule.type == 'form' ? 'data-target=parent' : 'data-target='~actions.schedule.type~'' }} target="_top" href="{{ actions.schedule.url }}">
+                            <span class="{{ actions.schedule.icon }}"></span> <span class="label-text">&nbsp;{{ actions.schedule.label }}</span>
+                        </a>
+                        {% for scheduleUuid, scheduleEntry in schedule %}
+                            <a class="dropdown-item" data-target="ajax" href="{{ path('cms_remove_schedule', {'pageUuid': uuid, 'scheduleUuid': scheduleUuid, 'version': version}) }}">
+                                <span class="fas fa-times"></span> {{ 'Remove schedule'|trans }}:
+                                <small>
+                                    {% if scheduleEntry.startDate %}
+                                        &nbsp;{{ 'Publish on %date%'|trans({'%date%': scheduleEntry.startDate|date('d.m.Y H:i')}) }}
+                                    {% endif %}
+                                    {% if scheduleEntry.endDate %}
+                                        &nbsp;{{ 'Unpublish on %date%'|trans({'%date%': scheduleEntry.endDate|date('d.m.Y H:i')}) }}
+                                    {% endif %}
+                                </small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <div class="col-auto ml-auto">
             <form class="form-inline d-flex">
+                {% apply spaceless %}
 
                 {% if actions.preview.display %}
                     {% set deviceIcons = {
@@ -73,7 +109,7 @@
                 </div>
 
                 {% if actions.rollback_aggregate.display %}
-                    <div class="dropdown ml-1 mr-1">
+                    <div class="dropdown ml-3">
                         {% set historyActions = [
                         actions.undo_change,
                         actions.rollback_aggregate,
@@ -99,7 +135,6 @@
                     actions.change_pagesettings,
                     actions.publish,
                     actions.unpublish,
-                    actions.schedule,
                     actions.optimize,
                     actions.submit_changes,
                     actions.clone_aggregate,
@@ -109,11 +144,13 @@
                     {% for action in buttonActions %}
                         {% if action and action.display %}
                             <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm {{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
+                                <span class="{{ action.icon }}"></span> <span class="label-text">&nbsp;{{ action.label }}</span>
                             </a>
                         {% endif %}
                     {% endfor %}
                 </div>
+
+                {% endapply %}
             </form>
         </div>
     </div>

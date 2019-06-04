@@ -146,8 +146,8 @@ class ApiController extends AbstractController
                 'type' => 'ajax',
             ] : null,
             'schedule' => $this->isGranted('page_schedule') ? [
-                'css_class' => 'btn-tertiary',
-                'icon' => 'fas fa-hourglass-half',
+                'css_class' => '',
+                'icon' => 'fas fa-clock',
                 'label' => $translator->trans('Schedule'),
                 'url' => $this->generateUrl('cms_schedule_page', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canSchedule,
@@ -217,8 +217,15 @@ class ApiController extends AbstractController
             ] : null,
         ];
 
+        $state = $pageStreamRead->getState();
+        if (null === $state) {
+            $state = $pageStreamRead->isPublished() ? Page::STATE_PUBLISHED : Page::STATE_UNPUBLISHED;
+        }
+
         $data = [
             'id' => $pageStreamRead->getId(),
+            'state' => $state,
+            'schedule' => $page->schedule,
             'uuid' => $page->getUuid(),
             'title' => $page->title,
             'version' => $page->getVersion(),

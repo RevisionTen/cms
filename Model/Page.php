@@ -11,6 +11,7 @@ final class Page extends Aggregate
     public const STATE_PUBLISHED = 'published';
     public const STATE_UNPUBLISHED = 'unpublished';
     public const STATE_STAGED = 'staged';
+    public const STATE_SCHEDULED = 'scheduled';
     public const STATE_DELETED = 'deleted';
     public const STATE_DRAFT = 'draft';
 

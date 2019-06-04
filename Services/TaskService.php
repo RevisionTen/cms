@@ -61,9 +61,13 @@ class TaskService
 
     public function removeTask(string $uuid): void
     {
-        $task = $this->em->getRepository(Task::class)->findOneBy(['uuid' => $uuid]);
+        /** @var Task[] $tasks */
+        $tasks = $this->em->getRepository(Task::class)->findBy(['uuid' => $uuid]);
 
-        $this->em->remove($task);
+        foreach ($tasks as $task) {
+            $this->em->remove($task);
+        }
+
         $this->em->flush();
         $this->em->clear();
     }

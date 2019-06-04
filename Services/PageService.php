@@ -240,6 +240,7 @@ class PageService
         $pageStream->setModified($aggregate->modified);
         $pageStream->setDeleted($aggregate->deleted);
         $pageStream->setWebsite($aggregate->website);
+        $pageStream->setState($aggregate->state);
         if ($aggregate->deleted) {
             // Deleted pages are always unpublished.
             $pageStream->setPublished(false);

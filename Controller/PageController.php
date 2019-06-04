@@ -15,6 +15,7 @@ use RevisionTen\CMS\Command\PageEditElementCommand;
 use RevisionTen\CMS\Command\PageEnableElementCommand;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageRemoveElementCommand;
+use RevisionTen\CMS\Command\PageRemoveScheduleCommand;
 use RevisionTen\CMS\Command\PageResizeColumnCommand;
 use RevisionTen\CMS\Command\PageRollbackCommand;
 use RevisionTen\CMS\Command\PageSaveOrderCommand;
@@ -462,6 +463,38 @@ class PageController extends AbstractController
             'title' => 'Submit changes',
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Remove a page schedule.
+     *
+     * @Route("/remove-schedule/{pageUuid}/{scheduleUuid}/{version}", name="cms_remove_schedule")
+     *
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $version
+     *
+     * @return JsonResponse|Response
+     */
+    public function removeSchedule(Request $request, CommandBus $commandBus, string $pageUuid, string $scheduleUuid, int $version)
+    {
+        $this->denyAccessUnlessGranted('page_schedule');
+
+        /** @var UserRead $user */
+        $user = $this->getUser();
+
+        $success = $this->runCommand($commandBus, PageRemoveScheduleCommand::class, [
+            'scheduleUuid' => $scheduleUuid,
+        ], $pageUuid, $version, false, null, $user->getId());
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+            ], 200, $this->getToolbarRefreshHeaders());
+        }
+
+        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
     }
 
     /**
