@@ -118,3 +118,10 @@ cms:
                 label: 'Search events'
             event_show:
                 label: 'Show events'
+        Task:
+            task_list:
+                label: 'List tasks'
+            task_search:
+                label: 'Search tasks'
+            task_show:
+                label: 'Show tasks'

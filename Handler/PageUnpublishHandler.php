@@ -24,6 +24,21 @@ final class PageUnpublishHandler extends PageBaseHandler implements HandlerInter
         $aggregate->published = false;
         $aggregate->state = Page::STATE_UNPUBLISHED;
 
+        // Check if state needs to be set to scheduled.
+        if ($aggregate->schedule) {
+            $scheduled = false;
+            foreach ($aggregate->schedule as $schedule) {
+                $startDate = $schedule['startDate'] ?? false;
+                if ($startDate && $startDate > time()) {
+                    $scheduled = true;
+                }
+            }
+
+            if ($scheduled) {
+                $aggregate->state = Page::STATE_SCHEDULED;
+            }
+        }
+
         return $aggregate;
     }
 

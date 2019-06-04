@@ -34,6 +34,11 @@ final class PageAddScheduleHandler extends Handler implements HandlerInterface
             'endDate' => $endDate,
         ];
 
+        // Mark page as scheduled.
+        if (null !== $startDate && (Page::STATE_UNPUBLISHED === $aggregate->state || Page::STATE_STAGED === $aggregate->state)) {
+            $aggregate->state = Page::STATE_SCHEDULED;
+        }
+
         return $aggregate;
     }
 
@@ -60,7 +65,7 @@ final class PageAddScheduleHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (empty($payload['startDate']) || empty($payload['endDate'])) {
+        if (empty($payload['startDate']) && empty($payload['endDate'])) {
             $this->messageBus->dispatch(new Message(
                 'You must chose a time when to publish or unpublish',
                 CODE_BAD_REQUEST,

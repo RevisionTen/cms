@@ -47,6 +47,7 @@ cms:
         Settings:
             - { entity: UserRead, icon: 'users' }
             - { entity: RoleRead, icon: 'user-shield' }
+            - { entity: Task, icon: 'tasks' }
             - { entity: EventStreamObject, icon: 'clock' }
 
     # Menu configuration.

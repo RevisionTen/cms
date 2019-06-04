@@ -34,7 +34,8 @@ final class PageCreateHandler extends PageBaseHandler implements HandlerInterfac
             }
         }
 
-        $aggregate->state = Page::STATE_DRAFT;
+        $aggregate->published = false;
+        $aggregate->state = Page::STATE_UNPUBLISHED;
 
         return $aggregate;
     }

@@ -1,0 +1,17 @@
+
+{% set fallbackState = value ? 'published' : 'unpublished' %}
+{% set state = item.state is not null ? item.state : fallbackState %}
+
+{% if state == 'published' %}
+    {% set badge = 'success' %}
+{% elseif state == 'unpublished' %}
+    {% set badge = 'danger' %}
+{% elseif state == 'scheduled' %}
+    {% set badge = 'warning' %}
+{% else %}
+    {% set badge = 'info' %}
+{% endif %}
+
+<span class="badge badge-{{ badge }}">
+    {{ state|capitalize|trans }}
+</span>
