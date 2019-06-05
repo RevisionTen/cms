@@ -115,7 +115,7 @@ class ManagedUploadType extends AbstractType
             $event->setData($data);
         });
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($options) {
             $data = $event->getData();
             $form = $event->getForm();
 

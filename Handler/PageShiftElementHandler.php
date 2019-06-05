@@ -72,7 +72,7 @@ final class PageShiftElementHandler extends PageBaseHandler implements HandlerIn
         $direction = $payload['direction'];
 
         // A function that shifts all matching elements in a provided direction.
-        $shiftFunction = function (&$element, &$collection) use ($direction, $uuid) {
+        $shiftFunction = static function (&$element, &$collection) use ($direction, $uuid) {
             if (null !== $collection) {
                 // Get the key of the item that will shift.
                 $itemKey = null;

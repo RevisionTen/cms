@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
@@ -89,7 +88,7 @@ class IndexService
             ]);
         }
         $pageReadsByUuid = [];
-        array_walk($pageReads, function ($page, $key) use(&$pageReadsByUuid) {
+        array_walk($pageReads, static function ($page, $key) use(&$pageReadsByUuid) {
             /** @var PageRead $page */
             $pageReadsByUuid[$page->getUuid()] = $page;
         });
@@ -196,7 +195,7 @@ class IndexService
             'streetAddress',
         ];
 
-        array_walk_recursive($data, function ($item, $fieldName) use (&$reducedData, $fieldNames) {
+        array_walk_recursive($data, static function ($item, $fieldName) use (&$reducedData, $fieldNames) {
             if (is_string($fieldName)) {
                 if ('doctrineEntity' === $fieldName && is_object($item)) {
                     // Serialize hydrated doctrine entities.

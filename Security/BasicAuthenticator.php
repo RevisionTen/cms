@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicAuthenticator extends AbstractGuardAuthenticator
 {
@@ -73,7 +73,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     private function getSession(RequestStack $requestStack): SessionInterface
     {
         $request = $requestStack->getMasterRequest();
-        $session = $request->getSession();
+        $session = $request ? $request->getSession() : null;
 
         if (null === $session) {
             $session = new Session();
@@ -184,8 +184,6 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $subject = $this->translator->trans('Login Code for %username%', [
             '%username%' => $user->getUsername(),
         ]);
-
-        $minutes = $this->config['mailer_from'];
 
         $yourlogin = $this->translator->trans('Your login code is');
         $validfor = $this->translator->trans('This code is valid for %minutes% minutes.', [

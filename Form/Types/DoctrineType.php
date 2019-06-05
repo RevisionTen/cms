@@ -79,7 +79,7 @@ class DoctrineType extends AbstractType
         ]);
 
         // Write a compound attribute for easy hydration.
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) {
             $data = $event->getData();
 
             if (!empty($data['entityId']) && !empty($data['entityClass'])) {
@@ -100,7 +100,7 @@ class DoctrineType extends AbstractType
         });
 
         // Parse hydrationId.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use($options) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use($options) {
             $data = $event->getData();
             if (null !== $data) {
 

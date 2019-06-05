@@ -29,7 +29,6 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Command\PageChangeSettingsCommand;
 use RevisionTen\CMS\Command\PageCreateCommand;
-use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
@@ -57,7 +56,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Cocur\Slugify\Slugify;
 
 /**
@@ -109,7 +108,7 @@ class PageController extends AbstractController
         }
 
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
 
         $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
 
@@ -853,12 +852,12 @@ class PageController extends AbstractController
 
             if (\in_array('all', $allowedChildren, true)) {
                 // Filter list of accepted children
-                $acceptedChildren = array_filter($config['page_elements'], function ($element) {
+                $acceptedChildren = array_filter($config['page_elements'], static function ($element) {
                     return isset($element['public']) && $element['public'];
                 });
             } else {
                 // Filter list of accepted children
-                $acceptedChildren = array_filter($config['page_elements'], function ($elementName) use ($allowedChildren) {
+                $acceptedChildren = array_filter($config['page_elements'], static function ($elementName) use ($allowedChildren) {
                     return \in_array($elementName, $allowedChildren, true);
                 }, ARRAY_FILTER_USE_KEY);
             }
@@ -1082,7 +1081,7 @@ class PageController extends AbstractController
         $elementParent = null;
         if (!empty($aggregate->elements)) {
             // Get the parent element from the Aggregate.
-            PageBaseHandler::onElement($aggregate, $elementUuid, function ($element, $collection, $parent) use (&$elementParent) {
+            PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
                 $elementParent = $parent['uuid'];
             });
         }
@@ -1139,7 +1138,7 @@ class PageController extends AbstractController
             $elementParent = null;
             if (!empty($aggregate->elements)) {
                 // Get the parent element from the Aggregate.
-                PageBaseHandler::onElement($aggregate, $elementUuid, function ($element, $collection, $parent) use (&$elementParent) {
+                PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
                     $elementParent = $parent['uuid'];
                 });
             }
@@ -1238,7 +1237,7 @@ class PageController extends AbstractController
         // Check if user has access to the aggregates current website.
         /** @var ArrayCollection $websites */
         $websites = $user->getWebsites();
-        $websites = array_map(function ($website) {
+        $websites = array_map(static function ($website) {
             /** @var Website $website */
             return $website->getId();
         }, $websites->toArray());
@@ -1290,7 +1289,7 @@ class PageController extends AbstractController
             'disable' => 'Disable',
         ];
 
-        $translations = array_map(function ($value) use ($translator) {
+        $translations = array_map(static function ($value) use ($translator) {
             return $translator->trans($value);
         }, $translations);
 
@@ -1337,7 +1336,7 @@ class PageController extends AbstractController
         $user = $this->getUser();
 
         /** @var PageStreamRead $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
         $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
 
         /** @var Page $page */
@@ -1583,7 +1582,7 @@ class PageController extends AbstractController
             $elementParent = null;
             if (!empty($aggregate->elements)) {
                 // Get the parent element from the Aggregate.
-                PageBaseHandler::onElement($aggregate, $elementUuid, function ($element, $collection, $parent) use (&$elementParent) {
+                PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
                     $elementParent = $parent['uuid'];
                 });
             }
@@ -1632,7 +1631,7 @@ class PageController extends AbstractController
             $elementParent = null;
             if (!empty($aggregate->elements)) {
                 // Get the parent element from the Aggregate.
-                PageBaseHandler::onElement($aggregate, $elementUuid, function ($element, $collection, $parent) use (&$elementParent) {
+                PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
                     $elementParent = $parent['uuid'];
                 });
             }
@@ -1681,7 +1680,7 @@ class PageController extends AbstractController
             $elementParent = null;
             if (!empty($aggregate->elements)) {
                 // Get the parent element from the Aggregate.
-                PageBaseHandler::onElement($aggregate, $elementUuid, function ($element, $collection, $parent) use (&$elementParent) {
+                PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
                     $elementParent = $parent['uuid'];
                 });
             }

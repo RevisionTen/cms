@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Command\Console;
 
 use Ramsey\Uuid\Uuid;
-use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Command\RoleCreateCommand;
 use RevisionTen\CMS\Command\UserEditCommand;
 use RevisionTen\CMS\Model\Domain;
-use RevisionTen\CMS\Model\File;
-use RevisionTen\CMS\Model\FileRead;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserAggregate;
@@ -78,11 +75,11 @@ class InstallRolesCommand extends Command
     private function runCommand(string $commandClass, string $aggregateUuid, int $onVersion, array $payload): bool
     {
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
 
         $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload, $successCallback);
 
-        $this->commandBus->dispatch($command, false);
+        $this->commandBus->dispatch($command);
 
         return $success;
     }
@@ -185,7 +182,7 @@ class InstallRolesCommand extends Command
             $userQuestion = new ChoiceQuestion('Choose an admin user', array_keys($userChoice));
             $userQuestion->setErrorMessage('Answer %s is invalid.');
             $userQuestion->setAutocompleterValues(array_keys($userChoice));
-            $userQuestion->setValidator(function ($answer) use ($userChoice) {
+            $userQuestion->setValidator(static function ($answer) use ($userChoice) {
                 if (!isset($userChoice[$answer])) {
                     throw new \RuntimeException('This user does not exist.');
                 }

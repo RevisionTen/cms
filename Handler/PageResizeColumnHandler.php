@@ -28,7 +28,7 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
         $breakpoint = $payload['breakpoint'];
 
         // A function that resizes the column.
-        $resizeColumnFunction = function (&$element, &$collection) use ($size, $breakpoint) {
+        $resizeColumnFunction = static function (&$element, &$collection) use ($size, $breakpoint) {
             $element['data']['width'.strtoupper($breakpoint)] = $size;
         };
         self::onElement($aggregate, $uuid, $resizeColumnFunction);

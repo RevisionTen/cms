@@ -10,7 +10,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Validator\ViolationMapper\ViolationMapper;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -21,8 +20,6 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UploadType extends AbstractType
@@ -93,7 +90,7 @@ class UploadType extends AbstractType
 
         $builder->addModelTransformer(new FileTransformer());
 
-        $addDeleteReplaceForm = function (FormInterface $form): void {
+        $addDeleteReplaceForm = static function (FormInterface $form): void {
             $form->add('delete', CheckboxType::class, [
                 'label' => 'delete the existing file',
                 'mapped' => true,
@@ -102,7 +99,7 @@ class UploadType extends AbstractType
         };
 
         // Add delete and replace form if the form is loaded with existing data.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($addDeleteReplaceForm): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($addDeleteReplaceForm): void {
             $data = $event->getData();
             if (!empty($data) && is_string($data) ) {
                 $addDeleteReplaceForm($event->getForm());

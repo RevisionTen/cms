@@ -19,6 +19,7 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
      * {@inheritdoc}
      *
      * @var Page $aggregate
+     * @throws \Exception
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {

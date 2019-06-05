@@ -29,7 +29,7 @@ final class PageEditElementHandler extends PageBaseHandler implements HandlerInt
         $uuid = $payload['uuid'];
 
         // A function that updates the elements data by merging it with the new data.
-        $updateDataFunction = function (&$element, &$collection) use ($data) {
+        $updateDataFunction = static function (&$element, &$collection) use ($data) {
             $element['data'] = array_merge($element['data'], $data);
         };
         self::onElement($aggregate, $uuid, $updateDataFunction);

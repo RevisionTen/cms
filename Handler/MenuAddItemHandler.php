@@ -39,7 +39,7 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
 
         if ($parentUuid && \is_string($parentUuid)) {
             // A function that add the new item to the target parent.
-            $addItemFunction = function (&$item, &$collection) use ($newItem) {
+            $addItemFunction = static function (&$item, &$collection) use ($newItem) {
                 if (!isset($item['items'])) {
                     $item['items'] = [];
                 }

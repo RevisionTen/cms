@@ -99,7 +99,7 @@ class UserChangePasswordCommand extends Command
         if (!$password) {
             $passwordQuestion = new Question('Please enter a password: ');
 
-            $passwordQuestion->setValidator(function ($answer) {
+            $passwordQuestion->setValidator(static function ($answer) {
                 if (empty($answer)) {
                     throw new \RuntimeException('The password may not be empty.');
                 }
@@ -132,7 +132,7 @@ class UserChangePasswordCommand extends Command
             'password' => $encodedPassword,
         ];
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
         $userChangePasswordCommand = new \RevisionTen\CMS\Command\UserChangePasswordCommand(-1, null, $userUuid, $onVersion, $payload, $successCallback);
         $this->commandBus->dispatch($userChangePasswordCommand);
 

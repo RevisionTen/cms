@@ -7,7 +7,7 @@ namespace RevisionTen\CMS\EventListener;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
 
@@ -28,9 +28,9 @@ class CurrentWebsiteListener
     /**
      * This method get the users chosen website and sets it on the request as "currentWebsite".
      *
-     * @param GetResponseEvent $event
+     * @param RequestEvent $event
      */
-    public function onKernelRequest(GetResponseEvent $event): void
+    public function onKernelRequest(RequestEvent $event): void
     {
         if ($event->isMasterRequest()) {
             $request = $event->getRequest();
@@ -55,7 +55,7 @@ class CurrentWebsiteListener
                     $currentWebsite = $websites->first();
                     $currentWebsite = $currentWebsite->getId();
                 } else {
-                    $websiteIds = array_map(function ($website) {
+                    $websiteIds = array_map(static function ($website) {
                         /** @var Website $website */
                         return $website->getId();
                     }, $websites->toArray());

@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class AdminController.
@@ -84,11 +84,12 @@ class AdminController extends AbstractController
         /** @var Website $website */
         $website = $entityManager->getRepository(Website::class)->find($id);
 
+        $fallbackWebsite = new Website();
+        $fallbackWebsite->setId(0);
+        $fallbackWebsite->setTitle('unknown');
+
         return $this->render('@cms/Admin/Website/website_info.html.twig', [
-            'website' => $website ?? [
-                'id' => '0',
-                'title' => 'unknown',
-            ],
+            'website' => $website ?? $fallbackWebsite,
         ]);
     }
 
@@ -182,7 +183,7 @@ class AdminController extends AbstractController
             if (function_exists('shm_attach')) {
                 try {
                     // Create a 1MB shared memory segment for the UuidStore.
-                    $shmSegment = shm_attach($shm_key, 1000000, 0666);
+                    $shmSegment = shm_attach($shm_key, 1000000);
                 } catch (\Exception $exception) {
                     $shmSegment = false;
                 }

@@ -19,6 +19,7 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
      * {@inheritdoc}
      *
      * @var Page $aggregate
+     * @throws \Exception
      */
     public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Twig;
 
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -145,7 +145,7 @@ class CmsExtension extends AbstractExtension
             $attributes['data-visible'] = $visible ? '1' : '0';
         }
 
-        array_walk($attributes, function (&$value, $key) {
+        array_walk($attributes, static function (&$value, $key) {
             $value = $key.'="'.$value.'"';
         });
 

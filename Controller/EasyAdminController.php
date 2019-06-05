@@ -7,10 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController as BaseController;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType;
 use RevisionTen\CMS\Model\Website;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class EasyAdminController
@@ -98,11 +95,11 @@ class EasyAdminController extends BaseController
         $overrideLanguage = $website && method_exists($this->entity['class'], 'getWebsite') && method_exists($entity, 'setLanguage');
 
         // Set default website.
-        if ($overrideWebsite && null === $entity->getWebsite() && 'new' === $view) {
+        if ($overrideWebsite && 'new' === $view && null === $entity->getWebsite()) {
             $entity->setWebsite($website);
         }
         // Set default language.
-        if ($overrideLanguage && null === $entity->getLanguage() && 'new' === $view) {
+        if ($overrideLanguage && 'new' === $view && null === $entity->getLanguage()) {
             $defaultLanguage = $website->getDefaultLanguage() ?? $this->request->getLocale();
             $entity->setLanguage($defaultLanguage);
         }

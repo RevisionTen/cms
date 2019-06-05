@@ -65,12 +65,4 @@ class ImageSettings extends ElementSettings
 
         parent::buildForm($builder, $options);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix()
-    {
-        return 'cms_element_settings';
-    }
 }

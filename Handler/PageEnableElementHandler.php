@@ -26,7 +26,7 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
         $uuid = $payload['uuid'];
 
         // A function that enables the element.
-        $enableElementFunction = function (&$element, &$collection) {
+        $enableElementFunction = static function (&$element, &$collection) {
             $element['enabled'] = true;
         };
         self::onElement($aggregate, $uuid, $enableElementFunction);

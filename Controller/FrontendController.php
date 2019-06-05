@@ -83,7 +83,6 @@ class FrontendController extends AbstractController
      * @param Alias|null $alias
      *
      * @return Response
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     private function renderPage(string $pageUuid, Alias $alias = null): Response
     {
@@ -247,7 +246,7 @@ class FrontendController extends AbstractController
     {
         $request = $requestStack->getMasterRequest();
 
-        $query = $request->get('q');
+        $query = $request ? $request->get('q') : null;
 
         $results = !empty($query) ? $searchService->getFulltextResults($query) : null;
 

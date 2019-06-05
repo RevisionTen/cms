@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Elements;
 
 use RevisionTen\CMS\Form\Types\ManagedUploadType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class File extends Element

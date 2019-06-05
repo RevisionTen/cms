@@ -126,7 +126,7 @@ class UserCreateCommand extends Command
         if (!$password) {
             $passwordQuestion = new Question('Please enter a password: ');
 
-            $passwordQuestion->setValidator(function ($answer) {
+            $passwordQuestion->setValidator(static function ($answer) {
                 if (empty($answer)) {
                     throw new \RuntimeException('The password may not be empty.');
                 }
@@ -161,7 +161,7 @@ class UserCreateCommand extends Command
             $websiteQuestion = new ChoiceQuestion('What website does this user belong to? ', array_keys($websiteChoices));
             $websiteQuestion->setErrorMessage('Answer %s is invalid.');
             $websiteQuestion->setAutocompleterValues(array_keys($websiteChoices));
-            $websiteQuestion->setValidator(function ($answer) use ($websiteChoices) {
+            $websiteQuestion->setValidator(static function ($answer) use ($websiteChoices) {
                 if (!isset($websiteChoices[$answer])) {
                     throw new \RuntimeException('This website does not exist.');
                 }
@@ -189,7 +189,7 @@ class UserCreateCommand extends Command
             $roleQuestion = new ChoiceQuestion('What role does this user have? ', array_keys($roleChoices));
             $roleQuestion->setErrorMessage('Answer %s is invalid.');
             $roleQuestion->setAutocompleterValues(array_keys($roleChoices));
-            $roleQuestion->setValidator(function ($answer) use ($roleChoices) {
+            $roleQuestion->setValidator(static function ($answer) use ($roleChoices) {
                 if (!isset($roleChoices[$answer])) {
                     throw new \RuntimeException('This role does not exist.');
                 }
@@ -213,7 +213,7 @@ class UserCreateCommand extends Command
                 'Yes',
                 'No',
             ]);
-            $sendLoginMailQuestion->setValidator(function ($answer) {
+            $sendLoginMailQuestion->setValidator(static function ($answer) {
                 if ('Yes' !== $answer && 'No' !== $answer) {
                     throw new \RuntimeException('Yes or No?');
                 }
@@ -246,7 +246,7 @@ class UserCreateCommand extends Command
         ];
 
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
         $userUuid = Uuid::uuid1()->toString();
         $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
         $this->commandBus->dispatch($userCreateCommand);

@@ -112,7 +112,7 @@ class UserSecretCommand extends Command
             $secret = $googleAuthenticator->generateSecret();
 
             $success = false;
-            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
             $userGenerateSecretCommand = new UserGenerateSecretCommand(-1, null, $userUuid, $onVersion, [
                 'secret' => $secret,
             ], $successCallback);
