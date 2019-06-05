@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
@@ -62,11 +62,11 @@ class RoleController extends AbstractController
             // Create the aggregate.
             $aggregateUuid = Uuid::uuid1()->toString();
             $success = false;
-            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
             $commandBus->dispatch(new RoleCreateCommand($user->getId(), null, $aggregateUuid, 0, [
                 'title' => $payload['title'],
                 'permissions' => $payload['permissions'],
-            ], $successCallback), false);
+            ], $successCallback));
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());
@@ -125,11 +125,11 @@ class RoleController extends AbstractController
 
             // Update the aggregate.
             $success = false;
-            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
             $commandBus->dispatch(new RoleEditCommand($user->getId(), null, $roleAggregate->getUuid(), $roleAggregate->getVersion(), [
                 'title' => $data['title'],
                 'permissions' => $data['permissions'],
-            ], $successCallback), false);
+            ], $successCallback));
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());
@@ -174,9 +174,9 @@ class RoleController extends AbstractController
         $config = $this->getParameter('cms');
         $permissionGroups = $config['permissions'];
         $size = 0;
-        $permissionChoices = array_map(function ($permissions) use (&$size) {
+        $permissionChoices = array_map(static function ($permissions) use (&$size) {
             ++$size;
-            $choices = array_map(function ($permission) use (&$size) {
+            $choices = array_map(static function ($permission) use (&$size) {
                 ++$size;
                 return $permission['label'];
             }, $permissions);

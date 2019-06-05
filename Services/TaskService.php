@@ -88,14 +88,14 @@ class TaskService
             /** @var EventStreamObject[]|null $lastEventOnAggregate */
             $lastEventOnAggregate = $this->em->getRepository(EventStreamObject::class)->findBy(['uuid' => $aggregateUuid], ['version' => 'DESC'], 1);
             if (!empty($lastEventOnAggregate[0])) {
-                $onVersion = $lastEventOnAggregate[0]->getVersion() ?? null;
+                $onVersion = $lastEventOnAggregate[0]->getVersion();
             } else {
                 $onVersion = null;
             }
 
             if (null !== $onVersion) {
                 $success = false;
-                $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+                $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
 
                 $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload, $successCallback);
                 $this->commandBus->dispatch($command);
@@ -106,10 +106,11 @@ class TaskService
                 $task->setResultMessage($messages);
                 $this->em->persist($task);
                 $this->em->flush();
-                $this->em->clear();
 
                 $output->writeln('Executed task '.$commandClass.' on '.$aggregateUuid);
             }
         }
+
+        $this->em->clear();
     }
 }

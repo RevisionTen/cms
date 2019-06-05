@@ -101,9 +101,9 @@ class Alias
             $domain = $this->getWebsite()->getDomains()->first();
 
             return $domain->getDomain().$locale;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -141,7 +141,7 @@ class Alias
      */
     public function setPath(string $path): self
     {
-        if (substr($path, 0, 1) !== '/') {
+        if (0 !== strpos($path, '/')) {
             $path = '/'.$path;
         }
 

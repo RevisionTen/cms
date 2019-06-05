@@ -53,7 +53,7 @@ class CacheService
                 $key = (int) ($config['shm_key'] ?? 1);
                 $this->shmVarKey = 1;
                 // Create a 1MB shared memory segmanet for the UuidStore.
-                $this->shmSegment = shm_attach($key, 1000000, 0666);
+                $this->shmSegment = shm_attach($key, 1000000);
                 $this->initUuidStore();
             } catch (\Exception $exception) {
                 // Failed to create the shared memory segment, disable cache.
@@ -136,7 +136,6 @@ class CacheService
      * @param array  $data
      *
      * @return bool|null
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function put(string $uuid, int $version, array $data): ?bool
     {
@@ -158,7 +157,6 @@ class CacheService
      * @param string $uuid
      *
      * @return array|null
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function get(string $uuid): ?array
     {

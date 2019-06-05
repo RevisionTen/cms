@@ -42,9 +42,9 @@ class AliasRepository extends ServiceEntityRepository
                 ->getQuery();
 
             return $query->getResult();
-        } else {
-            return parent::findAll();
         }
+
+        return parent::findAll();
     }
 
     public function findMatchingAlias(string $path, int $website = null, string $locale)

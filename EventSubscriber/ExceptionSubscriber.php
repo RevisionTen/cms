@@ -11,7 +11,7 @@ use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\Website;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -42,7 +42,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function notFoundException(GetResponseForExceptionEvent $event): void
+    public function notFoundException(ExceptionEvent $event): void
     {
         $exception = $event->getException();
 

@@ -58,7 +58,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     private function getSession(RequestStack $requestStack): SessionInterface
     {
         $request = $requestStack->getMasterRequest();
-        $session = $request->getSession();
+        $session = $request ? $request->getSession() : null;
 
         if (null === $session) {
             $session = new Session();

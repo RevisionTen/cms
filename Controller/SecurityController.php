@@ -327,7 +327,7 @@ class SecurityController extends AbstractController
                     $onVersion = $user->getVersion();
 
                     // Dispatch password reset event.
-                    $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+                    $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
                     $userChangePasswordCommand = new UserChangePasswordCommand($userId, null, $userUuid, $onVersion, [
                         'password' => $encodedPassword,
                     ], $successCallback);

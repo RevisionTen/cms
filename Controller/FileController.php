@@ -66,7 +66,7 @@ class FileController extends AbstractController
         // Filter files by current website.
         $request = $requestStack->getMasterRequest();
         if ($request && $currentWebsite = $request->get('currentWebsite')) {
-            $files = array_filter($files, function ($file) use ($currentWebsite) {
+            $files = array_filter($files, static function ($file) use ($currentWebsite) {
                 /** @var File $file */
                 return $file->website === $currentWebsite;
             });

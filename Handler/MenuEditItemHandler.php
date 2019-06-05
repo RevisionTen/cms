@@ -29,7 +29,7 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
         $uuid = $payload['uuid'];
 
         // A function that updates the items data by merging it with the new data.
-        $updateDataFunction = function (&$item, &$collection) use ($data) {
+        $updateDataFunction = static function (&$item, &$collection) use ($data) {
             $item['data'] = array_merge($item['data'], $data);
         };
         self::onItem($aggregate, $uuid, $updateDataFunction);

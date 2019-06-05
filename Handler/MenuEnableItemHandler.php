@@ -26,7 +26,7 @@ final class MenuEnableItemHandler extends MenuBaseHandler implements HandlerInte
         $uuid = $payload['uuid'];
 
         // A function that enables the item.
-        $enableItemFunction = function (&$item, &$collection) {
+        $enableItemFunction = static function (&$item, &$collection) {
             $item['enabled'] = true;
         };
         self::onItem($aggregate, $uuid, $enableItemFunction);

@@ -86,7 +86,7 @@ class FileService
         }
 
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
 
         $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
 
@@ -148,9 +148,9 @@ class FileService
         /**
          * Get Aggregate newest version.
          *
-         * @var \RevisionTen\CMS\Model\File $aggregate
+         * @var File $aggregate
          */
-        $aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class);
+        $aggregate = $this->aggregateFactory->build($uuid, File::class);
         $version = $aggregate->getVersion();
 
         // Check If the file really needs to be updated.
@@ -208,9 +208,9 @@ class FileService
         /**
          * Get Aggregate newest version.
          *
-         * @var \RevisionTen\CMS\Model\File $aggregate
+         * @var File $aggregate
          */
-        $aggregate = $this->aggregateFactory->build($uuid, \RevisionTen\CMS\Model\File::class, $version);
+        $aggregate = $this->aggregateFactory->build($uuid, File::class, $version);
 
         return [
             'uuid' => $uuid,
@@ -249,7 +249,7 @@ class FileService
         $website = $aggregate->website ? $this->entityManager->getRepository(Website::class)->find($aggregate->website) : null;
 
         // Build FileRead entity from Aggregate.
-        $fileRead = $this->entityManager->getRepository(FileRead::class)->findOneByUuid($fileUuid) ?? new FileRead();
+        $fileRead = $this->entityManager->getRepository(FileRead::class)->findOneBy(['uuid' => $fileUuid]) ?? new FileRead();
         $fileRead->setVersion($aggregate->getStreamVersion());
         $fileRead->setUuid($fileUuid);
         $fileData = json_decode(json_encode($aggregate), true);

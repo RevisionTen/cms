@@ -26,7 +26,7 @@ final class PageDisableElementHandler extends PageBaseHandler implements Handler
         $uuid = $payload['uuid'];
 
         // A function that disables the element.
-        $disableElementFunction = function (&$element, &$collection) {
+        $disableElementFunction = static function (&$element, &$collection) {
             $element['enabled'] = false;
         };
         self::onElement($aggregate, $uuid, $disableElementFunction);

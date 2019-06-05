@@ -29,7 +29,7 @@ class Youtube extends Element
             'required' => false,
         ]);
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) {
             $data = $event->getData();
 
             if (isset($data['youtubeId']) && $data['youtubeId']) {

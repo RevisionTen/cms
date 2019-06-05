@@ -72,7 +72,7 @@ class PageService
      */
     private function removeDisabled(array $elements): array
     {
-        $elements = array_filter($elements, function (array $element) {
+        $elements = array_filter($elements, static function (array $element) {
             return $element['enabled'] ?? true;
         });
 
@@ -108,7 +108,6 @@ class PageService
      * @param int    $version
      *
      * @throws \Doctrine\ORM\ORMException
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function updatePageRead(string $pageUuid, int $version): void
     {

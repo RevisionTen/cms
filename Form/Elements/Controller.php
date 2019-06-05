@@ -18,7 +18,7 @@ class Controller extends Element
 
         // Reduce controller config array to only label => action.
         if ($controller) {
-            array_walk($controller, function (&$item) {
+            array_walk($controller, static function (&$item) {
                 $item = $item['action'] ?? null;
             });
         }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Command\MenuCreateCommand;
 use RevisionTen\CMS\Command\MenuDisableItemCommand;
@@ -39,7 +38,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -73,7 +72,7 @@ class MenuController extends AbstractController
         }
 
         $success = false;
-        $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
 
         $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
 
@@ -247,7 +246,7 @@ class MenuController extends AbstractController
 
             // Execute Command.
             $success = false;
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, function ($commandBus, $event) use (&$success) {
+            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, static function ($commandBus, $event) use (&$success) {
                 // Callback.
                 $success = true;
             }));
@@ -302,7 +301,7 @@ class MenuController extends AbstractController
                         'itemName' => $itemName,
                         'data' => $data,
                         'parent' => $parent,
-                    ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+                    ], $menuUuid, $onVersion); // Todo: Qeue events.
 
                     if ($request->get('ajax')) {
                         return new JsonResponse([
@@ -392,7 +391,7 @@ class MenuController extends AbstractController
                         $success = $this->runCommand($commandBus, MenuEditItemCommand::class, [
                             'uuid' => $itemUuid,
                             'data' => $data,
-                        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+                        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
                         if ($request->get('ajax')) {
                             return new JsonResponse([
@@ -446,14 +445,14 @@ class MenuController extends AbstractController
         $itemParent = null;
         if (!empty($aggregate->items)) {
             // Get the parent element from the Aggregate.
-            MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
+            MenuBaseHandler::onItem($aggregate, $itemUuid, static function ($element, $collection, $parent) use (&$itemParent) {
                 $itemParent = $parent['uuid'];
             });
         }
 
         $success = $this->runCommand($commandBus, MenuRemoveItemCommand::class, [
             'uuid' => $itemUuid,
-        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
             return new JsonResponse([
@@ -493,7 +492,7 @@ class MenuController extends AbstractController
         $success = $this->runCommand($commandBus, MenuShiftItemCommand::class, [
             'uuid' => $itemUuid,
             'direction' => $direction,
-        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
             // Get the item parent so we know what to refresh.
@@ -502,7 +501,7 @@ class MenuController extends AbstractController
             $itemParent = null;
             if (!empty($aggregate->items)) {
                 // Get the parent element from the Aggregate.
-                MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
+                MenuBaseHandler::onItem($aggregate, $itemUuid, static function ($element, $collection, $parent) use (&$itemParent) {
                     $itemParent = $parent['uuid'];
                 });
             }
@@ -542,7 +541,7 @@ class MenuController extends AbstractController
 
         $success = $this->runCommand($commandBus, MenuDisableItemCommand::class, [
             'uuid' => $itemUuid,
-        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
             /** @var Menu $aggregate */
@@ -550,7 +549,7 @@ class MenuController extends AbstractController
             $itemParent = null;
             if (!empty($aggregate->items)) {
                 // Get the parent element from the Aggregate.
-                MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
+                MenuBaseHandler::onItem($aggregate, $itemUuid, static function ($element, $collection, $parent) use (&$itemParent) {
                     $itemParent = $parent['uuid'];
                 });
             }
@@ -590,7 +589,7 @@ class MenuController extends AbstractController
 
         $success = $this->runCommand($commandBus, MenuEnableItemCommand::class, [
             'uuid' => $itemUuid,
-        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
             /** @var Menu $aggregate */
@@ -598,7 +597,7 @@ class MenuController extends AbstractController
             $itemParent = null;
             if (!empty($aggregate->items)) {
                 // Get the parent element from the Aggregate.
-                MenuBaseHandler::onItem($aggregate, $itemUuid, function ($element, $collection, $parent) use (&$itemParent) {
+                MenuBaseHandler::onItem($aggregate, $itemUuid, static function ($element, $collection, $parent) use (&$itemParent) {
                     $itemParent = $parent['uuid'];
                 });
             }
@@ -708,7 +707,6 @@ class MenuController extends AbstractController
      * @param int|null               $website
      *
      * @return Response
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
@@ -722,10 +720,14 @@ class MenuController extends AbstractController
             // Get website and language from alias or request.
             if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
                 // Alias does not exist or is neutral, get website and language from request.
-                $websiteId = $request->get('websiteId') ?? 1;
-                /** @var Website $website */
+                $websiteId = $request && $request->get('websiteId') ? $request->get('websiteId') : 1;
+                /** @var Website|null $website */
                 $website = $entityManager->getRepository(Website::class)->find($websiteId);
-                $language = $request->getLocale();
+
+                $language = $request ? $request->getLocale() : null;
+                if (null !== $website && null === $language) {
+                    $language = $website->getDefaultLanguage();
+                }
             } else {
                 $website = $alias->getWebsite();
                 $language = $alias->getLanguage();
@@ -768,8 +770,6 @@ class MenuController extends AbstractController
             }
         }
 
-
-
         return $this->render($template ?: $config['menus'][$name]['template'], [
             'request' => $request,
             'alias' => $alias,
@@ -801,7 +801,7 @@ class MenuController extends AbstractController
 
         $success = $this->runCommand($commandBus, MenuSaveOrderCommand::class, [
             'order' => $order,
-        ], $menuUuid, $onVersion, false); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if (!$success) {
             return $this->errorResponse($messageBus);

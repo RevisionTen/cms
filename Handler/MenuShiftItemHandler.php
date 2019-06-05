@@ -72,7 +72,7 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
         $direction = $payload['direction'];
 
         // A function that shifts all matching items in a provided direction.
-        $shiftFunction = function (&$item, &$collection) use ($direction, $uuid) {
+        $shiftFunction = static function (&$item, &$collection) use ($direction, $uuid) {
             if (null !== $collection) {
                 // Get the key of the item that will shift.
                 $itemKey = null;

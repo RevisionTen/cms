@@ -38,7 +38,7 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
 
         if ($parentUuid && \is_string($parentUuid)) {
             // A function that add the new element to the target parent.
-            $addElementFunction = function (&$element, &$collection) use ($newElement) {
+            $addElementFunction = static function (&$element, &$collection) use ($newElement) {
                 if (!isset($element['elements'])) {
                     $element['elements'] = [];
                 }

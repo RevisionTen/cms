@@ -49,7 +49,7 @@ class SearchService
 
         // Split words.
         $queryStrings = explode('+', $queryString);
-        $queryStrings = array_map(function ($query) {
+        $queryStrings = array_map(static function ($query) {
             return '(fulltext:*'.$query.'* OR fulltext:"'.$query.'")';
         }, $queryStrings);
         $fullQueryString = implode(' AND ', $queryStrings);

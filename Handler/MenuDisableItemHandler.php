@@ -26,7 +26,7 @@ final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInt
         $uuid = $payload['uuid'];
 
         // A function that disables the item.
-        $disableItemFunction = function (&$item, &$collection) {
+        $disableItemFunction = static function (&$item, &$collection) {
             $item['enabled'] = false;
         };
         self::onItem($aggregate, $uuid, $disableItemFunction);

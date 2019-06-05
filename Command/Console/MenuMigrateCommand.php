@@ -109,7 +109,7 @@ class MenuMigrateCommand extends Command
             $websiteQuestion = new ChoiceQuestion('What website does this menu belong to? ', array_keys($websites));
             $websiteQuestion->setErrorMessage('Answer %s is invalid.');
             $websiteQuestion->setAutocompleterValues(array_keys($websites));
-            $websiteQuestion->setValidator(function ($answer) use ($websites) {
+            $websiteQuestion->setValidator(static function ($answer) use ($websites) {
                 if (!isset($websites[$answer])) {
                     throw new \RuntimeException('This website does not exist.');
                 }
@@ -125,7 +125,7 @@ class MenuMigrateCommand extends Command
             $languageQuestion = new ChoiceQuestion('What language does this menu belong to? ', array_keys($languages));
             $languageQuestion->setErrorMessage('Answer %s is invalid.');
             $languageQuestion->setAutocompleterValues(array_keys($languages));
-            $languageQuestion->setValidator(function ($answer) use ($languages) {
+            $languageQuestion->setValidator(static function ($answer) use ($languages) {
                 if (!isset($languages[$answer])) {
                     throw new \RuntimeException('This language does not exist.');
                 }
@@ -138,11 +138,11 @@ class MenuMigrateCommand extends Command
 
             // Update the aggregate.
             $success = false;
-            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
             $this->commandBus->dispatch(new MenuEditCommand(-1, null, $menu->getUuid(), $menu->getVersion(), [
                 'website' => (int) $website,
                 'language' => (string) $language,
-            ], $successCallback), false);
+            ], $successCallback));
 
             if ($success) {
                 // Return info about the user.

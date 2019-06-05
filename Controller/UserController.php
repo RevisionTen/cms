@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class UserController.
@@ -131,13 +131,13 @@ class UserController extends AbstractController
 
             // Update the aggregate.
             $success = false;
-            $successCallback = function ($commandBus, $event) use (&$success) { $success = true; };
+            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
             $commandBus->dispatch(new UserEditCommand($user->getId(), null, $userAggregate->getUuid(), $userAggregate->getVersion(), [
                 'color' => $data['color'],
                 'avatarUrl' => $data['avatarUrl'],
                 'websites' => array_values($data['websites']),
                 'roles' => array_values($data['roles']),
-            ], $successCallback), false);
+            ], $successCallback));
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());

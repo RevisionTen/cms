@@ -85,7 +85,7 @@ class PageType extends AbstractType
         ]);
 
         // Change the meta type depending on the chosen template.
-        $formModifier = function ($form, $template = null) use ($options) {
+        $formModifier = static function ($form, $template = null) use ($options) {
             if ($template) {
                 $metaType = $options['page_templates'][$template]['metatype'] ?? $options['page_metatype'];
             } else {
@@ -98,14 +98,13 @@ class PageType extends AbstractType
             ]);
         };
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifier) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($formModifier) {
             $data = $event->getData();
-            $form = $event->getForm();
             $template = $data['template'] ?? null;
             $formModifier($event->getForm(), $template);
         });
 
-        $builder->get('template')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($formModifier) {
+        $builder->get('template')->addEventListener(FormEvents::POST_SUBMIT, static function (FormEvent $event) use ($formModifier) {
             $template = $event->getForm()->getData();
             $formModifier($event->getForm()->getParent(), $template);
         });
