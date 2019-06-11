@@ -501,16 +501,24 @@ class PageController extends AbstractController
      *
      * @Route("/schedule/{pageUuid}/{version}", name="cms_schedule_page")
      *
-     * @param Request    $request
-     * @param CommandBus $commandBus
-     * @param string     $pageUuid
-     * @param int        $version
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param EntityManagerInterface $entityManager
+     * @param string                 $pageUuid
+     * @param int                    $version
      *
      * @return JsonResponse|Response
      */
-    public function schedule(Request $request, CommandBus $commandBus, string $pageUuid, int $version)
+    public function schedule(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, string $pageUuid, int $version)
     {
         $this->denyAccessUnlessGranted('page_schedule');
+
+        /** @var PageStreamRead|null $pageStreamRead */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
+
+        if (null === $pageStreamRead) {
+            return $this->errorResponse();
+        }
 
         /** @var UserRead $user */
         $user = $this->getUser();
@@ -547,13 +555,10 @@ class PageController extends AbstractController
                 'endDate' => $data['endDate'],
             ], $pageUuid, $version, false, null, $user->getId());
 
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => $success,
-                ], 200, $this->getToolbarRefreshHeaders());
-            }
+            $aliases = $pageStreamRead->getAliases();
+            $hasAlias = !(null === $aliases || empty($aliases) || 0 === \count($aliases));
 
-            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
+            return $this->createAliasResponse($pageUuid, $request, $success, $hasAlias);
         }
 
         return $this->render('@cms/Form/form.html.twig', [
@@ -626,7 +631,7 @@ class PageController extends AbstractController
         $config = $this->getParameter('cms');
 
         /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
             return $this->errorResponse();
@@ -693,6 +698,39 @@ class PageController extends AbstractController
     }
 
     /**
+     * Redirect to alias create form If the page has no aliases.
+     *
+     * @param string  $pageUuid
+     * @param Request $request
+     * @param bool    $success
+     * @param bool    $hasAlias
+     *
+     * @return JsonResponse|RedirectResponse
+     */
+    public function createAliasResponse(string $pageUuid, Request $request, bool $success, bool $hasAlias)
+    {
+        // Check if aliases exist for this page.
+        if (!$hasAlias && $this->isGranted('alias_create')) {
+            // The page has no aliases, show modal or page with alias create form.
+            $url = $this->generateUrl('cms_create_alias', [
+                'pageUuid' => $pageUuid,
+            ]);
+            return $request->get('ajax') ? new JsonResponse([
+                'success' => $success,
+                'modal' => $url,
+            ], 200, $this->getToolbarRefreshHeaders()) : $this->redirect($url);
+        }
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+            ], 200, $this->getToolbarRefreshHeaders());
+        }
+
+        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
+    }
+
+    /**
      * Publishes a Page Aggregate.
      *
      * @Route("/publish-page/{pageUuid}/{version}", name="cms_publish_page")
@@ -711,7 +749,7 @@ class PageController extends AbstractController
         $this->denyAccessUnlessGranted('page_publish');
 
         /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
             return $this->errorResponse();
@@ -733,26 +771,10 @@ class PageController extends AbstractController
             return $this->errorResponse();
         }
 
-        // Check if aliases exist for this page.
         $aliases = $pageStreamRead->getAliases();
-        if ($this->isGranted('alias_create') && (null === $aliases || empty($aliases) || 0 === \count($aliases))) {
-            // The page has no aliases, show modal or page with alias create form.
-            $url = $this->generateUrl('cms_create_alias', [
-                'pageUuid' => $pageUuid,
-            ]);
-            return $request->get('ajax') ? new JsonResponse([
-                'success' => $success,
-                'modal' => $url,
-            ], 200, $this->getToolbarRefreshHeaders()) : $this->redirect($url);
-        }
+        $hasAlias = !(null === $aliases || empty($aliases) || 0 === \count($aliases));
 
-        if ($request->get('ajax')) {
-            return new JsonResponse([
-                'success' => $success,
-            ], 200, $this->getToolbarRefreshHeaders());
-        }
-
-        return $this->redirectToPage($pageUuid);
+        return $this->createAliasResponse($pageUuid, $request, $success, $hasAlias);
     }
 
     /**
@@ -1373,7 +1395,7 @@ class PageController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
 
         /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (!$pageStreamRead) {
             return $this->redirect('/admin');
