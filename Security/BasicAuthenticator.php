@@ -46,6 +46,11 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     private $config;
 
     /**
+     * @var bool
+     */
+    private $isDev;
+
+    /**
      * BasicAuthenticator constructor.
      *
      * @param \Swift_Mailer                $swift_Mailer
@@ -53,14 +58,16 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      * @param RequestStack                 $requestStack
      * @param TranslatorInterface          $translator
      * @param array                        $config
+     * @param string                        $env
      */
-    public function __construct(\Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config)
+    public function __construct(\Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
     {
         $this->swift_Mailer = $swift_Mailer;
         $this->encoder = $encoder;
         $this->translator = $translator;
         $this->session = $this->getSession($requestStack);
         $this->config = $config;
+        $this->isDev = 'dev' === $env;
     }
 
     /**
@@ -153,6 +160,11 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         // Remember the username in the session for the Code Authenticator.
         $username = $request->get('login')['username'] ?? null;
         $this->session->set('username', $username);
+
+        if ($this->isDev) {
+            // Do not send mail code mail in dev environment, let the request continue.
+            return null;
+        }
 
         // Sent a mail with the PIN code.
         $useMailCodes = $this->config['use_mail_codes'] ?? false;

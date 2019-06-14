@@ -35,17 +35,24 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     private $commandBus;
 
     /**
+     * @var bool
+     */
+    private $isDev;
+
+    /**
      * CodeAuthenticator constructor.
      *
      * @param RequestStack $requestStack
      * @param CommandBus   $commandBus
      * @param array        $config
+     * @param string        $env
      */
-    public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config)
+    public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config, string $env)
     {
         $this->session = $this->getSession($requestStack);
         $this->commandBus = $commandBus;
         $this->config = $config;
+        $this->isDev = 'dev' === $env;
     }
 
     /**
@@ -79,8 +86,8 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         $code = $request->get('code')['code'] ?? null;
         $username = $this->session->has('username');
 
-        // Returns true If a code was submitted and a username exists, otherwise skip authentication.
-        return $username && $code;
+        // Returns true If a code was submitted or environment is dev and a username exists, otherwise skip authentication.
+        return ($username && $this->isDev) || ($username && $code);
     }
 
     /**
@@ -102,6 +109,11 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
                 'username' => $username,
                 'code' => $code,
             ];
+        } elseif ($username && $this->isDev) {
+            // Environment is dev, just return the username.
+            return [
+                'username' => $username,
+            ];
         }
 
         return [];
@@ -116,6 +128,27 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
 
         // If its a User object, checkCredentials() is called, otherwise authentication will fail.
         return null !== $username ? $userProvider->loadUserByUsername($username) : null;
+    }
+
+    /**
+     * Return true to cause authentication success.
+     *
+     * @param array         $credentials
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public function checkCredentials($credentials, UserInterface $user)
+    {
+        if ($this->isDev) {
+            return true;
+        }
+
+        // Check if submitted Code is Valid.
+        /** @var \RevisionTen\CMS\Model\UserRead $user */
+        $secret = $user->getSecret();
+
+        return $this->isCodeValid($secret, $credentials['code']);
     }
 
     private function isCodeValid(string $secret, string $code): bool
@@ -135,30 +168,17 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * Return true to cause authentication success.
-     *
-     * @param array         $credentials
-     * @param UserInterface $user
-     *
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        // Check if submitted Code is Valid.
-        /** @var \RevisionTen\CMS\Model\UserRead $user */
-        $secret = $user->getSecret();
-
-        return $this->isCodeValid($secret, $credentials['code']);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         $user = $token->getUser();
 
-        if (\is_object($user)) {
+        if (!\is_object($user)) {
+            return false;
+        }
+
+        if (!$this->isDev) {
             $userId = $user->getId();
             $userUuid = $user->getUuid();
 
@@ -173,8 +193,6 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
                 ]);
                 $this->commandBus->dispatch($userLoginCommand);
             }
-        } else {
-            return false;
         }
 
         // On success, let the request continue.
