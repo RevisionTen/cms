@@ -66,7 +66,7 @@ Start your web-server and login at `/login`.
 
 ## Configuration
 
-You can find the full configuration in `/vendor/revision-ten/cms/Resources/config/cms.yaml`.
+You can find the full configuration in [`/vendor/revision-ten/cms/Resources/config/cms.yaml`][config].
 
 ## Extend your Bootstrap spacing classes
 
@@ -266,3 +266,5 @@ easy_admin:
 [release]: https://packagist.org/packages/revision-ten/cms
 [license]: https://github.com/RevisionTen/cms/blob/master/LICENSE
 [downloads]: https://packagist.org/packages/revision-ten/cms
+
+[config]: https://github.com/RevisionTen/cms/blob/master/Resources/config/cms.yaml

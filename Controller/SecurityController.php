@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -136,8 +137,13 @@ class SecurityController extends AbstractController
      *
      * @return Response
      */
-    public function code(Request $request, FormFactoryInterface $formFactory): Response
+    public function code(Request $request, FormFactoryInterface $formFactory, KernelInterface $kernel): Response
     {
+        // Redirect to dashboard if environment is dev.
+        if ('dev' === $kernel->getEnvironment()) {
+            return $this->redirectToRoute('cms_dashboard');
+        }
+
         // Remove submitted login form fields from request.
         $request->request->remove('login');
 

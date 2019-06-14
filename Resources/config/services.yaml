@@ -46,10 +46,12 @@ services:
         autowire: true
         arguments:
             $config: '%cms%'
+            $env: '%kernel.environment%'
     RevisionTen\CMS\Security\BasicAuthenticator:
         autowire: true
         arguments:
             $config: '%cms%'
+            $env: '%kernel.environment%'
     RevisionTen\CMS\Security\EntityVoter:
         autoconfigure: true
         autowire: true
