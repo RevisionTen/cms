@@ -36,6 +36,8 @@ cms:
                 label: 'Schedule page'
             page_submit_changes:
                 label: 'Submit page changes'
+            page_inspect:
+                label: 'Inspect page'
         Alias:
             alias_list:
                 label: 'List aliases'
