@@ -1,12 +1,12 @@
 <li data-uuid="{{ item.uuid }}" class="level-{{ level }} {{ item.enabled is defined and item.enabled == false ? 'disabled' : '' }}">
 
-    <div class="clearfix pl-3 pr-3">
+    <div class="row clearfix pl-3 pr-3">
         {#% for x in 0..level %}
         {% if x > 0 %}
             <span style="opacity: .2;" class="fas fa-arrow-right"></span>
         {% endif %}
     {% endfor %#}
-        <div class="pull-left p-2">
+        <div class="col pull-left p-2">
             <i class="fas fa-arrows-alt text-muted cms-admin-menu-item-move"></i>
 
             <strong class="">
@@ -20,7 +20,7 @@
             {% endif %}
         </div>
 
-        <div class="pull-right p-2">
+        <div class="col-auto pull-right p-2 ml-auto">
 
             <div class="dropleft" style="display: inline-block;">
                 <span class=dropdown-toggle" data-toggle="dropdown">

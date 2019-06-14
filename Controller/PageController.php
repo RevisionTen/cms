@@ -568,6 +568,32 @@ class PageController extends AbstractController
     }
 
     /**
+     * Inspect a page.
+     *
+     * @Route("/inspect/{pageUuid}", name="cms_inspect_page")
+     *
+     * @param Request          $request
+     * @param AggregateFactory $aggregateFactory
+     * @param string           $pageUuid
+     *
+     * @return JsonResponse|Response
+     */
+    public function inspect(Request $request, AggregateFactory $aggregateFactory, string $pageUuid)
+    {
+        $this->denyAccessUnlessGranted('page_inspect');
+
+        /** @var UserRead $user */
+        $user = $this->getUser();
+
+        $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
+
+        return $this->render('@cms/Admin/Page/inspect.html.twig', [
+            'title' => 'Inspect page',
+            'page' => $page,
+        ]);
+    }
+
+    /**
      * Delete all qeued events for a specific Page Aggregate and user.
      *
      * @Route("/discard-changes/{pageUuid}", name="cms_discard_changes")

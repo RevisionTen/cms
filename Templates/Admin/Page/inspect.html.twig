@@ -1,0 +1,15 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block content_title %}
+    {% if title is defined %}
+        {{ title|trans }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <pre class="small"><code class="small">{{ page|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+{% endblock %}
+
+{% block content_footer_wrapper %}
+    {# Replace with nothing, because the footer is not needed here. #}
+{% endblock %}

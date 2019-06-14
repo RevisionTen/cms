@@ -161,6 +161,14 @@ class ApiController extends AbstractController
                 'display' => $canOptimize,
                 'type' => 'ajax',
             ],
+            'inspect' => $this->isGranted('page_inspect') ? [
+                'css_class' => 'btn-tertiary',
+                'icon' => 'fas fa-microscope',
+                'label' => $translator->trans('Inspect'),
+                'url' => $this->generateUrl('cms_inspect_page', ['pageUuid' => $pageUuid]),
+                'display' => true,
+                'type' => 'form',
+            ] : null,
             'undo_change' => [
                 'css_class' => '',
                 'icon' => 'fas fa-undo',

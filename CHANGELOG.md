@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.6] - 2019-06-14
+### Added
+- Bugfixes
+- Added aggregate inspector to page editor toolbar
+- Added `page_inspect` permission
+
 ## [1.6.5] - 2019-06-14
 ### Changed
 - Two-factor authentication is no longer required for dev environment

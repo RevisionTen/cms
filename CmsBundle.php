@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class CmsBundle extends Bundle
 {
-    public const VERSION = '1.6.5';
+    public const VERSION = '1.6.6';
 
     /**
      * {@inheritdoc}
