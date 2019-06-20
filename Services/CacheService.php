@@ -67,9 +67,15 @@ class CacheService
         if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
             // UuidStore exists.
             $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-        } elseif (shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore)) {
+        } else {
             // Create UuidStore.
-            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+            shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
+            if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
+                $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+            } else {
+                // Failed to create UuidStore, disable cache.
+                $this->cache = null;
+            }
         }
     }
 

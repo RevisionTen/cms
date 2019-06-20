@@ -6,6 +6,8 @@ namespace RevisionTen\CMS\Services;
 
 use Psr\Log\LoggerInterface;
 use Solarium\Client;
+use Solarium\QueryType\Select\Query\FilterQuery;
+use Solarium\QueryType\Select\Query\Query;
 
 class SearchService
 {
@@ -30,17 +32,8 @@ class SearchService
         ];
     }
 
-    public function getFulltextResults(string $queryString): array
+    public static function getFulltextFilterQuery(Query $query, string $queryString): FilterQuery
     {
-        $page = 0;
-        $rows = 100;
-        $start = $page * $rows;
-
-        $client = new Client($this->solrConfig);
-        $query = $client->createSelect();
-        $query->setStart($start);
-        $query->setRows($rows);
-
         // Escape special characters in search string.
         $queryString = addcslashes($queryString, '+-&&||!(){}[]^"~*?:\\');
         $queryString = str_replace(' ', '+', $queryString);
@@ -55,6 +48,22 @@ class SearchService
         $fullQueryString = implode(' AND ', $queryStrings);
 
         $filterQuery->setQuery($fullQueryString);
+
+        return $filterQuery;
+    }
+
+    public function getFulltextResults(string $queryString): array
+    {
+        $page = 0;
+        $rows = 100;
+        $start = $page * $rows;
+
+        $client = new Client($this->solrConfig);
+        $query = $client->createSelect();
+        $query->setStart($start);
+        $query->setRows($rows);
+
+        self::getFulltextFilterQuery($query, $term);
 
         // Get search results.
         try {
