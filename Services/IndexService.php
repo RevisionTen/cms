@@ -13,9 +13,14 @@ use RevisionTen\CMS\Serializer\PageSerializer;
 use Solarium\Client;
 use Solarium\Core\Query\Helper;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class IndexService
 {
+    /** @var ContainerInterface */
+    private $container;
+
     /** @var EntityManagerInterface */
     protected $entityManager;
 
@@ -34,13 +39,15 @@ class IndexService
     /**
      * IndexService constructor.
      *
+     * @param ContainerInterface     $container
      * @param LoggerInterface        $logger
      * @param EntityManagerInterface $entityManager
      * @param PageService            $pageService
      * @param array                  $config
      */
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager, PageService $pageService, array $config)
+    public function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $entityManager, PageService $pageService, array $config)
     {
+        $this->container = $container;
         $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->pageService = $pageService;
@@ -119,8 +126,13 @@ class IndexService
             // Add documents provided by the pages serializer.
             $serializer = $this->config['page_templates'][$page->getTemplate()]['solr_serializer'] ?? false;
             if ($serializer && class_exists($serializer) && in_array(SolrSerializerInterface::class, class_implements($serializer), true)) {
-                /** @var SolrSerializerInterface $serializer */
-                $serializer = new $serializer();
+                try {
+                    // Get the serializer as a service.
+                    $serializer = $this->container->get($serializer);
+                } catch (ServiceNotFoundException $e) {
+                    /** @var SolrSerializerInterface $serializer */
+                    $serializer = new $serializer();
+                }
             } else {
                 $serializer = new PageSerializer();
             }
