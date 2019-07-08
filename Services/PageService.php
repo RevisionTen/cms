@@ -120,7 +120,8 @@ class PageService
                 foreach ($aliases as $alias) {
                     /* @var \RevisionTen\CMS\Model\Alias $alias */
                     // Update status of the alias.
-                    $alias->setEnabled($pageStreamRead->isPublished());
+                    $enabled = $pageStreamRead->isPublished() || !empty($alias->getRedirect());
+                    $alias->setEnabled($enabled);
                     // Update language and website of the alias.
                     $alias->setLanguage($pageStreamRead->getLanguage());
                     $alias->setWebsite($this->em->getReference(Website::class, $pageStreamRead->getWebsite()));
