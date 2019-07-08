@@ -74,6 +74,12 @@ class Alias
     private $website;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean", options={"default":1})
+     */
+    private $enabled;
+
+    /**
      * @return string
      */
     public function __toString(): string
@@ -87,6 +93,7 @@ class Alias
     public function __construct()
     {
         $this->priority = 0.5;
+        $this->enabled = true;
     }
 
     public function getHost(): ?string
@@ -286,6 +293,26 @@ class Alias
     public function setWebsite(Website $website = null): self
     {
         $this->website = $website;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     *
+     * @return Alias
+     */
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
 
         return $this;
     }

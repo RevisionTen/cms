@@ -90,6 +90,10 @@ services:
         tags: [console.command]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Command\Console\AliasUpdateCommand:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
     RevisionTen\CMS\Command\Console\IndexCommand:
         autoconfigure: true
         autowire: true

@@ -51,6 +51,7 @@ class PageSubscriber implements EventSubscriberInterface
 
         $this->pageService->updatePageStreamRead($pageUuid);
         $this->pageService->updatePageRead($pageUuid, $version);
+        $this->pageService->updateAliases($pageUuid);
         $this->indexService->index($output, $pageUuid);
     }
 
@@ -61,6 +62,7 @@ class PageSubscriber implements EventSubscriberInterface
 
         $this->pageService->updatePageStreamRead($pageUuid);
         $this->pageService->deletePageRead($pageUuid);
+        $this->pageService->updateAliases($pageUuid);
         $this->indexService->index($output, $pageUuid);
     }
 }

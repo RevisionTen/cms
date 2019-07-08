@@ -61,9 +61,11 @@ class AliasRepository extends ServiceEntityRepository
                 $qb->expr()->eq('a.language', ':language'),
                 $qb->expr()->isNull('a.language')
             ))
+            ->andWhere($qb->expr()->eq('a.enabled', ':enabled'))
             ->setParameter('path', $path)
             ->setParameter('website', $website)
             ->setParameter('language', $locale)
+            ->setParameter('enabled', true)
             ->setMaxResults(1)
             ->getQuery();
 
@@ -83,8 +85,10 @@ class AliasRepository extends ServiceEntityRepository
                 $qb->expr()->eq('a.language', ':language'),
                 $qb->expr()->isNull('a.language')
             ))
+            ->andWhere($qb->expr()->eq('a.enabled', ':enabled'))
             ->setParameter('website', $website)
             ->setParameter('language', $locale)
+            ->setParameter('enabled', true)
             ->getQuery();
 
         return $query->getResult();
