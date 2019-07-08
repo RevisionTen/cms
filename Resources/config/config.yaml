@@ -109,6 +109,7 @@ easy_admin:
                 fields:
                     #- 'uuid'
                     - 'id'
+                    - { property: 'enabled', type: 'boolean' }
                     - { property: 'path', template: '@cms/Admin/Alias/List/path.html.twig' }
                     - { property: 'language', template: '@cms/Admin/Alias/List/language.html.twig' }
                     #- { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }

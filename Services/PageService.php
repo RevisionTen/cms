@@ -102,6 +102,38 @@ class PageService
     }
 
     /**
+     * Updates all of the pages aliases based on the state of the page.
+     * This needs to happen after the PageStreamRead has been updated!
+     *
+     * @param string $pageUuid
+     *
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function updateAliases(string $pageUuid): void
+    {
+        /** @var PageStreamRead $pageStreamRead */
+        $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+
+        if (null !== $pageStreamRead) {
+            $aliases = $pageStreamRead->getAliases();
+            if (null !== $aliases) {
+                foreach ($aliases as $alias) {
+                    /* @var \RevisionTen\CMS\Model\Alias $alias */
+                    // Update status of the alias.
+                    $alias->setEnabled($pageStreamRead->isPublished());
+                    // Update language and website of the alias.
+                    $alias->setLanguage($pageStreamRead->getLanguage());
+                    $alias->setWebsite($this->em->getReference(Website::class, $pageStreamRead->getWebsite()));
+
+                    $this->em->persist($alias);
+                }
+            }
+        }
+
+        $this->em->flush();
+    }
+
+    /**
      * Updates the PageRead.
      *
      * @param string $pageUuid
@@ -129,21 +161,6 @@ class PageService
             $pageData = json_decode(json_encode($aggregate), true);
             $pageData = $this->filterPayload($pageData);
             $pageRead->setPayload($pageData);
-
-            // Update the language and website of associated aliases.
-            /** @var PageStreamRead $pageStreamRead */
-            $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
-            if (null !== $pageStreamRead) {
-                $aliases = $pageStreamRead->getAliases();
-                if (null !== $aliases) {
-                    foreach ($aliases as $alias) {
-                        /* @var \RevisionTen\CMS\Model\Alias $alias */
-                        $alias->setLanguage($aggregate->language);
-                        $alias->setWebsite($this->em->getReference(Website::class, $aggregate->website));
-                        $this->em->persist($alias);
-                    }
-                }
-            }
 
             $this->em->persist($pageRead);
             $this->em->flush();
