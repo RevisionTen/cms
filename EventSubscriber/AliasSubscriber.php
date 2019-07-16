@@ -10,7 +10,7 @@ use RevisionTen\CMS\Services\IndexService;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\Console\Tests\Fixtures\DummyOutput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class AliasSubscriber implements EventSubscriber
 {
@@ -40,7 +40,7 @@ class AliasSubscriber implements EventSubscriber
 
     private function indexPage(PageStreamRead $pageStreamRead): void
     {
-        $output = new DummyOutput();
+        $output = new BufferedOutput();
         $this->indexService->index($output, $pageStreamRead->getUuid());
     }
 
