@@ -26,7 +26,8 @@ class SearchService
                 'localhost' => [
                     'host' => 'localhost',
                     'port' => $config['solr_port'],
-                    'path' => '/solr/'.$config['solr_collection'].'/',
+                    'path' => '/',
+                    'collection' => $config['solr_collection'],
                 ]
             ]
         ];

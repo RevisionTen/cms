@@ -156,6 +156,18 @@ services:
         tags: [form.type]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Form\Filter\TemplateFilterType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Form\Filter\LanguageFilterType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\Form\Elements\Form:
         autoconfigure: true
         autowire: true
