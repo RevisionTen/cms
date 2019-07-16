@@ -64,10 +64,10 @@ class CacheService
 
     private function initUuidStore(): void
     {
-        if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
+        if (!is_bool($this->shmSegment) && shm_has_var($this->shmSegment, $this->shmVarKey)) {
             // UuidStore exists.
             $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-        } else {
+        } elseif (!is_bool($this->shmSegment)) {
             // Create UuidStore.
             shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
             if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
