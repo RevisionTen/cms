@@ -64,7 +64,7 @@ class CustomPageSerializer extends PageSerializer
         $helper = $update->getHelper();
         $id = $pageStreamRead->getUuid();
         // Get the new document object for this page.
-        /** @var \Solarium\QueryType\Update\Query\Document\DocumentInterface $doc */
+        /** @var \Solarium\Core\Query\DocumentInterface $doc */
         $doc = $docs[$id] ?? null;
         if (null === $doc) {
             return $docs;

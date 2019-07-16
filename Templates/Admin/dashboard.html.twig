@@ -41,36 +41,36 @@
 <div class="p-3">
     <div class="row align-items-stretch">
         <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card mb-3">
-                <div class="card-header p-3">
+            <div class="flex-grow-1 card mb-3 border-0">
+                <div class="card-header p-3 border-0 bg-transparent">
                     <h6>
                         {{ 'Latest Commits'|trans }}
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {{ macros.groupedEvents(latestCommits) }}
                 </div>
             </div>
 
-            <div class="flex-grow-1 card mb-3">
-                <div class="card-header p-3">
+            <div class="flex-grow-1 card mb-3 border-0">
+                <div class="card-header p-3 border-0 bg-transparent">
                     <h6>
                         {{ 'Latest Events'|trans }}
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {{ macros.groupedEvents(eventStreamObjects) }}
                 </div>
             </div>
 
             {% if eventQeueObjects|length > 0 %}
-                <div class="flex-grow-1 card mb-3">
-                    <div class="card-header p-3">
+                <div class="flex-grow-1 card mb-3 border-0">
+                    <div class="card-header p-3 border-0 bg-transparent">
                         <h6>
                             {{ 'Latest Draft Events'|trans }}
                         </h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         {{ macros.groupedEvents(eventQeueObjects) }}
                     </div>
                 </div>
@@ -78,13 +78,13 @@
         </div>
 
         <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card mb-3">
-                <div class="card-header p-3">
+            <div class="flex-grow-1 card mb-3 border-0">
+                <div class="card-header p-3 border-0 bg-transparent">
                     <h6>
                         {{ 'System Information'|trans }}
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <table class="table datagrid border-0">
                         <tr>
                             <td><span class="fas fa-pencil-ruler"></span> CMS Version: </td>

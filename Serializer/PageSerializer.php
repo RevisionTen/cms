@@ -28,10 +28,10 @@ class PageSerializer implements SolrSerializerInterface
         $docs[$id] = $update->createDocument();
         $docs[$id]->id = $id;
         $docs[$id]->ispage_b = true;
-        $docs[$id]->title_s = $helper->filterControlCharacters($pageStreamRead->getTitle());
+        $docs[$id]->title_s = $helper->filterControlCharacters($pageStreamRead->getTitle() ?? '');
         $docs[$id]->website_i = $pageStreamRead->getWebsite();
         $docs[$id]->language_s = $pageStreamRead->getLanguage();
-        $docs[$id]->template_s = $helper->filterControlCharacters($pageStreamRead->getTemplate());
+        $docs[$id]->template_s = $helper->filterControlCharacters($pageStreamRead->getTemplate() ?? '');
         $docs[$id]->created_dt = $helper->formatDate($pageStreamRead->getCreated());
         $docs[$id]->modified_dt = $helper->formatDate($pageStreamRead->getModified());
 

@@ -163,6 +163,13 @@ easy_admin:
             templates:
                 list: '@cms/Admin/Page/list.html.twig'
             list:
+                filters:
+                    - property: 'template'
+                      label: 'Page template'
+                      type: 'RevisionTen\CMS\Form\Filter\TemplateFilterType'
+                    - 'published'
+                    - property: 'language'
+                      type: 'RevisionTen\CMS\Form\Filter\LanguageFilterType'
                 sort: ['modified', 'DESC']
                 actions:
                     - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'page_edit' }
