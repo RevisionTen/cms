@@ -77,6 +77,34 @@ class IndexService
         $output->writeln('');
     }
 
+    public function clear(OutputInterface $output): void
+    {
+        if (null === $this->solrConfig) {
+            // Do nothing if solr is not configured.
+            return;
+        }
+
+        $client = new Client($this->solrConfig);
+
+        $update = $client->createUpdate();
+        $update->addDeleteQuery('*:*');
+        $update->addCommit();
+
+        try {
+            $result = $client->update($update);
+        } catch (\Exception $exception) {
+            $this->logError($output, 'Index clear error', $exception->getMessage(), $exception->getCode());
+        }
+
+        if (isset($result) && $result && $result->getResponse()->getStatusCode() === 200) {
+            $output->writeln('<info>Cleared index!</info>');
+        } else {
+            $errorMessage = isset($result) ? $result->getResponse()->getStatusMessage() : 'No solr result';
+            $errorCode = isset($result) ? $result->getResponse()->getStatusCode() : 500;
+            $this->logError($output, 'Index clear error', $errorMessage, $errorCode);
+        }
+    }
+
     public function index(OutputInterface $output, string $uuid = null): void
     {
         if (null === $this->solrConfig) {

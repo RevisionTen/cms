@@ -99,6 +99,11 @@ services:
         autowire: true
         public: false
         tags: [console.command]
+    RevisionTen\CMS\Command\Console\SolrClearCommand:
+        autoconfigure: true
+        autowire: true
+        public: false
+        tags: [console.command]
     RevisionTen\CMS\Command\Console\TasksCommand:
         autoconfigure: true
         autowire: true
