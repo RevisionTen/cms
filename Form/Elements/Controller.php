@@ -37,6 +37,9 @@ class Controller extends Element
             'label' => 'Choose the controller action to render.',
             'required' => false,
             'choices' => $this->controller,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

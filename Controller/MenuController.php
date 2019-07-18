@@ -214,6 +214,9 @@ class MenuController extends AbstractController
             'placeholder' => 'Menu',
             'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
             'constraints' => new NotBlank(),
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $formBuilder->add('language', ChoiceType::class, [
@@ -221,6 +224,9 @@ class MenuController extends AbstractController
             'placeholder' => 'Language',
             'choices' => $config['page_languages'],
             'constraints' => new NotBlank(),
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $formBuilder->add('submit', SubmitType::class, [

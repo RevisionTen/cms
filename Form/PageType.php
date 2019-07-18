@@ -34,6 +34,9 @@ class PageType extends AbstractType
                 'multiple' => false,
                 'choices' => $options['page_websites'],
                 'constraints' => new NotBlank(),
+                'attr' => [
+                    'class' => 'custom-select',
+                ],
             ]);
         }
 
@@ -45,6 +48,9 @@ class PageType extends AbstractType
             ],
             'placeholder' => 'Language',
             'constraints' => new NotBlank(),
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $builder->add('template', ChoiceType::class, [
@@ -53,6 +59,7 @@ class PageType extends AbstractType
             'constraints' => new NotBlank(),
             'attr' => [
                 'data-condition' => true,
+                'class' => 'custom-select',
             ],
         ]);
 

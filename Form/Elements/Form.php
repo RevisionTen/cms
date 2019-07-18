@@ -39,6 +39,9 @@ class Form extends Element
         $builder->add('formUuid', ChoiceType::class, [
             'label' => 'Please choose the Form you want to show.',
             'choices' => $choices,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

@@ -120,10 +120,10 @@ easy_admin:
             form:
                 fields:
                     - 'path'
-                    - { property: 'language', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
+                    - { property: 'language', type: 'choice', type_options: { choices: '%cms.page_languages%', attr: { class: 'custom-select' } } }
                     - 'pageStreamRead'
                     - 'redirect'
-                    - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 } } }
+                    - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 }, attr: { class: 'custom-select' } } }
         Website:
             label: 'Websites'
             class: RevisionTen\CMS\Model\Website
@@ -147,7 +147,7 @@ easy_admin:
                 fields:
                     - { property: 'title', type: 'text' }
                     - { property: 'siteVerification', type: 'text', label: 'Google Site Verification Meta-Tag' }
-                    - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%' } }
+                    - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%', attr: { class: 'custom-select' } } }
                     - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
                     - { property: 'errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { multiple: true, class: 'RevisionTen\CMS\Model\PageStreamRead' } }
         PageStreamRead:

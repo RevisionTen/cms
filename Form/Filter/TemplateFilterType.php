@@ -36,6 +36,9 @@ class TemplateFilterType extends FilterType
     {
         $resolver->setDefaults([
             'choices' => $this->templates,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

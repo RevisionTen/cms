@@ -18,6 +18,9 @@ class PageMetaType extends AbstractType
         $builder->add('keywords', TextType::class, [
             'label' => 'Keywords',
             'required' => false,
+            'attr' => [
+                'placeholder' => 'keyword, keyword, ...',
+            ],
         ]);
     }
 }
