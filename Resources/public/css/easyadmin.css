@@ -72,6 +72,11 @@ fieldset.form-group > div {
 .select2-container {
     width: 100%!important;
 }
+.custom-select {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
 body.show .field-string .form-widget,
 body.show .field-boolean .form-widget,
 body.show .field-float .form-widget,
@@ -335,9 +340,6 @@ body.show .field-text .form-widget {
 }
 .btn-tertiary {
     color: var(--text-color);
-}
-#page-info .btn {
-    margin: 0 3px;
 }
 /* Modal */
 .modal {

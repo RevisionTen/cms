@@ -34,6 +34,9 @@ class Card extends Element
                     'Background' => 'background',
                     'Background fitted' => 'background-fitted',
                 ],
+                'attr' => [
+                    'class' => 'custom-select',
+                ],
             ])
             ->add('title', TextType::class, [
                 'label' => 'Title',

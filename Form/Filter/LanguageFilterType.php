@@ -29,6 +29,9 @@ class LanguageFilterType extends FilterType
     {
         $resolver->setDefaults([
             'choices' => $this->languages,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

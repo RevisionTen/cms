@@ -66,6 +66,9 @@ class DoctrineType extends AbstractType
             'multiple' => $options['multiple'],
             'label' => false,
             'choices' => $choices,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ];
 
         if ($options['placeholder']) {

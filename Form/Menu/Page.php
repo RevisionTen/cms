@@ -47,6 +47,9 @@ class Page extends Item
         $builder->add('alias', ChoiceType::class, [
             'label' => 'Alias',
             'choices' => $choices,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $builder->add('targetBlank', CheckboxType::class, [

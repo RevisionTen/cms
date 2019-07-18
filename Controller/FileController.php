@@ -119,6 +119,9 @@ class FileController extends AbstractController
             ],
             'placeholder' => 'Language',
             'constraints' => new NotBlank(),
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $builder->add('file', FileType::class, [
@@ -195,6 +198,9 @@ class FileController extends AbstractController
             ],
             'placeholder' => 'Language',
             'constraints' => new NotBlank(),
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $builder->add('file', FileType::class, [

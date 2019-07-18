@@ -44,6 +44,9 @@ class Column extends Element
             ],
             'placeholder' => $placeholder,
             'empty_data' => $empty_data,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

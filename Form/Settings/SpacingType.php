@@ -26,6 +26,9 @@ class SpacingType extends AbstractType
                 'xl' => 'xl',
             ],
             'placeholder' => 'Breakpoint',
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $this->spacingForm($builder, 'top', 'Top');
@@ -50,6 +53,9 @@ class SpacingType extends AbstractType
                 'Huge' => '6',
             ],
             'placeholder' => $label,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
     }
 

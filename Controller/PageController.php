@@ -1562,6 +1562,9 @@ class PageController extends AbstractController
                 'label' => 'Previous Version',
                 'required' => true,
                 'choices' => $versionChoices,
+                'attr' => [
+                    'class' => 'custom-select',
+                ],
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Rollback',

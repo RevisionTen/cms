@@ -32,6 +32,9 @@ class DepartmentType extends AbstractType
                 'MotorcycleDealer' => 'MotorcycleDealer',
                 'MotorcycleRepair' => 'MotorcycleRepair',
             ],
+            'attr' => [
+                'class' => 'custom-select',
+            ],
         ]);
 
         $builder->add('name', TextType::class, [
