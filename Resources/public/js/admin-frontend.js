@@ -268,6 +268,14 @@
         // Trigger event after element is initialized.
         $('body').trigger('bindElement', element.data('uuid'));
 
+        // Dispatch custom "bindElement" event for pages that do not use jQuery in the frontend.
+        var event = new CustomEvent('bindElement', {
+            detail: {
+                elementUuid: element.data('uuid')
+            }
+        });
+        document.dispatchEvent(event);
+
         if (bindChildren) {
             element.find('[data-uuid]').each(function() {
                 let subElement = $(this);
@@ -337,6 +345,15 @@
     $('body').on('refreshElement', function (event, elementUuid) {
         let elementSelector = `[data-uuid="${elementUuid}"]`;
         let element = $(elementSelector);
+
+        // Dispatch custom "refreshElement" event for pages that do not use jQuery in the frontend.
+        var event = new CustomEvent('refreshElement', {
+            detail: {
+                elementUuid: elementUuid
+            }
+        });
+        document.dispatchEvent(event);
+
         $('.loadedcontent').remove();
         $('body').append('<div style="display:none!important" class="hidden loadedcontent"></div>');
         $('.loadedcontent').load(window.location.href + ' ' + elementSelector, [], function (data) {
