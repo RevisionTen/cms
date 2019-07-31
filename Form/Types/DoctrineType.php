@@ -67,12 +67,18 @@ class DoctrineType extends AbstractType
             'label' => false,
             'choices' => $choices,
             'attr' => [
-                'class' => 'custom-select',
+                'class' => $options['multiple'] ? '' : 'custom-select',
             ],
         ];
 
         if ($options['placeholder']) {
             $choiceOptions['placeholder'] = $options['placeholder'];
+        }
+        if ($options['attr']) {
+            $choiceOptions['attr'] = $options['attr'];
+        }
+        if ($options['constraints']) {
+            $choiceOptions['constraints'] = $options['constraints'];
         }
 
         $builder->add('entityId', ChoiceType::class, $choiceOptions);

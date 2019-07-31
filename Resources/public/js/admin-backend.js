@@ -194,7 +194,9 @@ function updateElement(data)
 
 function bindWidgets(element) {
     // Enabled select2.
-    element.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2();
+    element.find('select[data-widget="select2"]:not(.select2-hidden-accessible)').select2({
+        theme: 'bootstrap'
+    });
     // Enable CKEditor.
     element.find('.ckeditor-custom').each(function () {
         let textArea = $(this)[0];

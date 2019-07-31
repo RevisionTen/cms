@@ -171,7 +171,7 @@ class PageController extends AbstractController
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
-            'validation_groups' => !$ignore_validation,
+            'validation_groups' => $ignore_validation ? false : null,
             'allow_extra_fields' => true,
         ]);
 
@@ -242,7 +242,7 @@ class PageController extends AbstractController
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
-            'validation_groups' => !$ignore_validation,
+            'validation_groups' => $ignore_validation ? false : null,
             'allow_extra_fields' => true,
         ]);
 
@@ -960,7 +960,7 @@ class PageController extends AbstractController
                 $ignore_validation = $request->get('ignore_validation');
                 $form = $this->createForm(ElementType::class, ['data' => $data], [
                     'elementConfig' => $elementConfig,
-                    'validation_groups' => !$ignore_validation,
+                    'validation_groups' => $ignore_validation ? false : null,
                 ]);
                 $form->handleRequest($request);
 
@@ -1052,7 +1052,7 @@ class PageController extends AbstractController
                     $ignore_validation = $request->get('ignore_validation');
                     $form = $this->createForm(ElementType::class, $data, [
                         'elementConfig' => $elementConfig,
-                        'validation_groups' => !$ignore_validation,
+                        'validation_groups' => $ignore_validation ? false : null,
                     ]);
                     $form->handleRequest($request);
 
