@@ -105,6 +105,19 @@
     {{ form_errors(form.entityClass) }}
 {%- endblock cms_doctrine_widget -%}
 
+{%- block cms_meta_row -%}
+    {{ form_widget(form) }}
+    {{ form_errors(form) }}
+{%- endblock cms_meta_row -%}
+
+{%- block cms_doctrine_row -%}
+    <div class="form-group">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+    </div>
+{%- endblock cms_doctrine_row -%}
+
 {% block cms_upload_widget %}
     {% set file = value.file ?? null %}
     {% if file and file is not iterable %}

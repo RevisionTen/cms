@@ -75,6 +75,7 @@ cms:
             action: 'RevisionTen\CMS\Controller\FrontendController::fulltextSearch'
 
     # Page configuration.
+    page_type: RevisionTen\CMS\Form\PageType
     page_metatype: RevisionTen\CMS\Form\PageMetaType
     page_languages:
         English: 'en'

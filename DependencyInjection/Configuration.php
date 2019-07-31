@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\DependencyInjection;
 
 use RevisionTen\CMS\Form\PageMetaType;
+use RevisionTen\CMS\Form\PageType;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -60,6 +61,10 @@ class Configuration implements ConfigurationInterface
                     ->info('CKEditor configuration')
                     ->normalizeKeys(false)
                     ->ignoreExtraKeys(false)
+                ->end()
+                ->scalarNode('page_type')
+                    ->info('The form type class for the page.')
+                    ->defaultValue(PageType::class)
                 ->end()
                 ->scalarNode('page_metatype')
                     ->info('The form type class for the page settings.')

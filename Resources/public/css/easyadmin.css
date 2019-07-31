@@ -46,6 +46,13 @@ a:hover {
     color: var(--color-primary-hover);
 }
 /* Forms */
+trix-toolbar .trix-button-group,
+trix-editor {
+    background: white;
+}
+fieldset > legend {
+    text-transform: none;
+}
 .form-group label,
 .form-group legend.col-form-label {
     flex-grow: 1;
@@ -88,6 +95,9 @@ div.form-control.is-invalid:not(.custom-select),
     height: auto;
 }
 /* Fix checkboxes in EasyAdmin compound forms */
+.form-group label, .form-group legend.col-form-label {
+    margin: 0;
+}
 .field-checkbox .form-widget,
 .form-group.field-collection-action {
     margin-left: auto;

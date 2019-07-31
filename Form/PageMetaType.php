@@ -23,4 +23,12 @@ class PageMetaType extends AbstractType
             ],
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'cms_meta';
+    }
 }
