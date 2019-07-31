@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.5] - 2019-07-31
+### Changed
+- DoctrineType improved
+- Form validation bugfixes
+
 ## [1.7.4] - 2019-07-26
 ### Changed
 - Trigger "CustomEvent" editor events in addition to the jQuery events

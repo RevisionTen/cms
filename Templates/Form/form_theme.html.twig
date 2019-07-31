@@ -98,6 +98,13 @@
     </div>
 {%- endblock cms_trix_widget -%}
 
+{%- block cms_doctrine_widget -%}
+    {{ form_widget(form.entityId) }}
+    {{ form_widget(form.entityClass) }}
+    {{ form_errors(form.entityId) }}
+    {{ form_errors(form.entityClass) }}
+{%- endblock cms_doctrine_widget -%}
+
 {% block cms_upload_widget %}
     {% set file = value.file ?? null %}
     {% if file and file is not iterable %}
