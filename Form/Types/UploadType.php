@@ -85,7 +85,6 @@ class UploadType extends AbstractType
             'label' => false,
             'required' => $options['required'],
             'attr' => $options['attr'],
-            'constraints' => $options['constraints'],
         ]);
 
         $builder->addModelTransformer(new FileTransformer());
@@ -189,6 +188,8 @@ class UploadType extends AbstractType
             'attr' => [],
             'upload_dir' => '/uploads/files/',
             'keep_deleted_file' => true,
+            // Do not validate this form type with the passed constraints, use them for the file field insead.
+            'validation_groups' => false,
             'constraints' => null,
         ]);
 
