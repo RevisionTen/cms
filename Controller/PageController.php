@@ -166,7 +166,9 @@ class PageController extends AbstractController
             $data = null;
         }
 
-        $form = $this->createForm(PageType::class, $data, [
+        $pageType = $config['page_type'] ?? PageType::class;
+
+        $form = $this->createForm($pageType, $data, [
             'page_websites' => $currentWebsite ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
@@ -237,7 +239,9 @@ class PageController extends AbstractController
             throw new AccessDeniedHttpException('Page does not exist on this website');
         }
 
-        $form = $this->createForm(PageType::class, $aggregateData, [
+        $pageType = $config['page_type'] ?? PageType::class;
+
+        $form = $this->createForm($pageType, $aggregateData, [
             'page_websites' => $currentWebsite && count($pageWebsites) === 1 ? false : $pageWebsites,
             'page_templates' => $config['page_templates'] ?? null,
             'page_languages' => $config['page_languages'] ?? null,
