@@ -7,7 +7,36 @@
 {% endblock %}
 
 {% block main %}
-    <pre class="small"><code class="small">{{ page|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+    <h5 data-toggle="collapse" data-target="#page-payload">
+        {{ 'Payload'|trans }}
+    </h5>
+    <div class="collapse" id="page-payload">
+        <pre class="small"><code class="small">{{ page|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+    </div>
+
+    <div>
+        {% for history in page.history %}
+            <div class="border-top mt-3 pt-3">
+                <div class="row" data-toggle="collapse" data-target="#collapse-{{ history.version }}">
+                    <div class="col">
+                        <h6>
+                            <span class="text-muted">v{{ history.version }}</span> {{ history.message|trans }}
+                        </h6>
+                    </div>
+                    <div class="col-auto text-right small">
+                        {% if history.user is defined and history.user is not null %}
+                            {% set value = history.user %}
+                            {% include '@cms/Admin/User/List/small.html.twig' %}<br/>
+                        {% endif %}
+                        {{ history.created|date }}
+                    </div>
+                </div>
+                <div class="collapse" id="collapse-{{ history.version }}">
+                    <pre class="small"><code class="small">{{ history.payload|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block content_footer_wrapper %}
