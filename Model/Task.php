@@ -62,6 +62,13 @@ class Task
     private $resultMessage;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default": 0})
+     */
+    private $deleted = false;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -201,6 +208,26 @@ class Task
     public function setResultMessage(?array $resultMessage): self
     {
         $this->resultMessage = null !== $resultMessage ? json_encode($resultMessage) : null;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param bool $deleted
+     *
+     * @return Task
+     */
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

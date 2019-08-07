@@ -260,6 +260,7 @@ easy_admin:
                     - { property: 'payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
                     - { property: 'resultMessage', template: '@cms/Admin/Event/Show/payload.html.twig' }
             list:
+                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 sort: ['id', 'DESC']
                 actions:
                     - { name: 'show', label: '', title: 'inspect payload', icon: 'eye' }

@@ -38,13 +38,13 @@ class RoleController extends AbstractController
     /**
      * @Route("/role/create", name="cms_role_create")
      *
-     * @param Request                $request
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     * @param TranslatorInterface    $translator
+     * @param \Symfony\Component\HttpFoundation\Request          $request
+     * @param \RevisionTen\CQRS\Services\CommandBus              $commandBus
+     * @param \RevisionTen\CQRS\Services\MessageBus              $messageBus
+     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
      *
-     * @return Response|RedirectResponse|JsonResponse
-     * @throws \Exception
+     * @return \Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \RevisionTen\CQRS\Exception\InterfaceException
      */
     public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, TranslatorInterface $translator)
     {
@@ -61,12 +61,10 @@ class RoleController extends AbstractController
 
             // Create the aggregate.
             $aggregateUuid = Uuid::uuid1()->toString();
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $commandBus->dispatch(new RoleCreateCommand($user->getId(), null, $aggregateUuid, 0, [
+            $success = $commandBus->execute(RoleCreateCommand::class, $aggregateUuid, [
                 'title' => $payload['title'],
                 'permissions' => $payload['permissions'],
-            ], $successCallback));
+            ], $user->getId());
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());
@@ -89,15 +87,16 @@ class RoleController extends AbstractController
     /**
      * @Route("/role/edit/{id}", name="cms_role_edit")
      *
-     * @param Request                $request
-     * @param EntityManagerInterface $entityManager
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     * @param AggregateFactory       $aggregateFactory
-     * @param TranslatorInterface    $translator
-     * @param int                    $id
+     * @param \Symfony\Component\HttpFoundation\Request          $request
+     * @param \Doctrine\ORM\EntityManagerInterface               $entityManager
+     * @param \RevisionTen\CQRS\Services\CommandBus              $commandBus
+     * @param \RevisionTen\CQRS\Services\MessageBus              $messageBus
+     * @param \RevisionTen\CQRS\Services\AggregateFactory        $aggregateFactory
+     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
+     * @param int                                                $id
      *
-     * @return Response|RedirectResponse|JsonResponse
+     * @return \Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \RevisionTen\CQRS\Exception\InterfaceException
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
@@ -124,12 +123,10 @@ class RoleController extends AbstractController
             $data = $form->getData();
 
             // Update the aggregate.
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $commandBus->dispatch(new RoleEditCommand($user->getId(), null, $roleAggregate->getUuid(), $roleAggregate->getVersion(), [
+            $success = $commandBus->execute(RoleEditCommand::class, $roleAggregate->getUuid(), [
                 'title' => $data['title'],
                 'permissions' => $data['permissions'],
-            ], $successCallback));
+            ], $user->getId());
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());
@@ -148,13 +145,19 @@ class RoleController extends AbstractController
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     private function redirectToRoles(): RedirectResponse
     {
         return $this->redirect('/admin/?entity=RoleRead&action=list');
     }
 
+    /**
+     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
+     * @param array                                              $defaultData
+     *
+     * @return \Symfony\Component\Form\FormInterface
+     */
     private function roleForm(TranslatorInterface $translator, array $defaultData): FormInterface
     {
         $formBuilder = $this->createFormBuilder($defaultData);

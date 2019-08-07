@@ -2,5 +2,5 @@
     <a data-target="ajax" class="btn btn-sm text-white" target="_top" href="{{ path('cms_shift_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid, direction: 'up'}) }}"><span class="fa fa-arrow-up"></span></a>
     <a data-target="ajax" class="btn btn-sm text-white" target="_top" href="{{ path('cms_shift_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid, direction: 'down'}) }}"><span class="fa fa-arrow-down"></span></a>
     <a data-target="ajax" class="btn btn-sm text-white" target="_top" href="{{ path('cms_delete_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fas fa-times"></span></a>
-    <a data-target="parent" class="btn btn-sm text-white" target="_top" href="{{ path('cms_edit_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fa fa-edit"></span></a>
+    <a data-target="modal" class="btn btn-sm text-white" target="_top" href="{{ path('cms_edit_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fa fa-edit"></span></a>
 {% endif %}

@@ -6,6 +6,8 @@ namespace RevisionTen\CMS\EventSubscriber;
 
 use RevisionTen\CMS\Services\IndexService;
 use RevisionTen\CMS\Services\PageService;
+use RevisionTen\CMS\Services\TaskService;
+use RevisionTen\CMS\SymfonyEvent\PageDeletedEvent;
 use RevisionTen\CMS\SymfonyEvent\PagePublishedEvent;
 use RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent;
 use Symfony\Component\Console\Output\NullOutput;
@@ -24,25 +26,41 @@ class PageSubscriber implements EventSubscriberInterface
     private $indexService;
 
     /**
+     * @var TaskService
+     */
+    private $taskService;
+
+    /**
      * PageSubscriber constructor.
      *
-     * @param PageService  $pageService
-     * @param IndexService $indexService
+     * @param \RevisionTen\CMS\Services\PageService  $pageService
+     * @param \RevisionTen\CMS\Services\IndexService $indexService
+     * @param \RevisionTen\CMS\Services\TaskService  $taskService
      */
-    public function __construct(PageService $pageService, IndexService $indexService)
+    public function __construct(PageService $pageService, IndexService $indexService, TaskService $taskService)
     {
         $this->pageService = $pageService;
         $this->indexService = $indexService;
+        $this->taskService = $taskService;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
             PagePublishedEvent::NAME => 'updateReadModels',
             PageUnpublishedEvent::NAME => 'deleteReadModels',
+            PageDeletedEvent::NAME => 'deleteTasks',
         ];
     }
 
+    /**
+     * @param \RevisionTen\CMS\SymfonyEvent\PagePublishedEvent $pagePublishedEvent
+     *
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function updateReadModels(PagePublishedEvent $pagePublishedEvent): void
     {
         $output = new NullOutput();
@@ -55,6 +73,11 @@ class PageSubscriber implements EventSubscriberInterface
         $this->indexService->index($output, $pageUuid);
     }
 
+    /**
+     * @param \RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent $pageUnpublishedEvent
+     *
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function deleteReadModels(PageUnpublishedEvent $pageUnpublishedEvent): void
     {
         $output = new NullOutput();
@@ -64,5 +87,15 @@ class PageSubscriber implements EventSubscriberInterface
         $this->pageService->deletePageRead($pageUuid);
         $this->pageService->updateAliases($pageUuid);
         $this->indexService->index($output, $pageUuid);
+    }
+
+    /**
+     * @param \RevisionTen\CMS\SymfonyEvent\PageDeletedEvent $pageDeletedEvent
+     */
+    public function deleteTasks(PageDeletedEvent $pageDeletedEvent): void
+    {
+        $pageUuid = $pageDeletedEvent->getPageUuid();
+
+        $this->taskService->markTasksAsDeleted($pageUuid);
     }
 }

@@ -239,15 +239,12 @@ class SecurityController extends AbstractController
 
                 // Check if user has an aggregate.
                 if (null !== $userUuid) {
-                    $onVersion = $user->getVersion();
-
                     $token = RandomHelpers::randomString();
 
                     // Dispatch password reset event.
-                    $userResetPasswordCommand = new UserResetPasswordCommand($userId, null, $userUuid, $onVersion, [
+                    $commandBus->execute(UserResetPasswordCommand::class, $userUuid, [
                         'token' => $token,
-                    ]);
-                    $commandBus->dispatch($userResetPasswordCommand);
+                    ], $userId);
                 }
             }
         }
@@ -330,14 +327,10 @@ class SecurityController extends AbstractController
 
                 // Check if token matches and user has an aggregate.
                 if ($userToken === $resetToken && null !== $userUuid) {
-                    $onVersion = $user->getVersion();
-
                     // Dispatch password reset event.
-                    $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-                    $userChangePasswordCommand = new UserChangePasswordCommand($userId, null, $userUuid, $onVersion, [
+                    $success = $commandBus->execute(UserChangePasswordCommand::class, $userUuid, [
                         'password' => $encodedPassword,
-                    ], $successCallback);
-                    $commandBus->dispatch($userChangePasswordCommand);
+                    ], $userId);
                 }
             }
         }

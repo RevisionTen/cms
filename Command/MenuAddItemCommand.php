@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class MenuAddItemCommand extends Command implements CommandInterface
 {
+    public const HANDLER = MenuAddItemHandler::class;
+    public const AGGREGATE = Menu::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return MenuAddItemHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class MenuAddItemCommand extends Command implements CommandInterface
      */
     public function getAggregateClass(): string
     {
-        return Menu::class;
+        return self::AGGREGATE;
     }
 }
