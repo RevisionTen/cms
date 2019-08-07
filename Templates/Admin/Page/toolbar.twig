@@ -43,7 +43,7 @@
                         <span class="fas fa-clock"></span> <span class="label-text">{{ 'Schedule'|trans }}</span>
                     </button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item {{ actions.schedule.css_class }}" {{ actions.schedule.attributes is defined ? helper.attributes(actions.schedule.attributes) : '' }} title="{{ actions.schedule.label }}" {{ actions.schedule.type == 'form' ? 'data-target=parent' : 'data-target='~actions.schedule.type~'' }} target="_top" href="{{ actions.schedule.url }}">
+                        <a class="dropdown-item {{ actions.schedule.css_class }}" {{ actions.schedule.attributes is defined ? helper.attributes(actions.schedule.attributes) : '' }} title="{{ actions.schedule.label }}" {{ actions.schedule.type == 'form' ? 'data-target=modal' : 'data-target='~actions.schedule.type~'' }} target="_top" href="{{ actions.schedule.url }}">
                             <span class="{{ actions.schedule.icon }}"></span> <span class="label-text">&nbsp;{{ actions.schedule.label }}</span>
                         </a>
                         {% for scheduleUuid, scheduleEntry in schedule %}
@@ -103,7 +103,7 @@
                     ] %}
                     {% for action in buttonActions %}
                         {% if action.display %}
-                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm {{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm {{ action.css_class }}" {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
                                 <span class="{{ action.icon }}"></span> <span class="label-text">{{ action.label }}</span>
                             </a>
                         {% endif %}
@@ -123,7 +123,7 @@
                         <div class="dropdown-menu">
                             {% for action in historyActions %}
                                 {% if action.display %}
-                                    <a class="dropdown-item text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                    <a class="dropdown-item text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
                                         <span class="{{ action.icon }}"></span> {{ action.label }}
                                     </a>
                                 {% endif %}
@@ -145,7 +145,12 @@
 
                     {% for action in buttonActions %}
                         {% if action and action.display %}
-                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }} title="{{ action.label }}" class="btn-label-fade btn btn-sm {{ action.css_class }}" {{ action.type == 'form' ? 'data-target=parent' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }}
+                                title="{{ action.label }}"
+                                class="btn-label-fade btn btn-sm {{ action.css_class }}"
+                                {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }}
+                                target="_top" href="{{ action.url }}"
+                            >
                                 <span class="{{ action.icon }}"></span> <span class="label-text">&nbsp;{{ action.label }}</span>
                             </a>
                         {% endif %}

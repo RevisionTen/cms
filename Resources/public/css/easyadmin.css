@@ -266,23 +266,23 @@ body.show .field-text .form-widget {
     flex-direction: column;
     flex-wrap: nowrap;
 }
-.edit-page > .wrapper > .content-wrapper > .content {
+.page-tabs-tab-editor > .content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
 }
-.edit-page > .wrapper > .content-wrapper > .content > .content-header {
+.page-tabs-tab-editor > .content > .content-header {
     flex-grow: 0;
 }
-.edit-page > .wrapper > .content-wrapper > .content > .content-body {
+.page-tabs-tab-editor > .content > .content-body {
     flex-grow: 1;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     background: var(--color-light-silver);
 }
-.edit-page > .wrapper > .content-wrapper > .content > .content-body > iframe {
+.page-tabs-tab-editor > .content > .content-body > iframe {
     height: auto;
     flex-grow: 0;
     margin: 40px auto;
@@ -292,6 +292,24 @@ body.show .field-text .form-widget {
     box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-sizing: content-box;
+}
+.page-tabs,
+.page-tabs-tab {
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+.page-tabs-tab {
+    display: none;
+}
+.page-tabs-tab.active {
+    display: flex;
+}
+.page-tabs-tab-settings > .content {
+    width: 100%;
 }
 #page-frame.size-xl,
 #page-frame.size-AutoWidth {

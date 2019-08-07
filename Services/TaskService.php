@@ -59,10 +59,24 @@ class TaskService
         $this->em->flush();
     }
 
-    public function removeTask(string $uuid): void
+    public function markTasksAsDeleted(string $aggregateUuid): void
     {
         /** @var Task[] $tasks */
-        $tasks = $this->em->getRepository(Task::class)->findBy(['uuid' => $uuid]);
+        $tasks = $this->em->getRepository(Task::class)->findBy(['aggregateUuid' => $aggregateUuid]);
+
+        foreach ($tasks as $task) {
+            $task->setDeleted(true);
+            $this->em->persist($task);
+        }
+
+        $this->em->flush();
+        $this->em->clear();
+    }
+
+    public function removeTask(string $taskUuid): void
+    {
+        /** @var Task[] $tasks */
+        $tasks = $this->em->getRepository(Task::class)->findBy(['uuid' => $taskUuid]);
 
         foreach ($tasks as $task) {
             $this->em->remove($task);
@@ -80,6 +94,12 @@ class TaskService
         $tasks = $this->em->getRepository(Task::class)->findAllDue($due);
 
         foreach ($tasks as $task) {
+            // Skip deleted tasks.
+            $isDeleted = $task->getDeleted();
+            if ($isDeleted) {
+                continue;
+            }
+
             $commandClass = $task->getCommand();
             $aggregateUuid = $task->getAggregateUuid();
             $payload = $task->getPayload();

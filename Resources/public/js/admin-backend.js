@@ -1,24 +1,33 @@
-// Submit a form via ajax.
-$.fn.postAjax = function(callback) {
-    let frm = this;
-    frm.submit(function (e) {
+function updateCKEditorInstances() {
+    // Update CKEditor Textarea Element.
+    for(let i in CKEDITOR.instances) {
+        CKEDITOR.instances[i].updateElement();
+    }
+}
+
+/**
+ * Submit a form via ajax.
+ *
+ * @param {function} preSubmitCallback
+ * @param {function} preSubmitCallback
+ * @param {function} postSubmitCallback
+ */
+function onSubmit(form, preSubmitCallback, postSubmitCallback) {
+    form.submit(function (e) {
         e.preventDefault();
 
-        // Update CKEditor Textarea Element.
-        for(let i in CKEDITOR.instances) {
-            CKEDITOR.instances[i].updateElement();
-        }
+        preSubmitCallback();
 
         let formData = new FormData(this);
         $.ajax({
-            type: frm.attr('method'),
-            url: frm.attr('action'),
+            type: form.attr('method'),
+            url: form.attr('action'),
             data: formData,
-            success: function (data) {
-                callback(data, 'success');
+            success: (data) => {
+                postSubmitCallback(data, true);
             },
-            error: function (data) {
-                callback(data, 'error');
+            error: (data) => {
+                postSubmitCallback(data, false);
             },
             cache: false,
             contentType: false,
@@ -31,16 +40,24 @@ window.pageData = {};
 
 function bindLinks()
 {
-    $('[data-target=parent]').on('click', function (event) {
+    let body = $('body');
+
+    $('[data-target=modal], [data-target=parent]').on('click', function (event) {
         event.preventDefault();
-        let linkSrc = $(this).attr('href');
-        parent.$('body').trigger('openModal', linkSrc);
+        body.trigger('openModal', $(this).attr('href'));
     });
 
     $('[data-target=ajax]').on('click', function (event) {
         event.preventDefault();
-        $('body').trigger('openAjax', $(this).attr('href'));
+        body.trigger('openAjax', $(this).attr('href'));
     });
+
+    $('[data-target=tab]').on('click', function (event) {
+        event.preventDefault();
+        body.trigger('openTab', $(this).attr('href'));
+    });
+
+    // Toogle view modes.
 
     $('.toggle-tree').on('click', function (event) {
         event.preventDefault();
@@ -60,6 +77,8 @@ function bindLinks()
         $('#page-frame')[0].contentWindow.$('body').toggleClass('editor-dark');
     });
 }
+
+
 
 function bindTree() {
 
@@ -231,18 +250,15 @@ function bindWidgets(element) {
     });
 }
 
-function bindForm(formSelector, linkSrc = false) {
+function bindForm(formSelector, formReloadCallback = false) {
     let form = $(formSelector).first();
     if (form.length > 0) {
+
         bindWidgets(form);
 
         form.find('[data-condition]').on('change', function (event) {
-            // Reload the form with new template.
 
-            // Update CKEditor Textarea Element.
-            for(let i in CKEDITOR.instances) {
-                CKEDITOR.instances[i].updateElement();
-            }
+            updateCKEditorInstances();
 
             let formData = new FormData(form[0]);
             formData.set('ignore_validation', 1);
@@ -255,8 +271,8 @@ function bindForm(formSelector, linkSrc = false) {
                     let newForm = $(html).find(formSelector);
                     if (newForm.length > 0) {
                         form.replaceWith(newForm);
-                        if (linkSrc) {
-                            bindModal(linkSrc);
+                        if (formReloadCallback) {
+                            formReloadCallback();
                         } else {
                             bindForm(formSelector);
                         }
@@ -274,26 +290,32 @@ function bindForm(formSelector, linkSrc = false) {
 }
 
 function bindModal(linkSrc) {
-    let editorModal = $('#editor-modal');
-    let modalBody = editorModal.find('.modal-body');
-    let form = modalBody.find('form').first();
-    let formName = form.attr('name');
+    let modalElement = $('#editor-modal');
 
-    // Default: Get first form in content.
+    // Remove content wrapper css class.
+    modalElement.find('.content-wrapper').removeClass('content-wrapper');
+
+    // Get first form in content.
+    let form = modalElement.find('form').first();
+    let formName = form.attr('name');
     let formSelector = '#main form';
     if (formName) {
         // This modals form has a name, always get forms with this name.
         formSelector = 'form[name="'+formName+'"]';
     }
 
-    // Remove content wrapper css class.
-    modalBody.find('.content-wrapper').removeClass('content-wrapper');
     // Set the action on the form.
     form.attr('action', linkSrc);
-    // Ajaxify the form.
-    form.postAjax(function(data, type) {
-        if ('success' === type && data.success) {
-            editorModal.modal('hide');
+
+    // Bind widgets and conditional form fields.
+    bindForm(formSelector, function () {
+        bindModal(linkSrc);
+    });
+
+    // Add an ajax submit handler to the form.
+    onSubmit(form, updateCKEditorInstances, function(data, success) {
+        if (success && data.success) {
+            modalElement.modal('hide');
             updateElement(data);
         } else {
             let html = $.parseHTML(data, document, true);
@@ -305,16 +327,59 @@ function bindModal(linkSrc) {
             }
         }
     });
-    // Copy the page title.
-    let pageTitle = modalBody.find('.content-header .title').html();
-    $('#editor-modal-title').html(pageTitle);
-    // Remove the original title from modal body.
-    modalBody.find('.content-header').remove();
-    // Show the modal.
-    editorModal.modal('show');
 
-    // Bind form.
-    bindForm(formSelector, linkSrc);
+    // Get the original title and set it as the modal title.
+    $('#editor-modal-title').html(modalElement.find('.content-header .title').html());
+    modalElement.find('.content-header').remove();
+
+    // Show the modal.
+    modalElement.modal('show');
+}
+
+function bindTab(linkSrc) {
+    let pageEditorTab = $('.page-tabs-tab-editor');
+    let pageSettingsTab = $('.page-tabs-tab-settings');
+
+    // Get first form in content.
+    let form = pageSettingsTab.find('form').first();
+    let formSelector = form.attr('name') ? '#main form' : 'form[name="'+form.attr('name')+'"]';
+
+    // Set the action on the form.
+    form.attr('action', linkSrc);
+
+    // Bind widgets and conditional form fields.
+    bindForm(formSelector, function () {
+        bindTab(linkSrc);
+    });
+
+    // Add an ajax submit handler to the form.
+    onSubmit(form, updateCKEditorInstances, function(data, success) {
+        if (success && data.success) {
+            pageSettingsTab.removeClass('active');
+            pageEditorTab.addClass('active');
+            updateElement(data);
+        } else {
+            let html = $.parseHTML(data, document, true);
+            // Get first form from standalone form page.
+            let newForm = $(html).find(formSelector).first();
+            if (newForm.length > 0) {
+                form.replaceWith(newForm);
+                bindTab(linkSrc);
+            }
+        }
+    });
+
+    // Add close button.
+    pageSettingsTab.find('.content-header .global-actions').append('<button class="btn btn-sm btn-close-tab"><span class="fa fa-times"></span></button>');
+    pageSettingsTab.find('.btn-close-tab').click(() => {
+        pageSettingsTab.html('');
+        pageSettingsTab.removeClass('active');
+        pageEditorTab.addClass('active');
+    });
+
+    // Show the tab.
+    pageEditorTab.removeClass('active');
+    pageSettingsTab.addClass('active');
 }
 
 $(document).ready(function () {
@@ -328,6 +393,7 @@ $(document).ready(function () {
         bindWidgets(body);
     }
 
+    // Initialize widgets after they have been added to collections.
     $(document).on('easyadmin.collection.item-added', function (event) {
         bindWidgets(body);
     });
@@ -406,14 +472,40 @@ $(document).ready(function () {
         });
     });
 
+    // Event that open the page settings tab with dynamic content.
+    body.on('openTab', function (event, linkSrc) {
+        linkSrc = linkSrc + '?ajax=1';
+        let pageSettingsTab = $('.page-tabs-tab-settings');
+        $.ajax({
+            type: 'GET',
+            url: linkSrc,
+            success: function (data) {
+                let html = $.parseHTML(data, document, true);
+                let newPageSettingsTabContent = $(html).find('.content-wrapper .content');
+                if (newPageSettingsTabContent.length > 0) {
+                    pageSettingsTab.html('');
+                    newPageSettingsTabContent.appendTo(pageSettingsTab);
+                    bindTab(linkSrc);
+                }
+            },
+            error: function (data) {
+                // Failed.
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+
     // Fix mobile preview iframe size.
     body.on('iframeReady', function () {
-        if (!$('#page-frame').hasClass('size-AutoWidth')) {
-            let contentWidth = $('#page-frame')[0].contentWindow.$('body').innerWidth();
-            let iframeWidth = $('#page-frame').width();
+        let pageFrame = $('#page-frame');
+        if (!pageFrame.hasClass('size-AutoWidth')) {
+            let contentWidth = pageFrame[0].contentWindow.$('body').innerWidth();
+            let iframeWidth = pageFrame.width();
             let scrollbarWidth = iframeWidth - contentWidth;
             if (scrollbarWidth > 0) {
-                $('#page-frame').width(iframeWidth + scrollbarWidth);
+                pageFrame.width(iframeWidth + scrollbarWidth);
             }
         }
     });

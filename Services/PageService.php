@@ -77,7 +77,7 @@ class PageService
         });
 
         foreach ($elements as &$element) {
-            if (isset($element['elements']) && \is_array($element['elements'])) {
+            if (isset($element['elements']) && is_array($element['elements'])) {
                 $element['elements'] = $this->removeDisabled($element['elements']);
             }
         }
@@ -94,7 +94,7 @@ class PageService
      */
     public function filterPayload(array $payload): array
     {
-        if (isset($payload['elements']) && \is_array($payload['elements'])) {
+        if (isset($payload['elements']) && is_array($payload['elements'])) {
             $payload['elements'] = $this->removeDisabled($payload['elements']);
         }
 
@@ -112,7 +112,7 @@ class PageService
     public function updateAliases(string $pageUuid): void
     {
         /** @var PageStreamRead $pageStreamRead */
-        $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
+        $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null !== $pageStreamRead) {
             $aliases = $pageStreamRead->getAliases();
@@ -124,7 +124,9 @@ class PageService
                     $alias->setEnabled($enabled);
                     // Update language and website of the alias.
                     $alias->setLanguage($pageStreamRead->getLanguage());
-                    $alias->setWebsite($this->em->getReference(Website::class, $pageStreamRead->getWebsite()));
+                    /** @var Website $websiteReference */
+                    $websiteReference = $this->em->getReference(Website::class, $pageStreamRead->getWebsite());
+                    $alias->setWebsite($websiteReference);
 
                     $this->em->persist($alias);
                 }
@@ -139,8 +141,6 @@ class PageService
      *
      * @param string $pageUuid
      * @param int    $version
-     *
-     * @throws \Doctrine\ORM\ORMException
      */
     public function updatePageRead(string $pageUuid, int $version): void
     {
@@ -153,7 +153,7 @@ class PageService
 
         // Aggregate exists and version matches, persist read model.
         if ($aggregate->getVersion() === $version) {
-            $pageRead = $this->em->getRepository(PageRead::class)->findOneByUuid($pageUuid) ?? new PageRead();
+            $pageRead = $this->em->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]) ?? new PageRead();
             $pageRead->setVersion($version);
             $pageRead->setUuid($pageUuid);
             $pageRead->setWebsite($aggregate->website);
@@ -180,7 +180,7 @@ class PageService
     {
         // Remove read model.
         /** @var PageRead $pageRead */
-        $pageRead = $this->em->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        $pageRead = $this->em->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if ($pageRead) {
             $version = $pageRead->getVersion();
@@ -195,40 +195,40 @@ class PageService
     }
 
     /**
-     * Persists qeued events for a specific user and page to the event stream.
+     * Persists queued events for a specific user and page to the event stream.
      *
      * @param string $pageUuid
      * @param int    $user
-     * @param int    $maxVersion the max version for qeued events
+     * @param int    $maxVersion the max version for queued events
      */
     public function submitPage(string $pageUuid, int $user, int $maxVersion): void
     {
         /**
-         * Find the qeued events for this user and page.
+         * Find the queued events for this user and page.
          *
          * @var EventQeueObject[] $eventQeueObjects
          */
-        $eventQeueObjects = $this->eventStore->findEventObjects(EventQeueObject::class, $pageUuid, $maxVersion, null, $user);
+        $eventQueueObjects = $this->eventStore->findEventObjects(EventQeueObject::class, $pageUuid, $maxVersion, null, $user);
 
         /**
-         * Publish the qeued events.
+         * Publish the queued events.
          */
-        $this->eventBus->publishQeued($eventQeueObjects);
+        $this->eventBus->publishQeued($eventQueueObjects);
     }
 
     /**
-     * Removes all qeued events of all users for this page.
+     * Removes all queued events of all users for this page.
      *
      * @param string $pageUuid
      */
-    private function removeQeuedEvents(string $pageUuid): void
+    private function removeQueuedEvents(string $pageUuid): void
     {
         /** @var UserRead[] $users */
         $users = $this->em->getRepository(UserRead::class)->findAll();
 
-        // Remove all other qeued Events for this Page.
-        foreach ($users as $qeueUser) {
-            $this->eventStore->discardQeued($pageUuid, $qeueUser->getId());
+        // Remove all other queued Events for this Page.
+        foreach ($users as $queueUser) {
+            $this->eventStore->discardQeued($pageUuid, $queueUser->getId());
         }
     }
 
@@ -245,7 +245,7 @@ class PageService
         $aggregate = $this->aggregateFactory->build($pageUuid, Page::class);
 
         // Build PageStreamRead entity from Aggregate.
-        $pageStream = $this->em->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid) ?? new PageStreamRead();
+        $pageStream = $this->em->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]) ?? new PageStreamRead();
         $pageStream->setVersion($aggregate->getStreamVersion());
         $pageStream->setUuid($pageUuid);
         $pageData = json_decode(json_encode($aggregate), true);
@@ -269,8 +269,8 @@ class PageService
         $this->em->persist($pageStream);
         $this->em->flush();
 
-        // Remove old no longer valid qeued events.
-        $this->removeQeuedEvents($pageUuid);
+        // Remove old no longer valid queued events.
+        $this->removeQueuedEvents($pageUuid);
     }
 
     public function hydratePage(array $pageData): array
@@ -295,7 +295,7 @@ class PageService
             // Get doctrine entities.
             foreach ($groups as $class => $ids) {
                 $class = str_replace('\\\\', '\\', $class);
-                $entities = $this->em->getRepository($class)->findById($ids);
+                $entities = $this->em->getRepository($class)->findBy(['id' => $ids]);
                 foreach ($entities as $entity) {
                     $groups[$class][$entity->getId()] = $entity;
                 }

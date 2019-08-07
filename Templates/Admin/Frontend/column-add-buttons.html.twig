@@ -5,7 +5,7 @@
                 <a class="btn btn-sm text-info" target="_top" href="{{ path('cms_create_element', {elementName: 'Row', pageUuid: page.uuid, onVersion: page.version, parent: element.uuid}) }}"><span class="{{ config.page_elements.Row.icon }}"></span> {{ 'Row'|trans }}</a>
                 {% for name, elementConfig in config.page_elements %}
                     {% if elementConfig.public is defined and elementConfig.public %}
-                        <a data-target="parent" class="btn btn-sm text-info" target="_top" href="{{ path('cms_create_element', {elementName: name, pageUuid: page.uuid, onVersion: page.version, parent: element.uuid}) }}"><span class="{{ elementConfig.icon is defined ? elementConfig.icon : 'fa fa-plus' }}"></span> {{ name|trans }}</a>
+                        <a data-target="modal" class="btn btn-sm text-info" target="_top" href="{{ path('cms_create_element', {elementName: name, pageUuid: page.uuid, onVersion: page.version, parent: element.uuid}) }}"><span class="{{ elementConfig.icon is defined ? elementConfig.icon : 'fa fa-plus' }}"></span> {{ name|trans }}</a>
                     {% endif %}
                 {% endfor %}
             </div>

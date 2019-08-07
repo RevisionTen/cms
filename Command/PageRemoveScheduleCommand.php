@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class PageRemoveScheduleCommand extends Command implements CommandInterface
 {
+    public const HANDLER = PageRemoveScheduleHandler::class;
+    public const AGGREGATE = Page::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return PageRemoveScheduleHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class PageRemoveScheduleCommand extends Command implements CommandInterfac
      */
     public function getAggregateClass(): string
     {
-        return Page::class;
+        return self::AGGREGATE;
     }
 }

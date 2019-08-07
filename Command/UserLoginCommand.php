@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class UserLoginCommand extends Command implements CommandInterface
 {
+    public const HANDLER = UserLoginHandler::class;
+    public const AGGREGATE = UserAggregate::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return UserLoginHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class UserLoginCommand extends Command implements CommandInterface
      */
     public function getAggregateClass(): string
     {
-        return UserAggregate::class;
+        return self::AGGREGATE;
     }
 }
