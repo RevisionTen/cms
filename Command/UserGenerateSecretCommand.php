@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class UserGenerateSecretCommand extends Command implements CommandInterface
 {
+    public const HANDLER = UserGenerateSecretHandler::class;
+    public const AGGREGATE = UserAggregate::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return UserGenerateSecretHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class UserGenerateSecretCommand extends Command implements CommandInterfac
      */
     public function getAggregateClass(): string
     {
-        return UserAggregate::class;
+        return self::AGGREGATE;
     }
 }

@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class PageDuplicateElementCommand extends Command implements CommandInterface
 {
+    public const HANDLER = PageDuplicateElementHandler::class;
+    public const AGGREGATE = Page::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return PageDuplicateElementHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class PageDuplicateElementCommand extends Command implements CommandInterf
      */
     public function getAggregateClass(): string
     {
-        return Page::class;
+        return self::AGGREGATE;
     }
 }

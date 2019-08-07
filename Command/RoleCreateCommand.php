@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class RoleCreateCommand extends Command implements CommandInterface
 {
+    public const HANDLER = RoleCreateHandler::class;
+    public const AGGREGATE = Role::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return RoleCreateHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class RoleCreateCommand extends Command implements CommandInterface
      */
     public function getAggregateClass(): string
     {
-        return Role::class;
+        return self::AGGREGATE;
     }
 }

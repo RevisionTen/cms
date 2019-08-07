@@ -6,7 +6,7 @@
             </div>
             <div class="col-auto">
                 <a class="btn btn-sm text-white" target="_top" href="{{ path('cms_delete_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fas fa-times"></span></a>
-                <a data-target="parent" class="btn btn-sm text-white" target="_top" href="{{ path('cms_edit_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fa fa-edit"></span></a>
+                <a data-target="modal" class="btn btn-sm text-white" target="_top" href="{{ path('cms_edit_element', {pageUuid: page.uuid, onVersion: page.version, elementUuid: element.uuid}) }}"><span class="fa fa-edit"></span></a>
             </div>
         </div>
     </div>

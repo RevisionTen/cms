@@ -127,7 +127,7 @@ class ApiController extends AbstractController
                 'label' => $translator->trans('Change Page Settings'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canChangePagesettings,
-                'type' => 'form',
+                'type' => 'tab',
             ],
             'publish' => $this->isGranted('page_publish') ? [
                 'css_class' => 'btn-success',

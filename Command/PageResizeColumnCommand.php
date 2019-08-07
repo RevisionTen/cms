@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class PageResizeColumnCommand extends Command implements CommandInterface
 {
+    public const HANDLER = PageResizeColumnHandler::class;
+    public const AGGREGATE = Page::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return PageResizeColumnHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class PageResizeColumnCommand extends Command implements CommandInterface
      */
     public function getAggregateClass(): string
     {
-        return Page::class;
+        return self::AGGREGATE;
     }
 }

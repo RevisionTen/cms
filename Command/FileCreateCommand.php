@@ -11,12 +11,15 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 
 final class FileCreateCommand extends Command implements CommandInterface
 {
+    public const HANDLER = FileCreateHandler::class;
+    public const AGGREGATE = File::class;
+
     /**
      * {@inheritdoc}
      */
     public function getHandlerClass(): string
     {
-        return FileCreateHandler::class;
+        return self::HANDLER;
     }
 
     /**
@@ -24,6 +27,6 @@ final class FileCreateCommand extends Command implements CommandInterface
      */
     public function getAggregateClass(): string
     {
-        return File::class;
+        return self::AGGREGATE;
     }
 }

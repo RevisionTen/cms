@@ -269,7 +269,7 @@
         $('body').trigger('bindElement', element.data('uuid'));
 
         // Dispatch custom "bindElement" event for pages that do not use jQuery in the frontend.
-        var event = new CustomEvent('bindElement', {
+        let event = new CustomEvent('bindElement', {
             detail: {
                 elementUuid: element.data('uuid')
             }

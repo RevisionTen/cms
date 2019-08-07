@@ -130,14 +130,12 @@ class UserController extends AbstractController
             $data = $form->getData();
 
             // Update the aggregate.
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $commandBus->dispatch(new UserEditCommand($user->getId(), null, $userAggregate->getUuid(), $userAggregate->getVersion(), [
+            $success = $commandBus->execute(UserEditCommand::class, $userAggregate->getUuid(), [
                 'color' => $data['color'],
                 'avatarUrl' => $data['avatarUrl'],
                 'websites' => array_values($data['websites']),
                 'roles' => array_values($data['roles']),
-            ], $successCallback));
+            ], $user->getId());
 
             if (!$success) {
                 return new JsonResponse($messageBus->getMessagesJson());

@@ -8,6 +8,16 @@
 
 {% block body_class %}edit-page{% endblock %}
 
+{% block content %}
+    <div class="page-tabs">
+        <div class="page-tabs-tab page-tabs-tab-editor active">
+            {{ parent() }}
+        </div>
+        <div class="page-tabs-tab page-tabs-tab-settings">
+        </div>
+    </div>
+{% endblock %}
+
 {% block main %}
     <input type="hidden" id="pageUuid" value="{{ pageStreamRead.uuid }}">
     <input type="hidden" id="userId" value="{{ user.id }}">
