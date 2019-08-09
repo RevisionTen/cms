@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Command;
 
 use RevisionTen\CMS\Handler\FileUpdateHandler;
-use RevisionTen\CMS\Handler\MenuCreateHandler;
 use RevisionTen\CMS\Model\File;
-use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CQRS\Command\Command;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 

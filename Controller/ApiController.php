@@ -78,20 +78,21 @@ class ApiController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
-        $canSubmitChanges = $page->getVersion() !== $page->getStreamVersion();
+        $canSubmitChanges = $this->isGranted('page_submit_changes') && ($page->getVersion() !== $page->getStreamVersion());
         $canToggleContrast = !$previewUser;
         $canToggleTree = !$previewUser;
         $canPreview = !$previewUser;
         $canChangePagesettings = !$previewUser;
         $canRollbackAggregate = !$previewUser;
         $canOptimize = !$previewUser && $page->shouldTakeSnapshot();
-        $canPublish = (!$previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() > $publishedPage->getVersion() + 1);
-        $canUnpublish = !$canSubmitChanges && !$previewUser && null !== $publishedPage && $page->published && ($page->getVersion() === $publishedPage->getVersion() + 1 || $page->getVersion() === $publishedPage->getVersion());
+        $canPublish = $this->isGranted('page_publish') && ((!$previewUser && $page->getVersion() === $page->getStreamVersion()) && (null === $publishedPage || null === $publishedPage->getVersion() || $page->getVersion() > $publishedPage->getVersion() + 1));
+        $canUnpublish = $this->isGranted('page_unpublish') && (!$canSubmitChanges && !$previewUser && null !== $publishedPage && $page->published && ($page->getVersion() === $publishedPage->getVersion() + 1 || $page->getVersion() === $publishedPage->getVersion()));
         $canUndoChange = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
         $canDiscardChanges = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
-        $canCloneAggregate = !$previewUser && !$pageStreamRead->getDeleted();
-        $canDeleteAggregate = !$previewUser && !$pageStreamRead->getDeleted();
-        $canSchedule = $canPublish || $canUnpublish;
+        $canCloneAggregate = $this->isGranted('page_clone') && (!$previewUser && !$pageStreamRead->getDeleted());
+        $canDeleteAggregate = $this->isGranted('page_delete') && (!$previewUser && !$pageStreamRead->getDeleted());
+        $canSchedule = $this->isGranted('page_schedule') && ($canPublish || $canUnpublish);
+        $canInspect = $this->isGranted('page_inspect');
 
         $actions = [
             'toggle_contrast' => [
@@ -129,30 +130,30 @@ class ApiController extends AbstractController
                 'display' => $canChangePagesettings,
                 'type' => 'tab',
             ],
-            'publish' => $this->isGranted('page_publish') ? [
+            'publish' => [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('Publish'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
                 'display' => $canPublish,
                 'type' => 'ajax',
-            ] : null,
-            'unpublish' => $this->isGranted('page_unpublish') ? [
+            ],
+            'unpublish' => [
                 'css_class' => 'btn-danger',
                 'icon' => 'fas fa-eye-slash',
                 'label' => $translator->trans('Unpublish'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
                 'display' => $canUnpublish,
                 'type' => 'ajax',
-            ] : null,
-            'schedule' => $this->isGranted('page_schedule') ? [
+            ],
+            'schedule' => [
                 'css_class' => '',
                 'icon' => 'fas fa-clock',
                 'label' => $translator->trans('Schedule'),
                 'url' => $this->generateUrl('cms_schedule_page', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canSchedule,
                 'type' => 'form',
-            ] : null,
+            ],
             'optimize' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-sync',
@@ -161,14 +162,14 @@ class ApiController extends AbstractController
                 'display' => $canOptimize,
                 'type' => 'ajax',
             ],
-            'inspect' => $this->isGranted('page_inspect') ? [
+            'inspect' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-microscope',
                 'label' => $translator->trans('Inspect'),
                 'url' => $this->generateUrl('cms_inspect_page', ['pageUuid' => $pageUuid]),
-                'display' => true,
+                'display' => $canInspect,
                 'type' => 'form',
-            ] : null,
+            ],
             'undo_change' => [
                 'css_class' => '',
                 'icon' => 'fas fa-undo',
@@ -177,14 +178,14 @@ class ApiController extends AbstractController
                 'display' => $canUndoChange,
                 'type' => 'link',
             ],
-            'submit_changes' => $this->isGranted('page_submit_changes') ? [
+            'submit_changes' => [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('Submit changes'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
                 'display' => $canSubmitChanges,
                 'type' => 'form',
-            ] : null,
+            ],
             'rollback_aggregate' => [
                 'css_class' => '',
                 'icon' => 'fas fa-history',
@@ -201,7 +202,7 @@ class ApiController extends AbstractController
                 'display' => $canDiscardChanges,
                 'type' => 'link',
             ],
-            'clone_aggregate' => $this->isGranted('page_clone') ? [
+            'clone_aggregate' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-clone',
                 'label' => $translator->trans('Clone page'),
@@ -211,8 +212,8 @@ class ApiController extends AbstractController
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
                     'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
                 ] : [],
-            ] : null,
-            'delete_aggregate' => $this->isGranted('page_delete') ? [
+            ],
+            'delete_aggregate' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-trash',
                 'label' => $translator->trans('Delete page'),
@@ -222,7 +223,7 @@ class ApiController extends AbstractController
                 'attributes' => [
                     'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
                 ],
-            ] : null,
+            ],
         ];
 
         $state = $pageStreamRead->getState();
