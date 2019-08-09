@@ -6,11 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2019-08-09
 ### Removed
-- Removed `RevisionTen\CMS\SymfonyEvent\PagePublishedEvent`, use `RevisionTen\CMS\Event\PagePublishEvent` instead
-- Removed `RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent`, use `RevisionTen\CMS\Event\PageUnpublishEvent` instead
-- Removed `RevisionTen\CMS\SymfonyEvent\PageDeletedEvent`, use `RevisionTen\CMS\Event\PageDeleteEvent` instead
+- **Removed `RevisionTen\CMS\SymfonyEvent\PagePublishedEvent`**, use `RevisionTen\CMS\Event\PagePublishEvent` instead
+- **Removed `RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent`**, use `RevisionTen\CMS\Event\PageUnpublishEvent` instead
+- **Removed `RevisionTen\CMS\SymfonyEvent\PageDeletedEvent`**, use `RevisionTen\CMS\Event\PageDeleteEvent` instead
 ### Changed
-- Upgraded CQRS classes
+- Upgraded CQRS classes **Update your classes if they implement the CQRS interfaces**
 
 ## [1.7.10] - 2019-08-07
 ### Changed
