@@ -20,15 +20,15 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $elementName = $payload['elementName'];
         $data = $payload['data'];
 
         // Build element data.
         $newElement = [
-            'uuid' => $command->getUuid(),
+            'uuid' => $event->getCommandUuid(),
             'elementName' => $elementName,
             'data' => $data,
         ];
@@ -58,17 +58,15 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageAddElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageAddElementEvent($command);
+        return new PageAddElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

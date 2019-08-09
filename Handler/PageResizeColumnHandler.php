@@ -20,9 +20,9 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
         $size = (int) $payload['size'];
         $breakpoint = $payload['breakpoint'];
@@ -41,17 +41,15 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageResizeColumnCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageResizeColumnEvent($command);
+        return new PageResizeColumnEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

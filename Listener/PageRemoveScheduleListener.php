@@ -6,10 +6,9 @@ namespace RevisionTen\CMS\Listener;
 
 use RevisionTen\CMS\Services\TaskService;
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class PageRemoveScheduleListener implements ListenerInterface
+class PageRemoveScheduleListener
 {
     /** @var TaskService */
     protected $taskService;

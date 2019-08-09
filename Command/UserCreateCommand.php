@@ -17,7 +17,7 @@ final class UserCreateCommand extends Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
-    public function getHandlerClass(): string
+    public static function getHandlerClass(): string
     {
         return self::HANDLER;
     }
@@ -25,7 +25,7 @@ final class UserCreateCommand extends Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
-    public function getAggregateClass(): string
+    public static function getAggregateClass(): string
     {
         return self::AGGREGATE;
     }

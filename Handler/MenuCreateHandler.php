@@ -20,9 +20,9 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
@@ -40,17 +40,15 @@ final class MenuCreateHandler extends MenuBaseHandler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuCreateCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuCreateEvent($command);
+        return new MenuCreateEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

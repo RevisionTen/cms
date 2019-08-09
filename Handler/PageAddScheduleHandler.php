@@ -21,11 +21,11 @@ final class PageAddScheduleHandler extends Handler implements HandlerInterface
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
-        $scheduleUuid = $command->getUuid();
+        $scheduleUuid = $event->getCommandUuid();
         $startDate = $payload['startDate'] ?? null;
         $endDate = $payload['endDate'] ?? null;
 
@@ -45,17 +45,15 @@ final class PageAddScheduleHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageAddScheduleCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageAddScheduleEvent($command);
+        return new PageAddScheduleEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

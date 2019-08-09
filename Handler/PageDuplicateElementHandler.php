@@ -41,11 +41,11 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
-        $commandUuid = $command->getUuid();
+        $commandUuid = $event->getCommandUuid();
         $uuid = $payload['uuid'];
 
         // A function that duplicates all matching elements.
@@ -83,17 +83,15 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageDuplicateElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageDuplicateElementEvent($command);
+        return new PageDuplicateElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

@@ -20,9 +20,9 @@ final class PageEditElementHandler extends PageBaseHandler implements HandlerInt
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Add to elements.
         $data = $payload['data'];
@@ -42,17 +42,15 @@ final class PageEditElementHandler extends PageBaseHandler implements HandlerInt
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageEditElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageEditElementEvent($command);
+        return new PageEditElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

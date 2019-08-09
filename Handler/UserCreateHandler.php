@@ -21,9 +21,9 @@ final class UserCreateHandler extends Handler implements HandlerInterface
      *
      * @var UserAggregate $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $aggregate->username = $payload['username'];
         $aggregate->email = $payload['email'];
@@ -40,17 +40,15 @@ final class UserCreateHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return UserCreateCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserCreateEvent($command);
+        return new UserCreateEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

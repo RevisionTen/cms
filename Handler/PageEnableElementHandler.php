@@ -20,9 +20,9 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
 
         // A function that enables the element.
@@ -39,17 +39,15 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageEnableElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageEnableElementEvent($command);
+        return new PageEnableElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

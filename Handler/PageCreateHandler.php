@@ -20,9 +20,9 @@ final class PageCreateHandler extends PageBaseHandler implements HandlerInterfac
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
@@ -43,17 +43,15 @@ final class PageCreateHandler extends PageBaseHandler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageCreateCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageCreateEvent($command);
+        return new PageCreateEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

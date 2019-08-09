@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\RoleEditCommand;
-use RevisionTen\CMS\Listener\RoleEditListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\RoleEditHandler;
+use RevisionTen\CMS\Model\Role;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class RoleEditEvent extends Event implements EventInterface
+final class RoleEditEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return RoleEditCommand::class;
+        return Role::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return RoleEditListener::class;
+        return RoleEditHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class RoleEditEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Role edited';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

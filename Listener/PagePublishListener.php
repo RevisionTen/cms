@@ -6,10 +6,9 @@ namespace RevisionTen\CMS\Listener;
 
 use RevisionTen\CMS\SymfonyEvent\PagePublishedEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class PagePublishListener extends PageBaseListener implements ListenerInterface
+class PagePublishListener extends PageBaseListener
 {
     /**
      * {@inheritdoc}

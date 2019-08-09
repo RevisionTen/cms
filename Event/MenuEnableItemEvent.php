@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\MenuEnableItemCommand;
-use RevisionTen\CMS\Listener\MenuEnableItemListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\MenuEnableItemHandler;
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class MenuEnableItemEvent extends Event implements EventInterface
+final class MenuEnableItemEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return MenuEnableItemCommand::class;
+        return Menu::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return MenuEnableItemListener::class;
+        return MenuEnableItemHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class MenuEnableItemEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Menu item enabled';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

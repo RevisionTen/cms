@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageDuplicateElementCommand;
-use RevisionTen\CMS\Listener\PageDuplicateElementListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageDuplicateElementHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageDuplicateElementEvent extends Event implements EventInterface
+final class PageDuplicateElementEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageDuplicateElementCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageDuplicateElementListener::class;
+        return PageDuplicateElementHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageDuplicateElementEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Element duplicated';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

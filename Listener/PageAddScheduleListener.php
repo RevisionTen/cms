@@ -8,10 +8,9 @@ use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Services\TaskService;
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class PageAddScheduleListener implements ListenerInterface
+class PageAddScheduleListener
 {
     /** @var TaskService */
     protected $taskService;

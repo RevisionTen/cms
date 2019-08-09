@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\MenuEditCommand;
-use RevisionTen\CMS\Listener\MenuEditListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\MenuEditHandler;
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class MenuEditEvent extends Event implements EventInterface
+final class MenuEditEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return MenuEditCommand::class;
+        return Menu::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return MenuEditListener::class;
+        return MenuEditHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class MenuEditEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Menu edited';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

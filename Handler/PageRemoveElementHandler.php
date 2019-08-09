@@ -20,9 +20,9 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
      *
      * @param Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $uuid = $payload['uuid'];
 
@@ -54,17 +54,15 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageRemoveElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageRemoveElementEvent($command);
+        return new PageRemoveElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

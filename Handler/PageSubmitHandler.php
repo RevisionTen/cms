@@ -18,7 +18,7 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
         /** @var Page $aggregate */
         $aggregate->state = Page::STATE_STAGED;
@@ -29,17 +29,15 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageSubmitCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageSubmitEvent($command);
+        return new PageSubmitEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

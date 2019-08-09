@@ -7,10 +7,9 @@ namespace RevisionTen\CMS\Listener;
 use RevisionTen\CMS\SymfonyEvent\PageDeletedEvent;
 use RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class PageDeleteListener extends PageBaseListener implements ListenerInterface
+class PageDeleteListener extends PageBaseListener
 {
     /**
      * {@inheritdoc}

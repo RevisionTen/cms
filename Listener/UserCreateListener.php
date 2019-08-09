@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Listener;
 
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class UserCreateListener extends UserBaseListener implements ListenerInterface
+class UserCreateListener extends UserBaseListener
 {
     /**
      * {@inheritdoc}

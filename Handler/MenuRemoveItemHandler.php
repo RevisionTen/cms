@@ -20,9 +20,9 @@ final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInte
      *
      * @param Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $uuid = $payload['uuid'];
 
@@ -52,17 +52,15 @@ final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInte
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuRemoveItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuRemoveItemEvent($command);
+        return new MenuRemoveItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

@@ -20,9 +20,9 @@ final class UserLoginHandler extends Handler implements HandlerInterface
      *
      * @var UserAggregate $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $device = $payload['device'];
         $ip = $payload['ip'];
@@ -43,17 +43,15 @@ final class UserLoginHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return UserLoginCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserLoginEvent($command);
+        return new UserLoginEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

@@ -20,9 +20,9 @@ final class MenuEnableItemHandler extends MenuBaseHandler implements HandlerInte
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
 
         // A function that enables the item.
@@ -37,17 +37,15 @@ final class MenuEnableItemHandler extends MenuBaseHandler implements HandlerInte
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuEnableItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuEnableItemEvent($command);
+        return new MenuEnableItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

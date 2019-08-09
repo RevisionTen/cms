@@ -21,9 +21,9 @@ final class UserGenerateSecretHandler extends Handler implements HandlerInterfac
      *
      * @var UserAggregate $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $aggregate->secret = $payload['secret'];
 
@@ -33,17 +33,15 @@ final class UserGenerateSecretHandler extends Handler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return UserGenerateSecretCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserGenerateSecretEvent($command);
+        return new UserGenerateSecretEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

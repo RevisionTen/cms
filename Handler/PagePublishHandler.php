@@ -20,7 +20,7 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
         $aggregate->published = true;
         $aggregate->state = Page::STATE_PUBLISHED;
@@ -31,17 +31,15 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PagePublishCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PagePublishEvent($command);
+        return new PagePublishEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

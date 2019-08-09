@@ -20,7 +20,7 @@ final class UserLogoutHandler extends Handler implements HandlerInterface
      *
      * @var UserAggregate $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
         return $aggregate;
     }
@@ -28,17 +28,15 @@ final class UserLogoutHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return UserLogoutCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new UserLogoutEvent($command);
+        return new UserLogoutEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

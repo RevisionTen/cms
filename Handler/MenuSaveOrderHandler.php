@@ -20,9 +20,9 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $order = $payload['order'];
 
         // Get flattened menu.
@@ -100,17 +100,15 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuSaveOrderCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuSaveOrderEvent($command);
+        return new MenuSaveOrderEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

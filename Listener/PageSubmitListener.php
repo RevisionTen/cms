@@ -6,10 +6,9 @@ namespace RevisionTen\CMS\Listener;
 
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CQRS\Interfaces\EventInterface;
-use RevisionTen\CQRS\Interfaces\ListenerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 
-class PageSubmitListener implements ListenerInterface
+class PageSubmitListener
 {
     /** @var PageService */
     protected $pageService;

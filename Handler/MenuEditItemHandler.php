@@ -20,9 +20,9 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Add to items.
         $data = $payload['data'];
@@ -40,17 +40,15 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuEditItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuEditItemEvent($command);
+        return new MenuEditItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

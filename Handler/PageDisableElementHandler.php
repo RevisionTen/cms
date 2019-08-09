@@ -20,9 +20,9 @@ final class PageDisableElementHandler extends PageBaseHandler implements Handler
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
 
         // A function that disables the element.
@@ -39,17 +39,15 @@ final class PageDisableElementHandler extends PageBaseHandler implements Handler
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageDisableElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageDisableElementEvent($command);
+        return new PageDisableElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

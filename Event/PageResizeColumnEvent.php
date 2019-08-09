@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageResizeColumnCommand;
-use RevisionTen\CMS\Listener\PageResizeColumnListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageResizeColumnHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageResizeColumnEvent extends Event implements EventInterface
+final class PageResizeColumnEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageResizeColumnCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageResizeColumnListener::class;
+        return PageResizeColumnHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageResizeColumnEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Column element resized';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

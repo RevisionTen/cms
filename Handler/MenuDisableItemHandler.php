@@ -20,9 +20,9 @@ final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInt
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
 
         // A function that disables the item.
@@ -37,17 +37,15 @@ final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInt
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuDisableItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuDisableItemEvent($command);
+        return new MenuDisableItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

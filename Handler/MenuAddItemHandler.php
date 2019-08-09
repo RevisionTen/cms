@@ -20,15 +20,15 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $itemName = $payload['itemName'];
         $data = $payload['data'];
 
         // Build item data.
         $newItem = [
-            'uuid' => $command->getUuid(),
+            'uuid' => $event->getCommandUuid(),
             'itemName' => $itemName,
             'data' => $data,
             'enabled' => true,
@@ -57,17 +57,15 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuAddItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuAddItemEvent($command);
+        return new MenuAddItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

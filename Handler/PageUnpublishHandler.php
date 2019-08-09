@@ -19,7 +19,7 @@ final class PageUnpublishHandler extends PageBaseHandler implements HandlerInter
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
         $aggregate->published = false;
         $aggregate->state = Page::STATE_UNPUBLISHED;
@@ -45,17 +45,15 @@ final class PageUnpublishHandler extends PageBaseHandler implements HandlerInter
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageUnpublishCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageUnpublishEvent($command);
+        return new PageUnpublishEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

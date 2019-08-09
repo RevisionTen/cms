@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageCreateCommand;
-use RevisionTen\CMS\Listener\PageCreateListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageCreateHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageCreateEvent extends Event implements EventInterface
+final class PageCreateEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageCreateCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageCreateListener::class;
+        return PageCreateHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageCreateEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page Created';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_CREATED;
     }
 }

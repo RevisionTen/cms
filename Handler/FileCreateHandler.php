@@ -21,9 +21,9 @@ final class FileCreateHandler extends Handler implements HandlerInterface
      *
      * @var File $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
@@ -41,17 +41,15 @@ final class FileCreateHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return FileCreateCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new FileCreateEvent($command);
+        return new FileCreateEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

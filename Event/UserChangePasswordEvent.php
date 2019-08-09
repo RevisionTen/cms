@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\UserChangePasswordCommand;
-use RevisionTen\CMS\Listener\UserChangePasswordListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\UserChangePasswordHandler;
+use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class UserChangePasswordEvent extends Event implements EventInterface
+final class UserChangePasswordEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return UserChangePasswordCommand::class;
+        return UserAggregate::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return UserChangePasswordListener::class;
+        return UserChangePasswordHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class UserChangePasswordEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'User password changed';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

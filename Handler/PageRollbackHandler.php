@@ -21,10 +21,10 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
      * @var Page $aggregate
      * @throws \Exception
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
-        $user = $command->getUser();
+        $payload = $event->getPayload();
+        $user = $event->getUser();
 
         $previousVersion = $payload['previousVersion'];
 
@@ -51,17 +51,15 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageRollbackCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageRollbackEvent($command);
+        return new PageRollbackEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

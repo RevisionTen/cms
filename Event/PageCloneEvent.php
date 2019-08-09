@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageCloneCommand;
-use RevisionTen\CMS\Listener\PageCloneListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageCloneHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageCloneEvent extends Event implements EventInterface
+final class PageCloneEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageCloneCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageCloneListener::class;
+        return PageCloneHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageCloneEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page Cloned';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_CREATED;
     }
 }
