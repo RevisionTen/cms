@@ -52,18 +52,19 @@ class MenuController extends AbstractController
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
      *
-     * @param CommandBus  $commandBus
-     * @param string      $commandClass
-     * @param array       $data
-     * @param string      $aggregateUuid
-     * @param int         $onVersion
-     * @param bool        $qeue
-     * @param string|null $commandUuid
-     * @param int|null    $userId
+     * @param \RevisionTen\CQRS\Services\CommandBus $commandBus
+     * @param string                                $commandClass
+     * @param array                                 $data
+     * @param string                                $aggregateUuid
+     * @param int                                   $onVersion
+     * @param bool                                  $queue
+     * @param string|NULL                           $commandUuid
+     * @param int|NULL                              $userId
      *
      * @return bool
+     * @throws \Exception
      */
-    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
             /** @var UserRead $user */
@@ -71,14 +72,9 @@ class MenuController extends AbstractController
             $userId = $user->getId();
         }
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
 
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
-
-        $commandBus->dispatch($command, $qeue);
-
-        return $success;
+        return $commandBus->dispatch($command, $queue);
     }
 
     /**
@@ -251,11 +247,13 @@ class MenuController extends AbstractController
             $aggregateUuid = Uuid::uuid1()->toString();
 
             // Execute Command.
-            $success = false;
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, static function ($commandBus, $event) use (&$success) {
-                // Callback.
-                $success = true;
-            }));
+            $success = $commandBus->dispatch(new MenuCreateCommand(
+                $user->getId(),
+                null,
+                $aggregateUuid,
+                0,
+                $payload
+            ));
 
             return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
         }

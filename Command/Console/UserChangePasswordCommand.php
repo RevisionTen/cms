@@ -131,10 +131,13 @@ class UserChangePasswordCommand extends Command
         $payload = [
             'password' => $encodedPassword,
         ];
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-        $userChangePasswordCommand = new \RevisionTen\CMS\Command\UserChangePasswordCommand(-1, null, $userUuid, $onVersion, $payload, $successCallback);
-        $this->commandBus->dispatch($userChangePasswordCommand);
+        $success = $this->commandBus->dispatch(new \RevisionTen\CMS\Command\UserChangePasswordCommand(
+            -1,
+            null,
+            $userUuid,
+            $onVersion,
+            $payload
+        ));
 
         if ($success) {
             // Return info about the user.

@@ -74,14 +74,9 @@ class InstallRolesCommand extends Command
 
     private function runCommand(string $commandClass, string $aggregateUuid, int $onVersion, array $payload): bool
     {
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload);
 
-        $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload, $successCallback);
-
-        $this->commandBus->dispatch($command);
-
-        return $success;
+        return $this->commandBus->dispatch($command);
     }
 
     /**
@@ -103,7 +98,6 @@ class InstallRolesCommand extends Command
             $this->entityManager->flush();
             $this->entityManager->clear();
         }
-
 
         $helper = $this->getHelper('question');
 

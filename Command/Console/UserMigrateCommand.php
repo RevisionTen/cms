@@ -111,10 +111,13 @@ class UserMigrateCommand extends Command
             'color' => $user->getColor(),
             'migrated' => true,
         ];
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
-        $this->commandBus->dispatch($userCreateCommand);
+        $success = $this->commandBus->dispatch(new \RevisionTen\CMS\Command\UserCreateCommand(
+            -1,
+            null,
+            $userUuid,
+            0,
+            $payload
+        ));
 
         if ($success) {
             // Return info about the new user.

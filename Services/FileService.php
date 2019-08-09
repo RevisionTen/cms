@@ -73,26 +73,22 @@ class FileService
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
-     * @param bool        $qeue
+     * @param bool        $queue
      * @param string|null $commandUuid
      * @param int|null    $userId
      *
      * @return bool
+     * @throws \Exception
      */
-    public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
             $userId = $this->user->getId();
         }
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
 
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
-
-        $this->commandBus->dispatch($command, $qeue);
-
-        return $success;
+        return $this->commandBus->dispatch($command, $queue);
     }
 
     public function saveUploadedFile(UploadedFile $file, string $upload_dir, string $filename): string

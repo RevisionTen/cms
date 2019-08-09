@@ -137,12 +137,16 @@ class MenuMigrateCommand extends Command
             $language = $languages[$languageAnswer];
 
             // Update the aggregate.
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $this->commandBus->dispatch(new MenuEditCommand(-1, null, $menu->getUuid(), $menu->getVersion(), [
-                'website' => (int) $website,
-                'language' => (string) $language,
-            ], $successCallback));
+            $success = $this->commandBus->dispatch(new MenuEditCommand(
+                -1,
+                null,
+                $menu->getUuid(),
+                $menu->getVersion(),
+                [
+                    'website' => (int) $website,
+                    'language' => (string) $language,
+                ]
+            ));
 
             if ($success) {
                 // Return info about the user.

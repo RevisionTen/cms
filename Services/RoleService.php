@@ -40,6 +40,8 @@ class RoleService
      * Update the RoleRead entity.
      *
      * @param string $roleUuid
+     *
+     * @throws \Exception
      */
     public function updateRoleRead(string $roleUuid): void
     {

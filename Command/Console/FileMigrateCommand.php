@@ -134,12 +134,16 @@ class FileMigrateCommand extends Command
 
         foreach ($files as $file) {
             // Update the aggregate.
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $this->commandBus->dispatch(new FileUpdateCommand(-1, null, $file->getUuid(), $file->getVersion(), [
-                'website' => (int) $website,
-                'language' => (string) $language,
-            ], $successCallback));
+            $success = $this->commandBus->dispatch(new FileUpdateCommand(
+                -1,
+                null,
+                $file->getUuid(),
+                $file->getVersion(),
+                [
+                    'website' => (int) $website,
+                    'language' => (string) $language,
+                ]
+            ));
 
             if ($success) {
                 // Return info about the user.

@@ -88,16 +88,17 @@ class PageController extends AbstractController
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
      *
-     * @param CommandBus  $commandBus
-     * @param string      $commandClass
-     * @param array       $data
-     * @param string      $aggregateUuid
-     * @param int         $onVersion
-     * @param boolean     $queue
-     * @param string|null $commandUuid
-     * @param int|null    $userId
+     * @param \RevisionTen\CQRS\Services\CommandBus $commandBus
+     * @param string                                $commandClass
+     * @param array                                 $data
+     * @param string                                $aggregateUuid
+     * @param int                                   $onVersion
+     * @param bool                                  $queue
+     * @param string|NULL                           $commandUuid
+     * @param int|NULL                              $userId
      *
      * @return bool
+     * @throws \Exception
      */
     public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
