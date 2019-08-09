@@ -93,13 +93,13 @@ class PageController extends AbstractController
      * @param array       $data
      * @param string      $aggregateUuid
      * @param int         $onVersion
-     * @param boolean     $qeue
+     * @param boolean     $queue
      * @param string|null $commandUuid
      * @param int|null    $userId
      *
      * @return bool
      */
-    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
             /** @var UserRead $user */
@@ -107,14 +107,9 @@ class PageController extends AbstractController
             $userId = $user->getId();
         }
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
 
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
-
-        $commandBus->dispatch($command, $qeue);
-
-        return $success;
+        return $commandBus->dispatch($command, $queue);
     }
 
     /**

@@ -190,31 +190,15 @@ services:
         tags: [form.type]
     RevisionTen\CMS\EventSubscriber\:
         resource: '../../EventSubscriber/*'
-        exclude: '../../EventSubscriber/{AliasSubscriber.php}'
+        exclude: '../../EventSubscriber/{AliasSubscriber.php,UserSubscriber.php}'
         autowire: true
         autoconfigure: true
+    RevisionTen\CMS\EventSubscriber\UserSubscriber:
+        autowire: true
+        autoconfigure: true
+        arguments:
+            $config: '%cms%'
     RevisionTen\CMS\EventSubscriber\AliasSubscriber:
         autowire: true
         tags:
             - { name: doctrine.event_subscriber, connection: default }
-    # Listeners must be public!
-    RevisionTen\CMS\Listener\:
-        public: true
-        resource: '../../Listener/*'
-        exclude: '../../Listener/{PageBaseListener.php,UserCreateListener.php,UserGenerateSecretListener.php,UserResetPasswordListener.php}'
-        autowire: true
-    RevisionTen\CMS\Listener\UserCreateListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserGenerateSecretListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Listener\UserResetPasswordListener:
-        public: true
-        autowire: true
-        arguments:
-            $config: '%cms%'
