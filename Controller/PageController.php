@@ -610,7 +610,7 @@ class PageController extends AbstractController
         /** @var UserRead $user */
         $user = $this->getUser();
 
-        $eventStore->discardQeued($pageUuid, $user->getId());
+        $eventStore->discardQueued($pageUuid, $user->getId());
 
         return $this->redirectToPage($pageUuid);
     }
@@ -634,7 +634,7 @@ class PageController extends AbstractController
         /** @var UserRead $user */
         $user = $this->getUser();
 
-        $eventStore->discardLatestQeued($pageUuid, $user->getId(), $version);
+        $eventStore->discardLatestQueued($pageUuid, $user->getId(), $version);
 
         return $this->redirectToPage($pageUuid);
     }
@@ -1304,7 +1304,7 @@ class PageController extends AbstractController
         $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
-            $eventStreamObjects = $eventStore->findQeued($pageUuid, null, $page->getStreamVersion() + 1, $adminUser->getId());
+            $eventStreamObjects = $eventStore->findQueued($pageUuid, $adminUser->getId(), null, $page->getStreamVersion() + 1);
             if ($eventStreamObjects) {
                 $users[$adminUser->getId()] = [
                     'events' => $eventStreamObjects,
@@ -1512,8 +1512,8 @@ class PageController extends AbstractController
         $pageUuid = $pageStreamRead->getUuid();
         $version = $pageStreamRead->getVersion();
 
-        // Discard this users qeued changes before attempting to delete the aggregate.
-        $eventStore->discardQeued($pageUuid, $user->getId());
+        // Discard this users queued changes before attempting to delete the aggregate.
+        $eventStore->discardQueued($pageUuid, $user->getId());
 
         $success = $this->runCommand($commandBus, PageDeleteCommand::class, [], $pageUuid, $version);
 

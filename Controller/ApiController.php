@@ -256,7 +256,7 @@ class ApiController extends AbstractController
                     continue;
                 }
 
-                $eventStreamObjects = $eventStore->findQeued($pageStreamRead->getUuid(), null, $pageStreamRead->getVersion() + 1, $adminUser->getId());
+                $eventStreamObjects = $eventStore->findQueued($pageStreamRead->getUuid(), $adminUser->getId(), null, $pageStreamRead->getVersion() + 1);
                 if ($eventStreamObjects) {
                     $users[$adminUser->getId()] = [
                         'events' => $eventStreamObjects,
