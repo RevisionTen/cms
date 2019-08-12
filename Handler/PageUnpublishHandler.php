@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Event\PageUnpublishEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;

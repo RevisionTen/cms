@@ -4,17 +4,30 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageRollbackCommand;
 use RevisionTen\CMS\Event\PageRollbackEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Services\AggregateFactory;
 
 final class PageRollbackHandler extends PageBaseHandler implements HandlerInterface
 {
+    /** @var AggregateFactory */
+    private $aggregateFactory;
+
+    /**
+     * PageCloneHandler constructor.
+     *
+     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     */
+    public function __construct(AggregateFactory $aggregateFactory)
+    {
+        $this->aggregateFactory = $aggregateFactory;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -69,21 +82,24 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
     {
         $payload = $command->getPayload();
 
-        if (
-            isset($payload['previousVersion']) &&
-            !empty($payload['previousVersion']) &&
-            0 !== $aggregate->getVersion()
-        ) {
-            return true;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (0 === $aggregate->getVersion()) {
+            throw new CommandValidationException(
+                'You cannot rollback an aggregate with no version',
+                CODE_BAD_REQUEST,
+                NULL,
+                $command
+            );
+        }
+
+        if (empty($payload['previousVersion'])) {
+            throw new CommandValidationException(
                 'You must provide a previous version',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

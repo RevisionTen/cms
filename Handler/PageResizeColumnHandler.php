@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageResizeColumnCommand;
 use RevisionTen\CMS\Event\PageResizeColumnEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class PageResizeColumnHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -67,34 +66,32 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
 
         // Check if breakpoint and size are valid.
         if ($size < 1 || $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Size or breakpoint is invalid',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (null === $uuid) {
-            $this->messageBus->dispatch(new Message(
+        if (null === $uuid) {
+            throw new CommandValidationException(
                 'No column uuid to resize is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!$element) {
-            $this->messageBus->dispatch(new Message(
+        if (!$element) {
+            throw new CommandValidationException(
                 'Column with this uuid was not found'.$uuid,
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

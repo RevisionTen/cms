@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageRemoveScheduleCommand;
 use RevisionTen\CMS\Event\PageRemoveScheduleEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class PageRemoveScheduleHandler extends Handler implements HandlerInterface
+final class PageRemoveScheduleHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -59,14 +57,12 @@ final class PageRemoveScheduleHandler extends Handler implements HandlerInterfac
         $payload = $command->getPayload();
 
         if (empty($payload['scheduleUuid'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'You must chose a schedule to remove',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
 
         return true;

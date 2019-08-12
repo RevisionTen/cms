@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Model\Menu;
-use RevisionTen\CQRS\Handler\Handler;
 
-abstract class MenuBaseHandler extends Handler
+abstract class MenuBaseHandler
 {
     /**
      * Checks of the provided item matches or its child items.

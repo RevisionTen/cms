@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Model\Page;
-use RevisionTen\CQRS\Handler\Handler;
 
-abstract class PageBaseHandler extends Handler
+abstract class PageBaseHandler
 {
     /**
      * Checks of the provided element matches or its child elements.

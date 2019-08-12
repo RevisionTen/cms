@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserEditCommand;
 use RevisionTen\CMS\Event\UserEditEvent;
 use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class UserEditHandler extends Handler implements HandlerInterface
+final class UserEditHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -64,14 +62,12 @@ final class UserEditHandler extends Handler implements HandlerInterface
         $payload = $command->getPayload();
 
         if (empty($payload)) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Nothing to update',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
 
         return true;

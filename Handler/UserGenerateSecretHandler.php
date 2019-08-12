@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserGenerateSecretCommand;
 use RevisionTen\CMS\Event\UserGenerateSecretEvent;
 use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class UserGenerateSecretHandler extends Handler implements HandlerInterface
+final class UserGenerateSecretHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
@@ -52,14 +50,12 @@ final class UserGenerateSecretHandler extends Handler implements HandlerInterfac
         $payload = $command->getPayload();
 
         if (!isset($payload['secret'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Missing secret',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
 
         return true;

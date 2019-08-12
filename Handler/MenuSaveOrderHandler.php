@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuSaveOrderCommand;
 use RevisionTen\CMS\Event\MenuSaveOrderEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -123,16 +122,14 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
         $order = $payload['order'] ?? null;
 
         if (null === $order) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No order to save is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

@@ -4,17 +4,30 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageCloneCommand;
 use RevisionTen\CMS\Event\PageCloneEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Services\AggregateFactory;
 
 final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
 {
+    /** @var AggregateFactory */
+    private $aggregateFactory;
+
+    /**
+     * PageCloneHandler constructor.
+     *
+     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     */
+    public function __construct(AggregateFactory $aggregateFactory)
+    {
+        $this->aggregateFactory = $aggregateFactory;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -76,32 +89,24 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (
-            !empty($payload['originalUuid']) &&
-            !empty($payload['originalVersion']) &&
-            0 === $aggregate->getVersion()
-        ) {
-            return true;
-        }
-
         if (0 !== $aggregate->getVersion()) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Aggregate already exists',
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['originalUuid']) || empty($payload['originalVersion'])) {
+            throw new CommandValidationException(
                 'You must provide an original uuid and version',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

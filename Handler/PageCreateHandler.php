@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageCreateCommand;
 use RevisionTen\CMS\Event\PageCreateEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class PageCreateHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -61,27 +60,24 @@ final class PageCreateHandler extends PageBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (isset($payload['title']) && !empty($payload['title']) && 0 === $aggregate->getVersion()) {
-            return true;
-        }
         if (0 !== $aggregate->getVersion()) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Aggregate already exists',
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['title'])) {
+            throw new CommandValidationException(
                 'You must enter a title',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

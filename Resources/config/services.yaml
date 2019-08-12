@@ -1,29 +1,5 @@
 services:
-    RevisionTen\CMS\DataCollector\CmsCollector:
-        autowire: true
-        tags:
-            - name:     data_collector
-              template: '@cms/Profiler/layout.html.twig'
-              id:       'cms.cms_collector'
-        public: false
-    RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
-        autowire: true
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
-    RevisionTen\CMS\EventListener\CurrentWebsiteListener:
-        autowire: true
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: -10 }
-    RevisionTen\CMS\Repository\AliasRepository:
-        autowire: true
-        autoconfigure: true
-        arguments:
-            $entityClass: 'RevisionTen\CMS\Model\Alias'
-    # TODO: Fix this listener.
-    # RevisionTen\CMS\EventListener\LogoutListener:
-    #     autowire: true
-    #     tags:
-    #         - { name: security.logout_listener.main, event: security.logout_listener }
+    # Controllers.
     RevisionTen\CMS\Controller\:
         autowire: true
         autoconfigure: true
@@ -36,12 +12,28 @@ services:
         tags: ['controller.service_arguments']
         arguments:
             $config: '%cms%'
+
+    # Various.
+    RevisionTen\CMS\DataCollector\CmsCollector:
+        autowire: true
+        tags:
+            - name:     data_collector
+              template: '@cms/Profiler/layout.html.twig'
+              id:       'cms.cms_collector'
+        public: false
+    RevisionTen\CMS\Repository\AliasRepository:
+        autowire: true
+        autoconfigure: true
+        arguments:
+            $entityClass: 'RevisionTen\CMS\Model\Alias'
     RevisionTen\CMS\Twig\CmsExtension:
         autowire: true
         public: true
         tags: [twig.extension]
         arguments:
             $config: '%cms%'
+
+    # Security.
     RevisionTen\CMS\Security\CodeAuthenticator:
         autowire: true
         arguments:
@@ -56,28 +48,20 @@ services:
         autoconfigure: true
         autowire: true
         tags: [security.voter]
+
+    # Console commands.
+    RevisionTen\CMS\Command\Console\:
+        autoconfigure: true
+        autowire: true
+        tags: [console.command]
+        resource: '../../Command/Console'
+        exclude: '../../Command/Console/{InstallRolesCommand.php,MenuMigrateCommand.php,FileMigrateCommand.php}'
     RevisionTen\CMS\Command\Console\InstallRolesCommand:
         autoconfigure: true
         autowire: true
         tags: [console.command]
         arguments:
             $locale: '%locale%'
-    RevisionTen\CMS\Command\Console\UserCreateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserSecretCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserChangePasswordCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\UserMigrateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
     RevisionTen\CMS\Command\Console\MenuMigrateCommand:
         autoconfigure: true
         autowire: true
@@ -90,25 +74,8 @@ services:
         tags: [console.command]
         arguments:
             $config: '%cms%'
-    RevisionTen\CMS\Command\Console\AliasUpdateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\IndexCommand:
-        autoconfigure: true
-        autowire: true
-        public: false
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\SolrClearCommand:
-        autoconfigure: true
-        autowire: true
-        public: false
-        tags: [console.command]
-    RevisionTen\CMS\Command\Console\TasksCommand:
-        autoconfigure: true
-        autowire: true
-        public: false
-        tags: [console.command]
+
+    # Services.
     RevisionTen\CMS\Services\IndexService:
         autoconfigure: true
         autowire: true
@@ -143,6 +110,8 @@ services:
         autowire: true
         arguments:
             $project_dir: '%kernel.project_dir%'
+
+    # Form types.
     RevisionTen\CMS\Form\Types\UploadType:
         autoconfigure: true
         autowire: true
@@ -188,6 +157,18 @@ services:
         arguments:
             $config: '%cms%'
         tags: [form.type]
+
+    # Event listeners.
+    RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
+        autowire: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
+    RevisionTen\CMS\EventListener\CurrentWebsiteListener:
+        autowire: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: -10 }
+
+    # Event subscribers.
     RevisionTen\CMS\EventSubscriber\:
         resource: '../../EventSubscriber/*'
         exclude: '../../EventSubscriber/{AliasSubscriber.php,UserSubscriber.php}'
@@ -202,3 +183,11 @@ services:
         autowire: true
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+
+    # Command handlers.
+    RevisionTen\CMS\Handler\PageCloneHandler:
+        autowire: true
+        public: true
+    RevisionTen\CMS\Handler\PageRollbackHandler:
+        autowire: true
+        public: true

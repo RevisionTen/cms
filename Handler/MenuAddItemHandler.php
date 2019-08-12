@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Event\MenuAddItemEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -76,25 +75,23 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
         $payload = $command->getPayload();
 
         if (!isset($payload['itemName'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No item type set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['data'])) {
-            $this->messageBus->dispatch(new Message(
+        if (!isset($payload['data'])) {
+            throw new CommandValidationException(
                 'No data set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

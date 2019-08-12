@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageSubmitCommand;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
 final class PageSubmitHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -47,17 +46,24 @@ final class PageSubmitHandler extends PageBaseHandler implements HandlerInterfac
     {
         $payload = $command->getPayload();
 
-        if (isset($payload['grantedBy']) && !empty($payload['grantedBy']) && $aggregate->getVersion() > 0) {
-            return true;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if ($aggregate->getVersion() === 0) {
+            throw new CommandValidationException(
+                'You cannot submit an aggregate with no version',
+                CODE_BAD_REQUEST,
+                NULL,
+                $command
+            );
+        }
+
+        if (empty($payload['grantedBy'])) {
+            throw new CommandValidationException(
                 'You must chose the user which granted the submit',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\UserLogoutCommand;
 use RevisionTen\CMS\Event\UserLogoutEvent;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class UserLogoutHandler extends Handler implements HandlerInterface
+final class UserLogoutHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
