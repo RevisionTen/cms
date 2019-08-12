@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_string;
 
 final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -36,7 +37,7 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
         // Add to items.
         $parentUuid = $payload['parent'] ?? null;
 
-        if ($parentUuid && \is_string($parentUuid)) {
+        if ($parentUuid && is_string($parentUuid)) {
             // A function that add the new item to the target parent.
             $addItemFunction = static function (&$item, &$collection) use ($newItem) {
                 if (!isset($item['items'])) {

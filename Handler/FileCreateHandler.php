@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Handler;
 
 use ReflectionObject;
+use ReflectionProperty;
 use RevisionTen\CMS\Event\FileCreateEvent;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CQRS\Exception\CommandValidationException;
@@ -27,7 +28,7 @@ final class FileCreateHandler implements HandlerInterface
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
         $reflect = new ReflectionObject($aggregate);
-        foreach ($reflect->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
             if (array_key_exists($propertyName, $payload)) {
                 $aggregate->{$propertyName} = $payload[$propertyName];

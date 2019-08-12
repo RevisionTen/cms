@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_string;
 
 final class PageRemoveElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -74,7 +75,7 @@ final class PageRemoveElementHandler extends PageBaseHandler implements HandlerI
         $payload = $command->getPayload();
         // The uuid to remove.
         $uuid = $payload['uuid'] ?? null;
-        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $element = is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
         if (null === $uuid) {
             throw new CommandValidationException(

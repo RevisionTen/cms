@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
+use ReflectionObject;
+use ReflectionProperty;
 use RevisionTen\CMS\Event\PageChangeSettingsEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
@@ -22,8 +24,8 @@ final class PageChangeSettingsHandler extends PageBaseHandler implements Handler
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
-        $reflect = new \ReflectionObject($aggregate);
-        foreach ($reflect->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+        $reflect = new ReflectionObject($aggregate);
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
             if (array_key_exists($propertyName, $payload)) {
                 $aggregate->{$propertyName} = $payload[$propertyName];

@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -84,7 +85,7 @@ class UserChangePasswordCommand extends Command
 
             $usernameQuestion->setValidator(function ($answer) {
                 if (!$this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
-                    throw new \RuntimeException('User not found.');
+                    throw new RuntimeException('User not found.');
                 }
 
                 return $answer;
@@ -101,7 +102,7 @@ class UserChangePasswordCommand extends Command
 
             $passwordQuestion->setValidator(static function ($answer) {
                 if (empty($answer)) {
-                    throw new \RuntimeException('The password may not be empty.');
+                    throw new RuntimeException('The password may not be empty.');
                 }
 
                 return $answer;

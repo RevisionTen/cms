@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_string;
 
 final class PageAddElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -35,7 +36,7 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
         // Add to elements.
         $parentUuid = $payload['parent'] ?? null;
 
-        if ($parentUuid && \is_string($parentUuid)) {
+        if ($parentUuid && is_string($parentUuid)) {
             // A function that add the new element to the target parent.
             $addElementFunction = static function (&$element, &$collection) use ($newElement) {
                 if (!isset($element['elements'])) {

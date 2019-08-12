@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_string;
 
 final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -72,7 +73,7 @@ final class MenuRemoveItemHandler extends MenuBaseHandler implements HandlerInte
         $payload = $command->getPayload();
         // The uuid to remove.
         $uuid = $payload['uuid'] ?? null;
-        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
+        $item = is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
         if (null === $uuid) {
             throw new CommandValidationException(

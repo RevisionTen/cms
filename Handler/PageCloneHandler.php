@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
+use DateTimeImmutable;
 use RevisionTen\CMS\Event\PageCloneEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Exception\CommandValidationException;
@@ -55,8 +56,8 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
             $baseAggregate->setVersion($aggregate->getVersion() ?? 1);
             $baseAggregate->setStreamVersion($aggregate->getStreamVersion() ?? 1);
             $baseAggregate->setSnapshotVersion(null);
-            $baseAggregate->setCreated(new \DateTimeImmutable());
-            $baseAggregate->setModified(new \DateTimeImmutable());
+            $baseAggregate->setCreated(new DateTimeImmutable());
+            $baseAggregate->setModified(new DateTimeImmutable());
             $baseAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $baseAggregate;

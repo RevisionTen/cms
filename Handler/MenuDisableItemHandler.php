@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_string;
 
 final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -57,7 +58,7 @@ final class MenuDisableItemHandler extends MenuBaseHandler implements HandlerInt
         $payload = $command->getPayload();
         // The uuid to disable.
         $uuid = $payload['uuid'] ?? null;
-        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
+        $item = is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
         if (null === $uuid) {
             throw new CommandValidationException(

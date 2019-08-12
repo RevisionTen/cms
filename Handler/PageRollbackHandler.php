@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
+use DateTimeImmutable;
 use RevisionTen\CMS\Event\PageRollbackEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Exception\CommandValidationException;
@@ -50,7 +51,7 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
             $previousAggregate->setVersion($aggregate->getVersion());
             $previousAggregate->setStreamVersion($aggregate->getStreamVersion());
             $previousAggregate->setSnapshotVersion($aggregate->getSnapshotVersion());
-            $previousAggregate->setModified(new \DateTimeImmutable());
+            $previousAggregate->setModified(new DateTimeImmutable());
             $previousAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $previousAggregate;

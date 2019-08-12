@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_array;
 
 final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -80,7 +81,7 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
     {
         foreach ($elements as $element) {
             // Get child elements array.
-            $childElements = isset($element['elements']) && \is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
+            $childElements = isset($element['elements']) && is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
 
             if (null !== $childElements) {
                 // Unset child elements property.

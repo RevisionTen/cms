@@ -10,6 +10,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function in_array;
 
 final class UserLoginHandler implements HandlerInterface
 {
@@ -26,12 +27,12 @@ final class UserLoginHandler implements HandlerInterface
         $ip = $payload['ip'];
 
         // Add device to list of known devices.
-        if (!\in_array($device, $aggregate->devices, false)) {
+        if (!in_array($device, $aggregate->devices, false)) {
             $aggregate->devices[] = $device;
         }
 
         // Add IP to list of known ips.
-        if (!\in_array($ip, $aggregate->ips, false)) {
+        if (!in_array($ip, $aggregate->ips, false)) {
             $aggregate->ips[] = $ip;
         }
 

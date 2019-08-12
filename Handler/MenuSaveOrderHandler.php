@@ -11,6 +11,7 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function is_array;
 
 final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -80,7 +81,7 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
     {
         foreach ($items as $item) {
             // Get child items array.
-            $childItems = isset($item['items']) && \is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
+            $childItems = isset($item['items']) && is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
 
             if (null !== $childItems) {
                 // Unset child items property.

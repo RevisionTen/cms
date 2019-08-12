@@ -11,6 +11,8 @@ use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
+use function in_array;
+use function is_string;
 
 final class PageResizeColumnHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -60,12 +62,12 @@ final class PageResizeColumnHandler extends PageBaseHandler implements HandlerIn
     {
         $payload = $command->getPayload();
         $uuid = $payload['uuid'] ?? null;
-        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $element = is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
         $size = (int) $payload['size'];
         $breakpoint = $payload['breakpoint'];
 
         // Check if breakpoint and size are valid.
-        if ($size < 1 || $size > 12 || !\in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+        if ($size < 1 || $size > 12 || !in_array($breakpoint, ['xs', 'sm', 'md', 'lg', 'xl'])) {
             throw new CommandValidationException(
                 'Size or breakpoint is invalid',
                 CODE_BAD_REQUEST,

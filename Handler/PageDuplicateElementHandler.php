@@ -12,6 +12,8 @@ use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
 use Ramsey\Uuid\Uuid;
+use function is_array;
+use function is_string;
 
 final class PageDuplicateElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -26,7 +28,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         // Set new Uuid.
         $element['uuid'] = $newUuid;
 
-        if (isset($element['elements']) && \is_array($element['elements'])) {
+        if (isset($element['elements']) && is_array($element['elements'])) {
             foreach ($element['elements'] as $key => $subElement) {
                 $element['elements'][$key] = $this->assignNewUuid($subElement, $commandUuid);
             }
@@ -103,7 +105,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         $payload = $command->getPayload();
         // The uuid to duplicate.
         $uuid = $payload['uuid'] ?? null;
-        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $element = is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
         if (null === $uuid) {
             throw new CommandValidationException(
