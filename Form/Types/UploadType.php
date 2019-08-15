@@ -89,7 +89,14 @@ class UploadType extends AbstractType
 
         $builder->addModelTransformer(new FileTransformer());
 
-        $addDeleteReplaceForm = static function (FormInterface $form): void {
+        $addDeleteReplaceForm = static function (FormInterface $form) use ($options): void {
+            $form->add('uploadedFile', FileType::class, [
+                'label' => false,
+                'attr' => $options['attr'],
+                // The file field to replace the file must not be required.
+                'required' => false,
+            ]);
+
             $form->add('delete', CheckboxType::class, [
                 'label' => 'delete the existing file',
                 'mapped' => true,
