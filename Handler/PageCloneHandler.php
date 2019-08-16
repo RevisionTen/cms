@@ -56,8 +56,8 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
             $baseAggregate->setVersion($aggregate->getVersion() ?? 1);
             $baseAggregate->setStreamVersion($aggregate->getStreamVersion() ?? 1);
             $baseAggregate->setSnapshotVersion(null);
-            $baseAggregate->setCreated(new DateTimeImmutable());
-            $baseAggregate->setModified(new DateTimeImmutable());
+            $baseAggregate->setCreated($aggregate->getCreated());
+            $baseAggregate->setModified($aggregate->getModified());
             $baseAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $baseAggregate;

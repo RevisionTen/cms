@@ -51,7 +51,7 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
             $previousAggregate->setVersion($aggregate->getVersion());
             $previousAggregate->setStreamVersion($aggregate->getStreamVersion());
             $previousAggregate->setSnapshotVersion($aggregate->getSnapshotVersion());
-            $previousAggregate->setModified(new DateTimeImmutable());
+            $previousAggregate->setModified($aggregate->getModified());
             $previousAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $previousAggregate;
