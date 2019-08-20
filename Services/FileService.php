@@ -256,6 +256,8 @@ class FileService
         $fileRead->setMimeType($aggregate->mimeType);
         $fileRead->setWebsite($website);
         $fileRead->setLanguage($aggregate->language);
+        $fileRead->setCreated($aggregate->created);
+        $fileRead->setModified($aggregate->modified);
 
         // Persist FileRead entity.
         $this->entityManager->persist($fileRead);

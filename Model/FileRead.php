@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use RevisionTen\CMS\Traits\LanguageAndWebsiteTrait;
 use RevisionTen\CMS\Traits\ReadModelTrait;
+use function in_array;
 
 /**
  * Class FileRead.
@@ -45,6 +47,28 @@ class FileRead
      * @ORM\Column(type="integer")
      */
     private $size;
+
+    /**
+     * @var \DateTimeImmutable
+     * @ORM\Column(type="datetime_immutable", options={"default": "CURRENT_TIMESTAMP"})
+     */
+    private $created;
+
+    /**
+     * @var \DateTimeImmutable
+     * @ORM\Column(type="datetime_immutable", options={"default": "CURRENT_TIMESTAMP"})
+     */
+    private $modified;
+
+    public function isImage(): bool
+    {
+        return in_array($this->mimeType, [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/svg',
+        ]);
+    }
 
     /**
      * @return string
@@ -118,6 +142,46 @@ class FileRead
     public function setSize(int $size): self
     {
         $this->size = $size;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getCreated(): DateTimeImmutable
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param \DateTimeImmutable $created
+     *
+     * @return FileRead
+     */
+    public function setCreated(DateTimeImmutable $created): self
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getModified(): DateTimeImmutable
+    {
+        return $this->modified;
+    }
+
+    /**
+     * @param \DateTimeImmutable $modified
+     *
+     * @return FileRead
+     */
+    public function setModified(DateTimeImmutable $modified): self
+    {
+        $this->modified = $modified;
 
         return $this;
     }

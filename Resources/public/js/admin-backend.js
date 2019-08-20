@@ -248,6 +248,15 @@ function bindWidgets(element) {
     element.find('.btn-create').on('click', function (event) {
         $('body').trigger('createElement', {'parent': $(this).data('uuid'), 'elementName': $(this).data('element-name')});
     });
+
+    // Trigger bindWidgets events for custom widgets.
+    $('body').trigger('bindWidgets', element);
+    let event = new CustomEvent('bindWidgets', {
+        detail: {
+            element: element[0]
+        }
+    });
+    document.dispatchEvent(event);
 }
 
 function bindForm(formSelector, formReloadCallback = false) {
