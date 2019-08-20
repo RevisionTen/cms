@@ -7,7 +7,13 @@ $(document).ready(function () {
             let targetId = $(this).data('filePicker');
             let filePickerUploadField = $(this).data('filePickerUpload');
 
-            let filePickerElement = $(element).find('#cms-file-picker-'+targetId);
+            // Destroy existing intances.
+            let filePickerSelector = '.cms-file-picker';
+            $(filePickerSelector).remove();
+            // Create new file picker element.
+            $('body').append('<div class="cms-file-picker d-none flex-column"></div>');
+
+            let filePickerElement = $(filePickerSelector);
             if (filePickerElement.length > 0) {
                 $.ajax({
                     url: '/admin/file/picker/' + targetId,
@@ -26,6 +32,14 @@ $(document).ready(function () {
                         $('#cms-img-'+targetId).attr('src', thumbPath).removeClass('d-none');
                         $('body').removeClass('file-picker-open');
                         filePickerElement.removeClass('d-flex').addClass('d-none');
+                        filePickerElement.remove();
+                    });
+
+                    filePickerElement.find('.cms-file-picker-close').click(function (event) {
+                        event.preventDefault();
+                        $('body').removeClass('file-picker-open');
+                        filePickerElement.removeClass('d-flex').addClass('d-none');
+                        filePickerElement.remove();
                     });
                 });
             }

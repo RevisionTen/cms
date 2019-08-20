@@ -262,9 +262,6 @@ function bindWidgets(element) {
 function bindForm(formSelector, formReloadCallback = false) {
     let form = $(formSelector).first();
     if (form.length > 0) {
-
-        bindWidgets(form);
-
         form.find('[data-condition]').on('change', function (event) {
 
             updateCKEditorInstances();
@@ -295,6 +292,8 @@ function bindForm(formSelector, formReloadCallback = false) {
                 processData: false
             });
         });
+
+        bindWidgets(form);
     }
 }
 
@@ -351,7 +350,7 @@ function bindTab(linkSrc) {
 
     // Get first form in content.
     let form = pageSettingsTab.find('form').first();
-    let formSelector = form.attr('name') ? '#main form' : 'form[name="'+form.attr('name')+'"]';
+    let formSelector = form.attr('name') ? 'form[name="'+form.attr('name')+'"]' : '#main form';
 
     // Set the action on the form.
     form.attr('action', linkSrc);
@@ -379,12 +378,14 @@ function bindTab(linkSrc) {
     });
 
     // Add close button.
-    pageSettingsTab.find('.content-header .global-actions').append('<button class="btn btn-sm btn-close-tab"><span class="fa fa-times"></span></button>');
-    pageSettingsTab.find('.btn-close-tab').click(() => {
-        pageSettingsTab.html('');
-        pageSettingsTab.removeClass('active');
-        pageEditorTab.addClass('active');
-    });
+    if (pageSettingsTab.find('.content-header .global-actions .btn-close-tab').length < 1) {
+        pageSettingsTab.find('.content-header .global-actions').append('<button class="btn btn-sm btn-close-tab"><span class="fa fa-times"></span></button>');
+        pageSettingsTab.find('.btn-close-tab').click(() => {
+            pageSettingsTab.html('');
+            pageSettingsTab.removeClass('active');
+            pageEditorTab.addClass('active');
+        });
+    }
 
     // Show the tab.
     pageEditorTab.removeClass('active');
