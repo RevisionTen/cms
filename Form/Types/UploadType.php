@@ -188,6 +188,7 @@ class UploadType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['show_file_picker'] = $options['show_file_picker'];
+        $view->vars['file_picker_mime_types'] = $options['file_picker_mime_types'];
 
         parent::buildView($view, $form, $options);
     }
@@ -206,6 +207,7 @@ class UploadType extends AbstractType
             'allow_delete' => true,
             'allow_replace' => true,
             'show_file_picker' => false,
+            'file_picker_mime_types' => null,
             // Do not validate this form type with the passed constraints, use them for the file field insead.
             'validation_groups' => false,
             'constraints' => null,

@@ -45,11 +45,15 @@ class FileController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $currentWebsite = $request->get('currentWebsite');
+        $criteria = [
+            'website' => $request->get('currentWebsite'),
+        ];
+        $mimeTypes = $request->get('mimeTypes');
+        if ($mimeTypes) {
+            $criteria['mimeType'] = explode(',', $mimeTypes);
+        }
 
-        $files = $entityManager->getRepository(FileRead::class)->findBy([
-            'website' => $currentWebsite,
-        ]);
+        $files = $entityManager->getRepository(FileRead::class)->findBy($criteria);
 
         return $this->render('@cms/Admin/File/picker.html.twig', [
             'files' => $files,

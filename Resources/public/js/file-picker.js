@@ -6,19 +6,30 @@ $(document).ready(function () {
             event.preventDefault();
             let targetId = $(this).data('filePicker');
             let filePickerUploadField = $(this).data('filePickerUpload');
+            let filePickerMimeTypes = $(this).data('filePickerMimeTypes');
 
-            // Destroy existing intances.
+            // Destroy existing instances.
             let filePickerSelector = '.cms-file-picker';
             $(filePickerSelector).remove();
             // Create new file picker element.
             $('body').append('<div class="cms-file-picker d-none flex-column"></div>');
 
+            let url = '/admin/file/picker/' + targetId;
+            let query = null;
+            if (filePickerMimeTypes) {
+                query = {
+                    mimeTypes: filePickerMimeTypes
+                };
+            }
+
             let filePickerElement = $(filePickerSelector);
             if (filePickerElement.length > 0) {
                 $.ajax({
-                    url: '/admin/file/picker/' + targetId,
+                    method: 'GET',
+                    url: url,
+                    data: query,
                     context: document.body
-                }).done(function(html) {
+                }).done(function (html) {
                     $('body').addClass('file-picker-open');
                     filePickerElement.removeClass('d-none').addClass('d-flex');
                     filePickerElement.html(html);
