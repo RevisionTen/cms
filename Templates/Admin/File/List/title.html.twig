@@ -1,1 +1,8 @@
-<a href="{{ path('cms_file_show', {fileUuid: item.uuid}) }}" target="_blank">{{ value }}</a>
+<a href="{{ path('cms_file_show', {fileUuid: item.uuid}) }}" target="_blank">
+    {% if item.isImage %}
+        <img class="img-fluid rounded d-block" width="100" height="100" src="{{ web_image(item.path).zoomCrop(200, 200).jpeg(100) }}" alt="{{ value }}">
+        {{ value }}
+    {% else %}
+        {{ value }}
+    {% endif %}
+</a>

@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            {% if eventQeueObjects|length > 0 %}
+            {% if eventQueueObjects|length > 0 %}
                 <div class="flex-grow-1 card mb-3 border-0">
                     <div class="card-header p-3 border-0 bg-transparent">
                         <h6>
@@ -71,7 +71,7 @@
                         </h6>
                     </div>
                     <div class="card-body p-0">
-                        {{ macros.groupedEvents(eventQeueObjects) }}
+                        {{ macros.groupedEvents(eventQueueObjects) }}
                     </div>
                 </div>
             {% endif %}

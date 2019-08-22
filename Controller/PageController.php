@@ -88,18 +88,19 @@ class PageController extends AbstractController
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
      *
-     * @param CommandBus  $commandBus
-     * @param string      $commandClass
-     * @param array       $data
-     * @param string      $aggregateUuid
-     * @param int         $onVersion
-     * @param boolean     $qeue
-     * @param string|null $commandUuid
-     * @param int|null    $userId
+     * @param \RevisionTen\CQRS\Services\CommandBus $commandBus
+     * @param string                                $commandClass
+     * @param array                                 $data
+     * @param string                                $aggregateUuid
+     * @param int                                   $onVersion
+     * @param bool                                  $queue
+     * @param string|NULL                           $commandUuid
+     * @param int|NULL                              $userId
      *
      * @return bool
+     * @throws \Exception
      */
-    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
             /** @var UserRead $user */
@@ -107,14 +108,9 @@ class PageController extends AbstractController
             $userId = $user->getId();
         }
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
 
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
-
-        $commandBus->dispatch($command, $qeue);
-
-        return $success;
+        return $commandBus->dispatch($command, $queue);
     }
 
     /**
@@ -614,7 +610,7 @@ class PageController extends AbstractController
         /** @var UserRead $user */
         $user = $this->getUser();
 
-        $eventStore->discardQeued($pageUuid, $user->getId());
+        $eventStore->discardQueued($pageUuid, $user->getId());
 
         return $this->redirectToPage($pageUuid);
     }
@@ -638,7 +634,7 @@ class PageController extends AbstractController
         /** @var UserRead $user */
         $user = $this->getUser();
 
-        $eventStore->discardLatestQeued($pageUuid, $user->getId(), $version);
+        $eventStore->discardLatestQueued($pageUuid, $user->getId(), $version);
 
         return $this->redirectToPage($pageUuid);
     }
@@ -1308,7 +1304,7 @@ class PageController extends AbstractController
         $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
-            $eventStreamObjects = $eventStore->findQeued($pageUuid, null, $page->getStreamVersion() + 1, $adminUser->getId());
+            $eventStreamObjects = $eventStore->findQueued($pageUuid, $adminUser->getId(), null, $page->getStreamVersion() + 1);
             if ($eventStreamObjects) {
                 $users[$adminUser->getId()] = [
                     'events' => $eventStreamObjects,
@@ -1516,8 +1512,8 @@ class PageController extends AbstractController
         $pageUuid = $pageStreamRead->getUuid();
         $version = $pageStreamRead->getVersion();
 
-        // Discard this users qeued changes before attempting to delete the aggregate.
-        $eventStore->discardQeued($pageUuid, $user->getId());
+        // Discard this users queued changes before attempting to delete the aggregate.
+        $eventStore->discardQueued($pageUuid, $user->getId());
 
         $success = $this->runCommand($commandBus, PageDeleteCommand::class, [], $pageUuid, $version);
 

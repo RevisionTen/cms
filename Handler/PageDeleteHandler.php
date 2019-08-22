@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageDeleteCommand;
 use RevisionTen\CMS\Event\PageDeleteEvent;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
@@ -19,7 +18,7 @@ final class PageDeleteHandler extends PageBaseHandler implements HandlerInterfac
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
         // Change Aggregate state.
         $aggregate->deleted = true;
@@ -32,17 +31,15 @@ final class PageDeleteHandler extends PageBaseHandler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageDeleteCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageDeleteEvent($command);
+        return new PageDeleteEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**

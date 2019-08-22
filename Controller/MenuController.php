@@ -52,18 +52,19 @@ class MenuController extends AbstractController
      * A wrapper function to execute a Command.
      * Returns true if the command succeeds.
      *
-     * @param CommandBus  $commandBus
-     * @param string      $commandClass
-     * @param array       $data
-     * @param string      $aggregateUuid
-     * @param int         $onVersion
-     * @param bool        $qeue
-     * @param string|null $commandUuid
-     * @param int|null    $userId
+     * @param \RevisionTen\CQRS\Services\CommandBus $commandBus
+     * @param string                                $commandClass
+     * @param array                                 $data
+     * @param string                                $aggregateUuid
+     * @param int                                   $onVersion
+     * @param bool                                  $queue
+     * @param string|NULL                           $commandUuid
+     * @param int|NULL                              $userId
      *
      * @return bool
+     * @throws \Exception
      */
-    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $qeue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
         if (null === $userId) {
             /** @var UserRead $user */
@@ -71,14 +72,9 @@ class MenuController extends AbstractController
             $userId = $user->getId();
         }
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
 
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data, $successCallback);
-
-        $commandBus->dispatch($command, $qeue);
-
-        return $success;
+        return $commandBus->dispatch($command, $queue);
     }
 
     /**
@@ -251,11 +247,13 @@ class MenuController extends AbstractController
             $aggregateUuid = Uuid::uuid1()->toString();
 
             // Execute Command.
-            $success = false;
-            $commandBus->dispatch(new MenuCreateCommand($user->getId(), null, $aggregateUuid, 0, $payload, static function ($commandBus, $event) use (&$success) {
-                // Callback.
-                $success = true;
-            }));
+            $success = $commandBus->dispatch(new MenuCreateCommand(
+                $user->getId(),
+                null,
+                $aggregateUuid,
+                0,
+                $payload
+            ));
 
             return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
         }
@@ -680,17 +678,10 @@ class MenuController extends AbstractController
         return $menu;
     }
 
-
-    /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
-     * @param array                                $items
-     *
-     * @return Alias[]
-     */
-    private function getAliases(EntityManagerInterface $entityManager, array $items): array
+    private function getPaths(EntityManagerInterface $entityManager, array $items, ?Website $website = null): array
     {
         // Get all aliases.
-        $aliasesById = [];
+        $paths = [];
 
         $aliasIds = $this->getAliasIds($items);
         /** @var Alias[] $aliases */
@@ -698,31 +689,21 @@ class MenuController extends AbstractController
             'id' => $aliasIds,
         ]);
         foreach ($aliases as $alias) {
-            /** @var Alias $alias */
             if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-                $aliasesById[$alias->getId()] = $alias;
+
+                $prefix = null !== $website && $website->getDefaultLanguage() !== $alias->getLanguage() ? '/'.$alias->getLanguage() : '';
+                $path = $alias->getPath();
+
+                // Do not append / for prefixed front page.
+                if ('/' === $path && !empty($prefix)) {
+                    $path = '';
+                }
+
+                $paths[$alias->getId()] = $prefix.$path;
             }
         }
 
-        return $aliasesById;
-    }
-
-    /**
-     * @deprecated Use getAliases() instead.
-     *
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
-     * @param array                                $items
-     *
-     * @return array
-     */
-    private function getPaths(EntityManagerInterface $entityManager, array $items): array
-    {
-        $aliases = $this->getAliases($entityManager, $items);
-
-        return array_map(static function ($alias) {
-            /** @var Alias $alias */
-            return $alias->getPath();
-        }, $aliases);
+        return $paths;
     }
 
     /**
@@ -794,19 +775,8 @@ class MenuController extends AbstractController
             }
 
             if ($menuData) {
-                if (empty($menuData['data']['items'])) {
-                    $menuData['paths'] = [];
-                    $menuData['aliases'] = [];
-                } else {
-                    // Get full alias objects to do more advanced stuff like comparing languages.
-                    $aliases = $this->getAliases($entityManager, $menuData['data']['items']);
-                    $menuData['aliases'] = $aliases;
-                    // Get simple list of paths.
-                    $menuData['paths'] = array_map(static function ($alias) {
-                        /** @var Alias $alias */
-                        return $alias->getPath();
-                    }, $aliases);
-                }
+                // Get paths.
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $website);
 
                 // Populate cache.
                 $cacheService->put($cacheKey, $version, $menuData);

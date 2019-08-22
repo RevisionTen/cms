@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Model\Page;
-use RevisionTen\CQRS\Handler\Handler;
+use function is_array;
 
-abstract class PageBaseHandler extends Handler
+abstract class PageBaseHandler
 {
     /**
      * Checks of the provided element matches or its child elements.
@@ -32,7 +32,7 @@ abstract class PageBaseHandler extends Handler
         }
 
         // Look in child elements.
-        if (isset($element['elements']) && \is_array($element['elements'])) {
+        if (isset($element['elements']) && is_array($element['elements'])) {
             foreach ($element['elements'] as &$subElement) {
                 if ($c = self::getMatching($subElement, $elementUuid, $callable, $element['elements'], $element)) {
                     return $c;

@@ -89,12 +89,25 @@ class UploadType extends AbstractType
 
         $builder->addModelTransformer(new FileTransformer());
 
-        $addDeleteReplaceForm = static function (FormInterface $form): void {
-            $form->add('delete', CheckboxType::class, [
-                'label' => 'delete the existing file',
-                'mapped' => true,
-                'required' => false,
-            ]);
+        $addDeleteReplaceForm = static function (FormInterface $form) use ($options): void {
+            if ($options['allow_replace']) {
+                $form->add('uploadedFile', FileType::class, [
+                    'label' => false,
+                    'attr' => $options['attr'],
+                    // The file field to replace the file must not be required.
+                    'required' => false,
+                ]);
+            } else {
+                $form->remove('uploadedFile');
+            }
+
+            if ($options['allow_delete']) {
+                $form->add('delete', CheckboxType::class, [
+                    'label' => 'delete the existing file',
+                    'mapped' => true,
+                    'required' => false,
+                ]);
+            }
         };
 
         // Add delete and replace form if the form is loaded with existing data.
@@ -174,6 +187,9 @@ class UploadType extends AbstractType
      */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
+        $view->vars['show_file_picker'] = $options['show_file_picker'];
+        $view->vars['file_picker_mime_types'] = $options['file_picker_mime_types'];
+
         parent::buildView($view, $form, $options);
     }
 
@@ -188,6 +204,10 @@ class UploadType extends AbstractType
             'attr' => [],
             'upload_dir' => '/uploads/files/',
             'keep_deleted_file' => true,
+            'allow_delete' => true,
+            'allow_replace' => true,
+            'show_file_picker' => false,
+            'file_picker_mime_types' => null,
             // Do not validate this form type with the passed constraints, use them for the file field insead.
             'validation_groups' => false,
             'constraints' => null,

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\UserEditCommand;
-use RevisionTen\CMS\Listener\UserEditListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\UserEditHandler;
+use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class UserEditEvent extends Event implements EventInterface
+final class UserEditEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return UserEditCommand::class;
+        return UserAggregate::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return UserEditListener::class;
+        return UserEditHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class UserEditEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'User edited';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

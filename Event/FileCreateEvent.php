@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\FileCreateCommand;
-use RevisionTen\CMS\Listener\FileCreateListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\FileCreateHandler;
+use RevisionTen\CMS\Model\File;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class FileCreateEvent extends Event implements EventInterface
+final class FileCreateEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return FileCreateCommand::class;
+        return File::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return FileCreateListener::class;
+        return FileCreateHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class FileCreateEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'File Created';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_CREATED;
     }
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Event\MenuAddItemEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_string;
 
 final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -20,15 +20,15 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $itemName = $payload['itemName'];
         $data = $payload['data'];
 
         // Build item data.
         $newItem = [
-            'uuid' => $command->getUuid(),
+            'uuid' => $event->getCommandUuid(),
             'itemName' => $itemName,
             'data' => $data,
             'enabled' => true,
@@ -37,7 +37,7 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
         // Add to items.
         $parentUuid = $payload['parent'] ?? null;
 
-        if ($parentUuid && \is_string($parentUuid)) {
+        if ($parentUuid && is_string($parentUuid)) {
             // A function that add the new item to the target parent.
             $addItemFunction = static function (&$item, &$collection) use ($newItem) {
                 if (!isset($item['items'])) {
@@ -57,17 +57,15 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuAddItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuAddItemEvent($command);
+        return new MenuAddItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -78,25 +76,23 @@ final class MenuAddItemHandler extends MenuBaseHandler implements HandlerInterfa
         $payload = $command->getPayload();
 
         if (!isset($payload['itemName'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No item type set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['data'])) {
-            $this->messageBus->dispatch(new Message(
+        if (!isset($payload['data'])) {
+            throw new CommandValidationException(
                 'No data set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

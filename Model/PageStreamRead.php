@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Model;
 
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use function is_string;
+use function json_decode;
+use function json_encode;
 
 /**
  * Class PageRead.
@@ -67,13 +72,13 @@ class PageStreamRead
 
     /**
      * @var \DateTimeImmutable
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
     private $created;
 
     /**
      * @var \DateTimeImmutable
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
     private $modified;
 
@@ -176,7 +181,7 @@ class PageStreamRead
      */
     public function getPayload(): array
     {
-        return \is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
+        return is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
     }
 
     /**
@@ -254,11 +259,8 @@ class PageStreamRead
     /**
      * @return \DateTimeImmutable
      */
-    public function getCreated(): \DateTimeImmutable
+    public function getCreated(): DateTimeImmutable
     {
-        if ($this->created instanceof \DateTime) {
-            $this->created = \DateTimeImmutable::createFromMutable($this->created);
-        }
         return $this->created;
     }
 
@@ -267,7 +269,7 @@ class PageStreamRead
      *
      * @return PageStreamRead
      */
-    public function setCreated(\DateTimeImmutable $created): self
+    public function setCreated(DateTimeImmutable $created): self
     {
         $this->created = $created;
 
@@ -277,11 +279,8 @@ class PageStreamRead
     /**
      * @return \DateTimeImmutable
      */
-    public function getModified(): \DateTimeImmutable
+    public function getModified(): DateTimeImmutable
     {
-        if ($this->modified instanceof \DateTime) {
-            $this->modified = \DateTimeImmutable::createFromMutable($this->modified);
-        }
         return $this->modified;
     }
 
@@ -290,7 +289,7 @@ class PageStreamRead
      *
      * @return PageStreamRead
      */
-    public function setModified(\DateTimeImmutable $modified): self
+    public function setModified(DateTimeImmutable $modified): self
     {
         $this->modified = $modified;
 

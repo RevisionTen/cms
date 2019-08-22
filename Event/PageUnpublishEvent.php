@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageUnpublishCommand;
-use RevisionTen\CMS\Listener\PageUnpublishListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageUnpublishHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageUnpublishEvent extends Event implements EventInterface
+final class PageUnpublishEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageUnpublishCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageUnpublishListener::class;
+        return PageUnpublishHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageUnpublishEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page unpublished';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

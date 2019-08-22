@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\RoleCreateCommand;
-use RevisionTen\CMS\Listener\RoleCreateListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\RoleCreateHandler;
+use RevisionTen\CMS\Model\Role;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class RoleCreateEvent extends Event implements EventInterface
+final class RoleCreateEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return RoleCreateCommand::class;
+        return Role::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return RoleCreateListener::class;
+        return RoleCreateHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class RoleCreateEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Role created';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

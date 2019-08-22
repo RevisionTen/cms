@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageSaveOrderCommand;
 use RevisionTen\CMS\Event\PageSaveOrderEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_array;
 
 final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -20,9 +20,9 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $order = $payload['order'];
 
         // Get flattened page.
@@ -81,7 +81,7 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
     {
         foreach ($elements as $element) {
             // Get child elements array.
-            $childElements = isset($element['elements']) && \is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
+            $childElements = isset($element['elements']) && is_array($element['elements']) && !empty($element['elements']) ? $element['elements'] : null;
 
             if (null !== $childElements) {
                 // Unset child elements property.
@@ -100,17 +100,15 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageSaveOrderCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageSaveOrderEvent($command);
+        return new PageSaveOrderEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -125,16 +123,14 @@ final class PageSaveOrderHandler extends PageBaseHandler implements HandlerInter
         $order = $payload['order'] ?? null;
 
         if (null === $order) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No order to save is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

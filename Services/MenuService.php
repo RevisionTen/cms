@@ -47,6 +47,8 @@ class MenuService
      * Update the MenuRead entity.
      *
      * @param string $menuUuid
+     *
+     * @throws \Exception
      */
     public function updateMenuRead(string $menuUuid): void
     {

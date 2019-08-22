@@ -114,10 +114,7 @@ class TaskService
             }
 
             if (null !== $onVersion) {
-                $success = false;
-                $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-
-                $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload, $successCallback);
+                $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload);
                 $this->commandBus->dispatch($command);
 
                 // Save messages on task.

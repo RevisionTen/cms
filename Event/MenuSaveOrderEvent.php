@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\MenuSaveOrderCommand;
-use RevisionTen\CMS\Listener\MenuSaveOrderListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\MenuSaveOrderHandler;
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class MenuSaveOrderEvent extends Event implements EventInterface
+final class MenuSaveOrderEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return MenuSaveOrderCommand::class;
+        return Menu::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return MenuSaveOrderListener::class;
+        return MenuSaveOrderHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class MenuSaveOrderEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Menu order saved';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

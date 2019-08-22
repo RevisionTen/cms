@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageSubmitCommand;
-use RevisionTen\CMS\Listener\PageSubmitListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageSubmitHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageSubmitEvent extends Event implements EventInterface
+final class PageSubmitEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageSubmitCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageSubmitListener::class;
+        return PageSubmitHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageSubmitEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page changes submitted';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

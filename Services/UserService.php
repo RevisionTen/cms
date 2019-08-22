@@ -43,6 +43,8 @@ class UserService
      * Update the UserRead entity for the admin backend.
      *
      * @param string $userUuid
+     *
+     * @throws \Exception
      */
     public function updateUserRead(string $userUuid): void
     {

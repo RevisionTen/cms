@@ -64,8 +64,8 @@ class AggregateSubscriber implements EventSubscriberInterface
         /** @var \RevisionTen\CQRS\Interfaces\EventInterface $event */
         $event = $aggregateUpdatedEvent->getEvent();
 
-        $aggregateClass = $event->getCommand()->getAggregateClass();
-        $aggregateUuid = $event->getCommand()->getAggregateUuid();
+        $aggregateClass = $event::getAggregateClass();
+        $aggregateUuid = $event->getAggregateUuid();
 
         if ($aggregateClass === Page::class) {
             $this->pageService->updatePageStreamRead($aggregateUuid);

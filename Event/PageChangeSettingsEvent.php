@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageChangeSettingsCommand;
-use RevisionTen\CMS\Listener\PageChangeSettingsListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageChangeSettingsHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageChangeSettingsEvent extends Event implements EventInterface
+final class PageChangeSettingsEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageChangeSettingsCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageChangeSettingsListener::class;
+        return PageChangeSettingsHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageChangeSettingsEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page Settings Changed';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

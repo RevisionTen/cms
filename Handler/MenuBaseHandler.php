@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Model\Menu;
-use RevisionTen\CQRS\Handler\Handler;
+use function is_array;
 
-abstract class MenuBaseHandler extends Handler
+abstract class MenuBaseHandler
 {
     /**
      * Checks of the provided item matches or its child items.
@@ -32,7 +32,7 @@ abstract class MenuBaseHandler extends Handler
         }
 
         // Look in child items.
-        if (isset($item['items']) && \is_array($item['items'])) {
+        if (isset($item['items']) && is_array($item['items'])) {
             foreach ($item['items'] as &$subItem) {
                 if ($c = self::getMatching($subItem, $itemUuid, $callable, $item['items'], $item)) {
                     return $c;

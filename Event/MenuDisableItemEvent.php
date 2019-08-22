@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\MenuDisableItemCommand;
-use RevisionTen\CMS\Listener\MenuDisableItemListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\MenuDisableItemHandler;
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class MenuDisableItemEvent extends Event implements EventInterface
+final class MenuDisableItemEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return MenuDisableItemCommand::class;
+        return Menu::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return MenuDisableItemListener::class;
+        return MenuDisableItemHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class MenuDisableItemEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Menu item disabled';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

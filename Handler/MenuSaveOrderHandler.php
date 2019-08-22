@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuSaveOrderCommand;
 use RevisionTen\CMS\Event\MenuSaveOrderEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_array;
 
 final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -20,9 +20,9 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $order = $payload['order'];
 
         // Get flattened menu.
@@ -81,7 +81,7 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
     {
         foreach ($items as $item) {
             // Get child items array.
-            $childItems = isset($item['items']) && \is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
+            $childItems = isset($item['items']) && is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;
 
             if (null !== $childItems) {
                 // Unset child items property.
@@ -100,17 +100,15 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuSaveOrderCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuSaveOrderEvent($command);
+        return new MenuSaveOrderEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -125,16 +123,14 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
         $order = $payload['order'] ?? null;
 
         if (null === $order) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No order to save is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }
