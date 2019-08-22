@@ -6,7 +6,6 @@ namespace RevisionTen\CMS\Handler;
 
 use RevisionTen\CMS\Event\PagePublishEvent;
 use RevisionTen\CMS\Model\Page;
-use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
@@ -46,15 +45,6 @@ final class PagePublishHandler extends PageBaseHandler implements HandlerInterfa
      */
     public function validateCommand(CommandInterface $command, AggregateInterface $aggregate): bool
     {
-        if ($aggregate->getVersion() === 1) {
-            throw new CommandValidationException(
-                'You must chose an existing page',
-                CODE_BAD_REQUEST,
-                NULL,
-                $command
-            );
-        }
-
         return true;
     }
 }
