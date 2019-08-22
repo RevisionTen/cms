@@ -680,17 +680,10 @@ class MenuController extends AbstractController
         return $menu;
     }
 
-
-    /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
-     * @param array                                $items
-     *
-     * @return Alias[]
-     */
-    private function getAliases(EntityManagerInterface $entityManager, array $items): array
+    private function getPaths(EntityManagerInterface $entityManager, array $items, ?Website $website = null): array
     {
         // Get all aliases.
-        $aliasesById = [];
+        $paths = [];
 
         $aliasIds = $this->getAliasIds($items);
         /** @var Alias[] $aliases */
@@ -698,31 +691,21 @@ class MenuController extends AbstractController
             'id' => $aliasIds,
         ]);
         foreach ($aliases as $alias) {
-            /** @var Alias $alias */
             if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-                $aliasesById[$alias->getId()] = $alias;
+
+                $prefix = null !== $website && $website->getDefaultLanguage() !== $alias->getLanguage() ? '/'.$alias->getLanguage() : '';
+                $path = $alias->getPath();
+
+                // Do not append / for prefixed front page.
+                if ('/' === $path && !empty($prefix)) {
+                    $path = '';
+                }
+
+                $paths[$alias->getId()] = $prefix.$path;
             }
         }
 
-        return $aliasesById;
-    }
-
-    /**
-     * @deprecated Use getAliases() instead.
-     *
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
-     * @param array                                $items
-     *
-     * @return array
-     */
-    private function getPaths(EntityManagerInterface $entityManager, array $items): array
-    {
-        $aliases = $this->getAliases($entityManager, $items);
-
-        return array_map(static function ($alias) {
-            /** @var Alias $alias */
-            return $alias->getPath();
-        }, $aliases);
+        return $paths;
     }
 
     /**
@@ -794,19 +777,8 @@ class MenuController extends AbstractController
             }
 
             if ($menuData) {
-                if (empty($menuData['data']['items'])) {
-                    $menuData['paths'] = [];
-                    $menuData['aliases'] = [];
-                } else {
-                    // Get full alias objects to do more advanced stuff like comparing languages.
-                    $aliases = $this->getAliases($entityManager, $menuData['data']['items']);
-                    $menuData['aliases'] = $aliases;
-                    // Get simple list of paths.
-                    $menuData['paths'] = array_map(static function ($alias) {
-                        /** @var Alias $alias */
-                        return $alias->getPath();
-                    }, $aliases);
-                }
+                // Get paths.
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $website);
 
                 // Populate cache.
                 $cacheService->put($cacheKey, $version, $menuData);
