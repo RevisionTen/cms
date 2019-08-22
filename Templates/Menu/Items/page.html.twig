@@ -16,10 +16,8 @@
             </ul>
         </div>
     {% else %}
-        {% if menu.aliases[item.data.alias] is defined %}
-            {% set itemAlias = menu.aliases[item.data.alias] %}
-            {% set pathPrefix = alias.website.defaultLanguage != itemAlias.language ? '/' ~ itemAlias.language : '' %}
-            {% set path = pathPrefix ~ itemAlias.path %}
+        {% if menu.paths[item.data.alias] is defined %}
+            {% set path = menu.paths[item.data.alias] %}
             <a
                     target="{{ item.data.targetBlank is defined and item.data.targetBlank ? '_blank' : '_self' }}"
                     class="{{ itemClasses|join(' ') }} {{ isActive ? 'active' : '' }}"
