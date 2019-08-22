@@ -18,6 +18,9 @@
     {% else %}
         {% if menu.paths[item.data.alias] is defined %}
             {% set path = menu.paths[item.data.alias] %}
+            {% if app.request.locale != 'de' %}
+                {% set path = '/' ~ app.request.locale ~ path %}
+            {% endif %}
             <a
                     target="{{ item.data.targetBlank is defined and item.data.targetBlank ? '_blank' : '_self' }}"
                     class="{{ itemClasses|join(' ') }} {{ isActive ? 'active' : '' }}"
