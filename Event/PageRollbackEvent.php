@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageRollbackCommand;
-use RevisionTen\CMS\Listener\PageRollbackListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageRollbackHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageRollbackEvent extends Event implements EventInterface
+final class PageRollbackEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageRollbackCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageRollbackListener::class;
+        return PageRollbackHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageRollbackEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page rolled back';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_CREATED;
     }
 }

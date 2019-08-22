@@ -16,10 +16,12 @@ use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use function in_array;
 
 /**
  * Class InstallRolesCommand.
@@ -74,14 +76,9 @@ class InstallRolesCommand extends Command
 
     private function runCommand(string $commandClass, string $aggregateUuid, int $onVersion, array $payload): bool
     {
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
+        $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload);
 
-        $command = new $commandClass(-1, null, $aggregateUuid, $onVersion, $payload, $successCallback);
-
-        $this->commandBus->dispatch($command);
-
-        return $success;
+        return $this->commandBus->dispatch($command);
     }
 
     /**
@@ -103,7 +100,6 @@ class InstallRolesCommand extends Command
             $this->entityManager->flush();
             $this->entityManager->clear();
         }
-
 
         $helper = $this->getHelper('question');
 
@@ -184,7 +180,7 @@ class InstallRolesCommand extends Command
             $userQuestion->setAutocompleterValues(array_keys($userChoice));
             $userQuestion->setValidator(static function ($answer) use ($userChoice) {
                 if (!isset($userChoice[$answer])) {
-                    throw new \RuntimeException('This user does not exist.');
+                    throw new RuntimeException('This user does not exist.');
                 }
 
                 return $answer;
@@ -201,7 +197,7 @@ class InstallRolesCommand extends Command
             /** @var UserAggregate $user */
             $user = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
-            if (!\in_array($adminRoleUuid, $user->roles, true)) {
+            if (!in_array($adminRoleUuid, $user->roles, true)) {
                 $user->roles[] = $adminRoleUuid;
             }
 

@@ -12,6 +12,7 @@ use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -94,7 +95,7 @@ class UserCreateCommand extends Command
 
             $usernameQuestion->setValidator(function ($answer) {
                 if ($this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
-                    throw new \RuntimeException('This username is already taken.');
+                    throw new RuntimeException('This username is already taken.');
                 }
 
                 return $answer;
@@ -111,7 +112,7 @@ class UserCreateCommand extends Command
 
             $emailQuestion->setValidator(function ($answer) {
                 if ($this->entityManager->getRepository(UserRead::class)->findOneByEmail($answer)) {
-                    throw new \RuntimeException('This email is already taken.');
+                    throw new RuntimeException('This email is already taken.');
                 }
 
                 return $answer;
@@ -128,7 +129,7 @@ class UserCreateCommand extends Command
 
             $passwordQuestion->setValidator(static function ($answer) {
                 if (empty($answer)) {
-                    throw new \RuntimeException('The password may not be empty.');
+                    throw new RuntimeException('The password may not be empty.');
                 }
 
                 return $answer;
@@ -163,7 +164,7 @@ class UserCreateCommand extends Command
             $websiteQuestion->setAutocompleterValues(array_keys($websiteChoices));
             $websiteQuestion->setValidator(static function ($answer) use ($websiteChoices) {
                 if (!isset($websiteChoices[$answer])) {
-                    throw new \RuntimeException('This website does not exist.');
+                    throw new RuntimeException('This website does not exist.');
                 }
 
                 return $answer;
@@ -191,7 +192,7 @@ class UserCreateCommand extends Command
             $roleQuestion->setAutocompleterValues(array_keys($roleChoices));
             $roleQuestion->setValidator(static function ($answer) use ($roleChoices) {
                 if (!isset($roleChoices[$answer])) {
-                    throw new \RuntimeException('This role does not exist.');
+                    throw new RuntimeException('This role does not exist.');
                 }
 
                 return $answer;
@@ -215,7 +216,7 @@ class UserCreateCommand extends Command
             ]);
             $sendLoginMailQuestion->setValidator(static function ($answer) {
                 if ('Yes' !== $answer && 'No' !== $answer) {
-                    throw new \RuntimeException('Yes or No?');
+                    throw new RuntimeException('Yes or No?');
                 }
 
                 return $answer;
@@ -245,11 +246,14 @@ class UserCreateCommand extends Command
             'roles' => $roles,
         ];
 
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
         $userUuid = Uuid::uuid1()->toString();
-        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
-        $this->commandBus->dispatch($userCreateCommand);
+        $success = $this->commandBus->dispatch(new \RevisionTen\CMS\Command\UserCreateCommand(
+            -1,
+            null,
+            $userUuid,
+            0,
+            $payload
+        ));
 
         if ($success) {
             // Return info about the new user.

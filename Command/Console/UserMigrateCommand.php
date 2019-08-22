@@ -9,6 +9,7 @@ use RevisionTen\CMS\Model\UserRead;
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -75,9 +76,10 @@ class UserMigrateCommand extends Command
                 /** @var UserRead|null $userResult */
                 $userResult = $this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer);
                 if (!$userResult) {
-                    throw new \RuntimeException('User not found.');
-                } elseif ('' !== $userResult->getUuid()) {
-                    throw new \RuntimeException('User was already migrated.');
+                    throw new RuntimeException('User not found.');
+                }
+                if ('' !== $userResult->getUuid()) {
+                    throw new RuntimeException('User was already migrated.');
                 }
 
                 return $answer;
@@ -111,10 +113,13 @@ class UserMigrateCommand extends Command
             'color' => $user->getColor(),
             'migrated' => true,
         ];
-        $success = false;
-        $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-        $userCreateCommand = new \RevisionTen\CMS\Command\UserCreateCommand(-1, null, $userUuid, 0, $payload, $successCallback);
-        $this->commandBus->dispatch($userCreateCommand);
+        $success = $this->commandBus->dispatch(new \RevisionTen\CMS\Command\UserCreateCommand(
+            -1,
+            null,
+            $userUuid,
+            0,
+            $payload
+        ));
 
         if ($success) {
             // Return info about the new user.

@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\RoleEditCommand;
+use ReflectionObject;
+use ReflectionProperty;
 use RevisionTen\CMS\Event\RoleEditEvent;
 use RevisionTen\CMS\Model\Role;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class RoleEditHandler extends Handler implements HandlerInterface
+final class RoleEditHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
      *
      * @var Role $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
-        $reflect = new \ReflectionObject($aggregate);
-        foreach ($reflect->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+        $reflect = new ReflectionObject($aggregate);
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
             if (array_key_exists($propertyName, $payload)) {
                 $aggregate->{$propertyName} = $payload[$propertyName];
@@ -41,17 +41,15 @@ final class RoleEditHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return RoleEditCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new RoleEditEvent($command);
+        return new RoleEditEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -61,15 +59,13 @@ final class RoleEditHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (!isset($payload['title']) || empty($payload['title'])) {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['title'])) {
+            throw new CommandValidationException(
                 'You must enter a title',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
 
         return true;

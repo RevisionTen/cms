@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\MenuRemoveItemCommand;
-use RevisionTen\CMS\Listener\MenuRemoveItemListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\MenuRemoveItemHandler;
+use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class MenuRemoveItemEvent extends Event implements EventInterface
+final class MenuRemoveItemEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return MenuRemoveItemCommand::class;
+        return Menu::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return MenuRemoveItemListener::class;
+        return MenuRemoveItemHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class MenuRemoveItemEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Menu item removed from Menu';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

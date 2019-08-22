@@ -12,7 +12,7 @@ use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
-use RevisionTen\CQRS\Model\EventQeueObject;
+use RevisionTen\CQRS\Model\EventQueueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use RevisionTen\Forms\Model\FormRead;
 use Doctrine\Common\Collections\Criteria;
@@ -198,8 +198,8 @@ class AdminController extends AbstractController
         /** @var EventStreamObject[]|null $eventStreamObjects */
         $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
-        /** @var EventQeueObject[]|null $eventQeueObjects */
-        $eventQeueObjects = $em->getRepository(EventQeueObject::class)->findBy([], ['id' => Criteria::DESC], 6);
+        /** @var EventQueueObject[]|null $eventQueueObjects */
+        $eventQueueObjects = $em->getRepository(EventQueueObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
         /** @var EventStreamObject[]|null $latestCommits */
         $latestCommits = $em->getRepository(EventStreamObject::class)->findBy([
@@ -210,7 +210,7 @@ class AdminController extends AbstractController
             'shm_enabled' => $shm_enabled,
             'shm_key' => $shm_key,
             'eventStreamObjects' => $this->groupEventsByUser($eventStreamObjects),
-            'eventQeueObjects' => $this->groupEventsByUser($eventQeueObjects),
+            'eventQueueObjects' => $this->groupEventsByUser($eventQueueObjects),
             'latestCommits' => $this->groupEventsByUser($latestCommits),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,

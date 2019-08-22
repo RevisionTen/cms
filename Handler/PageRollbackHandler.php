@@ -4,27 +4,41 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageRollbackCommand;
+use DateTimeImmutable;
 use RevisionTen\CMS\Event\PageRollbackEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Services\AggregateFactory;
 
 final class PageRollbackHandler extends PageBaseHandler implements HandlerInterface
 {
+    /** @var AggregateFactory */
+    private $aggregateFactory;
+
+    /**
+     * PageCloneHandler constructor.
+     *
+     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     */
+    public function __construct(AggregateFactory $aggregateFactory)
+    {
+        $this->aggregateFactory = $aggregateFactory;
+    }
+
     /**
      * {@inheritdoc}
      *
      * @var Page $aggregate
      * @throws \Exception
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
-        $user = $command->getUser();
+        $payload = $event->getPayload();
+        $user = $event->getUser();
 
         $previousVersion = $payload['previousVersion'];
 
@@ -37,7 +51,7 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
             $previousAggregate->setVersion($aggregate->getVersion());
             $previousAggregate->setStreamVersion($aggregate->getStreamVersion());
             $previousAggregate->setSnapshotVersion($aggregate->getSnapshotVersion());
-            $previousAggregate->setModified(new \DateTimeImmutable());
+            $previousAggregate->setModified($aggregate->getModified());
             $previousAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $previousAggregate;
@@ -51,17 +65,15 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageRollbackCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageRollbackEvent($command);
+        return new PageRollbackEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -71,21 +83,24 @@ final class PageRollbackHandler extends PageBaseHandler implements HandlerInterf
     {
         $payload = $command->getPayload();
 
-        if (
-            isset($payload['previousVersion']) &&
-            !empty($payload['previousVersion']) &&
-            0 !== $aggregate->getVersion()
-        ) {
-            return true;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (0 === $aggregate->getVersion()) {
+            throw new CommandValidationException(
+                'You cannot rollback an aggregate with no version',
+                CODE_BAD_REQUEST,
+                NULL,
+                $command
+            );
+        }
+
+        if (empty($payload['previousVersion'])) {
+            throw new CommandValidationException(
                 'You must provide a previous version',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

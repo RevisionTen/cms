@@ -28,6 +28,39 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class FileController extends AbstractController
 {
     /**
+     * @Route("/admin/file/picker/{targetId}", name="cms_file_picker")
+     *
+     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+     * @param \Doctrine\ORM\EntityManagerInterface           $entityManager
+     * @param string                                         $targetId
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getFilePicker(RequestStack $requestStack, EntityManagerInterface $entityManager, string $targetId): Response
+    {
+        $this->denyAccessUnlessGranted('file_list');
+
+        $request = $requestStack->getMasterRequest();
+        if (null === $request) {
+            throw new NotFoundHttpException();
+        }
+
+        $criteria = [
+            'website' => $request->get('currentWebsite'),
+        ];
+        $mimeTypes = $request->get('mimeTypes');
+        if ($mimeTypes) {
+            $criteria['mimeType'] = explode(',', $mimeTypes);
+        }
+
+        $files = $entityManager->getRepository(FileRead::class)->findBy($criteria);
+
+        return $this->render('@cms/Admin/File/picker.html.twig', [
+            'files' => $files,
+        ]);
+    }
+
+    /**
      * @Route("/file/{fileUuid}", name="cms_file_show")
      *
      * @param EntityManagerInterface $entityManager
@@ -52,6 +85,7 @@ class FileController extends AbstractController
      * @param RequestStack     $requestStack
      *
      * @return Response
+     * @throws \Exception
      */
     public function files(AggregateFactory $aggregateFactory, RequestStack $requestStack): Response
     {

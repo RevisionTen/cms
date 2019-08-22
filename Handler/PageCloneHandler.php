@@ -4,26 +4,40 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageCloneCommand;
+use DateTimeImmutable;
 use RevisionTen\CMS\Event\PageCloneEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use RevisionTen\CQRS\Services\AggregateFactory;
 
 final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
 {
+    /** @var AggregateFactory */
+    private $aggregateFactory;
+
+    /**
+     * PageCloneHandler constructor.
+     *
+     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     */
+    public function __construct(AggregateFactory $aggregateFactory)
+    {
+        $this->aggregateFactory = $aggregateFactory;
+    }
+
     /**
      * {@inheritdoc}
      *
      * @var Page $aggregate
      * @throws \Exception
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $originalUuid = $payload['originalUuid'];
         $originalVersion = $payload['originalVersion'];
@@ -42,8 +56,8 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
             $baseAggregate->setVersion($aggregate->getVersion() ?? 1);
             $baseAggregate->setStreamVersion($aggregate->getStreamVersion() ?? 1);
             $baseAggregate->setSnapshotVersion(null);
-            $baseAggregate->setCreated(new \DateTimeImmutable());
-            $baseAggregate->setModified(new \DateTimeImmutable());
+            $baseAggregate->setCreated($aggregate->getCreated());
+            $baseAggregate->setModified($aggregate->getModified());
             $baseAggregate->setHistory($aggregate->getHistory());
 
             $aggregate = $baseAggregate;
@@ -58,17 +72,15 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageCloneCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageCloneEvent($command);
+        return new PageCloneEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -78,32 +90,24 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (
-            !empty($payload['originalUuid']) &&
-            !empty($payload['originalVersion']) &&
-            0 === $aggregate->getVersion()
-        ) {
-            return true;
-        }
-
         if (0 !== $aggregate->getVersion()) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Aggregate already exists',
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['originalUuid']) || empty($payload['originalVersion'])) {
+            throw new CommandValidationException(
                 'You must provide an original uuid and version',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

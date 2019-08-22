@@ -96,7 +96,7 @@ class Alias
         $this->enabled = true;
     }
 
-    public function getHost(): ?string
+    public function getHost(?string $port = ''): ?string
     {
         if (null !== $this->getWebsite() && 0 !== \count($this->getWebsite()->getDomains())) {
             // Append locale prefix if it differs from the websites default language.
@@ -107,7 +107,7 @@ class Alias
             /** @var Domain $domain */
             $domain = $this->getWebsite()->getDomains()->first();
 
-            return $domain->getDomain().$locale;
+            return $domain->getDomain().$port.$locale;
         }
 
         return null;

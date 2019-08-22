@@ -12,6 +12,7 @@ use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -94,7 +95,7 @@ class FileMigrateCommand extends Command
         $websiteQuestion->setAutocompleterValues(array_keys($websites));
         $websiteQuestion->setValidator(static function ($answer) use ($websites) {
             if (!isset($websites[$answer])) {
-                throw new \RuntimeException('This website does not exist.');
+                throw new RuntimeException('This website does not exist.');
             }
 
             return $answer;
@@ -110,7 +111,7 @@ class FileMigrateCommand extends Command
         $languageQuestion->setAutocompleterValues(array_keys($languages));
         $languageQuestion->setValidator(static function ($answer) use ($languages) {
             if (!isset($languages[$answer])) {
-                throw new \RuntimeException('This language does not exist.');
+                throw new RuntimeException('This language does not exist.');
             }
 
             return $answer;
@@ -134,12 +135,16 @@ class FileMigrateCommand extends Command
 
         foreach ($files as $file) {
             // Update the aggregate.
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $this->commandBus->dispatch(new FileUpdateCommand(-1, null, $file->getUuid(), $file->getVersion(), [
-                'website' => (int) $website,
-                'language' => (string) $language,
-            ], $successCallback));
+            $success = $this->commandBus->dispatch(new FileUpdateCommand(
+                -1,
+                null,
+                $file->getUuid(),
+                $file->getVersion(),
+                [
+                    'website' => (int) $website,
+                    'language' => (string) $language,
+                ]
+            ));
 
             if ($success) {
                 // Return info about the user.

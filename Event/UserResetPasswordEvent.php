@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\UserResetPasswordCommand;
-use RevisionTen\CMS\Listener\UserResetPasswordListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\UserResetPasswordHandler;
+use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class UserResetPasswordEvent extends Event implements EventInterface
+final class UserResetPasswordEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return UserResetPasswordCommand::class;
+        return UserAggregate::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return UserResetPasswordListener::class;
+        return UserResetPasswordHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class UserResetPasswordEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'User password reset';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

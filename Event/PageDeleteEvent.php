@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageDeleteCommand;
-use RevisionTen\CMS\Listener\PageDeleteListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageDeleteHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageDeleteEvent extends Event implements EventInterface
+final class PageDeleteEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageDeleteCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageDeleteListener::class;
+        return PageDeleteHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageDeleteEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page Deleted';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

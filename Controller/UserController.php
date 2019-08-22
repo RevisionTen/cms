@@ -44,6 +44,7 @@ class UserController extends AbstractController
      * @param int                    $id
      *
      * @return Response|RedirectResponse|JsonResponse
+     * @throws \Exception
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {

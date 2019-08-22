@@ -122,14 +122,50 @@
     {% set file = value.file ?? null %}
     {% if file and file is not iterable %}
         {% set fileEnding = file|slice(-4) %}
+        {% set isSVG = fileEnding == '.svg' %}
         {% if fileEnding in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
             <a href="{{ file }}" class="d-block">
-                <img style="max-width: 200px;{{ (fileEnding == '.svg' ? 'width:100%;height:200px;' : '')|raw }}" class="rounded img-thumbnail {{ (fileEnding == '.svg' ? '' : 'h-auto')|raw }} mb-3" src="{{ file }}">
+                <img id="cms-img-{{ form.file.vars.id }}"
+                     style="width:200px;height:200px;"
+                     width="200"
+                     height="200"
+                     class="rounded img-thumbnail mb-3"
+                     src="{{ isSVG ? file : web_image(file).scaleResize(400, 400).png() }}"
+                >
             </a>
         {% else %}
             <a href="{{ file }}">{{ file }}</a>
         {% endif %}
+    {% else %}
+        <img id="cms-img-{{ form.file.vars.id }}"
+             style="width:200px;height:200px;"
+             width="200"
+             height="200"
+             class="d-none rounded img-thumbnail mb-3"
+             src="{{ asset('bundles/cms/images/placeholder.png') }}"
+        >
     {% endif %}
+
+    {% if show_file_picker and is_granted('file_list') and form.uploadedFile is defined and form.file is defined %}
+        <div class="form-row align-items-center">
+            <div class="col">
+                {{ form_widget(form.uploadedFile) }}
+                {{ form_errors(form.uploadedFile) }}
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-secondary border"
+                        data-file-picker="{{ form.file.vars.id }}"
+                        data-file-picker-upload="{{ form.uploadedFile.vars.id }}"
+                        {% if file_picker_mime_types %}
+                            data-file-picker-mime-types="{{ file_picker_mime_types|join(',') }}"
+                        {% endif %}
+                >
+                    <span class="fas fa-folder"></span>
+                </button>
+            </div>
+        </div>
+    {% endif %}
+
     {{ block('form_widget') }}
 {% endblock cms_upload_widget %}
 

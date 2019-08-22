@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\UserCreateCommand;
-use RevisionTen\CMS\Listener\UserCreateListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\UserCreateHandler;
+use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class UserCreateEvent extends Event implements EventInterface
+final class UserCreateEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return UserCreateCommand::class;
+        return UserAggregate::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return UserCreateListener::class;
+        return UserCreateHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class UserCreateEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'User Created';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

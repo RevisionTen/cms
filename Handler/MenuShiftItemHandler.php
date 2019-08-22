@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuShiftItemCommand;
 use RevisionTen\CMS\Event\MenuShiftItemEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function array_slice;
+use function count;
+use function is_string;
 
 final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -25,11 +27,11 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
      */
     private static function down(array $array, int $item): array
     {
-        if (\count($array) - 1 > $item) {
-            $b = \array_slice($array, 0, $item, true);
+        if (count($array) - 1 > $item) {
+            $b = array_slice($array, 0, $item, true);
             $b[] = $array[$item + 1];
             $b[] = $array[$item];
-            $b += \array_slice($array, $item + 2, \count($array), true);
+            $b += array_slice($array, $item + 2, count($array), true);
 
             return $b;
         } else {
@@ -47,11 +49,11 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
      */
     private static function up(array $array, int $item): array
     {
-        if ($item > 0 && $item < \count($array)) {
-            $b = \array_slice($array, 0, $item - 1, true);
+        if ($item > 0 && $item < count($array)) {
+            $b = array_slice($array, 0, $item - 1, true);
             $b[] = $array[$item];
             $b[] = $array[$item - 1];
-            $b += \array_slice($array, $item + 1, \count($array), true);
+            $b += array_slice($array, $item + 1, count($array), true);
 
             return $b;
         } else {
@@ -64,9 +66,9 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $uuid = $payload['uuid'];
         $direction = $payload['direction'];
@@ -99,17 +101,15 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuShiftItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuShiftItemEvent($command);
+        return new MenuShiftItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -122,37 +122,35 @@ final class MenuShiftItemHandler extends MenuBaseHandler implements HandlerInter
         $payload = $command->getPayload();
         // The uuid to shift.
         $uuid = $payload['uuid'] ?? null;
-        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
+        $item = is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
         if (null === $uuid) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No uuid to shift is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!$item) {
-            $this->messageBus->dispatch(new Message(
+        if (!$item) {
+            throw new CommandValidationException(
                 'Item with this uuid was not found'.$uuid,
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['direction']) || ('up' !== $payload['direction'] && 'down' !== $payload['direction'])) {
-            $this->messageBus->dispatch(new Message(
+        if (!isset($payload['direction']) || ('up' !== $payload['direction'] && 'down' !== $payload['direction'])) {
+            throw new CommandValidationException(
                 'Shift direction is not set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

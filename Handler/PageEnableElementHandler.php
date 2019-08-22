@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageEnableElementCommand;
 use RevisionTen\CMS\Event\PageEnableElementEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_string;
 
 final class PageEnableElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -20,9 +20,9 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $uuid = $payload['uuid'];
 
         // A function that enables the element.
@@ -39,17 +39,15 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageEnableElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageEnableElementEvent($command);
+        return new PageEnableElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -62,28 +60,26 @@ final class PageEnableElementHandler extends PageBaseHandler implements HandlerI
         $payload = $command->getPayload();
         // The uuid to enable.
         $uuid = $payload['uuid'] ?? null;
-        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $element = is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
         if (null === $uuid) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No uuid to enable is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!$element) {
-            $this->messageBus->dispatch(new Message(
+        if (!$element) {
+            throw new CommandValidationException(
                 'Element with this uuid was not found'.$uuid,
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\UserLogoutCommand;
-use RevisionTen\CMS\Listener\UserLogoutListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\UserLogoutHandler;
+use RevisionTen\CMS\Model\UserAggregate;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class UserLogoutEvent extends Event implements EventInterface
+final class UserLogoutEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return UserLogoutCommand::class;
+        return UserAggregate::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return UserLogoutListener::class;
+        return UserLogoutHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class UserLogoutEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'User logged out';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

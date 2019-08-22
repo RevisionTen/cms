@@ -81,6 +81,7 @@ easy_admin:
                 - 'bundles/cms/css/trix.css?v=%cms.version%'
                 - 'bundles/cms/css/jquery-ui.min.css?v=%cms.version%'
                 - 'bundles/cms/css/easyadmin.css?v=%cms.version%'
+                - 'bundles/cms/css/cms-file-picker.css?v=%cms.version%'
             js:
                 - 'bundles/cms/js/bootstrap/popper.min.js?v=%cms.version%'
                 - 'bundles/cms/js/bootstrap/bootstrap.min.js?v=%cms.version%'
@@ -88,6 +89,7 @@ easy_admin:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
+                - 'bundles/cms/js/file-picker.js?v=%cms.version%'
     formats:
         date:     'd.m.Y'
         time:     'H:i'
@@ -423,7 +425,7 @@ easy_admin:
             templates:
                 list: '@cms/Admin/File/list.html.twig'
             list:
-                sort: ['title', 'DESC']
+                sort: ['modified', 'DESC']
                 actions:
                     - '-new'
                     - '-edit'
@@ -435,4 +437,6 @@ easy_admin:
                     - { property: 'mimeType', label: 'MimeType' }
                     - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }
                     - 'language'
+                    - { property: 'created', type: 'datetime' }
+                    - { property: 'modified', type: 'datetime' }
                     #- { property: 'website', type: 'raw' }

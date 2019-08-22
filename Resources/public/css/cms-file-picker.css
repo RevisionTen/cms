@@ -1,0 +1,26 @@
+/* CMS File Picker */
+.cms-file-picker {
+    display: none;
+    position: fixed;
+    z-index: 999999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background:white;
+}
+.cms-file-picker-body {
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+body.file-picker-open {
+    overflow: hidden;
+    max-height: 100%;
+}
+body.file-picker-open .modal-dialog {
+    resize: none;
+}

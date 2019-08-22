@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\EventSubscriber;
 
+use RevisionTen\CMS\Command\PagePublishCommand;
+use RevisionTen\CMS\Command\PageUnpublishCommand;
+use RevisionTen\CMS\Event\PageAddScheduleEvent;
+use RevisionTen\CMS\Event\PageDeleteEvent;
+use RevisionTen\CMS\Event\PagePublishEvent;
+use RevisionTen\CMS\Event\PageRemoveScheduleEvent;
+use RevisionTen\CMS\Event\PageSubmitEvent;
+use RevisionTen\CMS\Event\PageUnpublishEvent;
 use RevisionTen\CMS\Services\IndexService;
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Services\TaskService;
-use RevisionTen\CMS\SymfonyEvent\PageDeletedEvent;
-use RevisionTen\CMS\SymfonyEvent\PagePublishedEvent;
-use RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -50,22 +55,29 @@ class PageSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PagePublishedEvent::NAME => 'updateReadModels',
-            PageUnpublishedEvent::NAME => 'deleteReadModels',
-            PageDeletedEvent::NAME => 'deleteTasks',
+            PagePublishEvent::class => 'updateReadModels',
+            PageUnpublishEvent::class => 'deleteReadModels',
+            PageDeleteEvent::class => 'deleteReadModelsAndTasks',
+            PageSubmitEvent::class => 'submitPage',
+
+            // Todo: These actions should probably only be performed after an
+            // aggregate was updated, not when these queued events happen, because
+            // if these events are discarded the tasks are orphaned.
+            PageAddScheduleEvent::class => 'addSchedule',
+            PageRemoveScheduleEvent::class => 'removeSchedule',
         ];
     }
 
     /**
-     * @param \RevisionTen\CMS\SymfonyEvent\PagePublishedEvent $pagePublishedEvent
+     * @param \RevisionTen\CMS\Event\PagePublishEvent $pagePublishEvent
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function updateReadModels(PagePublishedEvent $pagePublishedEvent): void
+    public function updateReadModels(PagePublishEvent $pagePublishEvent): void
     {
         $output = new NullOutput();
-        $pageUuid = $pagePublishedEvent->getPageUuid();
-        $version = $pagePublishedEvent->getVersion();
+        $pageUuid = $pagePublishEvent->getAggregateUuid();
+        $version = $pagePublishEvent->getVersion();
 
         $this->pageService->updatePageStreamRead($pageUuid);
         $this->pageService->updatePageRead($pageUuid, $version);
@@ -74,14 +86,14 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\SymfonyEvent\PageUnpublishedEvent $pageUnpublishedEvent
+     * @param \RevisionTen\CMS\Event\PageUnpublishEvent $pageUnpublishEvent
      *
      * @throws \Doctrine\ORM\ORMException
      */
-    public function deleteReadModels(PageUnpublishedEvent $pageUnpublishedEvent): void
+    public function deleteReadModels(PageUnpublishEvent $pageUnpublishEvent): void
     {
         $output = new NullOutput();
-        $pageUuid = $pageUnpublishedEvent->getPageUuid();
+        $pageUuid = $pageUnpublishEvent->getAggregateUuid();
 
         $this->pageService->updatePageStreamRead($pageUuid);
         $this->pageService->deletePageRead($pageUuid);
@@ -90,12 +102,71 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\SymfonyEvent\PageDeletedEvent $pageDeletedEvent
+     * @param \RevisionTen\CMS\Event\PageDeleteEvent $pageDeleteEvent
+     *
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function deleteTasks(PageDeletedEvent $pageDeletedEvent): void
+    public function deleteReadModelsAndTasks(PageDeleteEvent $pageDeleteEvent): void
     {
-        $pageUuid = $pageDeletedEvent->getPageUuid();
+        $output = new NullOutput();
+        $pageUuid = $pageDeleteEvent->getAggregateUuid();
+
+        $this->pageService->updatePageStreamRead($pageUuid);
+        $this->pageService->deletePageRead($pageUuid);
+        $this->pageService->updateAliases($pageUuid);
+        $this->indexService->index($output, $pageUuid);
 
         $this->taskService->markTasksAsDeleted($pageUuid);
+    }
+
+    /**
+     * @param \RevisionTen\CMS\Event\PageSubmitEvent $pageSubmitEvent
+     */
+    public function submitPage(PageSubmitEvent $pageSubmitEvent): void
+    {
+        $pageUuid = $pageSubmitEvent->getAggregateUuid();
+        $user = $pageSubmitEvent->getUser();
+        $maxVersion = $pageSubmitEvent->getVersion();
+
+        $this->pageService->submitPage($pageUuid, $user, $maxVersion);
+    }
+
+    /**
+     * @param \RevisionTen\CMS\Event\PageAddScheduleEvent $pageAddScheduleEvent
+     *
+     * @throws \Exception
+     */
+    public function addSchedule(PageAddScheduleEvent $pageAddScheduleEvent): void
+    {
+        $pageUuid = $pageAddScheduleEvent->getAggregateUuid();
+        $scheduleUuid = $pageAddScheduleEvent->getCommandUuid();
+
+        $payload = $pageAddScheduleEvent->getPayload();
+        $startDate = $payload['startDate'] ?? null;
+        $endDate = $payload['endDate'] ?? null;
+
+        // Create scheduler entries.
+        if ($startDate) {
+            $startDateTime = new \DateTime();
+            $startDateTime->setTimestamp($startDate);
+            $this->taskService->addTask($scheduleUuid, $pageUuid, PagePublishCommand::class, $startDateTime, []);
+        }
+        if ($endDate) {
+            $endDateTime = new \DateTime();
+            $endDateTime->setTimestamp($endDate);
+            $this->taskService->addTask($scheduleUuid, $pageUuid, PageUnpublishCommand::class, $endDateTime, []);
+        }
+    }
+
+    /**
+     * @param \RevisionTen\CMS\Event\PageRemoveScheduleEvent $pageRemoveScheduleEvent
+     */
+    public function removeSchedule(PageRemoveScheduleEvent $pageRemoveScheduleEvent): void
+    {
+        $payload = $pageRemoveScheduleEvent->getPayload();
+
+        if (!empty($payload['scheduleUuid'])) {
+            $this->taskService->removeTask($payload['scheduleUuid']);
+        }
     }
 }

@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageDuplicateElementCommand;
 use RevisionTen\CMS\Event\PageDuplicateElementEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 use Ramsey\Uuid\Uuid;
+use function is_array;
+use function is_string;
 
 final class PageDuplicateElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -27,7 +28,7 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         // Set new Uuid.
         $element['uuid'] = $newUuid;
 
-        if (isset($element['elements']) && \is_array($element['elements'])) {
+        if (isset($element['elements']) && is_array($element['elements'])) {
             foreach ($element['elements'] as $key => $subElement) {
                 $element['elements'][$key] = $this->assignNewUuid($subElement, $commandUuid);
             }
@@ -41,11 +42,11 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
-        $commandUuid = $command->getUuid();
+        $commandUuid = $event->getCommandUuid();
         $uuid = $payload['uuid'];
 
         // A function that duplicates all matching elements.
@@ -83,17 +84,15 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageDuplicateElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageDuplicateElementEvent($command);
+        return new PageDuplicateElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -106,28 +105,26 @@ final class PageDuplicateElementHandler extends PageBaseHandler implements Handl
         $payload = $command->getPayload();
         // The uuid to duplicate.
         $uuid = $payload['uuid'] ?? null;
-        $element = \is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
+        $element = is_string($uuid) ? self::getElement($aggregate, $uuid) : null;
 
         if (null === $uuid) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No uuid to duplicate is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!$element) {
-            $this->messageBus->dispatch(new Message(
+        if (!$element) {
+            throw new CommandValidationException(
                 'Element with this uuid was not found'.$uuid,
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\MenuEditItemCommand;
 use RevisionTen\CMS\Event\MenuEditItemEvent;
 use RevisionTen\CMS\Model\Menu;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_string;
 
 final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterface
 {
@@ -20,9 +20,9 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
      *
      * @var Menu $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Add to items.
         $data = $payload['data'];
@@ -40,17 +40,15 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return MenuEditItemCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new MenuEditItemEvent($command);
+        return new MenuEditItemEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -63,37 +61,35 @@ final class MenuEditItemHandler extends MenuBaseHandler implements HandlerInterf
         $payload = $command->getPayload();
         // The uuid to edit.
         $uuid = $payload['uuid'] ?? null;
-        $item = \is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
+        $item = is_string($uuid) ? self::getItem($aggregate, $uuid) : null;
 
         if (null === $uuid) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No uuid to edit is set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['data'])) {
-            $this->messageBus->dispatch(new Message(
+        if (!isset($payload['data'])) {
+            throw new CommandValidationException(
                 'No data set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!$item) {
-            $this->messageBus->dispatch(new Message(
+        if (!$item) {
+            throw new CommandValidationException(
                 'Item with this uuid was not found'.$uuid,
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

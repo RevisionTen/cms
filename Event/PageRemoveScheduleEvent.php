@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Event;
 
-use RevisionTen\CMS\Command\PageRemoveScheduleCommand;
-use RevisionTen\CMS\Listener\PageRemoveScheduleListener;
-use RevisionTen\CQRS\Event\Event;
+use RevisionTen\CMS\Handler\PageRemoveScheduleHandler;
+use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Event\AggregateEvent;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 
-final class PageRemoveScheduleEvent extends Event implements EventInterface
+final class PageRemoveScheduleEvent extends AggregateEvent implements EventInterface
 {
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
+    public static function getAggregateClass(): string
     {
-        return PageRemoveScheduleCommand::class;
+        return Page::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getListenerClass(): string
+    public static function getHandlerClass(): string
     {
-        return PageRemoveScheduleListener::class;
+        return PageRemoveScheduleHandler::class;
     }
 
     /**
@@ -33,13 +33,5 @@ final class PageRemoveScheduleEvent extends Event implements EventInterface
     public function getMessage(): string
     {
         return 'Page Schedule Removed';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getCode(): int
-    {
-        return CODE_OK;
     }
 }

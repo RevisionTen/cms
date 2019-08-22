@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
+use RuntimeException;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -81,7 +82,7 @@ class UserSecretCommand extends Command
 
             $usernameQuestion->setValidator(function ($answer) {
                 if (!$this->entityManager->getRepository(UserRead::class)->findOneByUsername($answer)) {
-                    throw new \RuntimeException('User not found.');
+                    throw new RuntimeException('User not found.');
                 }
 
                 return $answer;
@@ -111,12 +112,15 @@ class UserSecretCommand extends Command
             $googleAuthenticator = new GoogleAuthenticator();
             $secret = $googleAuthenticator->generateSecret();
 
-            $success = false;
-            $successCallback = static function ($commandBus, $event) use (&$success) { $success = true; };
-            $userGenerateSecretCommand = new UserGenerateSecretCommand(-1, null, $userUuid, $onVersion, [
-                'secret' => $secret,
-            ], $successCallback);
-            $this->commandBus->dispatch($userGenerateSecretCommand);
+            $success = $this->commandBus->dispatch(new UserGenerateSecretCommand(
+                -1,
+                null,
+                $userUuid,
+                $onVersion,
+                [
+                    'secret' => $secret,
+                ]
+            ));
 
             if ($success) {
                 $output->writeln('User secret generated.');

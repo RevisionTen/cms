@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageAddElementCommand;
 use RevisionTen\CMS\Event\PageAddElementEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
+use function is_string;
 
 final class PageAddElementHandler extends PageBaseHandler implements HandlerInterface
 {
@@ -20,15 +20,15 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
         $elementName = $payload['elementName'];
         $data = $payload['data'];
 
         // Build element data.
         $newElement = [
-            'uuid' => $command->getUuid(),
+            'uuid' => $event->getCommandUuid(),
             'elementName' => $elementName,
             'data' => $data,
         ];
@@ -36,7 +36,7 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
         // Add to elements.
         $parentUuid = $payload['parent'] ?? null;
 
-        if ($parentUuid && \is_string($parentUuid)) {
+        if ($parentUuid && is_string($parentUuid)) {
             // A function that add the new element to the target parent.
             $addElementFunction = static function (&$element, &$collection) use ($newElement) {
                 if (!isset($element['elements'])) {
@@ -58,17 +58,15 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageAddElementCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageAddElementEvent($command);
+        return new PageAddElementEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -79,25 +77,23 @@ final class PageAddElementHandler extends PageBaseHandler implements HandlerInte
         $payload = $command->getPayload();
 
         if (!isset($payload['elementName'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'No element type set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['data'])) {
-            $this->messageBus->dispatch(new Message(
+        if (!isset($payload['data'])) {
+            throw new CommandValidationException(
                 'No data set',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
-        } else {
-            return true;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }

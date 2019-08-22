@@ -4,26 +4,24 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\PageRemoveScheduleCommand;
 use RevisionTen\CMS\Event\PageRemoveScheduleEvent;
 use RevisionTen\CMS\Model\Page;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
-use RevisionTen\CQRS\Handler\Handler;
 
-final class PageRemoveScheduleHandler extends Handler implements HandlerInterface
+final class PageRemoveScheduleHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
      *
      * @var Page $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         $scheduleUuid = $payload['scheduleUuid'];
 
@@ -40,17 +38,15 @@ final class PageRemoveScheduleHandler extends Handler implements HandlerInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return PageRemoveScheduleCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new PageRemoveScheduleEvent($command);
+        return new PageRemoveScheduleEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -61,14 +57,12 @@ final class PageRemoveScheduleHandler extends Handler implements HandlerInterfac
         $payload = $command->getPayload();
 
         if (empty($payload['scheduleUuid'])) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'You must chose a schedule to remove',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
 
         return true;

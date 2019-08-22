@@ -9,7 +9,7 @@ use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
-use RevisionTen\CQRS\Model\EventQeueObject;
+use RevisionTen\CQRS\Model\EventQueueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
 use RevisionTen\CQRS\Services\EventStore;
@@ -141,6 +141,8 @@ class PageService
      *
      * @param string $pageUuid
      * @param int    $version
+     *
+     * @throws \Exception
      */
     public function updatePageRead(string $pageUuid, int $version): void
     {
@@ -200,20 +202,22 @@ class PageService
      * @param string $pageUuid
      * @param int    $user
      * @param int    $maxVersion the max version for queued events
+     *
+     * @throws \Exception
      */
     public function submitPage(string $pageUuid, int $user, int $maxVersion): void
     {
         /**
          * Find the queued events for this user and page.
          *
-         * @var EventQeueObject[] $eventQeueObjects
+         * @var \RevisionTen\CQRS\Model\EventQueueObject[] $eventQueueObjects
          */
-        $eventQueueObjects = $this->eventStore->findEventObjects(EventQeueObject::class, $pageUuid, $maxVersion, null, $user);
+        $eventQueueObjects = $this->eventStore->findEventObjects(EventQueueObject::class, $pageUuid, $maxVersion, null, $user);
 
         /**
          * Publish the queued events.
          */
-        $this->eventBus->publishQeued($eventQueueObjects);
+        $this->eventBus->publishQueued($eventQueueObjects);
     }
 
     /**
@@ -228,7 +232,7 @@ class PageService
 
         // Remove all other queued Events for this Page.
         foreach ($users as $queueUser) {
-            $this->eventStore->discardQeued($pageUuid, $queueUser->getId());
+            $this->eventStore->discardQueued($pageUuid, $queueUser->getId());
         }
     }
 
@@ -236,6 +240,8 @@ class PageService
      * Update the PageStreamRead entity for the admin backend.
      *
      * @param string $pageUuid
+     *
+     * @throws \Exception
      */
     public function updatePageStreamRead(string $pageUuid): void
     {

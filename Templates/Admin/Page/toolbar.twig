@@ -15,10 +15,10 @@
                         <span class="fas fa-link"></span> <span class="label-text">{{ 'Aliases'|trans }}</span>
                     </button>
                     <div class="dropdown-menu">
-                        {% set port = app.request.port and app.request.port != '80' and app.request.port != '443' ? ':'~app.request.port : '' %}
+                        {% set port = app.request.port and app.request.port != '80' and app.request.port != '443' ? ':' ~ app.request.port : null %}
                         {% for alias in aliases %}
-                            <a class="dropdown-item text-dark" target="_blank" href="{{ alias.host ? app.request.getScheme()~'://'~alias.host : '' }}{{ port }}{{ alias.path }}">
-                                {{ alias.host }}{{ port }}{{ alias.path }}
+                            <a class="dropdown-item text-dark" target="_blank" href="{{ alias.host(port) ? app.request.getScheme()~'://'~alias.host(port) : '' }}{{ alias.path }}">
+                                {{ alias.host(port) }}{{ alias.path }}
                             </a>
                         {% endfor %}
                     </div>

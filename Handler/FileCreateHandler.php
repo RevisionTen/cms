@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Handler;
 
-use RevisionTen\CMS\Command\FileCreateCommand;
+use ReflectionObject;
+use ReflectionProperty;
 use RevisionTen\CMS\Event\FileCreateEvent;
 use RevisionTen\CMS\Model\File;
-use RevisionTen\CQRS\Handler\Handler;
+use RevisionTen\CQRS\Exception\CommandValidationException;
 use RevisionTen\CQRS\Interfaces\AggregateInterface;
 use RevisionTen\CQRS\Interfaces\CommandInterface;
 use RevisionTen\CQRS\Interfaces\EventInterface;
 use RevisionTen\CQRS\Interfaces\HandlerInterface;
-use RevisionTen\CQRS\Message\Message;
 
-final class FileCreateHandler extends Handler implements HandlerInterface
+final class FileCreateHandler implements HandlerInterface
 {
     /**
      * {@inheritdoc}
      *
      * @var File $aggregate
      */
-    public function execute(CommandInterface $command, AggregateInterface $aggregate): AggregateInterface
+    public function execute(EventInterface $event, AggregateInterface $aggregate): AggregateInterface
     {
-        $payload = $command->getPayload();
+        $payload = $event->getPayload();
 
         // Change Aggregate state.
         // Get each public property from the aggregate and update it If a new value exists in the payload.
-        $reflect = new \ReflectionObject($aggregate);
-        foreach ($reflect->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+        $reflect = new ReflectionObject($aggregate);
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
             if (array_key_exists($propertyName, $payload)) {
                 $aggregate->{$propertyName} = $payload[$propertyName];
@@ -41,17 +41,15 @@ final class FileCreateHandler extends Handler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getCommandClass(): string
-    {
-        return FileCreateCommand::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createEvent(CommandInterface $command): EventInterface
     {
-        return new FileCreateEvent($command);
+        return new FileCreateEvent(
+            $command->getAggregateUuid(),
+            $command->getUuid(),
+            $command->getOnVersion() + 1,
+            $command->getUser(),
+            $command->getPayload()
+        );
     }
 
     /**
@@ -61,36 +59,33 @@ final class FileCreateHandler extends Handler implements HandlerInterface
     {
         $payload = $command->getPayload();
 
-        if (!empty($payload['title']) && !empty($payload['path']) && 0 === $aggregate->getVersion()) {
-            return true;
-        }
         if (0 !== $aggregate->getVersion()) {
-            $this->messageBus->dispatch(new Message(
+            throw new CommandValidationException(
                 'Aggregate already exists',
                 CODE_CONFLICT,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } elseif (!isset($payload['path']) || empty($payload['path'])) {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['path'])) {
+            throw new CommandValidationException(
                 'You must enter a path',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
+                NULL,
+                $command
+            );
+        }
 
-            return false;
-        } else {
-            $this->messageBus->dispatch(new Message(
+        if (empty($payload['title'])) {
+            throw new CommandValidationException(
                 'You must enter a title',
                 CODE_BAD_REQUEST,
-                $command->getUuid(),
-                $command->getAggregateUuid()
-            ));
-
-            return false;
+                NULL,
+                $command
+            );
         }
+
+        return true;
     }
 }
