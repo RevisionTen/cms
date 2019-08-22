@@ -776,7 +776,7 @@ class MenuController extends AbstractController
 
             if ($menuData) {
                 // Get paths.
-                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $alias->getWebsite());
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $website);
 
                 // Populate cache.
                 $cacheService->put($cacheKey, $version, $menuData);

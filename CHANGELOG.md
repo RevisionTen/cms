@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgraded CQRS classes **Update your classes if they implement the CQRS interfaces**
 
+## [1.7.12] - 2019-08-22
+### Changed
+- Improved language prefix usage for menu items
+
 ## [1.7.11] - 2019-08-22
 ### Changed
 - Added language prefix to menu item paths if their page language differs from the defaultLanguage
