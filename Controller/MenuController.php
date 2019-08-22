@@ -678,7 +678,7 @@ class MenuController extends AbstractController
         return $menu;
     }
 
-    private function getPaths(EntityManagerInterface $entityManager, array $items): array
+    private function getPaths(EntityManagerInterface $entityManager, array $items, ?Website $website = null): array
     {
         // Get all aliases.
         $paths = [];
@@ -690,7 +690,16 @@ class MenuController extends AbstractController
         ]);
         foreach ($aliases as $alias) {
             if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-                $paths[$alias->getId()] = $alias->getPath();
+
+                $prefix = null !== $website && $website->getDefaultLanguage() !== $alias->getLanguage() ? '/'.$alias->getLanguage() : '';
+                $path = $alias->getPath();
+
+                // Do not append / for prefixed front page.
+                if ('/' === $path && !empty($prefix)) {
+                    $path = '';
+                }
+
+                $paths[$alias->getId()] = $prefix.$path;
             }
         }
 
@@ -767,7 +776,7 @@ class MenuController extends AbstractController
 
             if ($menuData) {
                 // Get paths.
-                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items']);
+                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $alias->getWebsite());
 
                 // Populate cache.
                 $cacheService->put($cacheKey, $version, $menuData);
