@@ -64,7 +64,7 @@ class SearchService
         $query->setStart($start);
         $query->setRows($rows);
 
-        self::getFulltextFilterQuery($query, $term);
+        self::getFulltextFilterQuery($query, $queryString);
 
         // Get search results.
         try {
