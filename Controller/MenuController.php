@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Exception;
 use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Command\MenuCreateCommand;
 use RevisionTen\CMS\Command\MenuDisableItemCommand;
@@ -40,6 +41,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function array_combine;
+use function array_key_exists;
+use function array_keys;
+use function array_unique;
+use function class_implements;
+use function count;
+use function in_array;
+use function is_array;
+use function json_decode;
+use function json_encode;
+use function strcmp;
 
 /**
  * Class MenuController.
@@ -99,7 +111,7 @@ class MenuController extends AbstractController
             } else {
                 $originalValue = $base[$property];
 
-                if (\is_array($value) && \is_array($originalValue)) {
+                if (is_array($value) && is_array($originalValue)) {
                     // Check if values arrays are identical.
                     if (0 !== strcmp(json_encode($value), json_encode($originalValue))) {
                         // Arrays are not equal.
@@ -294,7 +306,7 @@ class MenuController extends AbstractController
             $formClass = $itemConfig['class'];
             $implements = class_implements($formClass);
 
-            if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
+            if ($implements && in_array(FormTypeInterface::class, $implements, false)) {
                 $form = $this->createForm(ElementType::class, ['data' => $data], ['elementConfig' => $itemConfig]);
                 $form->handleRequest($request);
 
@@ -326,7 +338,7 @@ class MenuController extends AbstractController
                 throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
             }
         } else {
-            throw new \Exception('Item type '.$itemName.' does not exist.');
+            throw new Exception('Item type '.$itemName.' does not exist.');
         }
     }
 
@@ -376,7 +388,7 @@ class MenuController extends AbstractController
                 $formClass = $itemConfig['class'];
                 $implements = class_implements($formClass);
 
-                if ($implements && \in_array(FormTypeInterface::class, $implements, false)) {
+                if ($implements && in_array(FormTypeInterface::class, $implements, false)) {
                     $form = $this->createForm(ElementType::class, $data, ['elementConfig' => $itemConfig]);
                     $form->handleRequest($request);
 
@@ -416,11 +428,11 @@ class MenuController extends AbstractController
                     throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
                 }
             } else {
-                throw new \Exception('Item type '.$itemName.' does not exist.');
+                throw new Exception('Item type '.$itemName.' does not exist.');
             }
         } else {
             // Not a valid element.
-            throw new \Exception('Item with uuid '.$itemUuid.' is not a valid item.');
+            throw new Exception('Item with uuid '.$itemUuid.' is not a valid item.');
         }
     }
 
@@ -438,6 +450,7 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
+     * @throws \Exception
      */
     public function deleteItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
@@ -487,6 +500,7 @@ class MenuController extends AbstractController
      * @param string           $direction
      *
      * @return JsonResponse|Response
+     * @throws \Exception
      */
     public function shiftItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
     {
@@ -537,6 +551,7 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
+     * @throws \Exception
      */
     public function disableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
@@ -585,6 +600,7 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
+     * @throws \Exception
      */
     public function enableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
@@ -655,11 +671,11 @@ class MenuController extends AbstractController
             }
 
             if (isset($item['items'])) {
-                $ids = array_merge($ids, $this->getAliasIds($item['items']));
+                $ids += $this->getAliasIds($item['items']);
             }
         }
 
-        return $ids;
+        return array_unique($ids);
     }
 
     private function getMenuData(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, array $config)
@@ -802,6 +818,7 @@ class MenuController extends AbstractController
      * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
+     * @throws \Exception
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $menuUuid, int $onVersion)
     {
@@ -841,9 +858,9 @@ class MenuController extends AbstractController
 
         foreach ($arrayOriginal as $key => $value) {
             if (array_key_exists($key, $arrayNew)) {
-                if (\is_array($value)) {
+                if (is_array($value)) {
                     $arrayRecursiveDiff = self::array_diff_recursive($value, $arrayNew[$key]);
-                    if (\count($arrayRecursiveDiff)) {
+                    if (count($arrayRecursiveDiff)) {
                         $arrayDiff[$key] = $arrayRecursiveDiff;
                     }
                 } elseif ($value !== $arrayNew[$key]) {

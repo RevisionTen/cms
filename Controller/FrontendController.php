@@ -155,7 +155,7 @@ class FrontendController extends AbstractController
      * @param string  $path
      *
      * @return Response
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws \Exception
      */
     public function alias(Request $request, string $path): Response
     {
@@ -248,7 +248,7 @@ class FrontendController extends AbstractController
 
         $query = $request ? $request->get('q') : null;
 
-        $results = !empty($query) ? $searchService->getFulltextResults($query) : null;
+        $results = !empty($query) && is_string($query) ? $searchService->getFulltextResults($query) : null;
 
         return $this->render('@cms/Search/fulltext.html.twig', [
             'query' => $query,
