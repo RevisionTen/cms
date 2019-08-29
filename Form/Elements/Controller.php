@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Form\Elements;
 
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use function array_walk;
 
 class Controller extends Element
 {
@@ -29,7 +30,7 @@ class Controller extends Element
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -46,7 +47,7 @@ class Controller extends Element
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_controller';
     }

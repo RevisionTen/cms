@@ -142,6 +142,10 @@ services:
         tags: [form.type]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Form\PageType:
+        autoconfigure: true
+        autowire: true
+        tags: [form.type]
     RevisionTen\CMS\Form\Elements\Form:
         autoconfigure: true
         autowire: true

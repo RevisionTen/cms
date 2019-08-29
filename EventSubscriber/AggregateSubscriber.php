@@ -52,13 +52,18 @@ class AggregateSubscriber implements EventSubscriberInterface
         $this->userService = $userService;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             AggregateUpdatedEvent::NAME => 'updateReadModel',
         ];
     }
 
+    /**
+     * @param \RevisionTen\CQRS\Event\AggregateUpdatedEvent $aggregateUpdatedEvent
+     *
+     * @throws \Exception
+     */
     public function updateReadModel(AggregateUpdatedEvent $aggregateUpdatedEvent): void
     {
         /** @var \RevisionTen\CQRS\Interfaces\EventInterface $event */

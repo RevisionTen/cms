@@ -7,6 +7,11 @@ namespace RevisionTen\CMS\Twig;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use function array_push;
+use function array_walk;
+use function implode;
+use function is_array;
+use function time;
 
 class CmsExtension extends AbstractExtension
 {
@@ -32,7 +37,7 @@ class CmsExtension extends AbstractExtension
         $this->translator = $translator;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return array(
             new TwigFunction('isElementVisible', [$this, 'isElementVisible']),
@@ -70,44 +75,44 @@ class CmsExtension extends AbstractExtension
         $left = $spacing['left'] ?? null;
         if (null !== $top) {
             $key = $propertyAbr.'t'.$breakpoint;
-            $classes[$key] = $key.'-'.$top;
+            $classes[] = $key.'-'.$top;
         }
         if (null !== $right) {
             $key = $propertyAbr.'r'.$breakpoint;
-            $classes[$key] = $key.'-'.$right;
+            $classes[] = $key.'-'.$right;
         }
         if (null !== $bottom) {
             $key = $propertyAbr.'b'.$breakpoint;
-            $classes[$key] = $key.'-'.$bottom;
+            $classes[] = $key.'-'.$bottom;
         }
         if (null !== $left) {
             $key = $propertyAbr.'l'.$breakpoint;
-            $classes[$key] = $key.'-'.$left;
+            $classes[] = $key.'-'.$left;
         }
 
         return $classes;
     }
 
-    public function elementClasses(array $element)
+    public function elementClasses(array $element): string
     {
         $classes = [];
 
         // Add style classes.
-        if (isset($element['data']['styles']) && \is_array($element['data']['styles'])) {
+        if (isset($element['data']['styles']) && is_array($element['data']['styles'])) {
             $classes = $element['data']['styles'];
         }
 
         // Add margin classes.
-        if (isset($element['data']['settings']['margins']) && \is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
+        if (isset($element['data']['settings']['margins']) && is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
             foreach ($element['data']['settings']['margins'] as $spacing) {
-                $classes += self::getSpacing($spacing, 'm');
+                array_push($classes, ...self::getSpacing($spacing, 'm'));
             }
         }
 
         // Add padding classes.
-        if (isset($element['data']['settings']['paddings']) && \is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
+        if (isset($element['data']['settings']['paddings']) && is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
             foreach ($element['data']['settings']['paddings'] as $spacing) {
-                $classes += self::getSpacing($spacing, 'p');
+                array_push($classes, ...self::getSpacing($spacing, 'p'));
             }
         }
 

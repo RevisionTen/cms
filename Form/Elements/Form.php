@@ -11,9 +11,14 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Form extends Element
 {
-    /** @var EntityManagerInterface */
+    /** @var \Doctrine\ORM\EntityManagerInterface */
     private $entityManager;
 
+    /**
+     * Form constructor.
+     *
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     */
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
@@ -22,7 +27,7 @@ class Form extends Element
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -48,7 +53,7 @@ class Form extends Element
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_form';
     }

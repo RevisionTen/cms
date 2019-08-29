@@ -16,6 +16,8 @@ use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use function json_decode;
+use function json_encode;
 
 /**
  * Class FileService.

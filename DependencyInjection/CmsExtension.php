@@ -11,6 +11,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use function array_merge;
+use function array_reverse;
+use function ftok;
 
 class CmsExtension extends Extension implements PrependExtensionInterface
 {
@@ -75,6 +78,8 @@ class CmsExtension extends Extension implements PrependExtensionInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Exception
      */
     public function prepend(ContainerBuilder $container): void
     {

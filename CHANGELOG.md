@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2019-08-29
+### Added
+- Added `page_change_seo_settings` permission. Users with this permission can edit the robots metatag settings. **Add it to your roles**
+## Changed
+- Coding style, added return types to form types
+- Allow relative urls in trix editor link dialog
+
 ## [2.0.1] - 2019-08-26
 ### Changed
 - Bugfixes

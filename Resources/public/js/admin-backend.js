@@ -1,3 +1,11 @@
+// Allow relative urls in trix editor link dialog.
+addEventListener("trix-initialize", event => {
+    const { toolbarElement } = event.target
+    const inputElement = toolbarElement.querySelector("input[name=href]")
+    inputElement.type = "text"
+    inputElement.pattern = "(https?://|/).+"
+});
+
 function updateCKEditorInstances() {
     // Update CKEditor Textarea Element.
     for(let i in CKEDITOR.instances) {

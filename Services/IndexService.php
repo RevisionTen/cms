@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
 use RevisionTen\CMS\Model\PageRead;
@@ -15,6 +16,20 @@ use Solarium\Core\Query\Helper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use function array_push;
+use function array_values;
+use function array_walk;
+use function array_walk_recursive;
+use function class_exists;
+use function class_implements;
+use function count;
+use function html_entity_decode;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function strip_tags;
 
 class IndexService
 {
@@ -92,7 +107,7 @@ class IndexService
 
         try {
             $result = $client->update($update);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logError($output, 'Index clear error', $exception->getMessage(), $exception->getCode());
         }
 
@@ -178,7 +193,7 @@ class IndexService
 
         try {
             $result = $client->update($update);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logError($output, 'Index error', $exception->getMessage(), $exception->getCode());
         }
 

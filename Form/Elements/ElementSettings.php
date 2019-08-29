@@ -14,7 +14,7 @@ class ElementSettings extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $helpHtml = '<div class="row w-100"><div class="col-xs-4 col-4">Extra Small = 0.25 x text height<br/> Small = 0.5 x text height</div><div class="col-xs-4 col-4">Medium = 1 x text height<br/> Big = 1.5 x text height</div><div class="col-xs-4 col-4">Extra Big = 3 x text height<br/> Huge = 6 x text height</div></div>';
 
@@ -60,7 +60,7 @@ class ElementSettings extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_element_settings';
     }

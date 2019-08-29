@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use function is_string;
+use function json_decode;
+use function json_encode;
 
 trait ReadModelTrait
 {
@@ -87,7 +90,7 @@ trait ReadModelTrait
      */
     public function getPayload(): array
     {
-        return \is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
+        return is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
     }
 
     /**

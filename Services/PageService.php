@@ -14,6 +14,15 @@ use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
 use RevisionTen\CQRS\Services\EventStore;
 use Doctrine\ORM\EntityManagerInterface;
+use function array_filter;
+use function array_walk_recursive;
+use function count;
+use function explode;
+use function is_array;
+use function json_decode;
+use function json_encode;
+use function preg_match_all;
+use function str_replace;
 
 /**
  * Class PageService.

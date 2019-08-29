@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Sonata\GoogleAuthenticator\GoogleQrUrl;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function rawurlencode;
 
 /**
  * Class SecretService.
@@ -50,7 +53,7 @@ class SecretService
      * @param RequestStack        $requestStack
      * @param RouterInterface     $router
      */
-    public function __construct(\Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router)
+    public function __construct(Swift_Mailer $swift_Mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router)
     {
         $this->swift_Mailer = $swift_Mailer;
         $this->config = $config;
@@ -84,7 +87,7 @@ EOT;
     {
         $issuer = $this->config['site_name'] ?? 'revisionTen';
 
-        $qrCode = GoogleQrUrl::generate(rawurlencode($username), $secret, rawurlencode($issuer), 200);
+        $qrCode = GoogleQrUrl::generate(rawurlencode($username), $secret, rawurlencode($issuer));
 
         $subject = $this->translator->trans('Google Authenticator Code for %username%', [
             '%username%' => $username,
@@ -96,7 +99,7 @@ EOT;
 $messageText<br/><br/>
 User: $username<br/>
 Secret: $secret<br/><br/>
-<img src="$qrCode"><br/><br/>
+<img alt="QR Code" src="$qrCode"><br/><br/>
 <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=de">Google Authenticator (Android)</a><br/>
 <a href="https://itunes.apple.com/de/app/google-authenticator/id388497605?mt=8">Google Authenticator (iOS)</a>
 EOT;
@@ -133,7 +136,7 @@ EOT;
         $senderConfigExists = isset($this->config['mailer_from'], $this->config['mailer_sender'], $this->config['mailer_return_path']) && $this->config['mailer_from'] && $this->config['mailer_sender'] && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
-            $message = (new \Swift_Message($subject))
+            $message = (new Swift_Message($subject))
                 ->setFrom($this->config['mailer_from'])
                 ->setSender($this->config['mailer_sender'])
                 ->setReturnPath($this->config['mailer_return_path'])
@@ -142,7 +145,7 @@ EOT;
             ;
         } else {
             // Attempt to send without explicitly setting the sender.
-            $message = (new \Swift_Message($subject))
+            $message = (new Swift_Message($subject))
                 ->setTo($mail)
                 ->setBody($messageBody, 'text/html')
             ;

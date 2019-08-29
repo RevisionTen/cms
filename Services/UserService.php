@@ -57,7 +57,7 @@ class UserService
         $this->em->clear();
 
         // Build UserRead entity from Aggregate.
-        $userRead = $this->em->getRepository(UserRead::class)->findOneByUuid($userUuid) ?? new UserRead();
+        $userRead = $this->em->getRepository(UserRead::class)->findOneBy(['uuid' => $userUuid]) ?? new UserRead();
 
         // Get collection of websites from their ids.
         $websites = $this->em->getRepository(Website::class)->findBy([

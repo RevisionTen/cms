@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Repository;
 
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -11,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class TaskRepository extends EntityRepository
 {
-    public function findAllDue(\DateTime $due)
+    public function findAllDue(DateTime $due)
     {
         $qb = $this->createQueryBuilder('task');
 

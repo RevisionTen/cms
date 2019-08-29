@@ -9,6 +9,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\QueryBuilder;
+use function array_combine;
+use function array_keys;
 
 class TemplateFilterType extends FilterType
 {
@@ -32,7 +34,7 @@ class TemplateFilterType extends FilterType
         $this->templates = $pageTemplates;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'choices' => $this->templates,
@@ -52,7 +54,8 @@ class TemplateFilterType extends FilterType
         $data = $form->getData();
 
         if (!empty($data)) {
-            $queryBuilder->andWhere('entity.template = :template')
+            $queryBuilder
+                ->andWhere('entity.template = :template')
                 ->setParameter('template', $data);
         }
     }

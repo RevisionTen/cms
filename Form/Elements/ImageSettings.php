@@ -14,7 +14,7 @@ class ImageSettings extends ElementSettings
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('showOriginal', CheckboxType::class, [
             'label' => 'Show original',

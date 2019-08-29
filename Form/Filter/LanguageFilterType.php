@@ -25,7 +25,7 @@ class LanguageFilterType extends FilterType
         $this->languages = $config['page_languages'] ?? [];
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'choices' => $this->languages,
@@ -45,7 +45,8 @@ class LanguageFilterType extends FilterType
         $data = $form->getData();
 
         if (!empty($data)) {
-            $queryBuilder->andWhere('entity.language = :language')
+            $queryBuilder
+                ->andWhere('entity.language = :language')
                 ->setParameter('language', $data);
         }
     }

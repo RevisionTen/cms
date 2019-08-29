@@ -38,6 +38,8 @@ cms:
                 label: 'Submit page changes'
             page_inspect:
                 label: 'Inspect page'
+            page_change_seo_settings:
+                label: 'Change SEO settings'
         Alias:
             alias_list:
                 label: 'List aliases'

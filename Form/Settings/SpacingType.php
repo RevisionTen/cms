@@ -13,7 +13,7 @@ class SpacingType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('breakpoint', ChoiceType::class, [
             'label' => 'Breakpoint',
@@ -37,7 +37,7 @@ class SpacingType extends AbstractType
         $this->spacingForm($builder, 'left', 'Left');
     }
 
-    private function spacingForm(FormBuilderInterface $builder, string $key, string $label)
+    private function spacingForm(FormBuilderInterface $builder, string $key, string $label): void
     {
         $builder->add($key, ChoiceType::class, [
             'label' => $label,
@@ -62,7 +62,7 @@ class SpacingType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_spacing';
     }

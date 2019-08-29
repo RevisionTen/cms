@@ -8,6 +8,8 @@ use RevisionTen\CMS\Model\Role;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use function json_decode;
+use function json_encode;
 
 /**
  * Class RoleService.
@@ -51,7 +53,7 @@ class RoleService
         $aggregate = $this->aggregateFactory->build($roleUuid, Role::class);
 
         // Build RoleRead entity from Aggregate.
-        $roleRead = $this->em->getRepository(RoleRead::class)->findOneByUuid($roleUuid) ?? new RoleRead();
+        $roleRead = $this->em->getRepository(RoleRead::class)->findOneBy(['uuid' => $roleUuid]) ?? new RoleRead();
         $roleRead->setVersion($aggregate->getStreamVersion());
         $roleRead->setUuid($roleUuid);
         $roleData = json_decode(json_encode($aggregate), true);

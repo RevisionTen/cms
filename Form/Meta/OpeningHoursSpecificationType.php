@@ -15,7 +15,7 @@ class OpeningHoursSpecificationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('opens', TimeType::class, [
             'label' => 'Opens',
@@ -79,7 +79,7 @@ class OpeningHoursSpecificationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_opening_hours_specification';
     }

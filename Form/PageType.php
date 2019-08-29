@@ -13,15 +13,34 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function array_combine;
+use function array_keys;
 
 class PageType extends AbstractType
 {
     /**
+     * @var \Symfony\Component\Security\Core\Security
+     */
+    private $security;
+
+    /**
+     * PageType constructor.
+     *
+     * @param \Symfony\Component\Security\Core\Security $security
+     */
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('title', TextType::class, [
             'label' => 'Title',
@@ -73,18 +92,21 @@ class PageType extends AbstractType
             'required' => false,
         ]);
 
-        $builder->add('robots', ChoiceType::class, [
-            'label' => 'Search engine settings',
-            'choices' => [
-                'Index' => 'index',
-                'Don\'t index' => 'noindex',
-                'Follow' => 'follow',
-                'Don\'t follow' => 'nofollow',
-            ],
-            'multiple' => true,
-            'expanded' => true,
-            'required' => false,
-        ]);
+        if ($this->security->isGranted('page_change_seo_settings')) {
+
+            $builder->add('robots', ChoiceType::class, [
+                'label' => 'Search engine settings',
+                'choices' => [
+                    'Index' => 'index',
+                    'Don\'t index' => 'noindex',
+                    'Follow' => 'follow',
+                    'Don\'t follow' => 'nofollow',
+                ],
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ]);
+        }
 
         $builder->add('meta', $options['page_metatype'], [
             'label' => false,
@@ -92,7 +114,7 @@ class PageType extends AbstractType
         ]);
 
         // Change the meta type depending on the chosen template.
-        $formModifier = static function ($form, $template = null) use ($options) {
+        $formModifier = static function (FormInterface $form, $template = null) use ($options) {
             if ($template) {
                 $metaType = $options['page_templates'][$template]['metatype'] ?? $options['page_metatype'];
             } else {
@@ -122,7 +144,7 @@ class PageType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'page_websites' => null,
