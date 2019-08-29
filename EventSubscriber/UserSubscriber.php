@@ -9,6 +9,7 @@ use RevisionTen\CMS\Event\UserGenerateSecretEvent;
 use RevisionTen\CMS\Event\UserResetPasswordEvent;
 use RevisionTen\CMS\Services\UserService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function is_string;
 
 class UserSubscriber implements EventSubscriberInterface
 {
@@ -33,7 +34,7 @@ class UserSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UserCreateEvent::class => 'sendSecretAfterCreate',
@@ -83,7 +84,7 @@ class UserSubscriber implements EventSubscriberInterface
         $payload = $userResetPasswordEvent->getPayload();
         $token = $payload['token'] ?? null;
 
-        if (null !== $token && \is_string($token)) {
+        if (null !== $token && is_string($token)) {
             // Send password reset mail.
             $this->userService->sendPasswordResetMail($userUuid, $token);
         }

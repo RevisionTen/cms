@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\EventSubscriber;
 
+use DateTime;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Event\PageAddScheduleEvent;
@@ -52,7 +53,7 @@ class PageSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PagePublishEvent::class => 'updateReadModels',
@@ -72,6 +73,7 @@ class PageSubscriber implements EventSubscriberInterface
      * @param \RevisionTen\CMS\Event\PagePublishEvent $pagePublishEvent
      *
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      */
     public function updateReadModels(PagePublishEvent $pagePublishEvent): void
     {
@@ -89,6 +91,7 @@ class PageSubscriber implements EventSubscriberInterface
      * @param \RevisionTen\CMS\Event\PageUnpublishEvent $pageUnpublishEvent
      *
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      */
     public function deleteReadModels(PageUnpublishEvent $pageUnpublishEvent): void
     {
@@ -105,6 +108,7 @@ class PageSubscriber implements EventSubscriberInterface
      * @param \RevisionTen\CMS\Event\PageDeleteEvent $pageDeleteEvent
      *
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      */
     public function deleteReadModelsAndTasks(PageDeleteEvent $pageDeleteEvent): void
     {
@@ -121,6 +125,8 @@ class PageSubscriber implements EventSubscriberInterface
 
     /**
      * @param \RevisionTen\CMS\Event\PageSubmitEvent $pageSubmitEvent
+     *
+     * @throws \Exception
      */
     public function submitPage(PageSubmitEvent $pageSubmitEvent): void
     {
@@ -147,12 +153,12 @@ class PageSubscriber implements EventSubscriberInterface
 
         // Create scheduler entries.
         if ($startDate) {
-            $startDateTime = new \DateTime();
+            $startDateTime = new DateTime();
             $startDateTime->setTimestamp($startDate);
             $this->taskService->addTask($scheduleUuid, $pageUuid, PagePublishCommand::class, $startDateTime, []);
         }
         if ($endDate) {
-            $endDateTime = new \DateTime();
+            $endDateTime = new DateTime();
             $endDateTime->setTimestamp($endDate);
             $this->taskService->addTask($scheduleUuid, $pageUuid, PageUnpublishCommand::class, $endDateTime, []);
         }

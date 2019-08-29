@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use Solarium\Client;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
+use function addcslashes;
+use function array_map;
+use function ceil;
+use function explode;
+use function implode;
+use function str_replace;
 
 class SearchService
 {
@@ -69,7 +76,7 @@ class SearchService
         // Get search results.
         try {
             $resultset = $client->select($query);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
 
             $this->logger->critical($exception->getMessage(), [
                 'code' => $exception->getCode(),

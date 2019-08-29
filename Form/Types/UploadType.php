@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use function is_object;
+use function is_string;
 
 class UploadType extends AbstractType
 {
@@ -63,6 +65,12 @@ class UploadType extends AbstractType
         }
     }
 
+    /**
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile
+     * @param string                                              $upload_dir
+     *
+     * @return string|null
+     */
     public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?string
     {
         $file = $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);

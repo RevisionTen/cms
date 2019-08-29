@@ -18,6 +18,8 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function is_array;
+use function is_object;
 
 class ManagedUploadType extends AbstractType
 {
@@ -56,7 +58,7 @@ class ManagedUploadType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['enable_title']) {
             $builder->add('title', TextType::class, [
@@ -92,7 +94,7 @@ class ManagedUploadType extends AbstractType
                 $data['existingFileUuid'] = null;
                 $data['existingFileVersion'] = null;
             } elseif (isset($data['replaceFile']) && null !== $data['replaceFile']) {
-                if (\is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
+                if (is_object($data['replaceFile']) && isset($data['file']['uuid'])) {
                     $title = $data['title'] ?? $defaultImageTitle;
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->replaceFile($data['file'], $data['replaceFile'], $title, $options['upload_dir']);
@@ -100,10 +102,10 @@ class ManagedUploadType extends AbstractType
                 }
             } elseif (isset($data['file']) && null !== $data['file']) {
                 $title = $data['title'] ?? $defaultImageTitle;
-                if (\is_object($data['file'])) {
+                if (is_object($data['file'])) {
                     // Store the uploaded file on submit and save the filename in the data.
                     $data['file'] = $this->fileService->createFile(null, $data['file'], $title, $options['upload_dir'], $this->website, $this->language);
-                } elseif (\is_array($data['file'])) {
+                } elseif (is_array($data['file'])) {
                     // File is already stored.
                     $data['file'] = $this->fileService->replaceFile($data['file'], null, $title, $options['upload_dir']);
                 }
@@ -153,7 +155,7 @@ class ManagedUploadType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         parent::buildView($view, $form, $options);
 
@@ -164,7 +166,7 @@ class ManagedUploadType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'compound' => true,
@@ -180,7 +182,7 @@ class ManagedUploadType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_managed_upload';
     }

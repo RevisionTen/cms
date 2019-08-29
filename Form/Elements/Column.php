@@ -12,7 +12,7 @@ class Column extends Element
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -23,7 +23,7 @@ class Column extends Element
         $this->widthForm($builder, 'xl', 'like lg', 'widthXL');
     }
 
-    private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null)
+    private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null): void
     {
         $builder->add($key, ChoiceType::class, [
             'label' => $label,
@@ -53,7 +53,7 @@ class Column extends Element
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_column';
     }

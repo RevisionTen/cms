@@ -14,7 +14,7 @@ class ElementType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (isset($options['elementConfig']['class'])) {
             $builder->add('data', $options['elementConfig']['class'], [
@@ -29,7 +29,7 @@ class ElementType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'elementConfig' => [],

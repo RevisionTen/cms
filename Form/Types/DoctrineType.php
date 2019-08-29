@@ -14,6 +14,10 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use function array_values;
+use function explode;
+use function implode;
+use function is_array;
 
 class DoctrineType extends AbstractType
 {
@@ -38,7 +42,7 @@ class DoctrineType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -94,7 +98,7 @@ class DoctrineType extends AbstractType
             if (!empty($data['entityId']) && !empty($data['entityClass'])) {
                 if (is_array($data['entityId'])) {
                     // Implode multiple.
-                    $data['doctrineEntity'] = $data['entityClass'].':'.implode(',', $data['entityId']);
+                    $data['doctrineEntity'] = $data['entityClass'].':'. implode(',', $data['entityId']);
                 } else {
                     // Single.
                     $data['doctrineEntity'] = $data['entityClass'].':'.$data['entityId'];
@@ -148,7 +152,7 @@ class DoctrineType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'required' => true,
@@ -166,7 +170,7 @@ class DoctrineType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_doctrine';
     }

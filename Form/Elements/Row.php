@@ -9,7 +9,7 @@ class Row extends Element
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_row';
     }

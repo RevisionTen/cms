@@ -9,6 +9,8 @@ use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Services\IndexService;
 use Solarium\QueryType\Update\Query\Query;
+use function array_values;
+use function is_array;
 
 class PageSerializer implements SolrSerializerInterface
 {

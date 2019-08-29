@@ -8,6 +8,8 @@ use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use function json_decode;
+use function json_encode;
 
 /**
  * Class MenuService.
@@ -58,7 +60,7 @@ class MenuService
         $aggregate = $this->aggregateFactory->build($menuUuid, Menu::class);
 
         // Build MenuRead entity from Aggregate.
-        $menuRead = $this->entityManager->getRepository(MenuRead::class)->findOneByUuid($menuUuid) ?? new MenuRead();
+        $menuRead = $this->entityManager->getRepository(MenuRead::class)->findOneBy(['uuid' => $menuUuid]) ?? new MenuRead();
         $menuRead->setVersion($aggregate->getStreamVersion());
         $menuRead->setUuid($menuUuid);
         $menuData = json_decode(json_encode($aggregate), true);

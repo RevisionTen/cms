@@ -4,7 +4,19 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Exception;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use function extension_loaded;
+use function function_exists;
+use function ini_get;
+use function is_bool;
+
+// These function might not exist and should therefore not be imported,
+// even though this would not cause an error.
+#use function shm_attach;
+#use function shm_get_var;
+#use function shm_has_var;
+#use function shm_put_var;
 
 /**
  * Class CacheService.
@@ -45,38 +57,44 @@ class CacheService
     {
         $this->issuer = $config['site_name'] ?? 'revisionTen';
 
-        if (function_exists('shm_attach') && \extension_loaded('apcu') && ini_get('apc.enabled')) {
+        if (function_exists('shm_attach') && extension_loaded('apcu') && ini_get('apc.enabled')) {
             $this->cache = new ApcuAdapter();
 
             try {
                 // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
                 $key = (int) ($config['shm_key'] ?? 1);
                 $this->shmVarKey = 1;
-                // Create a 1MB shared memory segmanet for the UuidStore.
+                // Create a 1MB shared memory segment for the UuidStore.
                 $this->shmSegment = shm_attach($key, 1000000);
                 $this->initUuidStore();
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 // Failed to create the shared memory segment, disable cache.
                 $this->cache = null;
             }
         }
     }
 
+    private function uuidStoreExists(): bool
+    {
+        return !is_bool($this->shmSegment) && shm_has_var($this->shmSegment, $this->shmVarKey);
+    }
+
     private function initUuidStore(): void
     {
-        if (!is_bool($this->shmSegment) && shm_has_var($this->shmSegment, $this->shmVarKey)) {
-            // UuidStore exists.
-            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-        } elseif (!is_bool($this->shmSegment)) {
-            // Create UuidStore.
+        if (!$this->uuidStoreExists()) {
+            // UuidStore does not exist, create UuidStore.
             shm_put_var($this->shmSegment, $this->shmVarKey, $this->uuidStore);
-            if (shm_has_var($this->shmSegment, $this->shmVarKey)) {
-                $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
-            } else {
-                // Failed to create UuidStore, disable cache.
-                $this->cache = null;
-            }
         }
+
+        if (!$this->uuidStoreExists()) {
+            // Failed to create UuidStore, disable cache.
+            $this->cache = null;
+
+            return;
+        }
+
+        // UuidStore exists, get it.
+        $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
     }
 
     private function saveUuidStore(): void

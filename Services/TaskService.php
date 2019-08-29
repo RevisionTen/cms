@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use DateTime;
 use RevisionTen\CMS\Model\Task;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use RevisionTen\CQRS\Services\CommandBus;
@@ -45,7 +46,7 @@ class TaskService
         $this->messageBus = $messageBus;
     }
 
-    public function addTask(string $uuid, string $aggregateUuid, string $command, \DateTime $due, array $payload): void
+    public function addTask(string $uuid, string $aggregateUuid, string $command, DateTime $due, array $payload): void
     {
         $task = new Task();
 
@@ -86,9 +87,14 @@ class TaskService
         $this->em->clear();
     }
 
+    /**
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
+     * @throws \Exception
+     */
     public function runTasks(OutputInterface $output): void
     {
-        $due = new \DateTime();
+        $due = new DateTime();
 
         /** @var Task[] $tasks */
         $tasks = $this->em->getRepository(Task::class)->findAllDue($due);

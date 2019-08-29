@@ -370,6 +370,10 @@ easy_admin:
                 search: 'form_submissions'
                 delete: 'form_submissions_delete'
             list:
+                filters:
+                    - 'form'
+                    - 'toEmail'
+                    - 'opened'
                 actions:
                     - 'show'
                     - '-new'
