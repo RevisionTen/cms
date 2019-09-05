@@ -267,38 +267,46 @@ function bindWidgets(element) {
     document.dispatchEvent(event);
 }
 
+function reloadForm(formSelector, formReloadCallback, form)
+{
+    updateCKEditorInstances();
+
+    let formData = new FormData(form[0]);
+    formData.set('ignore_validation', 1);
+    $.ajax({
+        type: form.attr('method'),
+        url: form.attr('action'),
+        data: formData,
+        success: function (data) {
+            let html = $.parseHTML(data, document, true);
+            let newForm = $(html).find(formSelector);
+            if (newForm.length > 0) {
+                form.replaceWith(newForm);
+                if (formReloadCallback) {
+                    formReloadCallback();
+                } else {
+                    bindForm(formSelector);
+                }
+            }
+        },
+        error: function (data) {
+            // Failed.
+        },
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+}
+
 function bindForm(formSelector, formReloadCallback = false) {
     let form = $(formSelector).first();
     if (form.length > 0) {
         form.find('[data-condition]').on('change', function (event) {
-
-            updateCKEditorInstances();
-
-            let formData = new FormData(form[0]);
-            formData.set('ignore_validation', 1);
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: formData,
-                success: function (data) {
-                    let html = $.parseHTML(data, document, true);
-                    let newForm = $(html).find(formSelector);
-                    if (newForm.length > 0) {
-                        form.replaceWith(newForm);
-                        if (formReloadCallback) {
-                            formReloadCallback();
-                        } else {
-                            bindForm(formSelector);
-                        }
-                    }
-                },
-                error: function (data) {
-                    // Failed.
-                },
-                cache: false,
-                contentType: false,
-                processData: false
-            });
+            reloadForm(formSelector, formReloadCallback, form);
+        });
+        form.find('button[data-condition]').on('click', function (event) {
+            event.preventDefault();
+            reloadForm(formSelector, formReloadCallback, form);
         });
 
         bindWidgets(form);
