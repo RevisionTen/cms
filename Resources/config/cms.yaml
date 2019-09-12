@@ -12,6 +12,7 @@ cms:
     mail_code_lifetime: 5 # Minutes until mailed code expires.
 
     # Solr configuration.
+    solr_host: 'localhost'
     solr_port: 8983
     solr_collection: null # The name of your collection
 
