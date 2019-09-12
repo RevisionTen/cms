@@ -31,7 +31,7 @@ class SearchService
         $this->solrConfig = [
             'endpoint' => [
                 'localhost' => [
-                    'host' => 'localhost',
+                    'host' => $config['solr_host'],
                     'port' => $config['solr_port'],
                     'path' => '/',
                     'collection' => $config['solr_collection'],
