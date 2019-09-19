@@ -85,6 +85,13 @@ class CacheService
         }
     }
 
+
+
+    public function isCacheEnabled(): bool
+    {
+        return null !== $this->cache;
+    }
+
     private function uuidStoreSharedMemorySegmentExists(): bool
     {
         return !is_bool($this->shmSegment) && shm_has_var($this->shmSegment, $this->shmVarKey);
