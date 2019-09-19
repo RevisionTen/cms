@@ -12,6 +12,7 @@ use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CQRS\Model\EventQueueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use RevisionTen\Forms\Model\FormRead;
@@ -175,26 +176,8 @@ class AdminController extends AbstractController
      *
      * @return Response
      */
-    public function dashboardAction(EntityManagerInterface $em): Response
+    public function dashboardAction(EntityManagerInterface $em, CacheService $cacheService): Response
     {
-        // Test If the cache is enabled.
-        $shm_key = $this->getParameter('cms')['shm_key'] ?? 'none';
-        if ('none' !== $shm_key) {
-            if (function_exists('shm_attach')) {
-                try {
-                    // Create a 1MB shared memory segment for the UuidStore.
-                    $shmSegment = shm_attach($shm_key, 1000000);
-                } catch (\Exception $exception) {
-                    $shmSegment = false;
-                }
-                $shm_enabled = $shmSegment ? true : false;
-            } else {
-                $shm_enabled = false;
-            }
-        } else {
-            $shm_enabled = true;
-        }
-
         /** @var EventStreamObject[]|null $eventStreamObjects */
         $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
@@ -207,8 +190,9 @@ class AdminController extends AbstractController
         ], ['id' => Criteria::DESC], 7);
 
         return $this->render('@cms/Admin/dashboard.html.twig', [
-            'shm_enabled' => $shm_enabled,
-            'shm_key' => $shm_key,
+            'cache_enabled' => $cacheService->isCacheEnabled(),
+            'shm_enabled' => $cacheService->isCacheEnabled(),
+            'shm_key' => 1,
             'eventStreamObjects' => $this->groupEventsByUser($eventStreamObjects),
             'eventQueueObjects' => $this->groupEventsByUser($eventQueueObjects),
             'latestCommits' => $this->groupEventsByUser($latestCommits),

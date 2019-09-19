@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2019-09-19
+## Changed
+- Bugfixes
+
 ## [2.0.6] - 2019-09-19
 ## Added
 - Added `disable_cache_workaround` config option. Set it to `true` If your hosters APCu cache behaves propperly and shares the cache as one would expect.

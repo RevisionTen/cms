@@ -99,10 +99,6 @@
                             <td>{{ php_version }}</td>
                         </tr>
                         <tr>
-                            <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
-                            <td>{{ apc_enabled }}</td>
-                        </tr>
-                        <tr>
                             <td><span class="fas fa-microchip"></span> PHP Memory Limit: </td>
                             <td>{{ memory_limit }}</td>
                         </tr>
@@ -119,8 +115,12 @@
                             <td>{{ execution_limit }} sec</td>
                         </tr>
                         <tr>
+                            <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
+                            <td>{{ apc_enabled }}</td>
+                        </tr>
+                        <tr>
                             <td><span class="fas fa-file"></span> Page Cache: </td>
-                            <td>{{ (shm_enabled ? '<span title="shm_key: '~shm_key~'">enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
+                            <td>{{ (cache_enabled ? '<span>enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
                         </tr>
                         <tr>
                             <td><span class="fas fa-info-circle"></span> Server IP: </td>
