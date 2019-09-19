@@ -2,6 +2,9 @@
 cms:
     site_name: 'RevisionTen CMS'
 
+    # Cache configuration.
+    disable_cache_workaround: false
+
     # Email configuration for user management.
     mailer_return_path: 'postmaster@some-website.com'
     mailer_from: 'info@some-website.com'
