@@ -32,6 +32,16 @@ services:
         tags: [twig.extension]
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Twig\MenuExtension:
+        autowire: true
+        public: true
+        tags: [twig.extension]
+    RevisionTen\CMS\Twig\MenuRuntime:
+        autowire: true
+        public: true
+        tags: [twig.runtime]
+        arguments:
+            $config: '%cms%'
 
     # Security.
     RevisionTen\CMS\Security\CodeAuthenticator:

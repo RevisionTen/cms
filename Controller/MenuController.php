@@ -21,6 +21,7 @@ use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
+use RevisionTen\CMS\Twig\MenuRuntime;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -638,6 +639,8 @@ class MenuController extends AbstractController
     /**
      * Gets an alias path from the alias id.
      *
+     * @deprecated since 2.0.8, do not use this anymore.
+     *
      * @param EntityManagerInterface $entityManager
      * @param int                    $id
      *
@@ -645,6 +648,8 @@ class MenuController extends AbstractController
      */
     public function getAlias(EntityManagerInterface $entityManager, int $id): Response
     {
+        @trigger_error(sprintf('The "MenuController::getAlias" function is deprecated since 2.0.8, do not use it anymore.'), E_USER_DEPRECATED);
+
         /** @var Alias $alias */
         $alias = $entityManager->getRepository(Alias::class)->find($id);
 
@@ -654,157 +659,32 @@ class MenuController extends AbstractController
     }
 
     /**
-     * Get all alias ids from items and sub-items.
-     *
-     * @param array $items
-     *
-     * @return array
-     */
-    private function getAliasIds(array $items): array
-    {
-        $ids = [];
-
-        foreach ($items as $item) {
-            $id = $item['data']['alias'] ?? null;
-            if ($id) {
-                $ids[] = $id;
-            }
-
-            if (isset($item['items'])) {
-                $ids += $this->getAliasIds($item['items']);
-            }
-        }
-
-        return array_unique($ids);
-    }
-
-    private function getMenuData(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, array $config)
-    {
-        $menu = null;
-
-        /** @var Menu[] $menuAggregates */
-        $menuAggregates = $aggregateFactory->findAggregates(Menu::class);
-        foreach ($menuAggregates as $menuAggregate) {
-            if ($name === $menuAggregate->name && isset($config['menus'][$menuAggregate->name])) {
-                $menu = $config['menus'][$menuAggregate->name];
-                $menu['data'] = json_decode(json_encode($menuAggregate), true);
-            }
-        }
-
-        return $menu;
-    }
-
-    private function getPaths(EntityManagerInterface $entityManager, array $items, ?Website $website = null): array
-    {
-        // Get all aliases.
-        $paths = [];
-
-        $aliasIds = $this->getAliasIds($items);
-        /** @var Alias[] $aliases */
-        $aliases = $entityManager->getRepository(Alias::class)->findBy([
-            'id' => $aliasIds,
-        ]);
-        foreach ($aliases as $alias) {
-            if (null !== $alias->getPageStreamRead() && $alias->getPageStreamRead()->isPublished()) {
-
-                $prefix = null !== $website && $website->getDefaultLanguage() !== $alias->getLanguage() ? '/'.$alias->getLanguage() : '';
-                $path = $alias->getPath();
-
-                // Do not append / for prefixed front page.
-                if ('/' === $path && !empty($prefix)) {
-                    $path = '';
-                }
-
-                $paths[$alias->getId()] = $prefix.$path;
-            }
-        }
-
-        return $paths;
-    }
-
-    /**
      * Renders a menu.
      *
-     * @param RequestStack           $requestStack
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $entityManager
-     * @param AggregateFactory       $aggregateFactory
-     * @param string                 $name
-     * @param Alias|null             $alias
-     * @param string|null            $template
-     * @param string|null            $language
-     * @param int|null               $website
+     * @deprecated since 2.0.8, use 'cms_menu()' in your template instead.
      *
-     * @return Response
+     * @param \RevisionTen\CMS\Twig\MenuRuntime $menuRuntime
+     * @param string                            $name
+     * @param \RevisionTen\CMS\Model\Alias|NULL $alias
+     * @param string|NULL                       $template
+     * @param string|NULL                       $language
+     * @param int|NULL                          $website
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function renderMenu(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
+    public function renderMenu(MenuRuntime $menuRuntime, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
-        $request = $requestStack->getMasterRequest();
-        $config = $this->getParameter('cms');
-        if (!isset($config['menus'][$name])) {
-            return new Response('Menu '.$name.' does not exist.');
-        }
+        @trigger_error(sprintf('Rendering the "MenuController::renderMenu" function in your template is deprecated since 2.0.8, use the Twig extension function "cms_menu()" in your template instead.'), E_USER_DEPRECATED);
 
-        if (null === $website || null === $language) {
-            // Get website and language from alias or request.
-            if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
-                // Alias does not exist or is neutral, get website and language from request.
-                $websiteId = $request && $request->get('websiteId') ? $request->get('websiteId') : 1;
-                /** @var Website|null $website */
-                $website = $entityManager->getRepository(Website::class)->find($websiteId);
-
-                $language = $request ? $request->getLocale() : null;
-                if (null !== $website && null === $language) {
-                    $language = $website->getDefaultLanguage();
-                }
-            } else {
-                $website = $alias->getWebsite();
-                $language = $alias->getLanguage();
-            }
-        } else {
-            /** @var Website $website */
-            $website = $entityManager->getRepository(Website::class)->find($website);
-        }
-
-        $cacheKey = $name.'_'.$website->getId().'_'.$language;
-        $menuData = $cacheService->get($cacheKey);
-        if (null === $menuData) {
-            /** @var MenuRead $menuRead */
-            $menuRead = $entityManager->getRepository(MenuRead::class)->findOneBy([
-                'title' => $name,
-                'website' => $website,
-                'language' => $language,
-            ]);
-
-            if (null === $menuRead) {
-                $version = 1;
-                // No matching read model found, fallback to language neutral menu.
-                $menuData = $this->getMenuData($entityManager, $aggregateFactory, $name, $config);
-                if (isset($menuData['data']['language'], $menuData['data']['website'])) {
-                    // Aggregate isn`t neutral.
-                    $menuData = null;
-                }
-            } else {
-                $version = $menuRead->getVersion();
-                $menuData = $config['menus'][$name];
-                $menuData['data'] = json_decode(json_encode($menuRead->getPayload()), true);
-            }
-
-            if ($menuData) {
-                // Get paths.
-                $menuData['paths'] = empty($menuData['data']['items']) ? [] : $this->getPaths($entityManager, $menuData['data']['items'], $website);
-
-                // Populate cache.
-                $cacheService->put($cacheKey, $version, $menuData);
-            }
-        }
-
-        return $this->render($template ?: $config['menus'][$name]['template'], [
-            'request' => $request,
+        $renderedMenu = $menuRuntime->renderMenu([
+            'name' => $name,
             'alias' => $alias,
-            'menu' => $menuData,
-            'config' => $config,
+            'template' => $template,
+            'language' => $language,
+            'website' => $website,
         ]);
+
+        return new Response($renderedMenu);
     }
 
     /**
@@ -850,27 +730,5 @@ class MenuController extends AbstractController
         }
 
         return $this->redirectToMenu($menuUuid);
-    }
-
-    private static function array_diff_recursive(array $arrayOriginal, array $arrayNew): array
-    {
-        $arrayDiff = [];
-
-        foreach ($arrayOriginal as $key => $value) {
-            if (array_key_exists($key, $arrayNew)) {
-                if (is_array($value)) {
-                    $arrayRecursiveDiff = self::array_diff_recursive($value, $arrayNew[$key]);
-                    if (count($arrayRecursiveDiff)) {
-                        $arrayDiff[$key] = $arrayRecursiveDiff;
-                    }
-                } elseif ($value !== $arrayNew[$key]) {
-                    $arrayDiff[$key] = $value;
-                }
-            } else {
-                $arrayDiff[$key] = $value;
-            }
-        }
-
-        return $arrayDiff;
     }
 }
