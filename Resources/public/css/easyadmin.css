@@ -391,6 +391,26 @@ body.show .field-text .form-widget {
 .modal-body .content-body form {
     padding: 0;
 }
+/* Forms */
+/*
+ * Make form half transparent and unclickable during
+ * form reload triggered by conditional field.
+ */
+.cms-form-loading {
+    position: relative;
+    opacity: 0.3;
+    pointer-events: none;
+}
+.cms-form-loading::after {
+    display: block;
+    content: '';
+    position: absolute;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
 /* Card */
 .card-header h6 {
     margin: 0;

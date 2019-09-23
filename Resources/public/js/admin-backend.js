@@ -271,6 +271,9 @@ function reloadForm(formSelector, formReloadCallback, form)
 {
     updateCKEditorInstances();
 
+    // Make form half transparent and unclickable.
+    form.addClass('cms-form-loading');
+
     let formData = new FormData(form[0]);
     formData.set('ignore_validation', 1);
     $.ajax({
