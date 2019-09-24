@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Doctrine\Common\Collections\Collection;
+use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
@@ -14,6 +16,7 @@ use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
 use RevisionTen\CQRS\Services\EventStore;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use function array_filter;
 use function array_walk_recursive;
 use function count;
@@ -70,6 +73,62 @@ class PageService
         $this->eventStore = $eventStore;
         $this->eventBus = $eventBus;
         $this->cacheService = $cacheService;
+    }
+
+    /**
+     * Get the fully hydrated payload of a published page.
+     * Returns the same data that is used when rendering a page.
+     *
+     * @param string $pageUuid
+     *
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function getPageData(string $pageUuid): array
+    {
+        $pageRead = $this->em->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
+
+        if (null === $pageRead) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->hydratePage($pageRead->getPayload());
+    }
+
+    /**
+     * Get all aliases of a page.
+     *
+     * @param string $pageUuid
+     *
+     * @return \Doctrine\Common\Collections\Collection|null
+     */
+    public function getAliases(string $pageUuid): ?Collection
+    {
+        /** @var PageStreamRead|null $pageStreamRead */
+        $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
+
+        if (null === $pageStreamRead) {
+            return null;
+        }
+
+        /** @var \Doctrine\Common\Collections\Collection|null $aliases */
+        $aliases = $pageStreamRead->getAliases();
+
+        return $aliases;
+    }
+
+    /**
+     * Get the first alias of the page.
+     *
+     * @param string $pageUuid
+     *
+     * @return \RevisionTen\CMS\Model\Alias|null
+     */
+    public function getFirstAlias(string $pageUuid): ?Alias
+    {
+        $aliases = $this->getAliases($pageUuid);
+
+        return (null !== $aliases) ? $aliases->first() : null;
     }
 
     /**
