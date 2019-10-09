@@ -53,10 +53,14 @@ class FileController extends AbstractController
             $criteria['mimeType'] = explode(',', $mimeTypes);
         }
 
-        $files = $entityManager->getRepository(FileRead::class)->findBy($criteria);
+        $orderBy = [
+            'created' => 'ASC',
+        ];
+
+        $files = $entityManager->getRepository(FileRead::class)->findBy($criteria, $orderBy);
 
         return $this->render('@cms/Admin/File/picker.html.twig', [
-            'files' => $files,
+            'files' => array_reverse($files),
         ]);
     }
 
