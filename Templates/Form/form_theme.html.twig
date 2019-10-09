@@ -122,8 +122,8 @@
     {% set file = value.file ?? null %}
     {% if file and file is not iterable %}
         {% set fileEnding = file|slice(-4) %}
-        {% set isSVG = fileEnding == '.svg' %}
-        {% if fileEnding in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
+        {% set isSVG = fileEnding|lower == '.svg' %}
+        {% if fileEnding|lower in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
             <a href="{{ file }}" class="d-block">
                 <img id="cms-img-{{ form.file.vars.id }}"
                      style="width:200px;height:200px;"
