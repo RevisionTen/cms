@@ -216,7 +216,10 @@ class MenuRuntime implements RuntimeExtensionInterface
             }
 
             if (isset($item['items'])) {
-                $ids += $this->getAliasIds($item['items']);
+                $childIds = $this->getAliasIds($item['items']);
+                if (!empty($childIds)) {
+                    array_push($ids, ...$childIds);
+                }
             }
         }
 
