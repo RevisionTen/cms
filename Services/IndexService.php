@@ -211,14 +211,20 @@ class IndexService
     {
         $fulltext = [];
 
-        $fulltext[] = $helper->filterControlCharacters($payload['title']);
-        $fulltext[] = $helper->filterControlCharacters($payload['description']);
+        if (!empty($payload['title']) && is_string($payload['title'])) {
+            $fulltext[] = $helper->filterControlCharacters($payload['title']);
+        }
+        if (!empty($payload['description']) && is_string($payload['description'])) {
+            $fulltext[] = $helper->filterControlCharacters($payload['description']);
+        }
 
         if (isset($payload['meta']) && is_array($payload['meta']) && !empty($payload['meta'])) {
             $meta = self::reduceData($payload['meta']);
             // Append strings.
             foreach ($meta as $string) {
-                $fulltext[] = $helper->filterControlCharacters($string);
+                if (is_string($string)) {
+                    $fulltext[] = $helper->filterControlCharacters($string);
+                }
             }
         }
 
@@ -226,7 +232,9 @@ class IndexService
             $strings = self::reduceData($payload['elements']);
             // Append strings.
             foreach ($strings as $string) {
-                $fulltext[] = $helper->filterControlCharacters($string);
+                if (is_string($string)) {
+                    $fulltext[] = $helper->filterControlCharacters($string);
+                }
             }
         }
 
