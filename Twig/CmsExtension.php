@@ -105,14 +105,20 @@ class CmsExtension extends AbstractExtension
         // Add margin classes.
         if (isset($element['data']['settings']['margins']) && is_array($element['data']['settings']['margins']) && !empty($element['data']['settings']['margins'])) {
             foreach ($element['data']['settings']['margins'] as $spacing) {
-                array_push($classes, ...self::getSpacing($spacing, 'm'));
+                $spacings = self::getSpacing($spacing, 'm');
+                if (!empty($spacings)) {
+                    array_push($classes, ...$spacings);
+                }
             }
         }
 
         // Add padding classes.
         if (isset($element['data']['settings']['paddings']) && is_array($element['data']['settings']['paddings']) && !empty($element['data']['settings']['paddings'])) {
             foreach ($element['data']['settings']['paddings'] as $spacing) {
-                array_push($classes, ...self::getSpacing($spacing, 'p'));
+                $spacings = self::getSpacing($spacing, 'p');
+                if (!empty($spacings)) {
+                    array_push($classes, ...$spacings);
+                }
             }
         }
 
