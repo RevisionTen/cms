@@ -45,6 +45,7 @@ class Card extends Element
             ->add('image', UploadType::class, [
                 'label' => 'Please select the image file you want to upload.',
                 'required' => false,
+                'show_file_picker' => true,
             ])
             ->add('text', TextareaType::class, [
                 'required' => false,

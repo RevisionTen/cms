@@ -214,7 +214,7 @@ class UploadType extends AbstractType
             'keep_deleted_file' => true,
             'allow_delete' => true,
             'allow_replace' => true,
-            'show_file_picker' => false,
+            'show_file_picker' => true,
             'file_picker_mime_types' => null,
             // Do not validate this form type with the passed constraints, use them for the file field insead.
             'validation_groups' => false,
