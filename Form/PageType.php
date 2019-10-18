@@ -90,6 +90,7 @@ class PageType extends AbstractType
         $builder->add('image', UploadType::class, [
             'label' => 'Teaser image',
             'required' => false,
+            'show_file_picker' => true,
         ]);
 
         if ($this->security->isGranted('page_change_seo_settings')) {
