@@ -13,7 +13,7 @@ function bindFilePicker(element)
         // Create new file picker element.
         $('body').append('<div class="cms-file-picker d-none flex-column"></div>');
 
-        let url = '/admin/file/picker/' + targetId;
+        let url = '/admin/file/picker';
         let query = null;
         if (filePickerMimeTypes) {
             query = {
@@ -35,11 +35,23 @@ function bindFilePicker(element)
 
                 filePickerElement.find('[data-file-path]').click(function (event) {
                     event.preventDefault();
-                    let filePath = $(this).data('filePath');
                     let thumbPath = $(this).data('thumbPath');
-                    $('#'+targetId).val(filePath);
+                    let filePath = $(this).data('filePath');
+                    let title = $(this).data('title');
+                    let mimeType = $(this).data('mimeType');
+                    let size = $(this).data('size');
+                    let width = $(this).data('width');
+                    let height = $(this).data('height');
+
+                    $('#'+targetId+'_file').val(filePath);
+                    $('#'+targetId+'_title').val(title);
+                    $('#'+targetId+'_mimeType').val(mimeType);
+                    $('#'+targetId+'_size').val(size);
+                    $('#'+targetId+'_width').val(width);
+                    $('#'+targetId+'_height').val(height);
+
                     $('#'+filePickerUploadField).removeAttr('required');
-                    $('#cms-img-'+targetId).attr('src', thumbPath).removeClass('d-none');
+                    $('#cms-img-'+targetId+'_file').attr('src', thumbPath).removeClass('d-none');
                     $('body').removeClass('file-picker-open');
                     filePickerElement.removeClass('d-flex').addClass('d-none');
                     filePickerElement.remove();

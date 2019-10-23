@@ -28,15 +28,14 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class FileController extends AbstractController
 {
     /**
-     * @Route("/admin/file/picker/{targetId}", name="cms_file_picker")
+     * @Route("/admin/file/picker", name="cms_file_picker")
      *
      * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
      * @param \Doctrine\ORM\EntityManagerInterface           $entityManager
-     * @param string                                         $targetId
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getFilePicker(RequestStack $requestStack, EntityManagerInterface $entityManager, string $targetId): Response
+    public function getFilePicker(RequestStack $requestStack, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('file_list');
 

@@ -23,7 +23,15 @@
                         {% else %}
                             {% set thumbPath = false %}
                         {% endif %}
-                        <button class="btn-block btn btn-light pt-2" data-file-path="{{ file.path }}" data-thumb-path="{{ thumbPath }}">
+                        <button class="btn-block btn btn-light pt-2"
+                                data-file-path="{{ file.path }}"
+                                data-thumb-path="{{ thumbPath }}"
+                                data-title="{{ file.title }}"
+                                data-mime-type="{{ file.mimeType }}"
+                                data-size="{{ file.size }}"
+                                data-width="{{ file.payload.width ?? '' }}"
+                                data-height="{{ file.payload.height ?? '' }}"
+                        >
                             <figure class="figure d-block m-0">
                                 {% if thumbPath %}
                                     <img class="figure-img d-block img-fluid rounded m-0"
