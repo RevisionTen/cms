@@ -154,7 +154,7 @@
             </div>
             <div class="col-auto">
                 <button class="btn btn-secondary border"
-                        data-file-picker="{{ form.file.vars.id }}"
+                        data-file-picker="{{ form.vars.id }}"
                         data-file-picker-upload="{{ form.uploadedFile.vars.id }}"
                         {% if file_picker_mime_types %}
                             data-file-picker-mime-types="{{ file_picker_mime_types|join(',') }}"
