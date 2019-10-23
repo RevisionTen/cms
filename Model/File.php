@@ -14,11 +14,17 @@ final class File extends Aggregate
     /** @var string */
     public $path;
 
-    /** @var string */
+    /** @var string|null */
     public $mimeType;
 
-    /** @var int */
+    /** @var int|null */
     public $size;
+
+    /** @var int|null */
+    public $width;
+
+    /** @var int|null */
+    public $height;
 
     /** @var string */
     public $language;

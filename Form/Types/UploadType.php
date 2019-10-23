@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use RevisionTen\CMS\DataTransformer\FileTransformer;
+use RevisionTen\CMS\DataTransformer\ImageFileTransformer;
 use RevisionTen\CMS\Services\FileService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -69,13 +70,13 @@ class UploadType extends AbstractType
      * @param \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile
      * @param string                                              $upload_dir
      *
-     * @return string|null
+     * @return array|null
      */
-    public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?string
+    public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?array
     {
         $file = $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);
 
-        return $file['path'] ?? null;
+        return $file;
     }
 
     /**
@@ -95,7 +96,27 @@ class UploadType extends AbstractType
             'attr' => $options['attr'],
         ]);
 
-        $builder->addModelTransformer(new FileTransformer());
+        if ($options['file_with_meta_data']) {
+            $builder->addModelTransformer(new ImageFileTransformer());
+
+            $builder->add('title', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('size', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('width', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('height', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('mimeType', HiddenType::class, [
+                'required' => false,
+            ]);
+        } else {
+            $builder->addModelTransformer(new FileTransformer());
+        }
 
         $addDeleteReplaceForm = static function (FormInterface $form) use ($options): void {
             if ($options['allow_replace']) {
@@ -131,7 +152,14 @@ class UploadType extends AbstractType
             $requestHandler = $form->getConfig()->getRequestHandler();
             $data = $event->getData();
             $delete = !empty($data['delete']);
+
             $file = $data['file'] ?? null;
+            $title = $data['title'] ?? null;
+            $size = $data['size'] ?? null;
+            $width = $data['width'] ?? null;
+            $height = $data['height'] ?? null;
+            $mimeType = $data['mimeType'] ?? null;
+
             /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
@@ -161,7 +189,12 @@ class UploadType extends AbstractType
                     $file = $this->storeFile($uploadedFile, $options['upload_dir']);
                     // Overwrite uploaded File with file path string.
                     $event->setData([
-                        'file' => $file,
+                        'file' => $file['path'],
+                        'title' => $file['title'] ?? null,
+                        'size' => $file['size'] ?? null,
+                        'width' => $file['width'] ?? null,
+                        'height' => $file['height'] ?? null,
+                        'mimeType' => $file['mimeType'] ?? null,
                     ]);
                 }
             } elseif ($delete) {
@@ -170,12 +203,22 @@ class UploadType extends AbstractType
             } elseif (is_string($file)) {
                 // Keep the file.
                 $event->setData([
-                    'file' => $file
+                    'file' => $file,
+                    'title' => $title,
+                    'size' => $size,
+                    'width' => $width,
+                    'height' => $height,
+                    'mimeType' => $mimeType,
                 ]);
             } elseif (is_object($file) && ($file instanceof UploadedFile || $file instanceof File)) {
                 // File is object, just get the file path.
                 $event->setData([
                     'file' => $file->getPathname(),
+                    'title' => $title,
+                    'size' => $size,
+                    'width' => $width,
+                    'height' => $height,
+                    'mimeType' => $mimeType,
                 ]);
             } else {
                 $event->setData(null);
@@ -216,9 +259,11 @@ class UploadType extends AbstractType
             'allow_replace' => true,
             'show_file_picker' => true,
             'file_picker_mime_types' => null,
-            // Do not validate this form type with the passed constraints, use them for the file field insead.
+            'file_with_meta_data' => false,
+            // Do not validate this form type with the passed constraints, use them for the file field instead.
             'validation_groups' => false,
             'constraints' => null,
+            'allow_extra_fields' => true,
         ]);
 
         $resolver->setDeprecated('keep_deleted_file');

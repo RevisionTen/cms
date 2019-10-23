@@ -16,8 +16,11 @@ use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Exception;
+use function getimagesize;
 use function json_decode;
 use function json_encode;
+use function in_array;
 
 /**
  * Class FileService.
@@ -105,6 +108,38 @@ class FileService
         return $upload_dir.$newFileName;
     }
 
+    /**
+     * Get the size in pixels of an image.
+     * Returns width and height.
+     *
+     * @param UploadedFile $file
+     * @return array
+     */
+    private function getImageDimensions(UploadedFile $file): array
+    {
+        $imageMimeTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+        ];
+        $width = null;
+        $height = null;
+        if (in_array($file->getMimeType(), $imageMimeTypes, true)) {
+            try {
+                $dimensions = getimagesize($file->getRealPath());
+                if ($dimensions) {
+                    [$width, $height] = $dimensions;
+                }
+            } catch (Exception $exception) {}
+        }
+
+        return [
+            'width' => $width,
+            'height' => $height,
+        ];
+    }
+
     public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language): ?array
     {
         if (null === $uuid) {
@@ -114,6 +149,11 @@ class FileService
         $mimeType = $file->getMimeType();
         $size = $file->getSize();
 
+        // Get file size in px.
+        $dimensions = $this->getImageDimensions($file);
+        $width = $dimensions['width'];
+        $height = $dimensions['height'];
+
         $filePath = $this->saveUploadedFile($file, $upload_dir, $uuid.'-v'.($version + 1));
 
         // Create file aggregate.
@@ -122,6 +162,8 @@ class FileService
             'path' => $filePath,
             'mimeType' => $mimeType,
             'size' => $size,
+            'width' => $width,
+            'height' => $height,
             'website' => $website,
             'language' => $language,
         ], $uuid, 0);
@@ -133,9 +175,12 @@ class FileService
         return [
             'uuid' => $uuid,
             'path' => $filePath,
-            'mimeType' => $mimeType,
             'version' => $version + 1,
+            'title' => $title,
             'size' => $size,
+            'width' => $width,
+            'height' => $height,
+            'mimeType' => $mimeType,
         ];
     }
 
@@ -174,7 +219,14 @@ class FileService
         if (null !== $newFile) {
             $mimeType = $newFile->getMimeType();
             $size = $newFile->getSize();
+
+            // Get file size in px.
+            $dimensions = $this->getImageDimensions($newFile);
+            $width = $dimensions['width'];
+            $height = $dimensions['height'];
+
             $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
+
             if ($filePath !== $aggregate->path) {
                 $payload['path'] = $filePath;
             }
@@ -183,6 +235,12 @@ class FileService
             }
             if ($size !== $aggregate->size) {
                 $payload['size'] = $size;
+            }
+            if ($width !== $aggregate->width) {
+                $payload['width'] = $width;
+            }
+            if ($height !== $aggregate->height) {
+                $payload['height'] = $height;
             }
         }
 
@@ -198,6 +256,9 @@ class FileService
             'mimeType' => $mimeType ?? $aggregate->mimeType,
             'version' => $version + 1,
             'size' => $size ?? $aggregate->size,
+            'width' => $width ?? $aggregate->width,
+            'height' => $height ?? $aggregate->height,
+            'title' => $title ?? $aggregate->title,
         ];
     }
 
