@@ -84,7 +84,7 @@ class FrontendController extends AbstractController
      *
      * @return Response
      */
-    private function renderPage(string $pageUuid, Alias $alias = null): Response
+    public function renderPage(string $pageUuid, Alias $alias = null): Response
     {
         // Get page from cache.
         $pageData = $this->cacheService->get($pageUuid);
