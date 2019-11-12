@@ -25,7 +25,7 @@ class PageType extends AbstractType
     /**
      * @var \Symfony\Component\Security\Core\Security
      */
-    private $security;
+    protected $security;
 
     /**
      * PageType constructor.

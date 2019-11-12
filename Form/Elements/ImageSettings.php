@@ -51,6 +51,10 @@ class ImageSettings extends ElementSettings
                 <li>zoomCrop: resize and crop the image to fit to given dimensions</li>
                 <li><a href="https://github.com/Gregwar/Image#basic-handling" target="_blank">More here</a></li>
             </ul>',
+            'help_html' => true,
+            'help_attr' => [
+                'class' => 'w-100',
+            ],
             'attr' => [
                 'class' => 'custom-select',
             ],
