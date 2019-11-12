@@ -35,6 +35,10 @@ class ElementSettings extends AbstractType
                 'class' => 'well',
             ],
             'help' => $helpHtml,
+            'help_html' => true,
+            'help_attr' => [
+                'class' => 'w-100',
+            ],
         ]);
 
         $builder->add('margins', CollectionType::class, [
@@ -54,6 +58,10 @@ class ElementSettings extends AbstractType
                 'class' => 'well',
             ],
             'help' => $helpHtml,
+            'help_html' => true,
+            'help_attr' => [
+                'class' => 'w-100',
+            ],
         ]);
     }
 

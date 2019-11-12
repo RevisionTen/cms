@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.18] - 2019-11-11
+## Changed
+- Fixed help html in element form types
+
 ## [2.0.17] - 2019-10-23
 ## Changed
 - Updated file picker to also use image meta data if enabled
