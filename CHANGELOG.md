@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.19] - 2019-11-12
+## Changed
+- Made `CacheService::getVersion($uuid)` method public
+- Made `FrontendController::renderPage($pageUuid, $alias)` method public
+
 ## [2.0.18] - 2019-11-11
 ## Changed
 - Fixed help html in element form types

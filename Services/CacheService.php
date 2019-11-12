@@ -160,7 +160,7 @@ class CacheService
      *
      * @return int|null
      */
-    private function getVersion(string $uuid): ?int
+    public function getVersion(string $uuid): ?int
     {
         return $this->uuidStore[$uuid] ?? null;
     }
