@@ -2,7 +2,17 @@
 
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     {% for alias in aliases %}
+        {% set isActive = false %}
         {% if alias.pageStreamRead or alias.controller %}
+            {% set isActive = true %}
+
+            {# Don't show in sitemap if page robots has noindex #}
+            {% if alias.pageStreamRead and alias.pageStreamRead.payload.robots is defined and alias.pageStreamRead.payload.robots and alias.pageStreamRead.payload.robots is iterable and 'noindex' in alias.pageStreamRead.payload.robots %}
+                {% set isActive = false %}
+            {% endif %}
+        {% endif %}
+
+        {% if isActive %}
             <url>
                 <loc>{{ app.request.getSchemeAndHttpHost() }}{{ alias.path }}</loc>
                 {#<lastmod>2005-01-01</lastmod>
