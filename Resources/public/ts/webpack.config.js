@@ -2,8 +2,8 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        backend: './src/admin-backend.ts',
-        frontend: './src/admin-frontend.ts'
+        'admin-backend': './src/admin-backend.ts',
+        'admin-frontend': './src/admin-frontend.ts'
     },
     module: {
         rules: [
@@ -18,6 +18,6 @@ module.exports = {
         extensions: ['.ts', '.js' ],
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, '../js'),
     },
 };

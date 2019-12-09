@@ -1,4 +1,3 @@
-const axios = require('axios').default;
 
 /*
 let bindWidgets = new CustomEvent('bindWidgets', {
@@ -9,17 +8,16 @@ let bindWidgets = new CustomEvent('bindWidgets', {
 document.dispatchEvent(bindWidgets);
 */
 
-function closeFilePickerWindow(filePicker: Element) {
+function closeFilePickerWindow(filePicker: Element)
+{
     document.body.classList.remove('file-picker-open');
     filePicker.classList.remove('d-flex');
     filePicker.classList.add('d-none');
     filePicker.remove();
 }
 
-function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string, targetId: string) {
-
-    console.log(targetId);
-    console.log(filePickerUploadField);
+function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string, targetId: string)
+{
     let files = filePicker.querySelectorAll('[data-file-path]');
 
     files.forEach((file: HTMLElement) => {
@@ -119,11 +117,11 @@ function bindFilePicker(element: HTMLElement)
             // Get file picker content.
             let filePicker = document.querySelector(filePickerSelector);
             if (null !== filePicker) {
-                let params = filePickerMimeTypes ? {
+                let queryParams = filePickerMimeTypes ? {
                     mimeTypes: filePickerMimeTypes
                 } : null;
                 axios.get(url, {
-                    params: params
+                    params: queryParams
                 })
                     .then(function (response: any) {
                         // handle success
