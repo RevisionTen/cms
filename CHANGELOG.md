@@ -6,11 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED 2.1.0] - 2019-12-06
 ## Removed
-- Removed `bundles/cms/js/file-picker.js`
+- Removed `bundles/cms/js/file-picker.js` (file picker is now part of `admin-backend.js`)
+- **Removed jQuery `refreshElement` and `bindElement` events**, use the native CustomEvent javascript events instead. See readme for an example.
 ## Changed
-- Rewrote `admin-backend.js` and `admin-frontend.js
-## Todo
-- Remove `bundles/cms/js/admin-backend_alt.js` from config.yaml
+- Rewrote `admin-backend.js` and `admin-frontend.js` in TypeScript
 
 ## [2.0.20] - 2019-12-04
 ## Changed

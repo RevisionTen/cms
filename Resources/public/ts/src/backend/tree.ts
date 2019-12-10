@@ -1,3 +1,5 @@
+const axios = require('axios').default;
+
 function clearValidTrees()
 {
     let tree = document.querySelector('#page-tree .cms_tree');
@@ -119,3 +121,27 @@ function bindTree()
         });
     });
 }
+
+let updateTree = function(pageUuid: string, userId: any)
+{
+    let pageTreeUrl = '/admin/api/page-tree/' + pageUuid + '/' + userId;
+    axios.get(pageTreeUrl)
+        .then(function (response: any) {
+            // handle success
+            // Replace pageTree content.
+            let pageTree = document.getElementById('page-tree');
+            if (null !== pageTree) {
+                pageTree.innerHTML = response.data;
+            }
+            bindTree();
+        })
+        .catch(function (error: any) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+};
+
+export default updateTree;

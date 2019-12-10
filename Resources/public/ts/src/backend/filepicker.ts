@@ -1,3 +1,4 @@
+const axios = require('axios').default;
 
 /*
 let bindWidgets = new CustomEvent('bindWidgets', {
@@ -89,7 +90,7 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
     }
 }
 
-function bindFilePicker(element: HTMLElement)
+let bindFilePicker = function(element: HTMLElement)
 {
     let url = '/admin/file/picker';
     let filePickerButtons = element.querySelectorAll('[data-file-picker]');
@@ -107,7 +108,6 @@ function bindFilePicker(element: HTMLElement)
             });
 
             let targetId = button.dataset.filePicker;
-            console.log(targetId);
             let filePickerUploadField = button.dataset.filePickerUpload;
             let filePickerMimeTypes = button.dataset.filePickerMimeTypes;
 
@@ -141,12 +141,6 @@ function bindFilePicker(element: HTMLElement)
             }
         });
     });
-}
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-    bindFilePicker(document.body);
-
-    document.addEventListener('bindWidgets', ((event: CustomEvent) => {
-        bindFilePicker(event.detail.element);
-    }) as EventListener);
-});
+export default bindFilePicker;

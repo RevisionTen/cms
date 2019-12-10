@@ -1,111 +1,50 @@
 const axios = require('axios').default;
-import "./backend/file-picker";
-import "./backend/misc";
-import "./backend/forms";
-import "./backend/tree";
-import "./backend/admin-bar";
 
-function fireCustomEvent(eventName: string, detail: any, target: any)
-{
-    let openModalEvent = new CustomEvent(eventName, {
-        detail: detail
-    });
-    target.dispatchEvent(openModalEvent);
-}
+import bindForm from "./backend/forms";
+import bindWidgets from "./backend/widgets";
+import bindFilePicker from "./backend/filepicker";
+import bindMenu from "./backend/menu";
+import updateElement from "./backend/element";
+import openTab from "./backend/tab";
+import openModal from "./backend/modal";
+import fireCustomEvent from "./backend/events";
+import getPageInfo from "./backend/pageinfo";
 
-function updateElement(data: any)
-{
-    getPageInfo();
-
-    if (typeof data.refresh !== 'undefined' && data.refresh) {
-        // Trigger a refresh event on the page.
-        let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
-        if (null !== pageFrame) {
-            let refreshElementEvent = new CustomEvent('refreshElement', {
-                detail: {
-                    elementUuid: data.refresh
-                }
-            });
-            pageFrame.contentDocument.dispatchEvent(refreshElementEvent);
-        }
-    } else if (typeof data.refresh !== 'undefined' && data.refresh === null) {
-        // Reload the full page if refresh isset and is null.
-        window.location.reload();
-    } else if (typeof data.modal !== 'undefined' && data.modal) {
-        // Open a modal.
-        let detail = {
-            url: data.modal
-        };
-        fireCustomEvent('openModal', detail, document);
-    }
-}
-
-function bindTab(url: string)
-{
-    let pageEditorTab = document.querySelector('.page-tabs-tab-editor');
-    let pageSettingsTab = document.querySelector('.page-tabs-tab-settings');
-
-    // Get first form in content.
-    let form = pageSettingsTab.querySelector('form');
-    let formSelector = form.getAttribute('name') ? 'form[name="'+form.getAttribute('name')+'"]' : '#main form';
-
-    // Set the action on the form.
-    form.setAttribute('action', url);
-
-    // Bind widgets and conditional form fields.
-    bindForm(formSelector, () => {
-        bindTab(url);
-    });
-
-    // Add an ajax submit handler to the form.
-    onSubmit(form, updateCKEditorInstances, (data: any, success: boolean) => {
-        // handle success
-        if (success && data.success) {
-            pageSettingsTab.classList.remove('active');
-            pageEditorTab.classList.add('active');
-            updateElement(data);
-        } else {
-            let html = data;
-
-            // Get element from response.
-            let parser = new DOMParser();
-            let htmlDoc = <HTMLDocument>parser.parseFromString(html, 'text/html');
-            // Get first form from standalone form page.
-            let newForm = <HTMLElement>htmlDoc.querySelector(formSelector);
-
-            // Replace old form with new form and bind it.
-            if (null !== newForm) {
-                form.parentNode.replaceChild(newForm, form);
-                bindTab(url);
-            }
-        }
-    });
-
-    // Add close button.
-    let actionsDiv = pageSettingsTab.querySelector('.content-header .global-actions');
-    if (null !== actionsDiv) {
-        let closeButton = actionsDiv.querySelector('.btn-close-tab');
-        if (null === closeButton) {
-            actionsDiv.insertAdjacentHTML('beforeend', '<button class="btn btn-sm btn-close-tab"><span class="fa fa-times"></span></button>');
-            let closeButton = actionsDiv.querySelector('.btn-close-tab');
-            if (null !== closeButton) {
-                closeButton.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    // Hide the tab.
-                    pageSettingsTab.innerHTML = '';
-                    pageSettingsTab.classList.remove('active');
-                    pageEditorTab.classList.add('active');
-                });
-            }
-        }
-    }
-
-    // Show the tab.
-    pageEditorTab.classList.remove('active');
-    pageSettingsTab.classList.add('active');
-}
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Bind menu editor.
+    bindMenu();
+
+    // Allow relative urls in trix editor link dialog.
+    document.addEventListener("trix-initialize", event => {
+        let toolbarElement = <HTMLElement>event.target;
+        let inputElement = <HTMLInputElement>toolbarElement.parentElement.querySelector("input[name=href]");
+        if (null !== inputElement) {
+            inputElement.type = 'text';
+            inputElement.pattern = '(https?://|/).+';
+        }
+    });
+
+    // Bind the page form.
+    bindForm('form[name=page]');
+
+    // Initialize widgets on "edit" and "new" EasyAdmin entity form pages.
+    let editForm = document.querySelector('form.edit-form');
+    let newForm = document.querySelector('form.new-form');
+    if ((document.body.classList.contains('edit') || document.body.classList.contains('new')) && (editForm || newForm)) {
+        bindWidgets(document.body);
+    }
+    // Initialize widgets after they have been added to collections.
+    $(document).on('easyadmin.collection.item-added', () => {
+        bindWidgets(document.body);
+    });
+
+    // Bind file picker.
+    bindFilePicker(document.body);
+    document.addEventListener('bindWidgets', ((event: CustomEvent) => {
+        bindFilePicker(event.detail.element);
+    }) as EventListener);
+
     // Only execute on editor pages.
     if (!document.body.classList.contains('edit-page')) {
         return;
@@ -145,71 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event that opens a bootstrap modal with dynamic content.
     document.addEventListener('openModal', (event: CustomEvent) => {
-        let url = event.detail.url;
-        let modalContent = document.querySelector('#editor-modal .modal-body');
-        if (null === modalContent) {
-            return;
-        }
-        // Clear modal content.
-        modalContent.innerHTML = '';
-
-        // Get new modal content.
-        axios.get(url + '?ajax=1')
-            .then(function (response: any) {
-                // handle success
-                let html = response.data;
-                // Get element from response.
-                let parser = new DOMParser();
-                let htmlDoc = <HTMLDocument>parser.parseFromString(html, 'text/html');
-                let newModalContent = <HTMLElement>htmlDoc.querySelector('.content-wrapper .content');
-                if (null !== newModalContent) {
-                    modalContent.insertAdjacentElement('beforeend', newModalContent);
-                    bindModal(url);
-                }
-            })
-            .catch(function (error: any) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
-            });
+        openModal(event.detail.url);
     });
 
     // Event that open the page settings tab with dynamic content.
     document.addEventListener('openTab', (event: CustomEvent) => {
-        let url = event.detail.url;
-        let pageSettingsTab = document.querySelector('.page-tabs-tab-settings');
-        if (null === pageSettingsTab) {
-            return;
-        }
-        // Clear tab content.
-        pageSettingsTab.innerHTML = '';
-
-        // Get new modal content.
-        axios.get(url + '?ajax=1')
-            .then(function (response: any) {
-                // handle success
-                let html = response.data;
-                // Get element from response.
-                let parser = new DOMParser();
-                let htmlDoc = <HTMLDocument>parser.parseFromString(html, 'text/html');
-                let newPageSettingsTabContent = <HTMLElement>htmlDoc.querySelector('.content-wrapper .content');
-                if (null !== newPageSettingsTabContent) {
-                    pageSettingsTab.insertAdjacentElement('beforeend', newPageSettingsTabContent);
-                    bindTab(url);
-                }
-            })
-            .catch(function (error: any) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
-            });
+        openTab(event.detail.url);
     });
 
-    // Bind events.
     document.addEventListener('editElement', (event: CustomEvent) => {
         let pageUuid = (window as any).pageData.uuid;
         let onVersion = (window as any).pageData.version;

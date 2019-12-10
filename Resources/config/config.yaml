@@ -88,7 +88,6 @@ easy_admin:
                 - 'bundles/cms/libs/dist/trix.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
-                - 'bundles/cms/js/admin-backend_alt.js?v=%cms.version%' # TODO: Remove!!
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
 
     formats:

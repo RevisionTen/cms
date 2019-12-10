@@ -92,14 +92,13 @@ $spacers: map-merge(
 
 ## Editor javascript events
 
-All editor events are triggered on the body element of the page (using jQuery`s trigger() method).
+All editor events are triggered on the document.
+These events are dispatched as native javascript "CustomEvent" events on the document.
 
-| Event | Parameters | Description |
+| Event | Detail | Description |
 |---|---|---|
-| `refreshElement` | event, elementUuid | Occurs before an element is refreshed. |
-| `bindElement` | event, elementUuid | Occurs after an element is refreshed. |
-
-These events are also dispatched as native javascript "CustomEvent" events on the document.
+| `refreshElement` | elementUuid | Occurs before an element is refreshed. |
+| `bindElement` | elementUuid | Occurs after an element is refreshed. |
 
 Example for a listener:
 ```javascript

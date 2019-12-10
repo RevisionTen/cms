@@ -3,18 +3,6 @@ const axios = require('axios').default;
 // Requires jQuery for column resizing and firing of old jQuery fallback events.
 declare var $: any;
 
-//function createLoadedContentDiv()
-//{
-//    document.body.insertAdjacentHTML('beforeend', '<div style="display:none!important" class="hidden loadedcontent"></div>');
-//}
-//function removeLoadedContentDiv()
-//{
-//    let loadedContentDiv = document.querySelector('.loadedcontent');
-//    if (null !== loadedContentDiv) {
-//        loadedContentDiv.remove();
-//    }
-//}
-
 let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
     addElement: 'Add Element',
     delete: 'Delete',
@@ -54,8 +42,6 @@ function bindNewColumnButton(element: HTMLElement, newColumnButton: HTMLElement,
                 });
                 // Trigger event on parent frame.
                 window.parent.document.dispatchEvent(customEvent);
-                // Trigger fallback jQuery event for backwards compatibility.
-                triggerJqueryEvent('createColumn', detail, window.parent.document.body);
             });
         }
     });
@@ -94,8 +80,6 @@ function bindColumnResize(element: HTMLElement, fullWidth: number) {
                 });
                 // Trigger event on parent frame.
                 window.parent.document.dispatchEvent(customEvent);
-                // Trigger fallback jQuery event for backwards compatibility.
-                triggerJqueryEvent('resizeColumn', detail, window.parent.document.body);
             });
         }
     });
@@ -133,8 +117,30 @@ function bindButton(element: HTMLElement, buttonSelector: string, eventName: str
                 detail: detail
             });
             window.parent.document.dispatchEvent(customEvent);
-            // Trigger fallback jQuery event for backwards compatibility.
-            triggerJqueryEvent(eventName, detail, window.parent.document.body);
+        });
+    });
+}
+/**
+ * Binds a custom event to button elements.
+ *
+ * @param element
+ */
+function bindCreateButton(element: HTMLElement)
+{
+    let buttons = element.querySelectorAll('.btn-create');
+
+    buttons.forEach((button: HTMLElement) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            let detail = {
+                parent: element.dataset.uuid,
+                elementName: button.dataset.elementName
+            };
+            // Trigger event on parent frame.
+            let createElementEvent = new CustomEvent('createElement', {
+                detail: detail
+            });
+            window.parent.document.dispatchEvent(createElementEvent);
         });
     });
 }
@@ -148,8 +154,9 @@ function bindControls(element: HTMLElement)
 {
     let uuid = element.dataset.uuid;
 
+    bindCreateButton(element);
+
     bindButton(element, '.btn-add', 'addElement', {'parent': uuid});
-    bindButton(element, '.btn-create', 'createElement', {'parent': uuid, 'elementName': element.dataset.elementName});
     bindButton(element, '.btn-edit', 'editElement', {'uuid': uuid});
     bindButton(element, '.btn-delete', 'deleteElement', {'uuid': uuid});
     bindButton(element, '.btn-up', 'shiftElement', {'uuid': uuid, 'direction': 'up'});
@@ -337,7 +344,7 @@ function bindElement(element: HTMLElement, bindChildren = false)
     });
     document.dispatchEvent(event);
     // Trigger JQuery event for backwards compatibility.
-    triggerJqueryEvent('bindElement', element.dataset.uuid, document.body);
+    triggerJqueryEvent('bindElement', element.dataset.uuid, 'body');
 
     // Bind children.
     if (bindChildren) {
@@ -352,13 +359,8 @@ function refreshElement(elementSelector: string)
 {
     let oldElement = document.querySelector(elementSelector);
 
-    // Remove div of previously loaded content.
-    //removeLoadedContentDiv();
-    // Create loaded content div.
-    //createLoadedContentDiv();
-
     // Load updated content of element.
-    let url = window.location.href + ' ' + elementSelector;
+    let url = window.location.href;
     axios.get(url)
         .then(function (response: any) {
             // handle success
@@ -483,11 +485,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('refreshElement', ((event: CustomEvent) => {
         let elementUuid = event.detail.elementUuid;
         let elementSelector = `[data-uuid="${elementUuid}"]`;
+
+        // Trigger jQuery event for backwards compatibility.
+        triggerJqueryEvent('refreshElement', elementUuid, 'body');
+
         refreshElement(elementSelector);
     }) as EventListener);
 
 });
-
 
 /*
 // Dispatch custom "refreshElement" event for pages that do not use jQuery in the frontend.

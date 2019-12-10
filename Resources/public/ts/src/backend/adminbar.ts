@@ -1,7 +1,8 @@
+const axios = require('axios').default;
+
 function bindLink(buttonSelector: string, eventName: string)
 {
     let buttons = document.querySelectorAll(buttonSelector);
-
     buttons.forEach((button: HTMLElement) => {
         button.addEventListener('click', (event) => {
             event.preventDefault();
@@ -18,7 +19,8 @@ function bindLink(buttonSelector: string, eventName: string)
 
 function bindLinks()
 {
-    bindLink('[data-target=modal], [data-target=parent]', 'openModal');
+    bindLink('[data-target=modal]', 'openModal');
+    bindLink('[data-target=parent]', 'openModal');
     bindLink('[data-target=ajax]', 'openAjax');
     bindLink('[data-target=tab]', 'openTab');
 
@@ -93,15 +95,8 @@ function bindLinks()
     }
 }
 
-function getPageInfo()
+let updateAdminBar = function(pageUuid: string, userId: any)
 {
-    let pageUuidInput = <HTMLInputElement>document.getElementById('pageUuid');
-    let pageUuid = pageUuidInput ? pageUuidInput.value : null;
-
-    let userIdInput = <HTMLInputElement>document.getElementById('userId');
-    let userId = pageUuidInput ? userIdInput.value : null;
-
-    // Get Page Info.
     let pageInfoUrl = '/admin/api/page-info/' + pageUuid + '/' + userId;
     axios.get(pageInfoUrl)
         .then(function (response: any) {
@@ -121,24 +116,6 @@ function getPageInfo()
         .finally(function () {
             // always executed
         });
+};
 
-    // Update tree.
-    let pageTreeUrl = '/admin/api/page-tree/' + pageUuid + '/' + userId;
-    axios.get(pageTreeUrl)
-        .then(function (response: any) {
-            // handle success
-            // Replace pageTree content.
-            let pageTree = document.getElementById('page-tree');
-            if (null !== pageTree) {
-                pageTree.innerHTML = response.data;
-            }
-            bindTree();
-        })
-        .catch(function (error: any) {
-            // handle error
-            console.log(error);
-        })
-        .finally(function () {
-            // always executed
-        });
-}
+export default updateAdminBar;

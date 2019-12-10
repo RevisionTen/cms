@@ -1,23 +1,7 @@
-function bindForm(formSelector: string, formReloadCallback: any = false) {
-    let form = <HTMLFormElement>document.querySelector(formSelector);
-    if (null !== form) {
-        let conditionalChangeElements = form.querySelectorAll('[data-condition]');
-        let conditionalClickElements = form.querySelectorAll('button[data-condition]');
+const axios = require('axios').default;
 
-        conditionalChangeElements.forEach((conditionalChangeElement: HTMLElement) => {
-            conditionalChangeElement.addEventListener('change', () => {
-                reloadForm(formSelector, formReloadCallback, form);
-            });
-        });
-        conditionalClickElements.forEach((conditionalClickElement: HTMLElement) => {
-            conditionalClickElement.addEventListener('click', () => {
-                reloadForm(formSelector, formReloadCallback, form);
-            });
-        });
-
-        bindWidgets(form);
-    }
-}
+import updateCKEditorInstances from "./ckeditor";
+import bindWidgets from "./widgets";
 
 function reloadForm(formSelector: string, formReloadCallback: any, form: HTMLFormElement)
 {
@@ -56,35 +40,26 @@ function reloadForm(formSelector: string, formReloadCallback: any, form: HTMLFor
         });
 }
 
-/**
- * Submit a form via ajax.
- *
- * @param form
- * @param {function} preSubmitCallback
- * @param {function} preSubmitCallback
- * @param {function} postSubmitCallback
- */
-function onSubmit(form: HTMLFormElement, preSubmitCallback: any, postSubmitCallback: any)
+let bindForm = function(formSelector: string, formReloadCallback: any = false)
 {
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
+    let form = <HTMLFormElement>document.querySelector(formSelector);
+    if (null !== form) {
+        let conditionalChangeElements = form.querySelectorAll('[data-condition]');
+        let conditionalClickElements = form.querySelectorAll('button[data-condition]');
 
-        preSubmitCallback();
-
-        let formData = new FormData(form);
-
-        let url = form.action;
-        axios.post(url, formData)
-            .then(function (response: any) {
-                // handle success
-                postSubmitCallback(response.data, true);
-            })
-            .catch(function (response: any) {
-                // handle error
-                postSubmitCallback(response.data, false);
-            })
-            .finally(function () {
-                // always executed
+        conditionalChangeElements.forEach((conditionalChangeElement: HTMLElement) => {
+            conditionalChangeElement.addEventListener('change', () => {
+                reloadForm(formSelector, formReloadCallback, form);
             });
-    });
-}
+        });
+        conditionalClickElements.forEach((conditionalClickElement: HTMLElement) => {
+            conditionalClickElement.addEventListener('click', () => {
+                reloadForm(formSelector, formReloadCallback, form);
+            });
+        });
+
+        bindWidgets(form);
+    }
+};
+
+export default bindForm;
