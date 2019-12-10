@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED 2.1.0] - 2019-12-06
+## Added
+- Added `ElementController`
+## Removed
+- Removed `bundles/cms/js/file-picker.js` (file picker is now part of `admin-backend.js`)
+- **Deprecated jQuery `refreshElement` and `bindElement` events**, use the native CustomEvent javascript events instead. See readme for an example.
+## Changed
+- Rewrote `admin-backend.js` and `admin-frontend.js` in TypeScript
+- Moved code from `PageController` to `ElementController`
+
 ## [2.0.20] - 2019-12-04
 ## Changed
 - Don't include pages in sitemap that have a `noindex` in `page.meta.robots`

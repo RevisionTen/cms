@@ -43,4 +43,6 @@ revision_ten_cms_controller_page:
     resource: "@CmsBundle/Controller/PageController.php"
     type: annotation
 
-
+revision_ten_cms_controller_element:
+    resource: "@CmsBundle/Controller/ElementController.php"
+    type: annotation
