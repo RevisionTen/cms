@@ -89,7 +89,7 @@ easy_admin:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
-                - 'bundles/cms/js/file-picker.js?v=%cms.version%'
+
     formats:
         date:     'd.m.Y'
         time:     'H:i'
