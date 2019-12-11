@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Controller;
 
 use Exception;
+use InvalidArgumentException;
 use RevisionTen\CMS\Command\MenuAddItemCommand;
 use RevisionTen\CMS\Command\MenuCreateCommand;
 use RevisionTen\CMS\Command\MenuDisableItemCommand;
@@ -19,8 +20,6 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
-use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CMS\Twig\MenuRuntime;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -37,22 +36,17 @@ use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use function array_combine;
-use function array_key_exists;
 use function array_keys;
-use function array_unique;
 use function class_implements;
-use function count;
 use function in_array;
-use function is_array;
 use function json_decode;
-use function json_encode;
-use function strcmp;
+use function sprintf;
+use function trigger_error;
 
 /**
  * Class MenuController.
@@ -61,76 +55,6 @@ use function strcmp;
  */
 class MenuController extends AbstractController
 {
-    /**
-     * A wrapper function to execute a Command.
-     * Returns true if the command succeeds.
-     *
-     * @param \RevisionTen\CQRS\Services\CommandBus $commandBus
-     * @param string                                $commandClass
-     * @param array                                 $data
-     * @param string                                $aggregateUuid
-     * @param int                                   $onVersion
-     * @param bool                                  $queue
-     * @param string|NULL                           $commandUuid
-     * @param int|NULL                              $userId
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
-    {
-        if (null === $userId) {
-            /** @var UserRead $user */
-            $user = $this->getUser();
-            $userId = $user->getId();
-        }
-
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
-
-        return $commandBus->dispatch($command, $queue);
-    }
-
-    /**
-     * Returns the difference between base array and change array.
-     * Works with multidimensional arrays.
-     *
-     * @param array $base
-     * @param array $change
-     *
-     * @return array
-     */
-    private function diff(array $base, array $change): array
-    {
-        $diff = [];
-
-        foreach ($change as $property => $value) {
-            $equal = true;
-
-            if (!array_key_exists($property, $base)) {
-                // Property is new.
-                $equal = false;
-            } else {
-                $originalValue = $base[$property];
-
-                if (is_array($value) && is_array($originalValue)) {
-                    // Check if values arrays are identical.
-                    if (0 !== strcmp(json_encode($value), json_encode($originalValue))) {
-                        // Arrays are not equal.
-                        $equal = false;
-                    }
-                } elseif ($originalValue !== $value) {
-                    $equal = false;
-                }
-            }
-
-            if (!$equal) {
-                $diff[$property] = $value;
-            }
-        }
-
-        return $diff;
-    }
-
     /**
      * Returns info from the messageBus.
      *
@@ -141,20 +65,6 @@ class MenuController extends AbstractController
     public function errorResponse(MessageBus $messageBus): JsonResponse
     {
         return new JsonResponse($messageBus->getMessagesJson());
-    }
-
-    /**
-     * Redirects to the edit page of a Menu Aggregate by its uuid.
-     *
-     * @param string $menuUuid
-     *
-     * @return RedirectResponse
-     */
-    private function redirectToMenu(string $menuUuid): RedirectResponse
-    {
-        return $this->redirectToRoute('cms_edit_menu', [
-            'uuid' => $menuUuid,
-        ]);
     }
 
     /**
@@ -175,9 +85,13 @@ class MenuController extends AbstractController
 
         // Get menuUuid by read model id.
         if (null === $menuUuid) {
-            /** @var int $id MenuRead Id. */
+            /**
+             * @var int $id MenuRead Id.
+             */
             $id = $request->get('id');
-            /** @var MenuRead $menuRead */
+            /**
+             * @var MenuRead $menuRead
+             */
             $menuRead = $entityManager->getRepository(MenuRead::class)->find($id);
             if (null === $menuRead) {
                 return $this->redirect('/admin');
@@ -185,7 +99,9 @@ class MenuController extends AbstractController
             $menuUuid = $menuRead->getUuid();
         }
 
-        /** @var Menu $menu */
+        /**
+         * @var Menu $menu
+         */
         $menu = $aggregateFactory->build($menuUuid, Menu::class);
 
         return $this->render('@cms/Admin/Menu/edit.html.twig', [
@@ -205,13 +121,15 @@ class MenuController extends AbstractController
      *
      * @return JsonResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus)
     {
         $this->denyAccessUnlessGranted('menu_create');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
         $currentWebsite = $request->get('currentWebsite');
@@ -294,53 +212,58 @@ class MenuController extends AbstractController
      * @return JsonResponse|Response
      *
      * @throws InterfaceException
-     * @throws \Exception
+     * @throws Exception
      */
     public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
     {
         $config = $this->getParameter('cms');
 
-        if (isset($config['menu_items'][$itemName])) {
-            $itemConfig = $config['menu_items'][$itemName];
+        $itemExists = isset($config['menu_items'][$itemName]);
 
-            /** @var string $formClass */
-            $formClass = $itemConfig['class'];
-            $implements = class_implements($formClass);
-
-            if ($implements && in_array(FormTypeInterface::class, $implements, false)) {
-                $form = $this->createForm(ElementType::class, ['data' => $data], ['elementConfig' => $itemConfig]);
-                $form->handleRequest($request);
-
-                if ($form->isSubmitted() && $form->isValid()) {
-                    $data = $form->getData()['data'];
-
-                    $success = $this->runCommand($commandBus, MenuAddItemCommand::class, [
-                        'itemName' => $itemName,
-                        'data' => $data,
-                        'parent' => $parent,
-                    ], $menuUuid, $onVersion); // Todo: Qeue events.
-
-                    if ($request->get('ajax')) {
-                        return new JsonResponse([
-                            'success' => $success,
-                            'refresh' => $parent,
-                        ]);
-                    }
-
-                    return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
-                }
-
-                return $this->render($form_template, [
-                    'title' => $translator->trans('Add %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
-                    'form' => $form->createView(),
-                ]);
-            } else {
-                // Not a valid form type.
-                throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
-            }
-        } else {
-            throw new Exception('Item type '.$itemName.' does not exist.');
+        if (!$itemExists) {
+            throw new InvalidArgumentException('Item type '.$itemName.' does not exist.');
         }
+
+        $itemConfig = $config['menu_items'][$itemName];
+
+        /**
+         * @var string $formClass
+         */
+        $formClass = $itemConfig['class'];
+        $implements = class_implements($formClass);
+        $isValidFormType = $implements && in_array(FormTypeInterface::class, $implements, false);
+
+        if (!$isValidFormType) {
+            // Not a valid form type.
+            throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
+        }
+
+        $form = $this->createForm(ElementType::class, ['data' => $data], ['elementConfig' => $itemConfig]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData()['data'];
+
+            $success = $this->runCommand($commandBus, MenuAddItemCommand::class, [
+                'itemName' => $itemName,
+                'data' => $data,
+                'parent' => $parent,
+            ], $menuUuid, $onVersion); // Todo: Qeue events.
+
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                    'refresh' => $parent,
+                ]);
+            }
+
+            return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
+        }
+
+        return $this->render($form_template, [
+            'title' => $translator->trans('Add %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -361,14 +284,18 @@ class MenuController extends AbstractController
      * @return JsonResponse|Response
      *
      * @throws InterfaceException
-     * @throws \Exception
+     * @throws Exception
      */
     public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@cms/Form/form.html.twig')
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Menu $aggregate */
+        /**
+         * @var Menu $aggregate
+         */
         $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
 
         if (empty($aggregate->items)) {
@@ -379,62 +306,65 @@ class MenuController extends AbstractController
         // Get the element from the Aggregate.
         $item = MenuBaseHandler::getItem($aggregate, $itemUuid);
 
-        if ($item && isset($item['data'], $item['itemName'])) {
-            $data = $item;
-            $itemName = $item['itemName'];
-            $config = $this->getParameter('cms');
-
-            if (isset($config['menu_items'][$itemName])) {
-                $itemConfig = $config['menu_items'][$itemName];
-                $formClass = $itemConfig['class'];
-                $implements = class_implements($formClass);
-
-                if ($implements && in_array(FormTypeInterface::class, $implements, false)) {
-                    $form = $this->createForm(ElementType::class, $data, ['elementConfig' => $itemConfig]);
-                    $form->handleRequest($request);
-
-                    // Get differences in data and check if data has changed.
-                    if ($form->isSubmitted()) {
-                        $data = $form->getData()['data'];
-                        // Remove data that hasn't changed.
-                        $data = $this->diff($item['data'], $data);
-
-                        if (empty($data)) {
-                            $form->addError(new FormError($translator->trans('Data has not changed.')));
-                        }
-                    }
-
-                    if ($form->isSubmitted() && $form->isValid()) {
-                        $success = $this->runCommand($commandBus, MenuEditItemCommand::class, [
-                            'uuid' => $itemUuid,
-                            'data' => $data,
-                        ], $menuUuid, $onVersion); // Todo: Qeue events.
-
-                        if ($request->get('ajax')) {
-                            return new JsonResponse([
-                                'success' => $success,
-                                'refresh' => $itemUuid,
-                            ]);
-                        }
-
-                        return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
-                    }
-
-                    return $this->render($form_template, [
-                        'title' => $translator->trans('Edit %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
-                        'form' => $form->createView(),
-                    ]);
-                } else {
-                    // Not a valid form type.
-                    throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
-                }
-            } else {
-                throw new Exception('Item type '.$itemName.' does not exist.');
-            }
-        } else {
-            // Not a valid element.
-            throw new Exception('Item with uuid '.$itemUuid.' is not a valid item.');
+        $isValidItem = $item && isset($item['data'], $item['itemName']);
+        if (!$isValidItem) {
+            // Not a valid item.
+            throw new InvalidArgumentException('Item with uuid '.$itemUuid.' is not a valid item.');
         }
+
+        $data = $item;
+        $itemName = $item['itemName'];
+        $config = $this->getParameter('cms');
+
+        $itemExists = isset($config['menu_items'][$itemName]);
+        if (!$itemExists) {
+            throw new InvalidArgumentException('Item type '.$itemName.' does not exist.');
+        }
+
+        $itemConfig = $config['menu_items'][$itemName];
+        $formClass = $itemConfig['class'];
+        $implements = class_implements($formClass);
+
+        $isValidFormType = $implements && in_array(FormTypeInterface::class, $implements, false);
+        if (!$isValidFormType) {
+            // Not a valid form type.
+            throw new InterfaceException($formClass.' must implement '.FormTypeInterface::class);
+        }
+
+        $form = $this->createForm(ElementType::class, $data, ['elementConfig' => $itemConfig]);
+        $form->handleRequest($request);
+
+        // Get differences in data and check if data has changed.
+        if ($form->isSubmitted()) {
+            $data = $form->getData()['data'];
+            // Remove data that hasn't changed.
+            $data = ArrayHelpers::diff($item['data'], $data);
+
+            if (empty($data)) {
+                $form->addError(new FormError($translator->trans('Data has not changed.')));
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $success = $this->runCommand($commandBus, MenuEditItemCommand::class, [
+                'uuid' => $itemUuid,
+                'data' => $data,
+            ], $menuUuid, $onVersion); // Todo: Queue events.
+
+            if ($request->get('ajax')) {
+                return new JsonResponse([
+                    'success' => $success,
+                    'refresh' => $itemUuid,
+                ]);
+            }
+
+            return $success ? $this->redirectToMenu($menuUuid) : $this->errorResponse($messageBus);
+        }
+
+        return $this->render($form_template, [
+            'title' => $translator->trans('Edit %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -451,14 +381,18 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Menu $aggregate */
+        /**
+         * @var Menu $aggregate
+         */
         $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
         $itemParent = null;
         if (!empty($aggregate->items)) {
@@ -470,7 +404,7 @@ class MenuController extends AbstractController
 
         $success = $this->runCommand($commandBus, MenuRemoveItemCommand::class, [
             'uuid' => $itemUuid,
-        ], $menuUuid, $onVersion); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Queue events.
 
         if ($request->get('ajax')) {
             return new JsonResponse([
@@ -501,21 +435,25 @@ class MenuController extends AbstractController
      * @param string           $direction
      *
      * @return JsonResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function shiftItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuShiftItemCommand::class, [
             'uuid' => $itemUuid,
             'direction' => $direction,
-        ], $menuUuid, $onVersion); // Todo: Qeue events.
+        ], $menuUuid, $onVersion); // Todo: Queue events.
 
         if ($request->get('ajax')) {
             // Get the item parent so we know what to refresh.
-            /** @var Menu $aggregate */
+            /**
+             * @var Menu $aggregate
+             */
             $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
             $itemParent = null;
             if (!empty($aggregate->items)) {
@@ -552,11 +490,13 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function disableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuDisableItemCommand::class, [
@@ -564,7 +504,9 @@ class MenuController extends AbstractController
         ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
-            /** @var Menu $aggregate */
+            /**
+             * @var Menu $aggregate
+             */
             $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
             $itemParent = null;
             if (!empty($aggregate->items)) {
@@ -601,11 +543,13 @@ class MenuController extends AbstractController
      * @param string           $itemUuid
      *
      * @return JsonResponse|Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function enableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $success = $this->runCommand($commandBus, MenuEnableItemCommand::class, [
@@ -613,7 +557,9 @@ class MenuController extends AbstractController
         ], $menuUuid, $onVersion); // Todo: Qeue events.
 
         if ($request->get('ajax')) {
-            /** @var Menu $aggregate */
+            /**
+             * @var Menu $aggregate
+             */
             $aggregate = $aggregateFactory->build($menuUuid, Menu::class, $onVersion, $user->getId());
             $itemParent = null;
             if (!empty($aggregate->items)) {
@@ -650,7 +596,9 @@ class MenuController extends AbstractController
     {
         @trigger_error(sprintf('The "MenuController::getAlias" function is deprecated since 2.0.8, do not use it anymore.'), E_USER_DEPRECATED);
 
-        /** @var Alias $alias */
+        /**
+         * @var Alias $alias
+         */
         $alias = $entityManager->getRepository(Alias::class)->find($id);
 
         $path = $alias ? $alias->getPath() : '#';
@@ -661,16 +609,17 @@ class MenuController extends AbstractController
     /**
      * Renders a menu.
      *
+     * @param MenuRuntime $menuRuntime
+     * @param string      $name
+     * @param Alias|null  $alias
+     * @param string|null $template
+     * @param string|null $language
+     * @param int|null    $website
+     *
+     * @return Response
+     * @throws Exception
      * @deprecated since 2.0.8, use 'cms_menu()' in your template instead.
      *
-     * @param \RevisionTen\CMS\Twig\MenuRuntime $menuRuntime
-     * @param string                            $name
-     * @param \RevisionTen\CMS\Model\Alias|NULL $alias
-     * @param string|NULL                       $template
-     * @param string|NULL                       $language
-     * @param int|NULL                          $website
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function renderMenu(MenuRuntime $menuRuntime, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
     {
@@ -698,7 +647,7 @@ class MenuController extends AbstractController
      * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $menuUuid, int $onVersion)
     {
@@ -715,20 +664,65 @@ class MenuController extends AbstractController
 
         if (!$success) {
             return $this->errorResponse($messageBus);
-        } else {
-            $this->addFlash(
-                'success',
-                $translator->trans('Menu order saved')
-            );
+        }
 
-            if ($request->get('ajax')) {
-                return new JsonResponse([
-                    'success' => $success,
-                    'refresh' => null,
-                ]);
-            }
+        $this->addFlash(
+            'success',
+            $translator->trans('Menu order saved')
+        );
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => null,
+            ]);
         }
 
         return $this->redirectToMenu($menuUuid);
+    }
+
+    /**
+     * A wrapper function to execute a Command.
+     * Returns true if the command succeeds.
+     *
+     * @param CommandBus  $commandBus
+     * @param string      $commandClass
+     * @param array       $data
+     * @param string      $aggregateUuid
+     * @param int         $onVersion
+     * @param bool        $queue
+     * @param string|null $commandUuid
+     * @param int|null    $userId
+     *
+     * @return bool
+     * @throws Exception
+     */
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    {
+        if (null === $userId) {
+            /**
+             * @var UserRead $user
+             */
+            $user = $this->getUser();
+            $userId = $user->getId();
+        }
+
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
+
+        return $commandBus->dispatch($command, $queue);
+    }
+
+    /**
+     * Redirects to the edit page of a Menu Aggregate by its uuid.
+     *
+     * @param string $menuUuid
+     *
+     * @return RedirectResponse
+     */
+    private function redirectToMenu(string $menuUuid): RedirectResponse
+    {
+        return $this->redirectToRoute('cms_edit_menu', [
+            'uuid' => $menuUuid,
+        ]);
     }
 }

@@ -27,6 +27,25 @@
     {% endif %}
     {% set hasAccess = is_granted(permission) %}
 
+    {# Check if user has permission for this page template #}
+    {% if hasAccess and entity_config.class == 'RevisionTen\\CMS\\Model\\PageStreamRead' and pageTemplateConfig is defined %}
+        {% set template = item.template %}
+        {% set pageAction = false %}
+        {% if action.name == 'cms_edit_aggregate' %}
+            {% set pageAction = 'edit' %}
+        {% elseif action.name == 'cms_clone_aggregate' %}
+            {% set pageAction = 'new' %}
+        {% elseif action.name == 'cms_delete_aggregate' %}
+            {% set pageAction = 'delete' %}
+        {% endif %}
+        {% if pageAction %}
+            {% set templatePermission = pageTemplateConfig[template]['permissions'][pageAction] ?? null %}
+            {% if templatePermission %}
+                {% set hasAccess = is_granted(templatePermission) %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
     {% if hasAccess %}
         <a class="{{ action.css_class|default('') }}" title="{{ action.title|default('') is empty ? '' : action.title|trans(trans_parameters, translation_domain) }}" href="{{ action_href }}" target="{{ action.target }}">
             {%- if action.icon %}<i class="fa fa-{{ action.icon }}"></i> {% endif -%}

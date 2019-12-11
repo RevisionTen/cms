@@ -94,6 +94,12 @@ cms:
             #alias_prefix:
             #    en: '/simple-page/' # Defaults to '/'
             #    de: '/einfache-seite/'
+            #permissions:
+            #    list: 'list_simple_page'
+            #    search: 'search_simple_page'
+            #    new: 'create_simple_page'
+            #    edit: 'edit_simple_page'
+            #    delete: 'delete_simple_page'
     page_elements:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section

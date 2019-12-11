@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use RevisionTen\CMS\Command\UserEditCommand;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserAggregate;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function array_values;
 
 /**
  * Class UserController.
@@ -44,13 +46,15 @@ class UserController extends AbstractController
      * @param int                    $id
      *
      * @return Response|RedirectResponse|JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
         $this->denyAccessUnlessGranted('user_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $userRead = $entityManager->getRepository(UserRead::class)->find($id);
@@ -65,11 +69,15 @@ class UserController extends AbstractController
             return $this->redirectToUsers();
         }
 
-        /** @var UserAggregate $userAggregate */
+        /**
+         * @var UserAggregate $userAggregate
+         */
         $userAggregate = $aggregateFactory->build($userRead->getUuid(), UserAggregate::class);
 
         // Get all websites.
-        /** @var Website[] $websiteEntities */
+        /**
+         * @var Website[] $websiteEntities
+         */
         $websiteEntities = $entityManager->getRepository(Website::class)->findAll();
         $websites = [];
         foreach ($websiteEntities as $websiteEntity) {
@@ -77,7 +85,9 @@ class UserController extends AbstractController
         }
 
         // Get all roles.
-        /** @var RoleRead[] $roleEntities */
+        /**
+         * @var RoleRead[] $roleEntities
+         */
         $roleEntities = $entityManager->getRepository(RoleRead::class)->findAll();
         $roles = [];
         foreach ($roleEntities as $roleEntity) {

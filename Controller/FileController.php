@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Services\FileService;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -21,6 +22,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function array_filter;
+use function array_reverse;
+use function explode;
+use function strcmp;
+use function usort;
 
 /**
  * Class FileController.
@@ -30,10 +36,10 @@ class FileController extends AbstractController
     /**
      * @Route("/admin/file/picker", name="cms_file_picker")
      *
-     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
-     * @param \Doctrine\ORM\EntityManagerInterface           $entityManager
+     * @param RequestStack           $requestStack
+     * @param EntityManagerInterface $entityManager
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function getFilePicker(RequestStack $requestStack, EntityManagerInterface $entityManager): Response
     {
@@ -73,7 +79,9 @@ class FileController extends AbstractController
      */
     public function fileShow(EntityManagerInterface $entityManager, string $fileUuid): RedirectResponse
     {
-        /** @var FileRead|null $fileRead */
+        /**
+         * @var FileRead|null $fileRead
+         */
         $fileRead = $entityManager->getRepository(FileRead::class)->findOneBy(['uuid' => $fileUuid]);
 
         if (null === $fileRead) {
@@ -88,13 +96,15 @@ class FileController extends AbstractController
      * @param RequestStack     $requestStack
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function files(AggregateFactory $aggregateFactory, RequestStack $requestStack): Response
     {
         $this->denyAccessUnlessGranted('file_list');
 
-        /** @var File[] $files */
+        /**
+         * @var File[] $files
+         */
         $files = $aggregateFactory->findAggregates(File::class);
         // Sort by created date.
         usort($files, 'self::sortByCreated');
@@ -104,7 +114,9 @@ class FileController extends AbstractController
         $request = $requestStack->getMasterRequest();
         if ($request && $currentWebsite = $request->get('currentWebsite')) {
             $files = array_filter($files, static function ($file) use ($currentWebsite) {
-                /** @var File $file */
+                /**
+                 * @var File $file
+                 */
                 return $file->website === $currentWebsite;
             });
         }
@@ -112,14 +124,6 @@ class FileController extends AbstractController
         return $this->render('@cms/Admin/File/element-list.html.twig', [
             'files' => $files,
         ]);
-    }
-
-    private static function sortByCreated($a, $b)
-    {
-        $a = (string) $a->created->getTimestamp();
-        $b = (string) $b->created->getTimestamp();
-
-        return strcmp($a, $b);
     }
 
     /**
@@ -209,7 +213,9 @@ class FileController extends AbstractController
         }
         $fileUuid = $fileRead->getUuid();
 
-        /** @var File $fileAggregate */
+        /**
+         * @var File $fileAggregate
+         */
         $fileAggregate = $aggregateFactory->build($fileUuid, File::class);
         $uploadDir = '/uploads/managed-files/';
         $config = $this->getParameter('cms');
@@ -268,5 +274,19 @@ class FileController extends AbstractController
         return $this->render('@cms/Form/file-form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @param $a
+     * @param $b
+     *
+     * @return int
+     */
+    private static function sortByCreated($a, $b)
+    {
+        $a = (string) $a->created->getTimestamp();
+        $b = (string) $b->created->getTimestamp();
+
+        return strcmp($a, $b);
     }
 }

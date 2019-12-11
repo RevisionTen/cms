@@ -11,6 +11,7 @@ use RevisionTen\CMS\Command\RoleEditCommand;
 use RevisionTen\CMS\Model\Role;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CQRS\Exception\InterfaceException;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use RevisionTen\CQRS\Services\MessageBus;
@@ -27,6 +28,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use function array_flip;
+use function array_map;
 
 /**
  * Class RoleController.
@@ -38,19 +41,21 @@ class RoleController extends AbstractController
     /**
      * @Route("/role/create", name="cms_role_create")
      *
-     * @param \Symfony\Component\HttpFoundation\Request          $request
-     * @param \RevisionTen\CQRS\Services\CommandBus              $commandBus
-     * @param \RevisionTen\CQRS\Services\MessageBus              $messageBus
-     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
+     * @param Request $request
+     * @param CommandBus $commandBus
+     * @param MessageBus $messageBus
+     * @param TranslatorInterface $translator
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     * @throws \RevisionTen\CQRS\Exception\InterfaceException
+     * @return JsonResponse|RedirectResponse|Response
+     * @throws InterfaceException
      */
     public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, TranslatorInterface $translator)
     {
         $this->denyAccessUnlessGranted('role_create');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $form = $this->roleForm($translator, []);
@@ -87,22 +92,24 @@ class RoleController extends AbstractController
     /**
      * @Route("/role/edit/{id}", name="cms_role_edit")
      *
-     * @param \Symfony\Component\HttpFoundation\Request          $request
-     * @param \Doctrine\ORM\EntityManagerInterface               $entityManager
-     * @param \RevisionTen\CQRS\Services\CommandBus              $commandBus
-     * @param \RevisionTen\CQRS\Services\MessageBus              $messageBus
-     * @param \RevisionTen\CQRS\Services\AggregateFactory        $aggregateFactory
-     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
-     * @param int                                                $id
+     * @param Request                $request
+     * @param EntityManagerInterface $entityManager
+     * @param CommandBus             $commandBus
+     * @param MessageBus             $messageBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param TranslatorInterface    $translator
+     * @param int                    $id
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     * @throws \RevisionTen\CQRS\Exception\InterfaceException
+     * @return JsonResponse|RedirectResponse|Response
+     * @throws InterfaceException
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
         $this->denyAccessUnlessGranted('role_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $roleRead = $entityManager->getRepository(RoleRead::class)->find($id);
@@ -110,7 +117,9 @@ class RoleController extends AbstractController
             return $this->redirectToRoles();
         }
 
-        /** @var Role $roleAggregate */
+        /**
+         * @var Role $roleAggregate
+         */
         $roleAggregate = $aggregateFactory->build($roleRead->getUuid(), Role::class);
 
         $form = $this->roleForm($translator, [
@@ -145,7 +154,7 @@ class RoleController extends AbstractController
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     private function redirectToRoles(): RedirectResponse
     {
@@ -153,10 +162,10 @@ class RoleController extends AbstractController
     }
 
     /**
-     * @param \Symfony\Contracts\Translation\TranslatorInterface $translator
-     * @param array                                              $defaultData
+     * @param TranslatorInterface $translator
+     * @param array               $defaultData
      *
-     * @return \Symfony\Component\Form\FormInterface
+     * @return FormInterface
      */
     private function roleForm(TranslatorInterface $translator, array $defaultData): FormInterface
     {

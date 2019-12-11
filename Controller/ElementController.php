@@ -46,109 +46,47 @@ use function strtoupper;
  */
 class ElementController extends AbstractController
 {
-    /** @var MessageBus */
+    /**
+     * @var MessageBus
+     */
     private $messageBus;
 
+    /**
+     * ElementController constructor.
+     *
+     * @param MessageBus $messageBus
+     */
     public function __construct(MessageBus $messageBus)
     {
         $this->messageBus = $messageBus;
-    }
-
-    private function _getToolbarRefreshHeaders(): array
-    {
-        $headers = [];
-        if ('dev' === $this->getParameter('kernel.environment')) {
-            $headers['Symfony-Debug-Toolbar-Replace'] = 1;
-        }
-
-        return $headers;
-    }
-
-    /**
-     * A wrapper function to execute a Command.
-     * Returns true if the command succeeds.
-     *
-     * @param CommandBus $commandBus
-     * @param string $commandClass
-     * @param array $data
-     * @param string $aggregateUuid
-     * @param int $onVersion
-     * @param bool $queue
-     * @param string|NULL $commandUuid
-     * @param int|NULL $userId
-     *
-     * @return bool
-     * @throws Exception
-     */
-    private function _runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
-    {
-        if (null === $userId) {
-            /** @var UserRead $user */
-            $user = $this->getUser();
-            $userId = $user->getId();
-        }
-
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
-
-        return $commandBus->dispatch($command, $queue);
-    }
-
-    /**
-     * Returns info from the messageBus.
-     *
-     * @return JsonResponse
-     */
-    private function _errorResponse(): JsonResponse
-    {
-        return new JsonResponse($this->messageBus->getMessagesJson());
-    }
-
-    /**
-     * Redirects to the edit page of a Page Aggregate by its uuid.
-     *
-     * @param string $pageUuid
-     *
-     * @return RedirectResponse
-     */
-    private function _redirectToPage(string $pageUuid): RedirectResponse
-    {
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = $this->getDoctrine()->getManager();
-
-        /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
-
-        if (!$pageStreamRead) {
-            return $this->redirect('/admin');
-        }
-
-        return $this->redirectToRoute('cms_edit_aggregate', [
-            'id' => $pageStreamRead->getId(),
-        ]);
     }
 
     /**
      * @Route("/page/add-element/{pageUuid}/{onVersion}/{parent}", name="cms_add_element")
      *
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $parent
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $parent
+     *
      * @return Response
-     * @throws Exception
      */
     public function addElement(AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $parent): Response
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Page $page */
+        /**
+         * @var Page $page
+         */
         $page = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
         if (empty($page->elements)) {
             // Aggregate does not exist, or is empty.
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         $config = $this->getParameter('cms');
@@ -223,7 +161,9 @@ class ElementController extends AbstractController
         }
 
         // Check if the element is valid form type.
-        /** @var string $formClass */
+        /**
+         * @var string $formClass
+         */
         $formClass = $elementConfig['class'];
         $implements = class_implements($formClass);
         $validFormType = $implements && in_array(FormTypeInterface::class, $implements, false);
@@ -242,7 +182,7 @@ class ElementController extends AbstractController
         if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
             $data = $form->getData()['data'];
 
-            $success = $this->_runCommand($commandBus, PageAddElementCommand::class, [
+            $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
                 'elementName' => $elementName,
                 'data' => $data,
                 'parent' => $parent,
@@ -252,10 +192,10 @@ class ElementController extends AbstractController
                 return new JsonResponse([
                     'success' => $success,
                     'refresh' => $parent,
-                ], 200, $this->_getToolbarRefreshHeaders());
+                ], 200, $this->getToolbarRefreshHeaders());
             }
 
-            return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render($form_template, [
@@ -287,14 +227,18 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Page $aggregate */
+        /**
+         * @var Page $aggregate
+         */
         $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
         if (empty($aggregate->elements)) {
             // Aggregate does not exist, or is empty.
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         // Get the element from the Aggregate.
@@ -310,7 +254,7 @@ class ElementController extends AbstractController
         $elementName = $element['elementName'];
         $config = $this->getParameter('cms');
 
-        // Get element condig.
+        // Get element config.
         $elementConfig = $config['page_elements'][$elementName] ?? null;
         if (null === $elementConfig) {
             throw new InvalidArgumentException('Element type '.$elementName.' does not exist.');
@@ -349,7 +293,7 @@ class ElementController extends AbstractController
         }
 
         if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
-            $success = $this->_runCommand($commandBus, PageEditElementCommand::class, [
+            $success = $this->runCommand($commandBus, PageEditElementCommand::class, [
                 'uuid' => $elementUuid,
                 'data' => $data,
             ], $pageUuid, $onVersion, true);
@@ -361,10 +305,10 @@ class ElementController extends AbstractController
                 return new JsonResponse([
                     'success' => $success,
                     'refresh' => $elementUuid,
-                ], 200, $this->_getToolbarRefreshHeaders());
+                ], 200, $this->getToolbarRefreshHeaders());
             }
 
-            return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render($form_template, [
@@ -378,12 +322,12 @@ class ElementController extends AbstractController
      *
      * @Route("/page/delete-element/{pageUuid}/{onVersion}/{elementUuid}", name="cms_delete_element")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request          $request
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $elementUuid
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -392,10 +336,14 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Page $aggregate */
+        /**
+         * @var Page $aggregate
+         */
         $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
         $elementParent = null;
         if (!empty($aggregate->elements)) {
@@ -405,7 +353,7 @@ class ElementController extends AbstractController
             });
         }
 
-        $success = $this->_runCommand($commandBus, PageRemoveElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageRemoveElementCommand::class, [
             'uuid' => $elementUuid,
         ], $pageUuid, $onVersion, true);
 
@@ -413,14 +361,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -428,13 +376,13 @@ class ElementController extends AbstractController
      *
      * @Route("/page/shift-element/{pageUuid}/{onVersion}/{elementUuid}/{direction}", name="cms_shift_element")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request          $request
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
-     * @param string $direction
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $elementUuid
+     * @param string           $direction
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -443,17 +391,21 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        $success = $this->_runCommand($commandBus, PageShiftElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageShiftElementCommand::class, [
             'uuid' => $elementUuid,
             'direction' => $direction,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {
             // Get the element parent so we know what to refresh.
-            /** @var Page $aggregate */
+            /**
+             * @var Page $aggregate
+             */
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
             $elementParent = null;
             if (!empty($aggregate->elements)) {
@@ -466,14 +418,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -481,12 +433,12 @@ class ElementController extends AbstractController
      *
      * @Route("/page/duplicate-element/{pageUuid}/{onVersion}/{elementUuid}", name="cms_page_duplicateelement")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request          $request
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $elementUuid
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -495,15 +447,19 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        $success = $this->_runCommand($commandBus, PageDuplicateElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageDuplicateElementCommand::class, [
             'uuid' => $elementUuid,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {
-            /** @var Page $aggregate */
+            /**
+             * @var Page $aggregate
+             */
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
             $elementParent = null;
             if (!empty($aggregate->elements)) {
@@ -516,14 +472,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -531,12 +487,12 @@ class ElementController extends AbstractController
      *
      * @Route("/page/enable-element/{pageUuid}/{onVersion}/{elementUuid}", name="cms_page_enableelement")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request          $request
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $elementUuid
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -545,15 +501,19 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        $success = $this->_runCommand($commandBus, PageEnableElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageEnableElementCommand::class, [
             'uuid' => $elementUuid,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {
-            /** @var Page $aggregate */
+            /**
+             * @var Page $aggregate
+             */
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
             $elementParent = null;
             if (!empty($aggregate->elements)) {
@@ -566,14 +526,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -581,12 +541,12 @@ class ElementController extends AbstractController
      *
      * @Route("/page/disable-element/{pageUuid}/{onVersion}/{elementUuid}", name="cms_page_disableelement")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request          $request
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
+     * @param string           $pageUuid
+     * @param int              $onVersion
+     * @param string           $elementUuid
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -595,15 +555,19 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        $success = $this->_runCommand($commandBus, PageDisableElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageDisableElementCommand::class, [
             'uuid' => $elementUuid,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {
-            /** @var Page $aggregate */
+            /**
+             * @var Page $aggregate
+             */
             $aggregate = $aggregateFactory->build($pageUuid, Page::class, $onVersion, $user->getId());
             $elementParent = null;
             if (!empty($aggregate->elements)) {
@@ -616,14 +580,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementParent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -631,13 +595,13 @@ class ElementController extends AbstractController
      *
      * @Route("/page/create-column/{pageUuid}/{onVersion}/{parent}/{size}/{breakpoint}", name="cms_page_create_column")
      *
-     * @param Request $request
+     * @param Request    $request
      * @param CommandBus $commandBus
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $parent
-     * @param string $size
-     * @param string $breakpoint
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $parent
+     * @param string     $size
+     * @param string     $breakpoint
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -654,7 +618,7 @@ class ElementController extends AbstractController
             ]);
         }
 
-        $success = $this->_runCommand($commandBus, PageAddElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Column',
             'data' => [
                 'width'. strtoupper($breakpoint) => (int) $size,
@@ -666,14 +630,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $parent,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -681,13 +645,13 @@ class ElementController extends AbstractController
      *
      * @Route("/page/resize-column/{pageUuid}/{onVersion}/{elementUuid}/{size}/{breakpoint}", name="cms_page_resize_column")
      *
-     * @param Request $request
+     * @param Request    $request
      * @param CommandBus $commandBus
-     * @param string $pageUuid
-     * @param int $onVersion
-     * @param string $elementUuid
-     * @param string $size
-     * @param string $breakpoint
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $elementUuid
+     * @param string     $size
+     * @param string     $breakpoint
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -696,7 +660,7 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        $success = $this->_runCommand($commandBus, PageResizeColumnCommand::class, [
+        $success = $this->runCommand($commandBus, PageResizeColumnCommand::class, [
             'uuid' => $elementUuid,
             'size' => (int) $size,
             'breakpoint' => $breakpoint,
@@ -706,14 +670,14 @@ class ElementController extends AbstractController
             return new JsonResponse([
                 'success' => $success,
                 'refresh' => $elementUuid,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -734,7 +698,7 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        $success = $this->_runCommand($commandBus, PageAddElementCommand::class, [
+        $success = $this->runCommand($commandBus, PageAddElementCommand::class, [
             'elementName' => 'Section',
             'data' => [
                 'section' => $section,
@@ -743,7 +707,7 @@ class ElementController extends AbstractController
         ], $pageUuid, $onVersion, true);
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         if ($request->get('ajax')) {
@@ -753,6 +717,88 @@ class ElementController extends AbstractController
             ]);
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * @return array
+     */
+    private function getToolbarRefreshHeaders(): array
+    {
+        $headers = [];
+        if ('dev' === $this->getParameter('kernel.environment')) {
+            $headers['Symfony-Debug-Toolbar-Replace'] = 1;
+        }
+
+        return $headers;
+    }
+
+    /**
+     * A wrapper function to execute a Command.
+     * Returns true if the command succeeds.
+     *
+     * @param CommandBus  $commandBus
+     * @param string      $commandClass
+     * @param array       $data
+     * @param string      $aggregateUuid
+     * @param int         $onVersion
+     * @param bool        $queue
+     * @param string|null $commandUuid
+     * @param int|null    $userId
+     *
+     * @return bool
+     * @throws Exception
+     */
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    {
+        if (null === $userId) {
+            /**
+             * @var UserRead $user
+             */
+            $user = $this->getUser();
+            $userId = $user->getId();
+        }
+
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
+
+        return $commandBus->dispatch($command, $queue);
+    }
+
+    /**
+     * Returns info from the messageBus.
+     *
+     * @return JsonResponse
+     */
+    private function errorResponse(): JsonResponse
+    {
+        return new JsonResponse($this->messageBus->getMessagesJson());
+    }
+
+    /**
+     * Redirects to the edit page of a Page Aggregate by its uuid.
+     *
+     * @param string $pageUuid
+     *
+     * @return RedirectResponse
+     */
+    private function redirectToPage(string $pageUuid): RedirectResponse
+    {
+        /**
+         * @var EntityManagerInterface $entityManager
+         */
+        $entityManager = $this->getDoctrine()->getManager();
+
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
+
+        if (!$pageStreamRead) {
+            return $this->redirect('/admin');
+        }
+
+        return $this->redirectToRoute('cms_edit_aggregate', [
+            'id' => $pageStreamRead->getId(),
+        ]);
     }
 }

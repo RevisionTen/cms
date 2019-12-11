@@ -130,6 +130,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         $container->setParameter('cms.site_name', $siteName);
         $container->setParameter('cms.page_languages', $pageLanguages);
         $container->setParameter('cms.admin_menu', $adminMenu);
+        $container->setParameter('cms.page_templates', $config['page_templates']); // Needed to check permissions in admin templates.
 
         // Load the cms bundle config.
         $loader->load('services.yaml');

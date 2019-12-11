@@ -12,6 +12,18 @@ services:
         tags: ['controller.service_arguments']
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\Controller\AdminController:
+        autoconfigure: true
+        autowire: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $config: '%cms%'
+    RevisionTen\CMS\Controller\EasyAdminController:
+        autoconfigure: true
+        autowire: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $cmsConfig: '%cms%'
 
     # Various.
     RevisionTen\CMS\DataCollector\CmsCollector:
