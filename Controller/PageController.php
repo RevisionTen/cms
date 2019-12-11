@@ -1264,7 +1264,7 @@ class PageController extends AbstractController
             $permission = $templateConfig['permissions'][$permissionName] ?? null;
             // Check if permission is not explicitly set or user is granted the permission.
             if (null === $permission || $this->isGranted($permission)) {
-                $templates[$template] = $template;
+                $templates[$template] = $templateConfig;
                 continue;
             }
         }
