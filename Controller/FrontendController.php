@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use DateTime;
+use Exception;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,24 +19,45 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function class_exists;
+use function explode;
+use function is_string;
+use function method_exists;
+use function strtotime;
 
 /**
  * Class FrontendController.
  */
 class FrontendController extends AbstractController
 {
-    /** @var PageService */
+    /**
+     * @var PageService
+     */
     protected $pageService;
 
-    /** @var CacheService */
+    /**
+     * @var CacheService
+     */
     protected $cacheService;
 
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     protected $entityManager;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $config;
 
+    /**
+     * FrontendController constructor.
+     *
+     * @param PageService            $pageService
+     * @param CacheService           $cacheService
+     * @param EntityManagerInterface $entityManager
+     * @param array                  $config
+     */
     public function __construct(PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, array $config)
     {
         $this->pageService = $pageService;
@@ -52,7 +75,9 @@ class FrontendController extends AbstractController
      */
     public function sitemap(Request $request): Response
     {
-        /** @var Alias[] $aliases */
+        /**
+         * @var Alias[] $aliases
+         */
         $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('websiteId'), $request->getLocale());
 
         $response = $this->render('@cms/sitemap.xml.twig', [
@@ -62,18 +87,6 @@ class FrontendController extends AbstractController
         $response->headers->set('Content-Type', 'xml');
 
         return $response;
-    }
-
-    /**
-     * Gets a PageRead entity for a Page Aggregate by its uuid.
-     *
-     * @param string $pageUuid
-     *
-     * @return PageRead|null
-     */
-    private function getPageRead(string $pageUuid): ?PageRead
-    {
-        return $this->entityManager->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
     }
 
     /**
@@ -110,6 +123,13 @@ class FrontendController extends AbstractController
         return $this->getPageResponse($pageData, $website, $alias);
     }
 
+    /**
+     * @param array        $pageData
+     * @param Website|null $website
+     * @param Alias|null   $alias
+     *
+     * @return Response
+     */
     public function getPageResponse(array $pageData, Website $website = null, Alias $alias = null): Response
     {
         // Get the page template from the template name.
@@ -131,13 +151,14 @@ class FrontendController extends AbstractController
     /**
      * @Route("/", name="cms_page_frontpage")
      * @Route("/{_locale}", name="cms_page_frontpage_locale", requirements={
-     *     "_locale": "ad|ae|af|ag|ai|al|am|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bl|bm|bn|bo|bq|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|en|eg|eh|er|es|et|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mf|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tr|tt|tv|tw|tz|ua|ug|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw"
+     *     "_locale":
+     *     "ad|ae|af|ag|ai|al|am|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bl|bm|bn|bo|bq|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cw|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|en|eg|eh|er|es|et|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mf|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tr|tt|tv|tw|tz|ua|ug|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw"
      * })
      *
      * @param Request $request
      *
      * @return Response
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws Exception
      */
     public function frontpage(Request $request): Response
     {
@@ -155,11 +176,13 @@ class FrontendController extends AbstractController
      * @param string  $path
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function alias(Request $request, string $path): Response
     {
-        /** @var Alias|null $alias */
+        /**
+         * @var Alias|null $alias
+         */
         $alias = $this->entityManager->getRepository(Alias::class)->findMatchingAlias('/'.$path, $request->get('websiteId'), $request->getLocale());
 
         if (null === $alias) {
@@ -190,7 +213,7 @@ class FrontendController extends AbstractController
             // Redirect request.
             $redirectResponse = $this->redirect($redirect);
             // Redirect expires immediately to prevent browser caching.
-            $redirectResponse->setExpires(new \DateTime());
+            $redirectResponse->setExpires(new DateTime());
             $response = $redirectResponse;
         } else {
             // Show not found.
@@ -201,6 +224,26 @@ class FrontendController extends AbstractController
         $response = $this->addTrackingCookies($request, $response);
 
         return $response;
+    }
+
+    /**
+     * @param RequestStack  $requestStack
+     * @param SearchService $searchService
+     *
+     * @return Response
+     */
+    public function fulltextSearch(RequestStack $requestStack, SearchService $searchService): Response
+    {
+        $request = $requestStack->getMasterRequest();
+
+        $query = $request ? $request->get('q') : null;
+
+        $results = !empty($query) && is_string($query) ? $searchService->getFulltextResults($query) : null;
+
+        return $this->render('@cms/Search/fulltext.html.twig', [
+            'query' => $query,
+            'results' => $results,
+        ]);
     }
 
     /**
@@ -237,22 +280,14 @@ class FrontendController extends AbstractController
     }
 
     /**
-     * @param RequestStack  $requestStack
-     * @param SearchService $searchService
+     * Gets a PageRead entity for a Page Aggregate by its uuid.
      *
-     * @return Response
+     * @param string $pageUuid
+     *
+     * @return PageRead|null
      */
-    public function fulltextSearch(RequestStack $requestStack, SearchService $searchService): Response
+    private function getPageRead(string $pageUuid): ?PageRead
     {
-        $request = $requestStack->getMasterRequest();
-
-        $query = $request ? $request->get('q') : null;
-
-        $results = !empty($query) && is_string($query) ? $searchService->getFulltextResults($query) : null;
-
-        return $this->render('@cms/Search/fulltext.html.twig', [
-            'query' => $query,
-            'results' => $results,
-        ]);
+        return $this->entityManager->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
     }
 }

@@ -29,6 +29,10 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function extension_loaded;
+use function function_exists;
+use function gethostbyname;
+use function ini_get;
 
 /**
  * Class AdminController.
@@ -37,6 +41,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class AdminController extends AbstractController
 {
+    /**
+     * @var array
+     */
+    private $config;
+
+    /**
+     * AdminController constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * @param RequestStack $requestStack
      *
@@ -82,7 +101,9 @@ class AdminController extends AbstractController
      */
     public function websiteTitle(EntityManagerInterface $entityManager, int $id): Response
     {
-        /** @var Website $website */
+        /**
+         * @var Website $website
+         */
         $website = $entityManager->getRepository(Website::class)->find($id);
 
         $fallbackWebsite = new Website();
@@ -110,7 +131,9 @@ class AdminController extends AbstractController
             $unknownUser = new UserRead();
             $unknownUser->setUsername('System');
         } else {
-            /** @var UserRead $user */
+            /**
+             * @var UserRead $user
+             */
             $user = $entityManager->getRepository(UserRead::class)->find($userId);
 
             $unknownUser = new UserRead();
@@ -134,21 +157,35 @@ class AdminController extends AbstractController
     {
         $title = $uuid;
 
-        /** @var EntityManager $em */
+        /**
+         * @var EntityManager $em
+         */
         $em = $this->getDoctrine()->getManager();
 
-        /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneByUuid($uuid);
-        /** @var FormRead|null $formRead */
-        $formRead = $em->getRepository(FormRead::class)->findOneByUuid($uuid);
-        /** @var UserRead|null $userRead */
-        $userRead = $em->getRepository(UserRead::class)->findOneByUuid($uuid);
-        /** @var MenuRead|null $menuRead */
-        $menuRead = $em->getRepository(MenuRead::class)->findOneByUuid($uuid);
-        /** @var FileRead|null $fileRead */
-        $fileRead = $em->getRepository(FileRead::class)->findOneByUuid($uuid);
-        /** @var RoleRead|null $roleRead */
-        $roleRead = $em->getRepository(RoleRead::class)->findOneByUuid($uuid);
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
+        $pageStreamRead = $em->getRepository(PageStreamRead::class)->findOneBy([ 'uuid' => $uuid ]);
+        /**
+         * @var FormRead|null $formRead
+         */
+        $formRead = $em->getRepository(FormRead::class)->findOneBy([ 'uuid' => $uuid ]);
+        /**
+         * @var UserRead|null $userRead
+         */
+        $userRead = $em->getRepository(UserRead::class)->findOneBy([ 'uuid' => $uuid ]);
+        /**
+         * @var MenuRead|null $menuRead
+         */
+        $menuRead = $em->getRepository(MenuRead::class)->findOneBy([ 'uuid' => $uuid ]);
+        /**
+         * @var FileRead|null $fileRead
+         */
+        $fileRead = $em->getRepository(FileRead::class)->findOneBy([ 'uuid' => $uuid ]);
+        /**
+         * @var RoleRead|null $roleRead
+         */
+        $roleRead = $em->getRepository(RoleRead::class)->findOneBy([ 'uuid' => $uuid ]);
 
         if ($pageStreamRead) {
             $title = $pageStreamRead->getTitle();
@@ -173,21 +210,30 @@ class AdminController extends AbstractController
      * @Route("/dashboard", name="cms_dashboard")
      *
      * @param EntityManagerInterface $em
+     * @param CacheService           $cacheService
      *
      * @return Response
      */
     public function dashboardAction(EntityManagerInterface $em, CacheService $cacheService): Response
     {
-        /** @var EventStreamObject[]|null $eventStreamObjects */
+        /**
+         * @var EventStreamObject[]|null $eventStreamObjects
+         */
         $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
-        /** @var EventQueueObject[]|null $eventQueueObjects */
+        /**
+         * @var EventQueueObject[]|null $eventQueueObjects
+         */
         $eventQueueObjects = $em->getRepository(EventQueueObject::class)->findBy([], ['id' => Criteria::DESC], 6);
 
-        /** @var EventStreamObject[]|null $latestCommits */
+        /**
+         * @var EventStreamObject[]|null $latestCommits
+         */
         $latestCommits = $em->getRepository(EventStreamObject::class)->findBy([
             'event' => PageSubmitEvent::class,
-        ], ['id' => Criteria::DESC], 7);
+        ], [
+            'id' => Criteria::DESC,
+        ], 7);
 
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'cache_enabled' => $cacheService->isCacheEnabled(),
@@ -199,7 +245,7 @@ class AdminController extends AbstractController
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
             'php_version' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
-            'apc_enabled' => (\extension_loaded('apcu') && ini_get('apc.enabled') && \function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
+            'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
             'memory_limit' => ini_get('memory_limit'),
             'upload_limit' => ini_get('upload_max_filesize'),
             'post_limit' => ini_get('post_max_size'),
@@ -207,20 +253,6 @@ class AdminController extends AbstractController
             'server_ip' => $_SERVER['SERVER_ADDR'] ?? gethostbyname($_SERVER['SERVER_NAME']),
             'database_name' => $em->getConnection()->getDatabase(),
         ]);
-    }
-
-    private function groupEventsByUser(array $events = null): array
-    {
-        $grouped = [];
-        foreach ($events as $event) {
-            $eventUser = $event->getUser();
-            if (!isset($grouped[$eventUser])) {
-                $grouped[$eventUser] = [];
-            }
-            $grouped[$eventUser][] = $event;
-        }
-
-        return $grouped;
     }
 
     /**
@@ -247,7 +279,9 @@ class AdminController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
         $edit = true;
 
@@ -255,18 +289,31 @@ class AdminController extends AbstractController
         $previewUserId = (int) $request->get('user');
         if ($previewUserId && $user->getId() !== $previewUserId) {
             $edit = false;
-            /** @var UserRead $user */
+            /**
+             * @var UserRead $user
+             */
             $user = $em->getRepository(UserRead::class)->find($previewUserId);
         }
 
-        /** @var int $id PageStreamRead Id. */
+        /**
+         * @var int $id PageStreamRead Id.
+         */
         $id = $request->get('id');
 
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $em->getRepository(PageStreamRead::class)->find($id);
 
         if (null === $pageStreamRead) {
             return $this->redirect('/admin');
+        }
+
+        // Check if user has permission to edit this page template.
+        $template = $pageStreamRead->getTemplate();
+        $editPermission = $this->config['page_templates'][$template]['permissions']['edit'] ?? null;
+        if (null !== $editPermission) {
+            $this->denyAccessUnlessGranted($editPermission);
         }
 
         $response = $this->render('@cms/Admin/Page/edit.html.twig', [
@@ -286,5 +333,24 @@ class AdminController extends AbstractController
         }
 
         return $response;
+    }
+
+    /**
+     * @param array|null $events
+     *
+     * @return array
+     */
+    private function groupEventsByUser(array $events = null): array
+    {
+        $grouped = [];
+        foreach ($events as $event) {
+            $eventUser = $event->getUser();
+            if (!isset($grouped[$eventUser])) {
+                $grouped[$eventUser] = [];
+            }
+            $grouped[$eventUser][] = $event;
+        }
+
+        return $grouped;
     }
 }

@@ -61,85 +61,19 @@ use function json_encode;
  */
 class PageController extends AbstractController
 {
-    /** @var MessageBus */
+    /**
+     * @var MessageBus
+     */
     private $messageBus;
 
+    /**
+     * PageController constructor.
+     *
+     * @param MessageBus $messageBus
+     */
     public function __construct(MessageBus $messageBus)
     {
         $this->messageBus = $messageBus;
-    }
-
-    private function _getToolbarRefreshHeaders(): array
-    {
-        $headers = [];
-        if ('dev' === $this->getParameter('kernel.environment')) {
-            $headers['Symfony-Debug-Toolbar-Replace'] = 1;
-        }
-
-        return $headers;
-    }
-
-    /**
-     * A wrapper function to execute a Command.
-     * Returns true if the command succeeds.
-     *
-     * @param CommandBus $commandBus
-     * @param string $commandClass
-     * @param array $data
-     * @param string $aggregateUuid
-     * @param int $onVersion
-     * @param bool $queue
-     * @param string|NULL $commandUuid
-     * @param int|NULL $userId
-     *
-     * @return bool
-     * @throws Exception
-     */
-    private function _runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
-    {
-        if (null === $userId) {
-            /** @var UserRead $user */
-            $user = $this->getUser();
-            $userId = $user->getId();
-        }
-
-        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
-
-        return $commandBus->dispatch($command, $queue);
-    }
-
-    /**
-     * Returns info from the messageBus.
-     *
-     * @return JsonResponse
-     */
-    private function _errorResponse(): JsonResponse
-    {
-        return new JsonResponse($this->messageBus->getMessagesJson());
-    }
-
-    /**
-     * Redirects to the edit page of a Page Aggregate by its uuid.
-     *
-     * @param string $pageUuid
-     *
-     * @return RedirectResponse
-     */
-    private function _redirectToPage(string $pageUuid): RedirectResponse
-    {
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = $this->getDoctrine()->getManager();
-
-        /** @var PageStreamRead|null $pageStreamRead */
-        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
-
-        if (!$pageStreamRead) {
-            return $this->redirect('/admin');
-        }
-
-        return $this->redirectToRoute('cms_edit_aggregate', [
-            'id' => $pageStreamRead->getId(),
-        ]);
     }
 
     /**
@@ -159,7 +93,9 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_create');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
@@ -168,7 +104,9 @@ class PageController extends AbstractController
         $data = [];
         $data['language'] = $request->getLocale();
         $pageWebsites = [];
-        /** @var Website[] $websites */
+        /**
+         * @var Website[] $websites
+         */
         $websites = $websites = $user->getWebsites();
         foreach ($websites as $website) {
             $pageWebsites[$website->getTitle()] = $website->getId();
@@ -182,10 +120,11 @@ class PageController extends AbstractController
         }
 
         $pageType = $config['page_type'] ?? PageType::class;
+        $templates = $this->getPermittedTemplates('new');
 
         $form = $this->createForm($pageType, $data, [
             'page_websites' => $currentWebsite ? false : $pageWebsites,
-            'page_templates' => $config['page_templates'] ?? null,
+            'page_templates' => $templates,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
             'validation_groups' => $ignore_validation ? false : null,
@@ -202,9 +141,9 @@ class PageController extends AbstractController
             }
 
             $pageUuid = Uuid::uuid1()->toString();
-            $success = $this->_runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
+            $success = $this->runCommand($commandBus, PageCreateCommand::class, $data, $pageUuid, 0);
 
-            return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', [
@@ -218,13 +157,13 @@ class PageController extends AbstractController
      *
      * @Route("/change-page-settings/{pageUuid}/{version}/", name="cms_change_pagesettings")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
-     * @param AggregateFactory $aggregateFactory
-     * @param TranslatorInterface $translator
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param TranslatorInterface    $translator
      * @param EntityManagerInterface $entityManager
-     * @param string $pageUuid
-     * @param int $version
+     * @param string                 $pageUuid
+     * @param int                    $version
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -233,19 +172,29 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
         $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
         $currentWebsite = $request->get('currentWebsite');
 
         // Convert Aggregate to data array for form and remove properties we don't want changed.
+        /**
+         * @var Page $aggregate
+         */
         $aggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
         $aggregateData = json_decode(json_encode($aggregate), true);
         unset($aggregateData['uuid'], $aggregateData['elements']);
         $aggregateWebsite = $aggregateData['website'] ?? $currentWebsite;
 
-        /** @var Website[] $websites */
+        // Check if the user can edit pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $aggregate->template);
+
+        /**
+         * @var Website[] $websites
+         */
         $websites = $user->getWebsites();
         $pageWebsites = [];
         foreach ($websites as $website) {
@@ -256,10 +205,11 @@ class PageController extends AbstractController
         }
 
         $pageType = $config['page_type'] ?? PageType::class;
+        $templates = $this->getPermittedTemplates('edit');
 
         $form = $this->createForm($pageType, $aggregateData, [
             'page_websites' => $currentWebsite && count($pageWebsites) === 1 ? false : $pageWebsites,
-            'page_templates' => $config['page_templates'] ?? null,
+            'page_templates' => $templates,
             'page_languages' => $config['page_languages'] ?? null,
             'page_metatype' => $config['page_metatype'] ?? null,
             'validation_groups' => $ignore_validation ? false : null,
@@ -280,7 +230,7 @@ class PageController extends AbstractController
             }
 
             if ($form->isValid()) {
-                $success = $this->_runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
+                $success = $this->runCommand($commandBus, PageChangeSettingsCommand::class, $data, $pageUuid, $version, true);
 
                 if ($request->get('ajax')) {
                     return new JsonResponse([
@@ -289,7 +239,7 @@ class PageController extends AbstractController
                     ]);
                 }
 
-                return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+                return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
             }
         }
 
@@ -304,11 +254,11 @@ class PageController extends AbstractController
      *
      * @Route("/submit-changes/{pageUuid}/{version}/{qeueUser}", name="cms_submit_changes")
      *
-     * @param Request $request
+     * @param Request    $request
      * @param CommandBus $commandBus
-     * @param string $pageUuid
-     * @param int $version
-     * @param int $qeueUser
+     * @param string     $pageUuid
+     * @param int        $version
+     * @param int        $qeueUser
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -317,7 +267,11 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_submit_changes');
 
-        /** @var UserRead $user */
+        // Todo: Check if user can edit pages with this template.
+
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
@@ -338,7 +292,7 @@ class PageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $success = $this->_runCommand($commandBus, PageSubmitCommand::class, [
+            $success = $this->runCommand($commandBus, PageSubmitCommand::class, [
                 'grantedBy' => $user->getId(),
                 'message' => $data['message'],
             ], $pageUuid, $version, true, null, $qeueUser);
@@ -346,10 +300,10 @@ class PageController extends AbstractController
             if ($request->get('ajax')) {
                 return new JsonResponse([
                     'success' => $success,
-                ], 200, $this->_getToolbarRefreshHeaders());
+                ], 200, $this->getToolbarRefreshHeaders());
             }
 
-            return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', [
@@ -363,11 +317,11 @@ class PageController extends AbstractController
      *
      * @Route("/remove-schedule/{pageUuid}/{scheduleUuid}/{version}", name="cms_remove_schedule")
      *
-     * @param Request $request
+     * @param Request    $request
      * @param CommandBus $commandBus
-     * @param string $pageUuid
-     * @param string $scheduleUuid
-     * @param int $version
+     * @param string     $pageUuid
+     * @param string     $scheduleUuid
+     * @param int        $version
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -376,20 +330,22 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_schedule');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        $success = $this->_runCommand($commandBus, PageRemoveScheduleCommand::class, [
+        $success = $this->runCommand($commandBus, PageRemoveScheduleCommand::class, [
             'scheduleUuid' => $scheduleUuid,
         ], $pageUuid, $version, false, null, $user->getId());
 
         if ($request->get('ajax')) {
             return new JsonResponse([
                 'success' => $success,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
-        return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
     }
 
     /**
@@ -397,11 +353,11 @@ class PageController extends AbstractController
      *
      * @Route("/schedule/{pageUuid}/{version}", name="cms_schedule_page")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request                $request
+     * @param CommandBus             $commandBus
      * @param EntityManagerInterface $entityManager
-     * @param string $pageUuid
-     * @param int $version
+     * @param string                 $pageUuid
+     * @param int                    $version
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -410,14 +366,18 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_schedule');
 
-        /** @var PageStreamRead|null $pageStreamRead */
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $form = $this->createFormBuilder()
@@ -447,7 +407,7 @@ class PageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $success = $this->_runCommand($commandBus, PageAddScheduleCommand::class, [
+            $success = $this->runCommand($commandBus, PageAddScheduleCommand::class, [
                 'startDate' => $data['startDate'],
                 'endDate' => $data['endDate'],
             ], $pageUuid, $version, false, null, $user->getId());
@@ -479,7 +439,9 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_inspect');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
@@ -504,16 +466,20 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        // Todo: Check if user can edit pages with this template.
+
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $eventStore->discardQueued($pageUuid, $user->getId());
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
-     * Delete the last event from the event qeue
+     * Delete the last event from the event queue
      * for a specific Page Aggregate and user.
      *
      * @Route("/undo-change/{pageUuid}/{version}", name="cms_undo_change")
@@ -528,12 +494,16 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        // Todo: Check if user can edit pages with this template.
+
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $eventStore->discardLatestQueued($pageUuid, $user->getId(), $version);
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -553,21 +523,27 @@ class PageController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        /** @var PageStreamRead|null $pageStreamRead */
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        /** @var Website $website */
+        /**
+         * @var Website $website
+         */
         $website = $entityManager->getRepository(Website::class)->find($pageStreamRead->getWebsite());
         if (null === $website) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         if ($website->getDomains()) {
-            /** @var Domain $domain */
+            /**
+             * @var Domain $domain
+             */
             $domain = $website->getDomains()->first();
             $websiteUrl = $request->getScheme().'://'.$domain->getDomain();
         } else {
@@ -610,7 +586,7 @@ class PageController extends AbstractController
 
             return $request->get('ajax') ? new JsonResponse([
                 'success' => true,
-            ]) : $this->_redirectToPage($pageUuid);
+            ]) : $this->redirectToPage($pageUuid);
         }
 
         return $this->render('@cms/Form/alias-form.html.twig', [
@@ -641,16 +617,16 @@ class PageController extends AbstractController
             return $request->get('ajax') ? new JsonResponse([
                 'success' => $success,
                 'modal' => $url,
-            ], 200, $this->_getToolbarRefreshHeaders()) : $this->redirect($url);
+            ], 200, $this->getToolbarRefreshHeaders()) : $this->redirect($url);
         }
 
         if ($request->get('ajax')) {
             return new JsonResponse([
                 'success' => $success,
-            ], 200, $this->_getToolbarRefreshHeaders());
+            ], 200, $this->getToolbarRefreshHeaders());
         }
 
-        return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+        return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
     }
 
     /**
@@ -658,11 +634,11 @@ class PageController extends AbstractController
      *
      * @Route("/publish-page/{pageUuid}/{version}", name="cms_publish_page")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
-     * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
-     * @param int $version
+     * @param Request                $request
+     * @param CommandBus             $commandBus
+     * @param AggregateFactory       $aggregateFactory
+     * @param string                 $pageUuid
+     * @param int                    $version
      * @param EntityManagerInterface $entityManager
      *
      * @return JsonResponse|Response
@@ -672,11 +648,13 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_publish');
 
-        /** @var PageStreamRead|null $pageStreamRead */
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         /**
@@ -687,12 +665,12 @@ class PageController extends AbstractController
         $page = $aggregateFactory->build($pageUuid, Page::class);
         $onVersion = $page->getVersion();
 
-        $success = $this->_runCommand($commandBus, PagePublishCommand::class, [
+        $success = $this->runCommand($commandBus, PagePublishCommand::class, [
             'version' => $version, // Todo: Not needed anymore, see listener.
         ], $pageUuid, $onVersion);
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         $aliases = $pageStreamRead->getAliases();
@@ -706,9 +684,9 @@ class PageController extends AbstractController
      *
      * @Route("/unpublish-page/{pageUuid}", name="cms_unpublish_page")
      *
-     * @param CommandBus $commandBus
+     * @param CommandBus       $commandBus
      * @param AggregateFactory $aggregateFactory
-     * @param string $pageUuid
+     * @param string           $pageUuid
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -724,13 +702,13 @@ class PageController extends AbstractController
          */
         $page = $aggregateFactory->build($pageUuid, Page::class);
 
-        $success = $this->_runCommand($commandBus, PageUnpublishCommand::class, [], $pageUuid, $page->getVersion());
+        $success = $this->runCommand($commandBus, PageUnpublishCommand::class, [], $pageUuid, $page->getVersion());
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -756,7 +734,7 @@ class PageController extends AbstractController
         // Save Snapshot.
         $snapshotStore->save($page);
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
@@ -771,7 +749,7 @@ class PageController extends AbstractController
      * @param EventStore             $eventStore
      * @param TranslatorInterface    $translator
      * @param string                 $pageUuid
-     * @param int                    $user             the user that edits the page
+     * @param int                    $user
      *
      * @return Response
      */
@@ -781,10 +759,14 @@ class PageController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        /** @var UserRead|null $user */
+        /**
+         * @var UserRead|null $user
+         */
         $user = $entityManager->getRepository(UserRead::class)->find($user);
 
-        /** @var UserRead $realUser */
+        /**
+         * @var UserRead $realUser
+         */
         $realUser = $this->getUser();
 
         if ($user->getId() === $realUser->getId()) {
@@ -793,14 +775,23 @@ class PageController extends AbstractController
             $edit = false;
         }
 
-        /** @var Page $page */
+        /**
+         * @var Page $page
+         */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
+        // Check if the user can edit pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $page->template);
+
         // Check if user has access to the aggregates current website.
-        /** @var ArrayCollection $websites */
+        /**
+         * @var ArrayCollection $websites
+         */
         $websites = $user->getWebsites();
         $websites = array_map(static function ($website) {
-            /** @var Website $website */
+            /**
+             * @var Website $website
+             */
             return $website->getId();
         }, $websites->toArray());
         $currentWebsite = $request->get('currentWebsite');
@@ -809,12 +800,16 @@ class PageController extends AbstractController
         }
 
         // Get the first alias for this page.
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
         $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
 
         // Get all queued Events for this page.
-        /** @var UserRead[] $adminUsers */
+        /**
+         * @var UserRead[] $adminUsers
+         */
         $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
         $users = [];
         foreach ($adminUsers as $key => $adminUser) {
@@ -894,14 +889,21 @@ class PageController extends AbstractController
 
         $config = $this->getParameter('cms');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
         $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
 
-        /** @var Page $page */
+
+        /**
+         * @var Page $page
+         */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
         // Convert the page aggregate to a json payload.
         $pageData = json_decode(json_encode($page), true);
@@ -924,6 +926,7 @@ class PageController extends AbstractController
 
     /**
      * Clones a page.
+     *
      * Must ignore queued events on page because they might not exist in the future.
      *
      * @Route("/clone-aggregate", name="cms_clone_aggregate")
@@ -941,15 +944,22 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_clone');
 
-        /** @var int $id PageStreamRead Id. */
+        /**
+         * @var int $id PageStreamRead Id.
+         */
         $id = $request->get('id');
 
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
 
         if (null === $pageStreamRead) {
             return $this->redirect('/admin');
         }
+
+        // Check if the user can create pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('new', $pageStreamRead->getTemplate());
 
         $data = [
             'originalUuid' => $pageStreamRead->getUuid(),
@@ -957,10 +967,10 @@ class PageController extends AbstractController
         ];
         $pageUuid = Uuid::uuid1()->toString();
 
-        $success = $this->_runCommand($commandBus, PageCloneCommand::class, $data, $pageUuid, 0);
+        $success = $this->runCommand($commandBus, PageCloneCommand::class, $data, $pageUuid, 0);
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         $this->addFlash(
@@ -968,17 +978,17 @@ class PageController extends AbstractController
             $translator->trans('Page Cloned')
         );
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
     }
 
     /**
      * @Route("/delete-aggregate", name="cms_delete_aggregate")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
+     * @param Request                $request
+     * @param CommandBus             $commandBus
      * @param EntityManagerInterface $entityManager
-     * @param EventStore $eventStore
-     * @param TranslatorInterface $translator
+     * @param EventStore             $eventStore
+     * @param TranslatorInterface    $translator
      *
      * @return Response
      * @throws Exception
@@ -987,18 +997,27 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_delete');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var int $id FormRead Id. */
+        /**
+         * @var int $id FormRead Id.
+         */
         $id = $request->get('id');
 
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
 
         if (null === $pageStreamRead) {
             return $this->redirect('/admin');
         }
+
+        // Check if the user can delete pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('delete', $pageStreamRead->getTemplate());
 
         $pageUuid = $pageStreamRead->getUuid();
         $version = $pageStreamRead->getVersion();
@@ -1006,10 +1025,10 @@ class PageController extends AbstractController
         // Discard this users queued changes before attempting to delete the aggregate.
         $eventStore->discardQueued($pageUuid, $user->getId());
 
-        $success = $this->_runCommand($commandBus, PageDeleteCommand::class, [], $pageUuid, $version);
+        $success = $this->runCommand($commandBus, PageDeleteCommand::class, [], $pageUuid, $version);
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         $this->addFlash(
@@ -1023,12 +1042,12 @@ class PageController extends AbstractController
     /**
      * @Route("/rollback-aggregate/{pageUuid}/{version}", name="cms_rollback_aggregate")
      *
-     * @param Request $request
-     * @param CommandBus $commandBus
-     * @param AggregateFactory $aggregateFactory
+     * @param Request             $request
+     * @param CommandBus          $commandBus
+     * @param AggregateFactory    $aggregateFactory
      * @param TranslatorInterface $translator
-     * @param string $pageUuid
-     * @param int $version
+     * @param string              $pageUuid
+     * @param int                 $version
      *
      * @return JsonResponse|Response
      * @throws Exception
@@ -1037,11 +1056,18 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
-        /** @var Page $pageAggregate */
+        /**
+         * @var Page $pageAggregate
+         */
         $pageAggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
+
+        // Check if the user can edit pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $pageAggregate->template);
 
         $versionChoices = [];
         foreach ($pageAggregate->getHistory() as $event) {
@@ -1068,7 +1094,7 @@ class PageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $success = $this->_runCommand($commandBus, PageRollbackCommand::class, [
+            $success = $this->runCommand($commandBus, PageRollbackCommand::class, [
                 'previousVersion' => $data['previousVersion'],
             ], $pageUuid, $version, true);
 
@@ -1086,7 +1112,7 @@ class PageController extends AbstractController
                 ]);
             }
 
-            return $success ? $this->_redirectToPage($pageUuid) : $this->_errorResponse();
+            return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
         return $this->render('@cms/Form/form.html.twig', array(
@@ -1097,11 +1123,11 @@ class PageController extends AbstractController
     /**
      * @Route("/page/save-order/{pageUuid}/{onVersion}", name="cms_page_saveorder")
      *
-     * @param Request $request
+     * @param Request             $request
      * @param TranslatorInterface $translator
-     * @param CommandBus $commandBus
-     * @param string $pageUuid
-     * @param int $onVersion
+     * @param CommandBus          $commandBus
+     * @param string              $pageUuid
+     * @param int                 $onVersion
      *
      * @return JsonResponse|RedirectResponse
      * @throws Exception
@@ -1110,6 +1136,8 @@ class PageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
+        // Todo: Check if user can save order for this page template.
+
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {
@@ -1117,12 +1145,12 @@ class PageController extends AbstractController
             $order = ArrayHelpers::cleanOrderTree($order);
         }
 
-        $success = $this->_runCommand($commandBus, PageSaveOrderCommand::class, [
+        $success = $this->runCommand($commandBus, PageSaveOrderCommand::class, [
             'order' => $order,
         ], $pageUuid, $onVersion, true);
 
         if (!$success) {
-            return $this->_errorResponse();
+            return $this->errorResponse();
         }
 
         $this->addFlash(
@@ -1137,6 +1165,133 @@ class PageController extends AbstractController
             ]);
         }
 
-        return $this->_redirectToPage($pageUuid);
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * @return array
+     */
+    private function getToolbarRefreshHeaders(): array
+    {
+        $headers = [];
+        if ('dev' === $this->getParameter('kernel.environment')) {
+            $headers['Symfony-Debug-Toolbar-Replace'] = 1;
+        }
+
+        return $headers;
+    }
+
+    /**
+     * A wrapper function to execute a Command.
+     * Returns true if the command succeeds.
+     *
+     * @param CommandBus  $commandBus
+     * @param string      $commandClass
+     * @param array       $data
+     * @param string      $aggregateUuid
+     * @param int         $onVersion
+     * @param bool        $queue
+     * @param string|null $commandUuid
+     * @param int|null    $userId
+     *
+     * @return bool
+     * @throws Exception
+     */
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    {
+        if (null === $userId) {
+            /**
+             * @var UserRead $user
+             */
+            $user = $this->getUser();
+            $userId = $user->getId();
+        }
+
+        $command = new $commandClass($userId, $commandUuid, $aggregateUuid, $onVersion, $data);
+
+        return $commandBus->dispatch($command, $queue);
+    }
+
+    /**
+     * Returns info from the messageBus.
+     *
+     * @return JsonResponse
+     */
+    private function errorResponse(): JsonResponse
+    {
+        return new JsonResponse($this->messageBus->getMessagesJson());
+    }
+
+    /**
+     * Redirects to the edit page of a Page Aggregate by its uuid.
+     *
+     * @param string $pageUuid
+     *
+     * @return RedirectResponse
+     */
+    private function redirectToPage(string $pageUuid): RedirectResponse
+    {
+        /**
+         * @var EntityManagerInterface $entityManager
+         */
+        $entityManager = $this->getDoctrine()->getManager();
+
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
+
+        if (!$pageStreamRead) {
+            return $this->redirect('/admin');
+        }
+
+        return $this->redirectToRoute('cms_edit_aggregate', [
+            'id' => $pageStreamRead->getId(),
+        ]);
+    }
+
+    /**
+     * @param string $permissionName
+     *
+     * @return array
+     */
+    private function getPermittedTemplates(string $permissionName): array
+    {
+        $config = $this->getParameter('cms');
+        $pageTemplates = $config['page_templates'] ?? null;
+        $templates = [];
+        foreach ($pageTemplates as $template => $templateConfig) {
+            $permission = $templateConfig['permissions'][$permissionName] ?? null;
+            // Check if permission is not explicitly set or user is granted the permission.
+            if (null === $permission || $this->isGranted($permission)) {
+                $templates[$template] = $template;
+                continue;
+            }
+        }
+
+        return $templates;
+    }
+
+    /**
+     * Checks if the user has access to a provided page template.
+     *
+     * @param string $permissionName
+     * @param string $template
+     *
+     * @return void
+     */
+    private function denyAccessUnlessGrantedTemplatePermission(string $permissionName, string $template): void
+    {
+        $config = $this->getParameter('cms');
+        $permission = $config['page_templates'][$template]['permissions'][$permissionName] ?? null;
+
+        if (null === $permission) {
+            // Permission is not explicitly set, grant access.
+            return;
+        }
+
+        if (!$this->isGranted($permission)) {
+            throw new AccessDeniedHttpException();
+        }
     }
 }

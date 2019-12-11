@@ -50,7 +50,9 @@ class ApiController extends AbstractController
         }
         $previewUser = $user->isImposter();
 
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->findOneByUuid($pageUuid);
 
         if (null === $pageStreamRead) {
@@ -62,11 +64,15 @@ class ApiController extends AbstractController
             throw new AccessDeniedHttpException('Page does not exist on this website');
         }
 
-        /** @var Page $page */
+        /**
+         * @var Page $page
+         */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
-        /** @var PageRead $publishedPage */
-        $publishedPage = $entityManager->getRepository(PageRead::class)->findOneByUuid($pageUuid);
+        /**
+         * @var PageRead $publishedPage
+         */
+        $publishedPage = $entityManager->getRepository(PageRead::class)->findOneBy([ 'uuid' => $pageUuid ]);
 
         // Get Preview Size.
         $previewSize = $request->get('previewSize');
@@ -89,10 +95,10 @@ class ApiController extends AbstractController
         $canUnpublish = $this->isGranted('page_unpublish') && (!$canSubmitChanges && !$previewUser && null !== $publishedPage && $page->published && ($page->getVersion() === $publishedPage->getVersion() + 1 || $page->getVersion() === $publishedPage->getVersion()));
         $canUndoChange = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
         $canDiscardChanges = !$previewUser && $page->getVersion() !== $page->getStreamVersion();
-        $canCloneAggregate = $this->isGranted('page_clone') && (!$previewUser && !$pageStreamRead->getDeleted());
-        $canDeleteAggregate = $this->isGranted('page_delete') && (!$previewUser && !$pageStreamRead->getDeleted());
         $canSchedule = $this->isGranted('page_schedule') && ($canPublish || $canUnpublish);
         $canInspect = $this->isGranted('page_inspect');
+        $canCloneAggregate = $this->isGranted('page_clone') && $this->isGrantedTemplatePermission('new', $page->template) && (!$previewUser && !$pageStreamRead->getDeleted());
+        $canDeleteAggregate = $this->isGranted('page_delete') && $this->isGrantedTemplatePermission('delete', $page->template) && (!$previewUser && !$pageStreamRead->getDeleted());
 
         $actions = [
             'toggle_contrast' => [
@@ -249,7 +255,9 @@ class ApiController extends AbstractController
 
         $users = [];
         if (false === $previewUser) {
-            /** @var UserRead[] $adminUsers */
+            /**
+             * @var UserRead[] $adminUsers
+             */
             $adminUsers = $entityManager->getRepository(UserRead::class)->findAll();
             foreach ($adminUsers as $key => $adminUser) {
                 if ($adminUser->getId() === $user->getId()) {
@@ -285,7 +293,7 @@ class ApiController extends AbstractController
      *
      * @return Response
      */
-    public function getPageTree(string $pageUuid, int $userId = null, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
+    public function getPageTree(string $pageUuid, int $userId, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -294,7 +302,9 @@ class ApiController extends AbstractController
             return new JsonResponse(false, 404);
         }
 
-        /** @var Page $page */
+        /**
+         * @var Page $page
+         */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
         $config = $this->getParameter('cms');
@@ -302,14 +312,22 @@ class ApiController extends AbstractController
         return $this->render('@cms/Admin/Page/Tree/tree.html.twig', [
             'pageUuid' => $pageUuid,
             'onVersion' => $page->getVersion(),
-            'tree' => $this->getChildren($page->elements, $config),
+            'tree' => $this->getChildren($config, $page->elements),
             'config' => $config,
         ]);
     }
 
-    private function getApiUser(int $userId = null, EntityManagerInterface $entityManager): ?UserRead
+    /**
+     * @param int                    $userId
+     * @param EntityManagerInterface $entityManager
+     *
+     * @return UserRead|null
+     */
+    private function getApiUser(int $userId, EntityManagerInterface $entityManager): ?UserRead
     {
-        /** @var UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $user = $this->getUser();
 
         $imposter = ($userId !== $user->getId());
@@ -327,7 +345,14 @@ class ApiController extends AbstractController
         return $user;
     }
 
-    private function getChildren($elements = null, array $config): array
+    /**
+     *
+     * @param array      $config
+     * @param array|null $elements
+     *
+     * @return array
+     */
+    private function getChildren(array $config, $elements = null): array
     {
         $children = [];
 
@@ -337,12 +362,33 @@ class ApiController extends AbstractController
                     'elementName' => $element['elementName'],
                     'title' => 'Section' === $element['elementName'] ? $element['data']['section'] : '',
                     'uuid' => $element['uuid'],
-                    'elements' => isset($element['elements']) ? $this->getChildren($element['elements'], $config) : [],
+                    'elements' => isset($element['elements']) ? $this->getChildren($config, $element['elements']) : [],
                     'supportChildTypes' => $config['page_elements'][$element['elementName']]['children'] ?? [],
                 ];
             }
         }
 
         return $children;
+    }
+
+    /**
+     * Checks if the user has access to a provided page template.
+     *
+     * @param string $permissionName
+     * @param string $template
+     *
+     * @return bool
+     */
+    private function isGrantedTemplatePermission(string $permissionName, string $template): bool
+    {
+        $config = $this->getParameter('cms');
+        $permission = $config['page_templates'][$template]['permissions'][$permissionName] ?? null;
+
+        if (null === $permission) {
+            // Permission is not explicitly set, grant access.
+            return true;
+        }
+
+        return $this->isGranted($permission);
     }
 }

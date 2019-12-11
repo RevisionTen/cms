@@ -23,14 +23,14 @@ use function array_keys;
 class PageType extends AbstractType
 {
     /**
-     * @var \Symfony\Component\Security\Core\Security
+     * @var Security
      */
     protected $security;
 
     /**
      * PageType constructor.
      *
-     * @param \Symfony\Component\Security\Core\Security $security
+     * @param Security $security
      */
     public function __construct(Security $security)
     {
@@ -39,6 +39,9 @@ class PageType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -40,6 +40,8 @@ twig:
         '%kernel.project_dir%/vendor/revision-ten/cms/Templates/EasyAdmin': EasyAdmin
     form_themes:
           - '@cms/Form/form_theme.html.twig'
+    globals:
+        pageTemplateConfig: '%cms.page_templates%' # Needed to check permissions in admin templates.
 
 framework:
     translator:

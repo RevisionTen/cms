@@ -13,6 +13,8 @@ class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
+     *
+     * @return TreeBuilder
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
@@ -25,7 +27,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('RevisionTen CMS')
                 ->end()
                 ->booleanNode('disable_cache_workaround')
-                    ->info('Set it to true If your hosters APCu cache behaves propperly and shares the cache as one would expect')
+                    ->info('Set it to true If your hosts APCu cache behaves properly and shares the cache as one would expect')
                     ->defaultFalse()
                 ->end()
                 ->integerNode('shm_key')->setDeprecated()->end()
@@ -171,6 +173,16 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('alias_prefix')
                                 ->info('Defines the path prefix for pages with this template')
                                 ->scalarPrototype()->end()
+                            ->end()
+                            ->arrayNode('permissions')
+                                ->info('Permissions for this page template.')
+                                ->children()
+                                    ->scalarNode('list')->end()
+                                    ->scalarNode('search')->end()
+                                    ->scalarNode('new')->end()
+                                    ->scalarNode('edit')->end()
+                                    ->scalarNode('delete')->end()
+                                ->end()
                             ->end()
                         ->end()
                     ->end()
