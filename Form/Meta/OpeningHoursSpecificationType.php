@@ -14,51 +14,58 @@ class OpeningHoursSpecificationType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('opens', TimeType::class, [
-            'label' => 'Opens',
+            'label' => 'openingHoursSpecification.label.opens',
+            'translation_domain' => 'cms',
             'required' => false,
             'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
             'with_seconds' => false,
             'attr' => [
-                'placeholder' => 'The time the business location opens, in hh:mm:ss format.',
+                'placeholder' => 'openingHoursSpecification.placeholder.opens',
             ],
         ]);
 
         $builder->add('closes', TimeType::class, [
-            'label' => 'Closes',
+            'label' => 'openingHoursSpecification.label.closes',
+            'translation_domain' => 'cms',
             'required' => false,
             'widget' => 'single_text',
             'html5' => true,
             'input' => 'string',
             'with_seconds' => false,
             'attr' => [
-                'placeholder' => 'The time the business location closes, in hh:mm:ss format.',
+                'placeholder' => 'openingHoursSpecification.placeholder.closes',
             ],
         ]);
 
         $builder->add('dayOfWeek', ChoiceType::class, [
-            'label' => 'Day of Week',
+            'label' => 'openingHoursSpecification.label.dayOfWeek',
+            'translation_domain' => 'cms',
             'required' => false,
             'expanded' => true,
             'multiple' => true,
             'choices' => [
-                'Monday' => 'Monday',
-                'Tuesday' => 'Tuesday',
-                'Wednesday' => 'Wednesday',
-                'Thursday' => 'Thursday',
-                'Friday' => 'Friday',
-                'Saturday' => 'Saturday',
-                'Sunday' => 'Sunday',
+                'openingHoursSpecification.choices.monday' => 'Monday',
+                'openingHoursSpecification.choices.tuesday' => 'Tuesday',
+                'openingHoursSpecification.choices.wednesday' => 'Wednesday',
+                'openingHoursSpecification.choices.thursday' => 'Thursday',
+                'openingHoursSpecification.choices.friday' => 'Friday',
+                'openingHoursSpecification.choices.saturday' => 'Saturday',
+                'openingHoursSpecification.choices.sunday' => 'Sunday',
             ],
         ]);
 
         $builder->add('validFrom', DateType::class, [
-            'label' => 'Valid from',
+            'label' => 'openingHoursSpecification.label.validFrom',
+            'translation_domain' => 'cms',
             'required' => false,
             'widget' => 'single_text',
             'html5' => true,
@@ -67,7 +74,8 @@ class OpeningHoursSpecificationType extends AbstractType
         ]);
 
         $builder->add('validThrough', DateType::class, [
-            'label' => 'Valid through',
+            'label' => 'openingHoursSpecification.label.validThrough',
+            'translation_domain' => 'cms',
             'required' => false,
             'widget' => 'single_text',
             'html5' => true,
@@ -78,6 +86,8 @@ class OpeningHoursSpecificationType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

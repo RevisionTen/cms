@@ -12,21 +12,27 @@ class Link extends Item
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'menu.label.title',
+            'translation_domain' => 'cms',
         ]);
 
         $builder->add('url', TextType::class, [
-            'label' => 'URL',
+            'label' => 'menu.label.url',
+            'translation_domain' => 'cms',
         ]);
 
         $builder->add('targetBlank', CheckboxType::class, [
-            'label' => 'Open link in new window',
+            'label' => 'menu.label.targetBlank',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
     }

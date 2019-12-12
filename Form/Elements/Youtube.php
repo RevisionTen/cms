@@ -16,18 +16,23 @@ class Youtube extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('youtubeId', TextType::class, [
-            'label' => 'Youtube Video ID or URL',
+            'label' => 'element.label.youtubeId',
+            'translation_domain' => 'cms',
             'required' => true,
         ]);
 
         $builder->add('optin', CheckboxType::class, [
-            'label' => 'Require opt-in by user',
+            'label' => 'element.label.optin',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
@@ -53,6 +58,8 @@ class Youtube extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

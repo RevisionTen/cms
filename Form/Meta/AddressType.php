@@ -13,50 +13,58 @@ class AddressType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('addressCountry', TextType::class, [
-            'label' => 'Country',
+            'label' => 'address.label.country',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'The 2-letter ISO 3166-1 alpha-2 country code',
+                'placeholder' => 'address.placeholder.country',
             ],
         ]);
 
         $builder->add('addressLocality', TextType::class, [
-            'label' => 'Locality',
+            'label' => 'address.label.locality',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Locality',
+                'placeholder' => 'address.placeholder.locality',
             ],
         ]);
 
         $builder->add('addressRegion', TextType::class, [
-            'label' => 'Region',
+            'label' => 'address.label.region',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
-                'placeholder' => 'Region',
+                'placeholder' => 'address.placeholder.region',
             ],
         ]);
 
         $builder->add('postalCode', TextType::class, [
-            'label' => 'Zipcode',
+            'label' => 'address.label.postalCode',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Zipcode',
+                'placeholder' => 'address.placeholder.postalCode',
             ],
         ]);
 
         $builder->add('streetAddress', TextType::class, [
-            'label' => 'Street, Nr.',
+            'label' => 'address.label.streetAddress',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Street number, street name, and unit number (if applicable).',
+                'placeholder' => 'address.placeholder.streetAddress',
             ],
         ]);
     }

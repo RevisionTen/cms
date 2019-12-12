@@ -11,19 +11,25 @@ class Anchor extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('anchor', TextType::class, [
-            'label' => 'Anchor',
+            'label' => 'element.label.anchor',
+            'translation_domain' => 'cms',
             'required' => true,
         ]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

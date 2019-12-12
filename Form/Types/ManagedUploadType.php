@@ -57,12 +57,16 @@ class ManagedUploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['enable_title']) {
             $builder->add('title', TextType::class, [
-                'label' => 'Title',
+                'label' => 'managedUpload.label.title',
+                'translation_domain' => 'cms',
                 'constraints' => new NotBlank(),
                 'required' => true,
                 'attr' => [
@@ -73,7 +77,8 @@ class ManagedUploadType extends AbstractType
 
         $builder->add('file', FileType::class, [
             'required' => false,
-            'label' => 'Please select the file you want to upload.',
+            'label' => 'managedUpload.label.file',
+            'translation_domain' => 'cms',
             'attr' => $options['attr'],
         ]);
 
@@ -146,6 +151,7 @@ class ManagedUploadType extends AbstractType
 
                 $form->add('delete', CheckboxType::class, [
                     'label' => 'delete the existing file',
+                    'translation_domain' => 'cms',
                     'required' => false,
                 ]);
             }
@@ -154,6 +160,10 @@ class ManagedUploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormView      $view
+     * @param FormInterface $form
+     * @param array         $options
      */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
@@ -165,6 +175,8 @@ class ManagedUploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -181,6 +193,8 @@ class ManagedUploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

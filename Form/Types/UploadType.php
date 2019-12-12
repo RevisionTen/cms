@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use function is_object;
 use function is_string;
@@ -67,20 +69,21 @@ class UploadType extends AbstractType
     }
 
     /**
-     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile
-     * @param string                                              $upload_dir
+     * @param UploadedFile $uploadedFile
+     * @param string       $upload_dir
      *
      * @return array|null
      */
     public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?array
     {
-        $file = $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);
-
-        return $file;
+        return $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -132,7 +135,8 @@ class UploadType extends AbstractType
 
             if ($options['allow_delete']) {
                 $form->add('delete', CheckboxType::class, [
-                    'label' => 'delete the existing file',
+                    'label' => 'upload.label.delete',
+                    'translation_domain' => 'cms',
                     'mapped' => true,
                     'required' => false,
                 ]);
@@ -160,7 +164,9 @@ class UploadType extends AbstractType
             $height = $data['height'] ?? null;
             $mimeType = $data['mimeType'] ?? null;
 
-            /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $uploadedFile */
+            /**
+             * @var UploadedFile $uploadedFile
+             */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
             $constraints = $options['constraints'] ?? NULL;
@@ -169,10 +175,14 @@ class UploadType extends AbstractType
                 // Validate file field.
                 $valid = true;
                 if ($constraints) {
-                    /** @var \Symfony\Component\Validator\ConstraintViolationListInterface $violations */
+                    /**
+                     * @var ConstraintViolationListInterface $violations
+                     */
                     $violations = $this->validator->validate($uploadedFile, $constraints);
                     foreach ($violations as $violation) {
-                        /** @var \Symfony\Component\Validator\ConstraintViolationInterface $violation */
+                        /**
+                         * @var ConstraintViolationInterface $violation
+                         */
                         $formError = new FormError(
                             $violation->getMessage(),
                             $violation->getMessageTemplate(),
@@ -235,6 +245,10 @@ class UploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormView      $view
+     * @param FormInterface $form
+     * @param array         $options
      */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
@@ -246,6 +260,8 @@ class UploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -271,6 +287,8 @@ class UploadType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

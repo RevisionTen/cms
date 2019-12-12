@@ -10,6 +10,8 @@ class TrixType extends HiddenType
 {
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

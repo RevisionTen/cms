@@ -8,6 +8,8 @@ class Row extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

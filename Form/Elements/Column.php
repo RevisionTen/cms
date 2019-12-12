@@ -11,36 +11,57 @@ class Column extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
-        $this->widthForm($builder, 'xs', 'xs', 'widthXS', '12');
-        $this->widthForm($builder, 'sm', 'like xs', 'widthSM');
-        $this->widthForm($builder, 'md', 'like sm', 'widthMD');
-        $this->widthForm($builder, 'lg', 'like md', 'widthLG');
-        $this->widthForm($builder, 'xl', 'like lg', 'widthXL');
+        $this->widthForm($builder, 'element.label.xs', 'element.placeholder.xs', 'widthXS', '12');
+        $this->widthForm($builder, 'element.label.sm', 'element.placeholder.sm', 'widthSM');
+        $this->widthForm($builder, 'element.label.md', 'element.placeholder.md', 'widthMD');
+        $this->widthForm($builder, 'element.label.lg', 'element.placeholder.lg', 'widthLG');
+        $this->widthForm($builder, 'element.label.xl', 'element.placeholder.xl', 'widthXL');
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @return string
+     */
+    public function getBlockPrefix(): string
+    {
+        return 'cms_column';
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param string               $label
+     * @param                      $placeholder
+     * @param string               $key
+     * @param string|null          $empty_data
+     */
     private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null): void
     {
         $builder->add($key, ChoiceType::class, [
             'label' => $label,
+            'translation_domain' => 'cms',
             'required' => false,
             'choices' => [
-                '1 column wide' => '1',
-                '2 columns wide' => '2',
-                '3 columns wide' => '3',
-                '4 columns wide' => '4',
-                '5 columns wide' => '5',
-                '6 columns wide' => '6',
-                '7 columns wide' => '7',
-                '8 columns wide' => '8',
-                '9 columns wide' => '9',
-                '10 columns wide' => '10',
-                '11 columns wide' => '11',
-                '12 columns wide' => '12',
+                'element.choices.1ColumnWide' => '1',
+                'element.choices.2ColumnsWide' => '2',
+                'element.choices.3ColumnsWide' => '3',
+                'element.choices.4ColumnsWide' => '4',
+                'element.choices.5ColumnsWide' => '5',
+                'element.choices.6ColumnsWide' => '6',
+                'element.choices.7ColumnsWide' => '7',
+                'element.choices.8ColumnsWide' => '8',
+                'element.choices.9ColumnsWide' => '9',
+                'element.choices.10ColumnsWide' => '10',
+                'element.choices.11ColumnsWide' => '11',
+                'element.choices.12ColumnsWide' => '12',
             ],
             'placeholder' => $placeholder,
             'empty_data' => $empty_data,
@@ -48,13 +69,5 @@ class Column extends Element
                 'class' => 'custom-select',
             ],
         ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix(): string
-    {
-        return 'cms_column';
     }
 }

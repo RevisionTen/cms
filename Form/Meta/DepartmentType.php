@@ -15,22 +15,26 @@ class DepartmentType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('type', ChoiceType::class, [
-            'label' => 'Department type',
+            'label' => 'department.label.type',
+            'translation_domain' => 'cms',
             'required' => false,
             'choices' => [
-                'AutoDealer' => 'AutoDealer',
-                'AutoPartsStore' => 'AutoPartsStore',
-                'AutoRepair' => 'AutoRepair',
-                'AutoBodyShop' => 'AutoBodyShop',
-                'AutoRental' => 'AutoRental',
-                'GasStation' => 'GasStation',
-                'AutoWash' => 'AutoWash',
-                'MotorcycleDealer' => 'MotorcycleDealer',
-                'MotorcycleRepair' => 'MotorcycleRepair',
+                'department.choices.autoDealer' => 'AutoDealer',
+                'department.choices.autoPartsStore' => 'AutoPartsStore',
+                'department.choices.autoRepair' => 'AutoRepair',
+                'department.choices.autoBodyShop' => 'AutoBodyShop',
+                'department.choices.autoRental' => 'AutoRental',
+                'department.choices.gasStation' => 'GasStation',
+                'department.choices.autoWash' => 'AutoWash',
+                'department.choices.motorcycleDealer' => 'MotorcycleDealer',
+                'department.choices.motorcycleRepair' => 'MotorcycleRepair',
             ],
             'attr' => [
                 'class' => 'custom-select',
@@ -38,26 +42,30 @@ class DepartmentType extends AbstractType
         ]);
 
         $builder->add('name', TextType::class, [
-            'label' => 'Department name',
+            'label' => 'department.label.name',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('image', UploadType::class, [
-            'label' => 'Department Image',
+            'label' => 'department.label.image',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('telephone', TextType::class, [
-            'label' => 'Phone',
+            'label' => 'department.label.telephone',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
-                'placeholder' => 'A business phone number meant to be the primary contact method for customers. Be sure to include the country code and area code in the phone number.',
+                'placeholder' => 'department.placeholder.telephone',
             ],
         ]);
 
         $builder->add('openingHoursSpecification', CollectionType::class, [
             'required' => false,
-            'label' => 'Opening hours',
+            'label' => 'department.label.openingHoursSpecification',
+            'translation_domain' => 'cms',
             'entry_type' => OpeningHoursSpecificationType::class,
             'entry_options' => [
                 'label' => false,

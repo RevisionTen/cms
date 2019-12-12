@@ -1,0 +1,219 @@
+# AddressType
+address:
+    label:
+        country: "Land"
+        locality: "Ort"
+        region: "Bundesland"
+        postalCode: "Postleitzahl"
+        streetAddress: "Strasse, Hausnr."
+    placeholder:
+        country: "Der 2-stellige ISO 3166-1 alpha-2 Ländercode (z.b. DE)"
+        locality: "Ort"
+        region: "Bundesland"
+        postalCode: "Postleitzahl"
+        streetAddress: "Strasse und Hausnummer"
+
+# DepartmentType
+department:
+    label:
+        type: "Abteilung Art"
+        name: "Abteilung Name"
+        image: "Abteilung Bild"
+        telephone: "Abteilung Telefon"
+        openingHoursSpecification: "Öffnungszeiten"
+    placeholder:
+        telephone: "Eine Telefonnummer unter der Kunden das Geschäft kontaktieren können. Mit Vorwahl und Ländercode."
+    choices:
+        autoDealer: "Autohändler"
+        autoPartsStore: "Auto Teile- & Zubehörverkauf"
+        autoRepair: "Auto Service / Werkstatt"
+        autoBodyShop: "Autokarosseriewerkstatt"
+        autoRental: "Autovermietung"
+        gasStation: "Tankstelle"
+        autoWash: "Autowäsche"
+        motorcycleDealer: "Motorradhändler"
+        motorcycleRepair: "Motorradwerkstatt"
+
+# GeoType
+geo:
+    label:
+        latitude: "Latitude"
+        longitude: "Longitude"
+    placeholder:
+        latitude: "Der Breitengrad des Unternehmens"
+        longitude: "Der Längengrad des Unternehmens"
+
+# OpeningHoursSpecificationType
+openingHoursSpecification:
+    label:
+        opens: "Öffnet"
+        closes: "Schliesst"
+        dayOfWeek: "Wochentage"
+        validFrom: "Gültig von"
+        validThrough: "Gültig bis"
+    placeholder:
+        opens: "Die Uhrzeit um der die Geschäftsstelle öffnet, im hh:mm:ss Format."
+        closes: "Die Uhrzeit um der die Geschäftsstelle schliesst, im hh:mm:ss Format."
+    choices:
+        monday: "Montag"
+        tuesday: "Dienstag"
+        wednesday: "Mittwoch"
+        thursday: "Donnerstag"
+        friday: "Freitag"
+        saturday: "Samstag"
+        sunday: "Sonntag"
+
+# LocalBusinessMetaType
+localBusinessMeta:
+    label:
+        name: "Geschäftsname"
+        image: "Ladenbild"
+        telephone: "Telefon"
+        address: "Adresse"
+        geo: "Geokoordinaten"
+        openingHoursSpecification: "Öffnungszeiten"
+        department: "Abteilungen"
+    placeholder:
+        telephone: "Eine Telefonnummer unter der Kunden das Geschäft kontaktieren können. Mit Vorwahl und Ländercode."
+
+# PageType
+page:
+    label:
+        title: "Titel"
+        website: "Website"
+        language: "Sprache"
+        template: "Vorlage"
+        description: "Bescheibung"
+        image: "Teaserbild"
+        robots: "Suchmaschinen Einstellungen"
+    placeholder:
+        language: "Sprache"
+    choices:
+        index: "Indexieren"
+        noindex: "Indexierung verbieten"
+        follow: "Links folgen"
+        nofollow: "Links nicht folgen"
+
+# PageMetaType
+pageMeta:
+    label:
+        keywords: "Schlüsselbegriffe"
+    placeholder:
+        keywords: "Schlüsselbegriff, Schlüsselbegriff, ..."
+
+# ImageType
+image:
+    label:
+        title: "Titel"
+        image: "Bitte wähle das Bild aus das du hochladen willst."
+
+# ManagedUploadType
+managedUpload:
+    label:
+        title: "Titel"
+        file: "Bitte wähle die Datei aus die du hochladen willst."
+
+# UploadType
+upload:
+    label:
+        delete: "Datei löschen"
+
+# SpacingType
+spacing:
+    label:
+        breakpoint: "Breakpoint"
+        top: "Oben"
+        right: "Rechts"
+        bottom: "Unten"
+        left: "Links"
+    placeholder:
+        breakpoint: "Breakpoint"
+    choices:
+        xs: "xs"
+        sm: "sm"
+        md: "md"
+        lg: "lg"
+        xl: "xl"
+        none: "Keiner"
+        auto: "Automatisch"
+        extraSmall: "0,25 - sehr klein"
+        small: "0,5 - klein"
+        medium: "1 - mittel"
+        big: "1,5 - groß"
+        extraBig: "3 - sehr groß"
+        huge: "6 - riesig"
+
+# Menu
+menu:
+    label:
+        title: "Titel"
+        url: "URL"
+        alias: "Seite"
+        targetBlank: "Link in neuem Fenster öffnen"
+
+# Elements
+element:
+    label:
+        anchor: "Anker"
+        title: "Titel"
+        imagePosition: "Bildposition"
+        image: "Bitte wähle das Bild aus das du hochladen willst."
+        images: "Bilder"
+        text: "Text"
+        buttonText: "Button Text"
+        page: "Seite"
+        xs: "Handy"
+        sm: "Großes Handy"
+        md: "Tablet (Portrait)"
+        lg: "Laptop / Tablet (Landscape)"
+        xl: "Desktop"
+        controller: "Wähle die Controller Aktion die du ausgeben willst."
+        styles: "Wähle aus wie dieses Element dargestellt wird."
+        paddings: "Innenabstände"
+        margins: "Außenabstände"
+        showOriginal: "Originalbild anzeigen"
+        width: "Breite"
+        height: "Höhe"
+        scaling: "Skalierung"
+        grayscale: "Schwarz-Weiss"
+        fixOrientation: "Drehung korrigieren"
+        section: "Wähle aus zu welchem Template-Bereich dieser Bereich gehört."
+        startDate: "Startdatum"
+        endDate: "Enddatum"
+        youtubeId: "Youtube Video ID oder URL"
+        optin: "Opt-In vom User erforderlich machen"
+        formUuid: "Wähle das Formular aus das erscheinen soll."
+    placeholder:
+        xs: "Handy"
+        sm: "Wie Handy"
+        md: "Wie Großes Handy"
+        lg: "Wie Tablet (Portrait)"
+        xl: "Wie Laptop / Tablet (Landscape)"
+        scaling: "Skalierung"
+    help:
+        spacing: "<div class=\"row w-100\"><div class=\"col-xs-4 col-4\">sehr klein = 0.25 x Texthöhe<br/> klein = 0.5 x Texthöhe</div><div class=\"col-xs-4 col-4\">mittel = 1 x Texthöhe<br/> groß = 1.5 x Texthöhe</div><div class=\"col-xs-4 col-4\">sehr groß = 3 x Texthöhe<br/> riesig = 6 x Texthöhe</div></div>"
+        scaling: "<ul><li>cropResize: resizes the image preserving scale (just like \"resize\") and croping the whitespaces</li><li>resize: resizes the image, will preserve scale and never enlarge it</li><li>scaleResize: resizes the image, will preserve scale, can enlarge it</li><li>forceResize: resizes the image forcing it to be exactly width by height</li><li>zoomCrop: resize and crop the image to fit to given dimensions</li><li><a href=\"https://github.com/Gregwar/Image#basic-handling\" target=\"_blank\">More here</a></li></ul>"
+    choices:
+        top: "Oben"
+        bottom: "Unten"
+        left: "Links"
+        right: "Rechts"
+        background: "Hintergrund"
+        backgroundFitted: "Hintergrund angepasst"
+        1ColumnWide: "1 Spalte breit"
+        2ColumnsWide: "2 Spalten breit"
+        3ColumnsWide: "3 Spalten breit (25%)"
+        4ColumnsWide: "4 Spalten breit"
+        5ColumnsWide: "5 Spalten breit"
+        6ColumnsWide: "6 Spalten breit (50%)"
+        7ColumnsWide: "7 Spalten breit"
+        8ColumnsWide: "8 Spalten breit"
+        9ColumnsWide: "9 Spalten breit (75%)"
+        10ColumnsWide: "10 Spalten breit"
+        11ColumnsWide: "11 Spalten breit"
+        12ColumnsWide: "12 Spalten breit (100%)"
+        cropResize: "cropResize"
+        resize: "resize"
+        scaleResize: "scaleResize"
+        forceResize: "forceResize"
+        zoomCrop: "zoomCrop"

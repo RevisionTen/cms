@@ -14,7 +14,9 @@ use function array_keys;
 
 class TemplateFilterType extends FilterType
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $templates;
 
     /**
@@ -34,6 +36,11 @@ class TemplateFilterType extends FilterType
         $this->templates = $pageTemplates;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -44,11 +51,23 @@ class TemplateFilterType extends FilterType
         ]);
     }
 
-    public function getParent()
+    /**
+     * {@inheritdoc}
+     *
+     * @return string
+     */
+    public function getParent(): string
     {
         return ChoiceType::class;
     }
 
+    /**
+     * @param QueryBuilder  $queryBuilder
+     * @param FormInterface $form
+     * @param array         $metadata
+     *
+     * @return false|void
+     */
     public function filter(QueryBuilder $queryBuilder, FormInterface $form, array $metadata)
     {
         $data = $form->getData();

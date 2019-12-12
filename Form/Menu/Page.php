@@ -13,9 +13,16 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Page extends Item
 {
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
+    /**
+     * Page constructor.
+     *
+     * @param EntityManagerInterface $entityManager
+     */
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
@@ -23,18 +30,24 @@ class Page extends Item
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'menu.label.title',
+            'translation_domain' => 'cms',
         ]);
 
         $choices = [];
 
-        /** @var Alias[] $aliases */
+        /**
+         * @var Alias[] $aliases
+         */
         $aliases = $this->entityManager->getRepository(Alias::class)->findAll();
         if ($aliases) {
             foreach ($aliases as $alias) {
@@ -45,7 +58,8 @@ class Page extends Item
         }
 
         $builder->add('alias', ChoiceType::class, [
-            'label' => 'Alias',
+            'label' => 'menu.label.alias',
+            'translation_domain' => 'cms',
             'choices' => $choices,
             'attr' => [
                 'class' => 'custom-select',
@@ -53,7 +67,8 @@ class Page extends Item
         ]);
 
         $builder->add('targetBlank', CheckboxType::class, [
-            'label' => 'Open link in new window',
+            'label' => 'menu.label.targetBlank',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
     }

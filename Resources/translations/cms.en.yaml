@@ -1,0 +1,219 @@
+# AddressType
+address:
+    label:
+        country: "Country"
+        locality: "Locality"
+        region: "Region"
+        postalCode: "ZIP Code"
+        streetAddress: "Street, Nr."
+    placeholder:
+        country: "The 2-letter ISO 3166-1 alpha-2 country code"
+        locality: "Locality"
+        region: "Region"
+        postalCode: "ZIP Code"
+        streetAddress: "Street number, street name, and unit number (if applicable)."
+
+# DepartmentType
+department:
+    label:
+        type: "Department type"
+        name: "Department name"
+        image: "Department image"
+        telephone: "Department phone"
+        openingHoursSpecification: "Opening hours"
+    placeholder:
+        telephone: "A business phone number meant to be the primary contact method for customers. Be sure to include the country code and area code in the phone number."
+    choices:
+        autoDealer: "Auto Dealer"
+        autoPartsStore: "Auto Parts Store"
+        autoRepair: "Auto Repair"
+        autoBodyShop: "Auto Body Shop"
+        autoRental: "Auto Rental"
+        gasStation: "Gas Station"
+        autoWash: "Auto Wash"
+        motorcycleDealer: "Motorcycle Dealer"
+        motorcycleRepair: "Motorcycle Repair"
+
+# GeoType
+geo:
+    label:
+        latitude: "Latitude"
+        longitude: "Longitude"
+    placeholder:
+        latitude: "The latitude of the business location. The precision should be at least 5 decimal places."
+        longitude: "The longitude of the business location. The precision should be at least 5 decimal places."
+
+# OpeningHoursSpecificationType
+openingHoursSpecification:
+    label:
+        opens: "Opens"
+        closes: "Closes"
+        dayOfWeek: "Day of Week"
+        validFrom: "Valid from"
+        validThrough: "Valid through"
+    placeholder:
+        opens: "The time the business location opens, in hh:mm:ss format."
+        closes: "The time the business location closes, in hh:mm:ss format."
+    choices:
+        monday: "Monday"
+        tuesday: "Tuesday"
+        wednesday: "Wednesday"
+        thursday: "Thursday"
+        friday: "Friday"
+        saturday: "Saturday"
+        sunday: "Sunday"
+
+# LocalBusinessMetaType
+localBusinessMeta:
+    label:
+        name: "Business name"
+        image: "Business Locality Image"
+        telephone: "Phone"
+        address: "Address"
+        geo: "Geo-Coordinates"
+        openingHoursSpecification: "Opening hours"
+        department: "Departments"
+    placeholder:
+        telephone: "A business phone number meant to be the primary contact method for customers. Be sure to include the country code and area code in the phone number."
+
+# PageType
+page:
+    label:
+        title: "Title"
+        website: "Website"
+        language: "Language"
+        template: "Template"
+        description: "Description"
+        image: "Teaser image"
+        robots: "Search engine settings"
+    placeholder:
+        language: "Language"
+    choices:
+        index: "Index"
+        noindex: "Don't index"
+        follow: "Follow links"
+        nofollow: "Don't follow links"
+
+# PageMetaType
+pageMeta:
+    label:
+        keywords: "Keywords"
+    placeholder:
+        keywords: "keyword, keyword, ..."
+
+# ImageType
+image:
+    label:
+        title: "Title"
+        image: "Please select the image file you want to upload."
+
+# ManagedUploadType
+managedUpload:
+    label:
+        title: "Title"
+        file: "Please select the file you want to upload."
+
+# UploadType
+upload:
+    label:
+        delete: "delete the existing file"
+
+# SpacingType
+spacing:
+    label:
+        breakpoint: "Breakpoint"
+        top: "Top"
+        right: "Right"
+        bottom: "Bottom"
+        left: "Left"
+    placeholder:
+        breakpoint: "Breakpoint"
+    choices:
+        xs: "xs"
+        sm: "sm"
+        md: "md"
+        lg: "lg"
+        xl: "xl"
+        none: "None"
+        auto: "Auto"
+        extraSmall: "Extra Small"
+        small: "Small"
+        medium: "Medium"
+        big: "Big"
+        extraBig: "Extra Big"
+        huge: "Huge"
+
+# Menu
+menu:
+    label:
+        title: "Title"
+        url: "URL"
+        alias: "Page"
+        targetBlank: "Open link in new window"
+
+# Elements
+element:
+    label:
+        anchor: "Anchor"
+        title: "Title"
+        imagePosition: "Image position"
+        image: "Please select the image file you want to upload."
+        images: "Images"
+        text: "Text"
+        buttonText: "Button Text"
+        page: "Page"
+        xs: "xs"
+        sm: "sm"
+        md: "md"
+        lg: "lg"
+        xl: "xl"
+        controller: "Choose the controller action to render."
+        styles: "Choose how this element is displayed."
+        paddings: "Padding"
+        margins: "Margin"
+        showOriginal: "Show original"
+        width: "Width"
+        height: "Height"
+        scaling: "Scaling"
+        grayscale: "Grayscale"
+        fixOrientation: "Fix orientation"
+        section: "Choose to which layout section this section belongs."
+        startDate: "Start date"
+        endDate: "End date"
+        youtubeId: "Youtube Video ID or URL"
+        optin: "Require opt-in by user"
+        formUuid: "Please choose the Form you want to show."
+    placeholder:
+        xs: "xs"
+        sm: "like xs"
+        md: "like sm"
+        lg: "like md"
+        xl: "like lg"
+        scaling: "Scaling"
+    help:
+        spacing: "<div class=\"row w-10\"><div class=\"col-xs-4 col-4\">Extra Small = 0.25 x text height<br/> Small = 0.5 x text height</div><div class=\"col-xs-4 col-4\">Medium = 1 x text height<br/> Big = 1.5 x text height</div><div class=\"col-xs-4 col-4\">Extra Big = 3 x text height<br/> Huge = 6 x text height</div></div>"
+        scaling: "<ul><li>cropResize: resizes the image preserving scale (just like \"resize\") and croping the whitespaces</li><li>resize: resizes the image, will preserve scale and never enlarge it</li><li>scaleResize: resizes the image, will preserve scale, can enlarge it</li><li>forceResize: resizes the image forcing it to be exactly width by height</li><li>zoomCrop: resize and crop the image to fit to given dimensions</li><li><a href=\"https://github.com/Gregwar/Image#basic-handling\" target=\"_blank\">More here</a></li></ul>"
+    choices:
+        top: "Top"
+        bottom: "Bottom"
+        left: "Left"
+        right: "Right"
+        background: "Background"
+        backgroundFitted: "Background fitted"
+        1ColumnWide: "1 column wide"
+        2ColumnsWide: "2 columns wide"
+        3ColumnsWide: "3 columns wide"
+        4ColumnsWide: "4 columns wide"
+        5ColumnsWide: "5 columns wide"
+        6ColumnsWide: "6 columns wide"
+        7ColumnsWide: "7 columns wide"
+        8ColumnsWide: "8 columns wide"
+        9ColumnsWide: "9 columns wide"
+        10ColumnsWide: "10 columns wide"
+        11ColumnsWide: "11 columns wide"
+        12ColumnsWide: "12 columns wide"
+        cropResize: "cropResize"
+        resize: "resize"
+        scaleResize: "scaleResize"
+        forceResize: "forceResize"
+        zoomCrop: "zoomCrop"

@@ -13,24 +13,30 @@ class ImageType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('title', TextType::class, [
-                'label' => 'Title',
-                'constraints' => new NotBlank(),
-            ])
-            ->add('image', UploadType::class, [
-                'label' => 'Please select the image file you want to upload.',
-                'required' => false,
-                'show_file_picker' => true,
-            ])
-        ;
+        $builder->add('title', TextType::class, [
+            'label' => 'image.label.title',
+            'translation_domain' => 'cms',
+            'constraints' => new NotBlank(),
+        ]);
+
+        $builder->add('image', UploadType::class, [
+            'label' => 'teaser.label.image',
+            'translation_domain' => 'cms',
+            'required' => false,
+            'show_file_picker' => true,
+        ]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

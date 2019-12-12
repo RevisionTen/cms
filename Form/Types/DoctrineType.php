@@ -21,12 +21,22 @@ use function is_array;
 
 class DoctrineType extends AbstractType
 {
-    /** @var Website|null */
+    /**
+     * @var Website|null
+     */
     private $website;
 
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
+    /**
+     * DoctrineType constructor.
+     *
+     * @param EntityManagerInterface $entityManager
+     * @param RequestStack           $requestStack
+     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
@@ -41,6 +51,9 @@ class DoctrineType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -55,7 +68,9 @@ class DoctrineType extends AbstractType
             $options['findBy']['website'] = $this->website->getId();
         }
 
-        /** @var array $entities */
+        /**
+         * @var array $entities
+         */
         $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy'], $options['orderBy']);
 
         if ($entities) {
@@ -151,6 +166,8 @@ class DoctrineType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -169,6 +186,8 @@ class DoctrineType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

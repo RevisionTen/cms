@@ -17,61 +17,75 @@ class Card extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
-        $builder
-            ->add('imagePosition', ChoiceType::class, [
-                'label' => 'Image position',
-                'constraints' => new NotBlank(),
-                'choices' => [
-                    'Top' => 'top',
-                    'Bottom' => 'bottom',
-                    'Left' => 'left',
-                    'Right' => 'right',
-                    'Background' => 'background',
-                    'Background fitted' => 'background-fitted',
-                ],
-                'attr' => [
-                    'class' => 'custom-select',
-                ],
-            ])
-            ->add('title', TextType::class, [
-                'label' => 'Title',
-                'required' => false,
-            ])
-            ->add('image', UploadType::class, [
-                'label' => 'Please select the image file you want to upload.',
-                'required' => false,
-                'show_file_picker' => true,
-            ])
-            ->add('text', TextareaType::class, [
-                'required' => false,
-                'label' => 'Text',
-                'attr' => [
-                    'class' => 'ckeditor',
-                ],
-            ])
-            ->add('buttonText', TextType::class, [
-                'label' => 'Button Text',
-                'required' => false,
-            ])
-            ->add('page', DoctrineType::class, [
-                'required' => false,
-                'label' => 'Page',
-                'entityClass' => Alias::class,
-                'findBy' => [
-                    'controller' => null,
-                ],
-                'filterByWebsite' => true,
-            ])
-        ;
+        $builder->add('imagePosition', ChoiceType::class, [
+            'label' => 'element.label.imagePosition',
+            'translation_domain' => 'cms',
+            'constraints' => new NotBlank(),
+            'choices' => [
+                'element.choices.top' => 'top',
+                'element.choices.bottom' => 'bottom',
+                'element.choices.left' => 'left',
+                'element.choices.right' => 'right',
+                'element.choices.background' => 'background',
+                'element.choices.backgroundFitted' => 'background-fitted',
+            ],
+            'attr' => [
+                'class' => 'custom-select',
+            ],
+        ]);
+
+        $builder->add('title', TextType::class, [
+            'label' => 'element.label.title',
+            'translation_domain' => 'cms',
+            'required' => false,
+        ]);
+
+        $builder->add('image', UploadType::class, [
+            'label' => 'element.label.image',
+            'translation_domain' => 'cms',
+            'required' => false,
+            'show_file_picker' => true,
+        ]);
+
+        $builder->add('text', TextareaType::class, [
+            'required' => false,
+            'label' => 'element.label.text',
+            'translation_domain' => 'cms',
+            'attr' => [
+                'class' => 'ckeditor',
+            ],
+        ]);
+
+        $builder->add('buttonText', TextType::class, [
+            'label' => 'element.label.buttonText',
+            'translation_domain' => 'cms',
+            'required' => false,
+        ]);
+
+        $builder->add('page', DoctrineType::class, [
+            'required' => false,
+            'label' => 'element.label.page',
+            'translation_domain' => 'cms',
+            'entityClass' => Alias::class,
+            'findBy' => [
+                'controller' => null,
+            ],
+            'filterByWebsite' => true,
+        ]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {
