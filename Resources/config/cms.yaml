@@ -100,6 +100,7 @@ cms:
             #    new: 'create_simple_page'
             #    edit: 'edit_simple_page'
             #    delete: 'delete_simple_page'
+            #websites: [1, 2] # Array of website ids this template is available on
     page_elements:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section

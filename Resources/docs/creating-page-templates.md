@@ -59,7 +59,7 @@ cms:
     # Add the permissions to the page template config.
     page_templates:
         Simple Page:
-            template: 'Pages/simple.html.twig'
+            ...
             permissions:
                 list: 'list_simple_page'
                 search: 'search_simple_page'
@@ -68,6 +68,17 @@ cms:
                 delete: 'delete_simple_page'
 ```
 Users must then be granted these permissions in addition to the general page permissions (similar to the ["unanimous" access decision strategy][access-decision-strategy]).
+
+## Restricting page templates to certain websites
+
+You can also restrict templates to certain websites by using the `websites` option: 
+
+```YAML
+page_templates:
+    Simple Page:
+        ...
+        websites: [1, 2] # Array of website ids this template is available on
+```
 
 [access-decision-strategy]: https://symfony.com/doc/current/security/voters.html#changing-the-access-decision-strategy
 [config]: https://github.com/RevisionTen/cms/blob/master/Resources/config/cms.yaml
