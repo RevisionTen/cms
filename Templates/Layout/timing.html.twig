@@ -6,11 +6,11 @@
             {% set isTimeActive = ('now'|date('U') > element.data.startDate|date('U') or element.data.startDate is null) and ('now'|date('U') < element.data.endDate|date('U') or element.data.endDate is null)  %}
             {% if isTimed %}
                 <div class="small mb-0 alert alert-warning">
-                    <strong class="{{ isTimeActive ? 'text-success' : 'text-danger' }}">{{ isTimeActive ? 'Active'|trans : 'Inactive'|trans }}</strong>
+                    <strong class="{{ isTimeActive ? 'text-success' : 'text-danger' }}">{{ isTimeActive ? 'admin.label.active'|trans({}, 'cms') : 'admin.label.inactive'|trans({}, 'cms') }}</strong>
                     {% set dateFormat = app.request.locale == 'de' ? 'd.m.Y H:i' : 'Y-m-y H:i' %}
-                    {% set startText = element.data.startDate ? element.data.startDate|date(dateFormat) : 'now'|trans %}
-                    {% set endText = element.data.endDate ? element.data.endDate|date(dateFormat) : 'forever'|trans %}
-                    {{ 'This element appears from %start% to %end%.'|trans({'%start%': startText, '%end%': endText}) }}
+                    {% set startText = element.data.startDate ? element.data.startDate|date(dateFormat) : 'admin.label.now'|trans({}, 'cms') %}
+                    {% set endText = element.data.endDate ? element.data.endDate|date(dateFormat) : 'admin.label.forever'|trans({}, 'cms') %}
+                    {{ 'admin.label.visibleFromTo'|trans({'%start%': startText, '%end%': endText}, 'cms') }}
                 </div>
             {% endif %}
         {% endif %}

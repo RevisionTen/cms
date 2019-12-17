@@ -1,6 +1,6 @@
 <form method="get">
     <div class="input-group mb-3">
-        <input type="text" placeholder="{{ 'search term'|trans }}" class="form-control" name="q" value="{{ query }}">
+        <input type="text" placeholder="{{ 'admin.label.searchTerm'|trans({}, 'cms') }}" class="form-control" name="q" value="{{ query }}">
         <div class="input-group-append">
             <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
         </div>
@@ -10,11 +10,11 @@
 {% if results %}
     <p class="lead">
         {% if results.numFound == 1 %}
-            {{ 'Your search for "%query%" yielded 1 result'|trans({'%query%': query}) }}:
+            {{ 'admin.label.searchOneResult'|trans({'%query%': query}, 'cms') }}:
         {% elseif results.numFound > 1 %}
-            {{ 'Your search for "%query%" yielded %count% results'|trans({'%query%': query, '%count%': results.numFound}) }}:
+            {{ 'admin.label.searchSomeResults'|trans({'%query%': query, '%count%': results.numFound}, 'cms') }}:
         {% else %}
-            {{ 'Your search for "%query%" yielded no results'|trans({'%query%': query}) }}.
+            {{ 'admin.label.searchNoResults'|trans({'%query%': query}, 'cms') }}.
         {% endif %}
     </p>
 
@@ -31,6 +31,6 @@
     </ul>
 {% else %}
     <p>
-        <strong>{{ 'Please enter search words'|trans }}.</strong>
+        <strong>{{ 'admin.label.noSearchTerm'|trans({}, 'cms') }}.</strong>
     </p>
 {% endif %}

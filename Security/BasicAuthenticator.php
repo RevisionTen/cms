@@ -2,8 +2,11 @@
 
 namespace RevisionTen\CMS\Security;
 
+use Exception;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Utilities\RandomHelpers;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BasicAuthenticator extends AbstractGuardAuthenticator
 {
     /**
-     * @var \Swift_Mailer
+     * @var Swift_Mailer
      */
     private $swift_Mailer;
 
@@ -53,14 +56,14 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     /**
      * BasicAuthenticator constructor.
      *
-     * @param \Swift_Mailer                $swift_Mailer
+     * @param Swift_Mailer                $swift_Mailer
      * @param UserPasswordEncoderInterface $encoder
      * @param RequestStack                 $requestStack
      * @param TranslatorInterface          $translator
      * @param array                        $config
      * @param string                        $env
      */
-    public function __construct(\Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
+    public function __construct(Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
     {
         $this->swift_Mailer = $swift_Mailer;
         $this->encoder = $encoder;
@@ -73,9 +76,9 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     /**
      * Returns the active session or starts one.
      *
-     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+     * @param RequestStack $requestStack
      *
-     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
+     * @return SessionInterface
      */
     private function getSession(RequestStack $requestStack): SessionInterface
     {
@@ -96,7 +99,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     /**
      * {@inheritdoc}
      */
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         $username = $request->get('login')['username'] ?? null;
         $password = $request->get('login')['password'] ?? null;
@@ -118,7 +121,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $password = $request->get('login')['password'] ?? null;
 
         if ($username && $password) {
-            // User loggs in.
+            // User logs in.
             return [
                 'username' => $username,
                 'password' => $password,
@@ -147,13 +150,14 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      *
      * @return bool
      */
-    public function checkCredentials($credentials, UserInterface $user)
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
         return $this->encoder->isPasswordValid($user, $credentials['password']);
     }
 
     /**
      * {@inheritdoc}
+     * @throws Exception
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
@@ -170,7 +174,9 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
 
         if ($useMailCodes) {
-            /** @var UserRead $user */
+            /**
+             * @var UserRead $user
+             */
             $user = $token->getUser();
             $code = RandomHelpers::randomString(6, '0123456789');
             $codeLifetime = (int) ($this->config['mail_code_lifetime'] ?? 5);
@@ -193,14 +199,14 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     private function sendCodeMail(UserRead $user, string $code): void
     {
-        $subject = $this->translator->trans('Login Code for %username%', [
+        $subject = $this->translator->trans('admin.label.loginCodeFor', [
             '%username%' => $user->getUsername(),
-        ]);
+        ], 'cms');
 
-        $yourlogin = $this->translator->trans('Your login code is');
-        $validfor = $this->translator->trans('This code is valid for %minutes% minutes.', [
+        $yourlogin = $this->translator->trans('admin.label.loginCodeIs', [], 'cms');
+        $validfor = $this->translator->trans('admin.label.loginCodeExpires', [
             '%minutes%' => $this->config['mail_code_lifetime'] ?? 5,
-        ]);
+        ], 'cms');
 
         $messageBody = <<<EOT
 $yourlogin:
@@ -213,7 +219,7 @@ EOT;
         $senderConfigExists = isset($this->config['mailer_from'], $this->config['mailer_sender'], $this->config['mailer_return_path']) && $this->config['mailer_from'] && $this->config['mailer_sender'] && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
-            $message = (new \Swift_Message($subject))
+            $message = (new Swift_Message($subject))
                 ->setFrom($this->config['mailer_from'])
                 ->setSender($this->config['mailer_sender'])
                 ->setReturnPath($this->config['mailer_return_path'])
@@ -222,7 +228,7 @@ EOT;
             ;
         } else {
             // Attempt to send without explicitly setting the sender.
-            $message = (new \Swift_Message($subject))
+            $message = (new Swift_Message($subject))
                 ->setTo($mail)
                 ->setBody($messageBody, 'text/html')
             ;
@@ -236,7 +242,7 @@ EOT;
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $message = $this->translator->trans('Error during login');
+        $message = $this->translator->trans('admin.label.loginError', [], 'cms');
         $flashBag = $this->session->getFlashBag();
         if (!$flashBag) {
             $flashBag = new FlashBag('login_errors');
@@ -255,7 +261,7 @@ EOT;
      *
      * @return RedirectResponse
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
     {
         return new RedirectResponse('/login');
     }
@@ -263,7 +269,7 @@ EOT;
     /**
      * {@inheritdoc}
      */
-    public function supportsRememberMe()
+    public function supportsRememberMe(): bool
     {
         return false;
     }

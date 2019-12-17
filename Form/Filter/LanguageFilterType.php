@@ -12,8 +12,10 @@ use Doctrine\ORM\QueryBuilder;
 
 class LanguageFilterType extends FilterType
 {
-    /** @var array */
-    protected $languages;
+    /**
+     * @var array
+     */
+    private $languages;
 
     /**
      * LanguageFilterType constructor.
@@ -25,6 +27,11 @@ class LanguageFilterType extends FilterType
         $this->languages = $config['page_languages'] ?? [];
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -35,11 +42,21 @@ class LanguageFilterType extends FilterType
         ]);
     }
 
-    public function getParent()
+    /**
+     * @return string
+     */
+    public function getParent(): string
     {
         return ChoiceType::class;
     }
 
+    /**
+     * @param QueryBuilder  $queryBuilder
+     * @param FormInterface $form
+     * @param array         $metadata
+     *
+     * @return false|void
+     */
     public function filter(QueryBuilder $queryBuilder, FormInterface $form, array $metadata)
     {
         $data = $form->getData();

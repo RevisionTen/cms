@@ -2,12 +2,15 @@
 
 namespace RevisionTen\CMS\Security;
 
+use Exception;
 use RevisionTen\CMS\Command\UserLoginCommand;
+use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CQRS\Services\CommandBus;
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -16,6 +19,9 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use function is_object;
+use function strtr;
+use function time;
 
 class CodeAuthenticator extends AbstractGuardAuthenticator
 {
@@ -56,32 +62,13 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * Returns the active session or starts one.
-     *
-     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
-     *
-     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
-     */
-    private function getSession(RequestStack $requestStack): SessionInterface
-    {
-        $request = $requestStack->getMasterRequest();
-        $session = $request ? $request->getSession() : null;
-
-        if (null === $session) {
-            $session = new Session();
-        }
-
-        if (!$session->isStarted()) {
-            $session->start();
-        }
-
-        return $session;
-    }
-
-    /**
      * {@inheritdoc}
+     *
+     * @param Request $request
+     *
+     * @return bool
      */
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         $code = $request->get('code')['code'] ?? null;
         $username = $this->session->has('username');
@@ -109,7 +96,9 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
                 'username' => $username,
                 'code' => $code,
             ];
-        } elseif ($username && $this->isDev) {
+        }
+
+        if ($username && $this->isDev) {
             // Environment is dev, just return the username.
             return [
                 'username' => $username,
@@ -121,8 +110,13 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * {@inheritdoc}
+     *
+     * @param mixed                 $credentials
+     * @param UserProviderInterface $userProvider
+     *
+     * @return UserInterface|null
      */
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $username = $credentials['username'] ?? null;
 
@@ -138,43 +132,31 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      *
      * @return bool
      */
-    public function checkCredentials($credentials, UserInterface $user)
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
         if ($this->isDev) {
             return true;
         }
 
         // Check if submitted Code is Valid.
-        /** @var \RevisionTen\CMS\Model\UserRead $user */
+        /**
+         * @var UserRead $user
+         */
         $secret = $user->getSecret();
 
         return $this->isCodeValid($secret, $credentials['code']);
     }
 
-    private function isCodeValid(string $secret, string $code): bool
-    {
-        $useMailCodes = $this->config['use_mail_codes'] ?? false;
-
-        if ($useMailCodes) {
-            $mailCode = $this->session->get('mailCode');
-            $mailCodeExpires = $this->session->get('mailCodeExpires');
-            $validCode = ($mailCode === $code) && (time() < $mailCodeExpires);
-        } else {
-            $googleAuthenticator = new GoogleAuthenticator();
-            $validCode = $googleAuthenticator->checkCode($secret, $code);
-        }
-
-        return $validCode;
-    }
-
     /**
      * {@inheritdoc}
+     *
+     * @throws Exception
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         $user = $token->getUser();
 
-        if (!\is_object($user)) {
+        if (!is_object($user)) {
             return false;
         }
 
@@ -201,6 +183,11 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * {@inheritdoc}
+     *
+     * @param Request                 $request
+     * @param AuthenticationException $exception
+     *
+     * @return RedirectResponse|Response|null
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
@@ -231,8 +218,53 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     /**
      * {@inheritdoc}
      */
-    public function supportsRememberMe()
+    public function supportsRememberMe(): bool
     {
         return false;
+    }
+
+    /**
+     * @param string $secret
+     * @param string $code
+     *
+     * @return bool
+     */
+    private function isCodeValid(string $secret, string $code): bool
+    {
+        $useMailCodes = $this->config['use_mail_codes'] ?? false;
+
+        if ($useMailCodes) {
+            $mailCode = $this->session->get('mailCode');
+            $mailCodeExpires = $this->session->get('mailCodeExpires');
+            $validCode = ($mailCode === $code) && (time() < $mailCodeExpires);
+        } else {
+            $googleAuthenticator = new GoogleAuthenticator();
+            $validCode = $googleAuthenticator->checkCode($secret, $code);
+        }
+
+        return $validCode;
+    }
+
+    /**
+     * Returns the active session or starts one.
+     *
+     * @param RequestStack $requestStack
+     *
+     * @return SessionInterface
+     */
+    private function getSession(RequestStack $requestStack): SessionInterface
+    {
+        $request = $requestStack->getMasterRequest();
+        $session = $request ? $request->getSession() : null;
+
+        if (null === $session) {
+            $session = new Session();
+        }
+
+        if (!$session->isStarted()) {
+            $session->start();
+        }
+
+        return $session;
     }
 }

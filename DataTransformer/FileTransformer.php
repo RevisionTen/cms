@@ -9,6 +9,11 @@ use function is_array;
 
 class FileTransformer implements DataTransformerInterface
 {
+    /**
+     * @param mixed $file
+     *
+     * @return array
+     */
     public function transform($file): array
     {
         if (is_array($file)) {
@@ -21,6 +26,11 @@ class FileTransformer implements DataTransformerInterface
         ];
     }
 
+    /**
+     * @param mixed $data
+     *
+     * @return mixed|null
+     */
     public function reverseTransform($data)
     {
         return $data['file'] ?? null;

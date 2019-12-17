@@ -13,18 +13,23 @@ class Element extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('settings', ElementSettings::class, [
-            'label' => false, //'Settings',
+            'label' => false,
             'required' => false,
         ]);
 
         if (isset($options['elementConfig']['styles']) && !empty($options['elementConfig']['styles'])) {
             $builder->add('styles', ChoiceType::class, [
-                'label' => 'Choose how this element is displayed.',
+                'label' => 'element.label.styles',
+                'translation_domain' => 'cms',
                 'choices' => $options['elementConfig']['styles'],
+                'choice_translation_domain' => 'messages',
                 'multiple' => true,
                 'expanded' => true,
             ]);
@@ -33,6 +38,8 @@ class Element extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -43,8 +50,10 @@ class Element extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'cms_element';
     }

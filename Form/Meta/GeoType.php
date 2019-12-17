@@ -12,22 +12,27 @@ class GeoType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('latitude', TextType::class, [
-            'label' => 'Latitude',
+            'label' => 'geo.label.latitude',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
-                'placeholder' => 'The latitude of the business location. The precision should be at least 5 decimal places.',
+                'placeholder' => 'geo.placeholder.latitude',
             ],
         ]);
 
         $builder->add('longitude', TextType::class, [
-            'label' => 'Longitude',
+            'label' => 'geo.label.longitude',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
-                'placeholder' => 'The longitude of the business location. The precision should be at least 5 decimal places.',
+                'placeholder' => 'geo.placeholder.longitude',
             ],
         ]);
     }

@@ -85,8 +85,6 @@ class CacheService
         }
     }
 
-
-
     public function isCacheEnabled(): bool
     {
         return null !== $this->cache;

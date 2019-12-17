@@ -29,6 +29,9 @@ class AliasSubscriber implements EventSubscriber
         $this->indexService = $indexService;
     }
 
+    /**
+     * @return array
+     */
     public function getSubscribedEvents(): array
     {
         return [
@@ -38,12 +41,9 @@ class AliasSubscriber implements EventSubscriber
         ];
     }
 
-    private function indexPage(PageStreamRead $pageStreamRead): void
-    {
-        $output = new BufferedOutput();
-        $this->indexService->index($output, $pageStreamRead->getUuid());
-    }
-
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postUpdate(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -53,6 +53,9 @@ class AliasSubscriber implements EventSubscriber
         }
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postPersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -62,6 +65,9 @@ class AliasSubscriber implements EventSubscriber
         }
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function postRemove(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -69,5 +75,14 @@ class AliasSubscriber implements EventSubscriber
         if ($entity instanceof Alias && null !== $entity->getPageStreamRead()) {
             $this->indexPage($entity->getPageStreamRead());
         }
+    }
+
+    /**
+     * @param PageStreamRead $pageStreamRead
+     */
+    private function indexPage(PageStreamRead $pageStreamRead): void
+    {
+        $output = new BufferedOutput();
+        $this->indexService->index($output, $pageStreamRead->getUuid());
     }
 }

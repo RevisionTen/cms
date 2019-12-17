@@ -46,13 +46,15 @@ class PageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'page.label.title',
+            'translation_domain' => 'cms',
             'constraints' => new NotBlank(),
         ]);
 
         if ($options['page_websites']) {
             $builder->add('website', ChoiceType::class, [
-                'label' => 'Website',
+                'label' => 'page.label.website',
+                'translation_domain' => 'cms',
                 'multiple' => false,
                 'choices' => $options['page_websites'],
                 'constraints' => new NotBlank(),
@@ -63,12 +65,14 @@ class PageType extends AbstractType
         }
 
         $builder->add('language', ChoiceType::class, [
-            'label' => 'Language',
+            'label' => 'page.label.language',
+            'translation_domain' => 'cms',
             'choices' => $options['page_languages'] ?: [
                 'English' => 'en',
                 'German' => 'de',
             ],
-            'placeholder' => 'Language',
+            'choice_translation_domain' => 'messages',
+            'placeholder' => 'page.placeholder.language',
             'constraints' => new NotBlank(),
             'attr' => [
                 'class' => 'custom-select',
@@ -76,8 +80,10 @@ class PageType extends AbstractType
         ]);
 
         $builder->add('template', ChoiceType::class, [
-            'label' => 'Template',
+            'label' => 'page.label.template',
+            'translation_domain' => 'cms',
             'choices' => array_combine(array_keys($options['page_templates']), array_keys($options['page_templates'])),
+            'choice_translation_domain' => 'messages',
             'constraints' => new NotBlank(),
             'attr' => [
                 'data-condition' => true,
@@ -86,25 +92,27 @@ class PageType extends AbstractType
         ]);
 
         $builder->add('description', TextareaType::class, [
-            'label' => 'Description',
+            'label' => 'page.label.description',
+            'translation_domain' => 'cms',
             'constraints' => new NotBlank(),
         ]);
 
         $builder->add('image', UploadType::class, [
-            'label' => 'Teaser image',
+            'label' => 'page.label.image',
+            'translation_domain' => 'cms',
             'required' => false,
             'show_file_picker' => true,
         ]);
 
         if ($this->security->isGranted('page_change_seo_settings')) {
-
             $builder->add('robots', ChoiceType::class, [
-                'label' => 'Search engine settings',
+                'label' => 'page.label.robots',
+                'translation_domain' => 'cms',
                 'choices' => [
-                    'Index' => 'index',
-                    'Don\'t index' => 'noindex',
-                    'Follow' => 'follow',
-                    'Don\'t follow' => 'nofollow',
+                    'page.choices.index' => 'index',
+                    'page.choices.noindex' => 'noindex',
+                    'page.choices.follow' => 'follow',
+                    'page.choices.nofollow' => 'nofollow',
                 ],
                 'multiple' => true,
                 'expanded' => true,
@@ -147,6 +155,8 @@ class PageType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

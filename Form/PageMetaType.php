@@ -12,20 +12,26 @@ class PageMetaType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('keywords', TextType::class, [
-            'label' => 'Keywords',
+            'label' => 'pageMeta.label.keywords',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
-                'placeholder' => 'keyword, keyword, ...',
+                'placeholder' => 'pageMeta.placeholder.keywords',
             ],
         ]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

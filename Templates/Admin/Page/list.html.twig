@@ -6,7 +6,7 @@
     {% if is_granted('page_create') %}
         <div class="button-action">
             <a class="btn btn-success" href="{{ path('cms_create_page') }}">
-                <span class="fa fa-plus"></span> {{ 'Add page'|trans }}
+                <span class="fa fa-plus"></span> {{ 'admin.btn.addPage'|trans({}, 'cms') }}
             </a>
         </div>
     {% endif %}

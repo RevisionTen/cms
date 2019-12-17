@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Solarium\Client;
 use Solarium\QueryType\Select\Query\FilterQuery;
 use Solarium\QueryType\Select\Query\Query;
+use Solarium\QueryType\Select\Result\Document;
 use function addcslashes;
 use function array_map;
 use function ceil;
@@ -18,10 +19,14 @@ use function str_replace;
 
 class SearchService
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $solrConfig;
 
-    /** @var LoggerInterface */
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
 
     public function __construct(LoggerInterface $logger, array $config)
@@ -87,7 +92,9 @@ class SearchService
 
         // Get documents.
         $pages = [];
-        /** @var \Solarium\QueryType\Select\Result\Document $document */
+        /**
+         * @var Document $document
+         */
         foreach ($resultset->getDocuments() as $document) {
             $fields = (array) $document->getFields();
             $pages[$fields['id']] = $fields;

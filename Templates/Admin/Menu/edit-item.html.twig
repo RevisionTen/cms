@@ -1,11 +1,6 @@
 <li data-uuid="{{ item.uuid }}" class="level-{{ level }} {{ item.enabled is defined and item.enabled == false ? 'disabled' : '' }}">
 
     <div class="row clearfix pl-3 pr-3">
-        {#% for x in 0..level %}
-        {% if x > 0 %}
-            <span style="opacity: .2;" class="fas fa-arrow-right"></span>
-        {% endif %}
-    {% endfor %#}
         <div class="col pull-left p-2">
             <i class="fas fa-arrows-alt text-muted cms-admin-menu-item-move"></i>
 
@@ -29,37 +24,37 @@
                 <div class="dropdown-menu">
                     {% for itemName, itemConfig in config.menu_items %}
                         <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: item.uuid}) }}">
-                            {{ 'Add %itemName% item'|trans({'%itemName%': itemName|trans}) }}
+                            {{ 'admin.btn.addMenuItem'|trans({'%itemName%': itemName|trans}, 'cms') }}
                         </a>
                     {% endfor %}
                 </div>
             </div> &nbsp;
 
             {% if item.enabled is not defined or item.enabled %}
-                <a title="{{ 'Disable'|trans }}" href="{{ path('cms_menu_disableitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+                <a title="{{ 'admin.btn.disable'|trans({}, 'cms') }}" href="{{ path('cms_menu_disableitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                     <span class="fas fa-eye"></span>
                 </a> &nbsp;
             {% endif %}
 
             {% if item.enabled is defined and item.enabled == false %}
-                <a class="text-danger" title="{{ 'Enable'|trans }}" href="{{ path('cms_menu_enableitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+                <a class="text-danger" title="{{ 'admin.btn.enable'|trans({}, 'cms') }}" href="{{ path('cms_menu_enableitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                     <span class="fas fa-eye-slash"></span>
                 </a> &nbsp;
             {% endif %}
 
-            <a title="{{ 'Shift up'|trans }}" href="{{ path('cms_menu_shiftitem', {direction: 'up', menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+            <a title="{{ 'admin.btn.shiftUp'|trans({}, 'cms') }}" href="{{ path('cms_menu_shiftitem', {direction: 'up', menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                 <span class="fas fa-arrow-up"></span>
             </a> &nbsp;
 
-            <a title="{{ 'Shift down'|trans }}" href="{{ path('cms_menu_shiftitem', {direction: 'down', menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+            <a title="{{ 'admin.btn.shiftDown'|trans({}, 'cms') }}" href="{{ path('cms_menu_shiftitem', {direction: 'down', menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                 <span class="fas fa-arrow-down"></span>
             </a> &nbsp;
 
-            <a title="{{ 'Edit'|trans }}" href="{{ path('cms_menu_edititem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+            <a title="{{ 'admin.btn.edit'|trans({}, 'cms') }}" href="{{ path('cms_menu_edititem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                 <span class="fas fa-edit"></span>
             </a> &nbsp;
 
-            <a title="{{ 'Delete'|trans }}" class="text-danger" href="{{ path('cms_menu_deleteitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
+            <a title="{{ 'admin.btn.delete'|trans({}, 'cms') }}" class="text-danger" href="{{ path('cms_menu_deleteitem', {menuUuid: menu.uuid, itemUuid: item.uuid, onVersion: menu.version}) }}">
                 <span class="fas fa-trash"></span>
             </a>
         </div>

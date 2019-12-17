@@ -29,8 +29,8 @@ class RoleService
     /**
      * RoleService constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface        $em
-     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
+     * @param EntityManagerInterface $em
+     * @param AggregateFactory       $aggregateFactory
      */
     public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory)
     {

@@ -1,1 +1,1 @@
-{{ (value ? value : 'language neutral')|trans }}
+{{ value ? (value|trans) : ('admin.label.languageNeutral'|trans({}, 'cms')) }}

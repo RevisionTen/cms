@@ -42,12 +42,12 @@ cms:
             - { entity: PageStreamRead, icon: 'file-alt' }
             - { entity: PageStreamReadArchive, icon: 'archive' }
             - { entity: Alias, icon: 'link' }
-            - { entity: FileRead, label: 'Files', icon: 'download' }
+            - { entity: FileRead, icon: 'download' }
         Structure:
             - { entity: Website, icon: 'globe-africa' }
-            - { entity: MenuRead, label: 'Menus', icon: 'bars' }
-            - { label: 'Forms', entity: 'FormRead', icon: 'mail-bulk' }
-            - { label: 'Submissions', entity: 'FormSubmission', icon: 'envelope' }
+            - { entity: MenuRead, icon: 'bars' }
+            - { entity: FormRead, icon: 'mail-bulk' }
+            - { entity: FormSubmission, icon: 'envelope' }
         Settings:
             - { entity: UserRead, icon: 'users' }
             - { entity: RoleRead, icon: 'user-shield' }

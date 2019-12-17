@@ -201,8 +201,8 @@
         </div>
     {% elseif enable_chooser %}
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="nav-item"><a class="nav-link active bg-white" href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'Upload File'|trans }}</a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link bg-white" href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'Choose File'|trans }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link active bg-white" href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'admin.label.fileUpload'|trans({}, 'cms') }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link bg-white" href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'admin.label.fileChoose'|trans({}, 'cms') }}</a></li>
         </ul>
         <div class="tab-content bg-white p-3">
             <div role="tabpanel" class="tab-pane active" id="file_upload">
@@ -287,10 +287,10 @@
             });
         {% endset %}
         <div class="text-right field-collection-item-action">
-            <span title="{{ 'Shift up'|trans() }}" onclick="{{ shift_item_up_javascript|raw }}" class="btn btn-sm">
+            <span title="{{ 'admin.btn.shiftUp'|trans({}, 'cms') }}" onclick="{{ shift_item_up_javascript|raw }}" class="btn btn-sm">
                 <i class="fas fa-arrow-circle-up"></i>
             </span>
-            <span title="{{ 'Shift down'|trans() }}" onclick="{{ shift_item_down_javascript|raw }}" class="btn btn-sm">
+            <span title="{{ 'admin.btn.shiftDown'|trans({}, 'cms') }}" onclick="{{ shift_item_down_javascript|raw }}" class="btn btn-sm">
                 <i class="fas fa-arrow-circle-down"></i>
             </span>
             <span title="{{ 'action.remove_item'|trans({}, 'EasyAdminBundle') }}" onclick="{{ remove_item_javascript|raw }}" class="btn btn-sm text-danger">

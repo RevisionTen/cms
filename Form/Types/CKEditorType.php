@@ -12,7 +12,9 @@ use function array_merge;
 
 class CKEditorType extends TextareaType
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $config;
 
     /**
@@ -27,6 +29,8 @@ class CKEditorType extends TextareaType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {
@@ -35,6 +39,10 @@ class CKEditorType extends TextareaType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormView      $view
+     * @param FormInterface $form
+     * @param array         $options
      */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
@@ -45,6 +53,8 @@ class CKEditorType extends TextareaType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
      */
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -15,7 +15,6 @@
         {% endblock header_logo %}
     </div>
 
-
     <div class="hidden-xs text-center editor-userinfo">
         <div>
             {% if app.user.avatarUrl is defined and app.user.avatarUrl %}
@@ -26,7 +25,7 @@
                 </div>
             {% endif %}
         </div>
-        <span class="text-muted">{{ 'You are logged in as'|trans }}</span><br/>
+        <span class="text-muted">{{ 'admin.label.loggedInAs'|trans({}, 'cms') }}</span><br/>
         {{ app.user.username|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) }}
         <div>
             {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteChooser')) }}
@@ -34,6 +33,6 @@
     </div>
     {{ parent() }}
     <div class="mt-auto sidebar-menu tree">
-        <a href="{{ path('cms_logout') }}"><i class="fa fas fa-sign-out-alt"></i> {{ 'Logout'|trans }}</a>
+        <a href="{{ path('cms_logout') }}"><i class="fa fas fa-sign-out-alt"></i> {{ 'admin.btn.logout'|trans({}, 'cms') }}</a>
     </div>
 {% endblock main_menu_wrapper %}

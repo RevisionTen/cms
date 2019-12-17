@@ -11,7 +11,6 @@ class EntityVoter extends Voter
     protected function supports($attribute, $subject): bool
     {
         // Todo: Check if attribute is in permissions config.
-
         return true;
     }
 

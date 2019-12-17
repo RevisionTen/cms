@@ -13,44 +13,43 @@ class ImageSettings extends ElementSettings
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('showOriginal', CheckboxType::class, [
-            'label' => 'Show original',
+            'label' => 'element.label.showOriginal',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('width', NumberType::class, [
-            'label' => 'Width',
+            'label' => 'element.label.width',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('height', NumberType::class, [
-            'label' => 'Height',
+            'label' => 'element.label.height',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('scaling', ChoiceType::class, [
-            'label' => 'Scaling',
-            'placeholder' => 'Scaling',
+            'label' => 'element.label.scaling',
+            'translation_domain' => 'cms',
+            'placeholder' => 'element.placeholder.scaling',
             'required' => false,
             'choices' => [
-                'cropResize' => 'cropResize',
-                'resize' => 'resize',
-                'scaleResize' => 'scaleResize',
-                'forceResize' => 'forceResize',
-                'zoomCrop' => 'zoomCrop',
+                'element.choices.cropResize' => 'cropResize',
+                'element.choices.resize' => 'resize',
+                'element.choices.scaleResize' => 'scaleResize',
+                'element.choices.forceResize' => 'forceResize',
+                'element.choices.zoomCrop' => 'zoomCrop',
             ],
-            'help' => '
-            <ul>
-                <li>cropResize: resizes the image preserving scale (just like "resize") and croping the whitespaces</li>
-                <li>resize: resizes the image, will preserve scale and never enlarge it</li>
-                <li>scaleResize: resizes the image, will preserve scale, can enlarge it</li>
-                <li>forceResize: resizes the image forcing it to be exactly width by height</li>
-                <li>zoomCrop: resize and crop the image to fit to given dimensions</li>
-                <li><a href="https://github.com/Gregwar/Image#basic-handling" target="_blank">More here</a></li>
-            </ul>',
+            'help' => 'element.help.scaling',
             'help_html' => true,
             'help_attr' => [
                 'class' => 'w-100',
@@ -61,12 +60,14 @@ class ImageSettings extends ElementSettings
         ]);
 
         $builder->add('grayscale', CheckboxType::class, [
-            'label' => 'Grayscale',
+            'label' => 'element.label.grayscale',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('fixOrientation', CheckboxType::class, [
-            'label' => 'Fix orientation',
+            'label' => 'element.label.fixOrientation',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 

@@ -120,12 +120,12 @@ class SecurityController extends AbstractController
      * @param FormFactoryInterface   $formFactory
      * @param EntityManagerInterface $entityManager
      * @param CommandBus             $commandBus
+     * @param TranslatorInterface    $translator
      *
      * @return Response
      * @throws InterfaceException
-     * @throws Exception
      */
-    public function resetPassword(Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus): Response
+    public function resetPassword(Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, TranslatorInterface $translator): Response
     {
         $formBuilder = $formFactory->createBuilder();
 
@@ -133,16 +133,18 @@ class SecurityController extends AbstractController
 
         $formBuilder->add('username_email', TextType::class, [
             'label' => false,
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Username or email',
+                'placeholder' => 'admin.label.userNameOrEmail',
                 'class' => 'mt-3',
             ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Request new Password',
+            'label' => 'admin.btn.requestNewPassword',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary btn-block',
             ],
@@ -155,7 +157,7 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $success = true;
 
-            $this->addFlash('success', 'A password reset email was requested. Please check your inbox.');
+            $this->addFlash('success', $translator->trans('admin.label.requestNewPasswordSuccess', [], 'cms'));
 
             $data = $form->getData();
             $usernameOrEmail = $data['username_email'];
@@ -233,13 +235,15 @@ class SecurityController extends AbstractController
                 new NotBlank(),
                 new NotCompromisedPassword(),
             ],
-            'first_options'  => ['label' => 'New Password'],
-            'second_options' => ['label' => 'Repeat New Password'],
-            'invalid_message' => $translator->trans('The password fields must match'),
+            'translation_domain' => 'cms',
+            'first_options'  => ['label' => 'admin.label.newPassword'],
+            'second_options' => ['label' => 'admin.label.repeatNewPassword'],
+            'invalid_message' => $translator->trans('admin.validation.passwordsMustMatch', [], 'cms'),
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Set new password',
+            'label' => 'admin.btn.setNewPassword',
+            'translation_domain' => 'cms',
         ]);
 
         $form = $formBuilder->getForm();
@@ -274,7 +278,7 @@ class SecurityController extends AbstractController
         }
 
         if ($success) {
-            $this->addFlash('success', 'Password was changed!');
+            $this->addFlash('success', $translator->trans('admin.label.passwordChangedSuccess', [], 'cms'));
         }
 
         return $this->render('@cms/Security/reset-password.html.twig', [
@@ -317,15 +321,17 @@ class SecurityController extends AbstractController
 
         $formBuilder->add('code', TextType::class, [
             'label' => false,
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Code',
+                'placeholder' => 'admin.label.code',
             ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Login',
+            'label' => 'admin.btn.login',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],
@@ -348,25 +354,28 @@ class SecurityController extends AbstractController
 
         $formBuilder->add('username', TextType::class, [
             'label' => false,
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Username',
+                'placeholder' => 'admin.label.username',
             ],
         ]);
 
         $formBuilder->add('password', PasswordType::class, [
             'label' => false,
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
                 'autocomplete' => 'off',
-                'placeholder' => 'Password',
+                'placeholder' => 'admin.label.password',
             ],
         ]);
 
         $formBuilder->add('send', SubmitType::class, [
-            'label' => 'Login',
+            'label' => 'admin.btn.login',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],

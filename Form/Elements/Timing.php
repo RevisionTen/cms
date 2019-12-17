@@ -11,13 +11,17 @@ class Timing extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('startDate', DateTimeType::class, [
-            'label' => 'Start date',
+            'label' => 'element.label.startDate',
+            'translation_domain' => 'cms',
             'input' => 'timestamp',
             'date_widget' => 'single_text',
             'time_widget' => 'single_text',
@@ -26,7 +30,8 @@ class Timing extends Element
         ]);
 
         $builder->add('endDate', DateTimeType::class, [
-            'label' => 'End date',
+            'label' => 'element.label.endDate',
+            'translation_domain' => 'cms',
             'input' => 'timestamp',
             'date_widget' => 'single_text',
             'time_widget' => 'single_text',
@@ -37,6 +42,8 @@ class Timing extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

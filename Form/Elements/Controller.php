@@ -10,9 +10,16 @@ use function array_walk;
 
 class Controller extends Element
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $controller;
 
+    /**
+     * Controller constructor.
+     *
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         $controller = $config['controller'] ?? [];
@@ -29,15 +36,20 @@ class Controller extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('controller', ChoiceType::class, [
-            'label' => 'Choose the controller action to render.',
+            'label' => 'element.label.controller',
+            'translation_domain' => 'cms',
             'required' => false,
             'choices' => $this->controller,
+            'choice_translation_domain' => 'messages',
             'attr' => [
                 'class' => 'custom-select',
             ],
@@ -46,6 +58,8 @@ class Controller extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

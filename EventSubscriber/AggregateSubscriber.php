@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\EventSubscriber;
 
+use Exception;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\Page;
@@ -15,23 +16,34 @@ use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Services\RoleService;
 use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Event\AggregateUpdatedEvent;
+use RevisionTen\CQRS\Interfaces\EventInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AggregateSubscriber implements EventSubscriberInterface
 {
-    /** @var PageService */
+    /**
+     * @var PageService
+     */
     private $pageService;
 
-    /** @var MenuService */
+    /**
+     * @var MenuService
+     */
     private $menuService;
 
-    /** @var RoleService */
+    /**
+     * @var RoleService
+     */
     private $roleService;
 
-    /** @var FileService */
+    /**
+     * @var FileService
+     */
     private $fileService;
 
-    /** @var UserService */
+    /**
+     * @var UserService
+     */
     private $userService;
 
     /**
@@ -60,13 +72,15 @@ class AggregateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CQRS\Event\AggregateUpdatedEvent $aggregateUpdatedEvent
+     * @param AggregateUpdatedEvent $aggregateUpdatedEvent
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateReadModel(AggregateUpdatedEvent $aggregateUpdatedEvent): void
     {
-        /** @var \RevisionTen\CQRS\Interfaces\EventInterface $event */
+        /**
+         * @var EventInterface $event
+         */
         $event = $aggregateUpdatedEvent->getEvent();
 
         $aggregateClass = $event::getAggregateClass();

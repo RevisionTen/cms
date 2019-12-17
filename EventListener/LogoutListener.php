@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\EventListener;
 
+use Exception;
 use RevisionTen\CMS\Command\UserLogoutCommand;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,17 +20,22 @@ class LogoutListener implements LogoutHandlerInterface
      */
     private $commandBus;
 
+    /**
+     * LogoutListener constructor.
+     *
+     * @param CommandBus $commandBus
+     */
     public function __construct(CommandBus $commandBus)
     {
         $this->commandBus = $commandBus;
     }
 
     /**
-     * @param \Symfony\Component\HttpFoundation\Request                            $request
-     * @param \Symfony\Component\HttpFoundation\Response                           $response
-     * @param \Symfony\Component\Security\Core\Authentication\Token\TokenInterface $token
+     * @param Request        $request
+     * @param Response       $response
+     * @param TokenInterface $token
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function logout(Request $request, Response $response, TokenInterface $token): void
     {

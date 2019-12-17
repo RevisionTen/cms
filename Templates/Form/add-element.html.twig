@@ -2,7 +2,7 @@
 
 {% block content_title %}
     {% if title is defined %}
-        {{ title|trans }}
+        {{ title }}
     {% endif %}
 {% endblock %}
 
@@ -14,7 +14,7 @@
                     <div data-element-name="{{ elementName }}" data-uuid="{{ parent }}" class="btn-create card border-0" style="cursor: pointer;">
                         <div class="card-body text-center p-0">
                             <h2><span class="{{ element.icon }}"></span></h2>
-                            <h6>{{ elementName|trans }}</h6>
+                            <h6>{{ elementName|trans({}, 'messages') }}</h6>
                         </div>
                     </div>
                 </div>

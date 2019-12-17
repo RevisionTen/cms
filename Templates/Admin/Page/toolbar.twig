@@ -12,7 +12,7 @@
             {% if aliases is defined and aliases is iterable and aliases|length > 0 %}
                 <div class="dropdown">
                     <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <span class="fas fa-link"></span> <span class="label-text">{{ 'Aliases'|trans }}</span>
+                        <span class="fas fa-link"></span> <span class="label-text">{{ 'admin.label.aliases'|trans({}, 'cms') }}</span>
                     </button>
                     <div class="dropdown-menu">
                         {% set port = app.request.port and app.request.port != '80' and app.request.port != '443' ? ':' ~ app.request.port : null %}
@@ -34,13 +34,13 @@
                 {% else %}
                     {% set color = 'info' %}
                 {% endif %}
-                <span class="text-muted">{{ 'Page'|trans }}</span> {{ title }} <small class="text-{{ color }}">({{ state|capitalize|trans }})</small> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'viewed as %username%'|trans({'%username%': user.username})|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
+                <span class="text-muted">{{ 'admin.label.page'|trans({}, 'cms') }}</span> {{ title }} <small class="text-{{ color }}">({{ ('admin.label.'~state)|trans({}, 'cms') }})</small> <small class="text-muted">{% if previewUser %}<br/><a class="label label-primary" href="{{ path('cms_edit_aggregate', {id: id}) }}"><span style="text-transform: none;">{{ 'admin.label.viewedAs'|trans({'%username%': user.username}, 'cms')|raw }} <span class="fas fa-times"></span></span></a>{% endif %}</small>
             </span>
 
             {% if actions.schedule.display %}
                 <div class="dropdown">
                     <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="fas fa-clock"></span> <span class="label-text">{{ 'Schedule'|trans }}</span>
+                        <span class="fas fa-clock"></span> <span class="label-text">{{ 'admin.label.schedule'|trans({}, 'cms') }}</span>
                     </button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item {{ actions.schedule.css_class }}" {{ actions.schedule.attributes is defined ? helper.attributes(actions.schedule.attributes) : '' }} title="{{ actions.schedule.label }}" {{ actions.schedule.type == 'form' ? 'data-target=modal' : 'data-target='~actions.schedule.type~'' }} target="_top" href="{{ actions.schedule.url }}">
@@ -48,13 +48,13 @@
                         </a>
                         {% for scheduleUuid, scheduleEntry in schedule %}
                             <a class="dropdown-item" data-target="ajax" href="{{ path('cms_remove_schedule', {'pageUuid': uuid, 'scheduleUuid': scheduleUuid, 'version': version}) }}">
-                                <span class="fas fa-times"></span> {{ 'Remove schedule'|trans }}:
+                                <span class="fas fa-times"></span> {{ 'admin.label.removeSchedule'|trans({}, 'cms') }}:
                                 <small>
                                     {% if scheduleEntry.startDate %}
-                                        &nbsp;{{ 'Publish on %date%'|trans({'%date%': scheduleEntry.startDate|date('d.m.Y H:i')}) }}
+                                        &nbsp;{{ 'admin.label.publishOn'|trans({'%date%': scheduleEntry.startDate|date('d.m.Y H:i')}, 'cms') }}
                                     {% endif %}
                                     {% if scheduleEntry.endDate %}
-                                        &nbsp;{{ 'Unpublish on %date%'|trans({'%date%': scheduleEntry.endDate|date('d.m.Y H:i')}) }}
+                                        &nbsp;{{ 'admin.label.unpublishOn'|trans({'%date%': scheduleEntry.endDate|date('d.m.Y H:i')}, 'cms') }}
                                     {% endif %}
                                 </small>
                             </a>
@@ -78,18 +78,18 @@
                     } %}
                     <div class="dropdown">
                         <button title="{{ previewSize|trans }}" class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="{{ deviceIcons[previewSize] }}"></span> <span class="label-text">{{ previewSize|trans }}</span>
+                            <span class="{{ deviceIcons[previewSize] }}"></span> <span class="label-text">{{ ('admin.label.'~previewSize)|trans({}, 'cms') }}</span>
                         </button>
                         <div class="dropdown-menu">
                             {% set route = 'cms_edit_aggregate' %}
                             {% set queries = app.request.query.all %}
                             {% set queries = queries|merge({'id': id}) %}
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'AutoWidth'|trans }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'xs'|trans }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'sm'|trans }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'md'|trans }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'lg'|trans }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'xl'|trans }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'admin.label.autoWidth'|trans({}, 'cms') }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'admin.label.xs'|trans({}, 'cms') }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'admin.label.sm'|trans({}, 'cms') }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'admin.label.md'|trans({}, 'cms') }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'admin.label.lg'|trans({}, 'cms') }}</a>
+                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'admin.label.xl'|trans({}, 'cms') }}</a>
                         </div>
                     </div>
                 {% endif %}
@@ -118,7 +118,7 @@
                         actions.discard_changes
                         ] %}
                         <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'History'|trans }}</span>
+                            <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'admin.label.history'|trans({}, 'cms') }}</span>
                         </button>
                         <div class="dropdown-menu">
                             {% for action in historyActions %}
@@ -175,7 +175,7 @@
             </div>
             <div class="col-auto">
                 <div class="pl-3 qeued-user-text">
-                    {{ 'User <strong>%username%</strong> <br/>has <strong>%count%</strong> qeued events'|trans({'%username%': user.username, '%count%': count})|raw }}
+                    {{ 'admin.label.otherUserHasEvents'|trans({'%username%': user.username, '%count%': count}, 'cms')|raw }}
                 </div>
             </div>
         </a>

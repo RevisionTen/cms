@@ -1,9 +1,0 @@
-{% if edit %}
-    <div class="editor button-group p-1 border border-dark">
-        <div class="row justify-content-center">
-            <div class="col-auto">
-                <a data-target="modal" class="btn btn-sm text-dark" target="_top" href="{{ path('cms_create_element', {elementName: 'Row', pageUuid: page.uuid, onVersion: page.version, parent: element.uuid}) }}"><span class="fa fa-window-maximize"></span> {{ 'Add Row'|trans }}</a>
-            </div>
-        </div>
-    </div>
-{% endif %}

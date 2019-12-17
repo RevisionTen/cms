@@ -11,13 +11,15 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Form extends Element
 {
-    /** @var \Doctrine\ORM\EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
     /**
      * Form constructor.
      *
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -26,6 +28,9 @@ class Form extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -33,7 +38,9 @@ class Form extends Element
 
         $choices = [];
 
-        /** @var FormRead[] $forms */
+        /**
+         * @var FormRead[] $forms
+         */
         $forms = $this->entityManager->getRepository(FormRead::class)->findBy(['deleted' => false]);
         if ($forms) {
             foreach ($forms as $form) {
@@ -42,8 +49,10 @@ class Form extends Element
         }
 
         $builder->add('formUuid', ChoiceType::class, [
-            'label' => 'Please choose the Form you want to show.',
+            'label' => 'element.label.formUuid',
+            'translation_domain' => 'cms',
             'choices' => $choices,
+            'choice_translation_domain' => 'messages',
             'attr' => [
                 'class' => 'custom-select',
             ],
@@ -52,6 +61,8 @@ class Form extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

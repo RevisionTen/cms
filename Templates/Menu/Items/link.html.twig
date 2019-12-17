@@ -23,7 +23,7 @@
             {% endif %}
             class="{{ itemClasses|join(' ') }}"
             href="{{ item.data.url }}"
-            aria-label="{{ 'Read more about "%title%"'|trans({'%title%': item.data.title|striptags}) }}"
+            aria-label="{{ 'admin.label.readMoreAbout'|trans({'%title%': item.data.title|striptags}, 'cms') }}"
         >
             {{ item.data.title|raw }}
         </a>

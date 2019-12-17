@@ -12,13 +12,17 @@ class Images extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('images', CollectionType::class, [
-            'label' => 'Images',
+            'label' => 'element.label.images',
+            'translation_domain' => 'cms',
             'entry_type' => ImageType::class,
             'entry_options' => [
                 'attr' => [
@@ -32,6 +36,8 @@ class Images extends Element
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

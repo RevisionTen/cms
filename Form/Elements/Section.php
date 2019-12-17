@@ -11,18 +11,24 @@ class Section extends Element
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder->add('section', TextType::class, [
-            'label' => 'Choose to which layout section this section belongs.',
+            'label' => 'element.label.section',
+            'translation_domain' => 'cms',
         ]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

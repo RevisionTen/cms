@@ -15,31 +15,38 @@ class LocalBusinessMetaType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('name', TextType::class, [
-            'label' => 'Business name',
+            'label' => 'localBusinessMeta.label.name',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
         ]);
 
         $builder->add('image', UploadType::class, [
-            'label' => 'Business Locality Image',
+            'label' => 'localBusinessMeta.label.image',
+            'translation_domain' => 'cms',
             'required' => true,
         ]);
 
         $builder->add('telephone', TextType::class, [
-            'label' => 'Phone',
+            'label' => 'localBusinessMeta.label.telephone',
+            'translation_domain' => 'cms',
             'required' => true,
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'A business phone number meant to be the primary contact method for customers. Be sure to include the country code and area code in the phone number.',
+                'placeholder' => 'localBusinessMeta.placeholder.telephone',
             ],
         ]);
 
         $builder->add('address', AddressType::class, [
-            'label' => 'Address',
+            'label' => 'localBusinessMeta.label.address',
+            'translation_domain' => 'cms',
             'required' => true,
             'attr' => [
                 'class' => 'well',
@@ -47,7 +54,8 @@ class LocalBusinessMetaType extends AbstractType
         ]);
 
         $builder->add('geo', GeoType::class, [
-            'label' => 'Geo',
+            'label' => 'localBusinessMeta.label.geo',
+            'translation_domain' => 'cms',
             'required' => false,
             'attr' => [
                 'class' => 'well',
@@ -56,7 +64,8 @@ class LocalBusinessMetaType extends AbstractType
 
         $builder->add('openingHoursSpecification', CollectionType::class, [
             'required' => false,
-            'label' => 'Opening hours',
+            'label' => 'localBusinessMeta.label.openingHoursSpecification',
+            'translation_domain' => 'cms',
             'entry_type' => OpeningHoursSpecificationType::class,
             'entry_options' => [
                 'label' => false,
@@ -74,7 +83,8 @@ class LocalBusinessMetaType extends AbstractType
 
         $builder->add('department', CollectionType::class, [
             'required' => false,
-            'label' => 'Departments',
+            'label' => 'localBusinessMeta.label.department',
+            'translation_domain' => 'cms',
             'entry_type' => DepartmentType::class,
             'entry_options' => [
                 'label' => false,

@@ -13,14 +13,16 @@ class ElementSettings extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $helpHtml = '<div class="row w-100"><div class="col-xs-4 col-4">Extra Small = 0.25 x text height<br/> Small = 0.5 x text height</div><div class="col-xs-4 col-4">Medium = 1 x text height<br/> Big = 1.5 x text height</div><div class="col-xs-4 col-4">Extra Big = 3 x text height<br/> Huge = 6 x text height</div></div>';
-
         $builder->add('paddings', CollectionType::class, [
             'required' => false,
-            'label' => 'Padding',
+            'label' => 'element.label.paddings',
+            'translation_domain' => 'cms',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,
@@ -34,7 +36,7 @@ class ElementSettings extends AbstractType
             'attr' => [
                 'class' => 'well',
             ],
-            'help' => $helpHtml,
+            'help' => 'element.help.spacing',
             'help_html' => true,
             'help_attr' => [
                 'class' => 'w-100',
@@ -43,7 +45,8 @@ class ElementSettings extends AbstractType
 
         $builder->add('margins', CollectionType::class, [
             'required' => false,
-            'label' => 'Margin',
+            'label' => 'element.label.margins',
+            'translation_domain' => 'cms',
             'entry_type' => SpacingType::class,
             'entry_options' => [
                 'label' => false,
@@ -57,7 +60,7 @@ class ElementSettings extends AbstractType
             'attr' => [
                 'class' => 'well',
             ],
-            'help' => $helpHtml,
+            'help' => 'element.help.spacing',
             'help_html' => true,
             'help_attr' => [
                 'class' => 'w-100',
@@ -67,6 +70,8 @@ class ElementSettings extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function getBlockPrefix(): string
     {

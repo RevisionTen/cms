@@ -1,10 +1,10 @@
 <div style="max-height: 500px;overflow-y: auto;" class="w-100">
     <table class="table table-condensed table-bordered table-striped table-sm m-0 p-0 w-100">
         <tr>
-            <th>{{ 'Title'|trans }}</th>
-            <th>{{ 'MimeType'|trans }}</th>
-            <th>{{ 'Size'|trans }}</th>
-            <th>{{ 'Actions'|trans }}</th>
+            <th>{{ 'admin.label.title'|trans({}, 'cms') }}</th>
+            <th>{{ 'admin.label.mimeType'|trans({}, 'cms') }}</th>
+            <th>{{ 'admin.label.size'|trans({}, 'cms') }}</th>
+            <th>{{ 'admin.label.actions'|trans({}, 'cms') }}</th>
         </tr>
         {% for file in files %}
             <tr>
@@ -18,7 +18,7 @@
                 <td>
                     <a href="#" data-title="{{ file.title }}" data-uuid="{{ file.uuid }}" data-version="{{ file.version }}" class="btn-file-select">
                         <span class="far fa-check-square"></span>
-                        <strong>{{ 'Select'|trans }}</strong>
+                        <strong>{{ 'admin.btn.select'|trans({}, 'cms') }}</strong>
                     </a>
                 </td>
             </tr>

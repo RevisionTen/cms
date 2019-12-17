@@ -8,9 +8,9 @@
             <div class="embed-responsive-item bg-light d-flex justify-content-center align-items-center" >
                 <div class="text-center">
                     <p class="small">
-                        {{ 'This video is embedded from Youtube. <br>Googles <a target="_blank" href="%link%">privacy policy</a> applies.'|trans({'%link%': 'https://policies.google.com/privacy?hl=de&amp;gl=de'})|raw }}
+                        {{ 'admin.label.youtubeEmbedWarning'|trans({'%link%': 'https://policies.google.com/privacy?hl=de&amp;gl=de'}, 'cms')|raw }}
                     </p>
-                    <button class="btn btn-primary" onclick="document.getElementById('{{ id }}').innerHTML = '{{ iframeMarkup }}'">{{ 'Enable Video'|trans }}</button>
+                    <button class="btn btn-primary" onclick="document.getElementById('{{ id }}').innerHTML = '{{ iframeMarkup }}'">{{ 'admin.label.enableVideo'|trans({}, 'cms') }}</button>
                 </div>
             </div>
         {% else %}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\DataCollector;
 
 use Exception;
+use RevisionTen\CQRS\Message\Message;
 use RevisionTen\CQRS\Services\MessageBus;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,17 +13,29 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CmsCollector extends DataCollector
 {
-    /** @var MessageBus */
+    /**
+     * @var MessageBus
+     */
     protected $messageBus;
 
+    /**
+     * CmsCollector constructor.
+     *
+     * @param MessageBus $messageBus
+     */
     public function __construct(MessageBus $messageBus)
     {
         $this->messageBus = $messageBus;
     }
 
+    /**
+     * @param Request        $request
+     * @param Response       $response
+     * @param Exception|null $exception
+     */
     public function collect(Request $request, Response $response, Exception $exception = null): void
     {
-        /** @var \RevisionTen\CQRS\Message\Message[] $messages */
+        /** @var Message[] $messages */
         $messages = $this->messageBus->getMessages();
 
         $messagesData = [];
@@ -43,16 +56,27 @@ class CmsCollector extends DataCollector
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function reset(): void
     {
         $this->data = [];
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return string
+     */
     public function getName(): string
     {
         return 'cms.cms_collector';
     }
 
+    /**
+     * @return mixed
+     */
     public function getMessages()
     {
         return $this->data['messages'];

@@ -1,1 +1,1 @@
-{{ (value ? value : 'all websites')|trans }}
+{{ value ? value|trans : ('admin.label.allWebsites'|trans({}, 'cms')) }}
