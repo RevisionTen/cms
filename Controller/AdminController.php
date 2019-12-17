@@ -63,9 +63,14 @@ class AdminController extends AbstractController
      */
     public function websiteChooser(RequestStack $requestStack): Response
     {
+        /**
+         * @var UserRead $user
+         */
+        $user = $this->getUser();
+
         $request = $requestStack->getMasterRequest();
         $currentWebsite = $request ? $request->get('currentWebsite') : null;
-        $websites = $this->getUser()->getWebsites();
+        $websites = $user->getWebsites();
 
         return $this->render('@cms/Admin/Website/chooser.html.twig', [
             'currentWebsite' => $currentWebsite,
@@ -196,9 +201,9 @@ class AdminController extends AbstractController
         } elseif ($menuRead) {
             $title = $translator->trans($menuRead->getTitle());
         } elseif ($fileRead) {
-            $title = $translator->trans($fileRead->getTitle());
+            $title = $fileRead->getTitle();
         } elseif ($roleRead) {
-            $title = $translator->trans($roleRead->getTitle());
+            $title = $roleRead->getTitle();
         }
 
         return new Response($title);

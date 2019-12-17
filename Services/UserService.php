@@ -16,13 +16,19 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class UserService
 {
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     protected $em;
 
-    /** @var AggregateFactory */
+    /**
+     * @var AggregateFactory
+     */
     protected $aggregateFactory;
 
-    /** @var SecretService */
+    /**
+     * @var SecretService
+     */
     protected $secretService;
 
     /**

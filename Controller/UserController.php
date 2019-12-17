@@ -64,8 +64,9 @@ class UserController extends AbstractController
         if (empty($userRead->getUuid())) {
             $this->addFlash(
                 'danger',
-                $translator->trans('User needs to be migrated')
+                $translator->trans('admin.help.userNeedsMigration', [], 'cms')
             );
+
             return $this->redirectToUsers();
         }
 
@@ -102,17 +103,20 @@ class UserController extends AbstractController
         ]);
 
         $formBuilder->add('avatarUrl', TextType::class, [
-            'label' => 'Avatar Url',
+            'label' => 'admin.label.avatarUrl',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $formBuilder->add('color', ColorType::class, [
-            'label' => 'Color',
+            'label' => 'admin.label.color',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $formBuilder->add('websites', ChoiceType::class, [
-            'label' => 'Website',
+            'label' => 'admin.label.websites',
+            'translation_domain' => 'cms',
             'choices' => $websites,
             'multiple' => true,
             'expanded' => true,
@@ -120,15 +124,18 @@ class UserController extends AbstractController
         ]);
 
         $formBuilder->add('roles', ChoiceType::class, [
-            'label' => 'Roles',
+            'label' => 'admin.label.roles',
+            'translation_domain' => 'cms',
             'choices' => $roles,
+            'choice_translation_domain' => 'messages',
             'multiple' => true,
             'expanded' => true,
             'required' => false,
         ]);
 
         $formBuilder->add('submit', SubmitType::class, [
-            'label' => 'Save user',
+            'label' => 'admin.btn.saveUser',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],
@@ -154,12 +161,12 @@ class UserController extends AbstractController
 
             $this->addFlash(
                 'success',
-                $translator->trans('User edited')
+                $translator->trans('admin.label.userEditSuccess', [], 'cms')
             );
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Edit user',
+            'title' => $translator->trans('admin.label.editUser', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }

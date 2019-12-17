@@ -1,6 +1,6 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
-{% block page_title %}{{ 'Edit Page %title%'|trans({'%title%': pageStreamRead.title}) }}{% endblock %}
+{% block page_title %}{{ 'admin.label.editPage'|trans({'%title%': pageStreamRead.title}, 'cms') }}{% endblock %}
 
 {% block content_header %}
     <div id="admin-bar" class="w-100"></div>

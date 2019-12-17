@@ -2,23 +2,23 @@
 {% if hours < 1 %}
     {% set minutes = ((date().timestamp - event.created.timestamp)/60)|round(0) %}
     {% if minutes < 1 %}
-        {{ 'Event happened just now'|trans }}
+        {{ 'admin.label.eventNow'|trans({}, 'cms') }}
     {% elseif minutes == 1 %}
-        {{ 'Event happened 1 minute ago'|trans }}
+        {{ 'admin.label.event1MinuteAgo'|trans({}, 'cms') }}
     {% else %}
-        {{ 'Event happened %minutes% minutes ago'|trans({'%minutes%': minutes}) }}
+        {{ 'admin.label.eventSomeMinutesAgo'|trans({'%minutes%': minutes}, 'cms') }}
     {% endif %}
 {% elseif hours < 24 %}
     {% if hours == 1 %}
-        {{ 'Event happened 1 hour ago'|trans }}
+        {{ 'admin.label.event1HourAgo'|trans({}, 'cms') }}
     {% else %}
-        {{ 'Event happened %hours% hours ago'|trans({'%hours%': hours}) }}
+        {{ 'admin.label.eventSomeHoursAgo'|trans({'%hours%': hours}, 'cms') }}
     {% endif %}
 {% else %}
     {% set days = (hours/24)|round(0) %}
     {% if days == 1 %}
-        {{ 'Event happened 1 day ago'|trans }}
+        {{ 'admin.label.event1DayAgo'|trans({}, 'cms') }}
     {% else %}
-        {{ 'Event happened %days% days ago'|trans({'%days%': days}) }}
+        {{ 'admin.label.eventSomeDaysAgo'|trans({'%days%': days}, 'cms') }}
     {% endif %}
 {% endif %}

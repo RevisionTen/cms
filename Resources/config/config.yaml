@@ -71,6 +71,7 @@ gregwar_image:
     web_dir: "%kernel.project_dir%/public"
 
 easy_admin:
+    translation_domain: 'cms'
     site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
     design:
         menu: '%cms.admin_menu%'
@@ -91,14 +92,13 @@ easy_admin:
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
                 - 'bundles/cms/js/admin-backend.js?v=%cms.version%'
-
     formats:
         date:     'd.m.Y'
         time:     'H:i'
         datetime: 'd.m.Y H:i'
     entities:
         Alias:
-            label: 'Paths'
+            label: 'admin.label.aliases'
             class: RevisionTen\CMS\Model\Alias
             permissions:
                 list: 'alias_list'
@@ -108,28 +108,25 @@ easy_admin:
                 delete: 'alias_delete'
             list:
                 actions:
-                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
-                    - { name: 'delete', label: '', title: 'Delete', icon: 'trash', css_class: 'text-danger' }
+                    - { name: 'edit', label: '', title: 'admin.btn.edit', icon: 'edit' }
+                    - { name: 'delete', label: '', title: 'admin.btn.delete', icon: 'trash', css_class: 'text-danger' }
                 fields:
-                    #- 'uuid'
-                    - 'id'
-                    - { property: 'enabled', type: 'boolean' }
-                    - { property: 'path', template: '@cms/Admin/Alias/List/path.html.twig' }
-                    - { property: 'language', template: '@cms/Admin/Alias/List/language.html.twig' }
-                    #- { property: 'website', template: '@cms/Admin/Alias/List/website.html.twig' }
-                    - { property: 'pageStreamRead', type: 'object', template: '@cms/Admin/Alias/List/page.html.twig' }
-                    #- { property: 'controller', template: '@cms/Admin/Alias/List/controller.html.twig' }
-                    - { property: 'redirect', label: '404 Redirect', template: '@cms/Admin/Alias/List/redirect.html.twig' }
-                    - { property: 'priority', label: 'Search Engine Priority', template: '@cms/Admin/Alias/List/priority.html.twig' }
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'enabled', label: 'admin.label.enabled', type: 'boolean' }
+                    - { property: 'path', label: 'admin.label.path', template: '@cms/Admin/Alias/List/path.html.twig' }
+                    - { property: 'language', label: 'admin.label.language', template: '@cms/Admin/Alias/List/language.html.twig' }
+                    - { property: 'pageStreamRead', label: 'admin.label.page', type: 'object', template: '@cms/Admin/Alias/List/page.html.twig' }
+                    - { property: 'redirect', label: 'admin.label.redirect', template: '@cms/Admin/Alias/List/redirect.html.twig' }
+                    - { property: 'priority', label: 'admin.label.priority', template: '@cms/Admin/Alias/List/priority.html.twig' }
             form:
                 fields:
-                    - 'path'
-                    - { property: 'language', type: 'choice', type_options: { choices: '%cms.page_languages%', attr: { class: 'custom-select' } } }
-                    - 'pageStreamRead'
-                    - 'redirect'
-                    - { property: 'priority', label: 'Search Engine Priority', type: 'choice', type_options: { choices: { 'Very low': 0.1, 'Low': 0.3, 'Normal': 0.5, 'High': 0.6, 'Very high': 1 }, attr: { class: 'custom-select' } } }
+                    - { property: 'path', label: 'admin.label.path' }
+                    - { property: 'language', label: 'admin.label.language', type: 'choice', type_options: { choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
+                    - { property: 'pageStreamRead', label: 'admin.label.page' }
+                    - { property: 'redirect', label: 'admin.label.redirect' }
+                    - { property: 'priority', label: 'admin.label.priority', type: 'choice', type_options: { choices: { 'admin.label.veryLow': 0.1, 'admin.label.low': 0.3, 'admin.label.normal': 0.5, 'admin.label.high': 0.6, 'admin.label.veryHigh': 1 }, attr: { class: 'custom-select' } } }
         Website:
-            label: 'Websites'
+            label: 'admin.label.websites'
             class: RevisionTen\CMS\Model\Website
             permissions:
                 list: 'website_list'
@@ -138,24 +135,23 @@ easy_admin:
                 edit: 'website_edit'
             list:
                 actions:
-                    - { name: 'edit', label: '', title: 'Edit', icon: 'edit' }
+                    - { name: 'edit', label: '', title: 'admin.btn.edit', icon: 'edit' }
                     - '-delete'
                 fields:
-                    #- 'uuid'
-                    - 'title'
-                    - 'defaultLanguage'
-                    - 'users'
-                    - 'domains'
-                    - 'aliases'
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage' }
+                    - { property: 'users', label: 'admin.label.users' }
+                    - { property: 'domains', label: 'admin.label.domains' }
+                    - { property: 'aliases', label: 'admin.label.aliases' }
             form:
                 fields:
-                    - { property: 'title', type: 'text' }
-                    - { property: 'siteVerification', type: 'text', label: 'Google Site Verification Meta-Tag' }
-                    - { property: 'defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%', attr: { class: 'custom-select' } } }
-                    - { property: 'domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
-                    - { property: 'errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { multiple: true, class: 'RevisionTen\CMS\Model\PageStreamRead' } }
+                    - { property: 'title', label: 'admin.label.title', type: 'text' }
+                    - { property: 'siteVerification', label: 'admin.label.siteVerification', type: 'text' }
+                    - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage', type: 'choice', type_options: { choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
+                    - { property: 'domains', label: 'admin.label.domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
+                    - { property: 'errorPages', label: 'admin.label.errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { multiple: true, class: 'RevisionTen\CMS\Model\PageStreamRead' } }
         PageStreamRead:
-            label: 'Pages'
+            label: 'admin.label.pages'
             class: RevisionTen\CMS\Model\PageStreamRead
             permissions:
                 list: 'page_list'
@@ -168,32 +164,27 @@ easy_admin:
                 list: '@cms/Admin/Page/list.html.twig'
             list:
                 filters:
-                    - property: 'template'
-                      label: 'Page template'
-                      type: 'RevisionTen\CMS\Form\Filter\TemplateFilterType'
-                    - 'published'
-                    - property: 'language'
-                      type: 'RevisionTen\CMS\Form\Filter\LanguageFilterType'
+                    - { property: 'template', label: 'admin.label.template', type: 'RevisionTen\CMS\Form\Filter\TemplateFilterType'}
+                    - { property: 'published', label: 'admin.label.published' }
+                    - { property: 'language', label: 'admin.label.language', type: 'RevisionTen\CMS\Form\Filter\LanguageFilterType' }
                 sort: ['modified', 'DESC']
                 actions:
-                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'page_edit' }
-                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'Clone page', icon: 'clone', permission: 'page_clone' }
-                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'Delete page', icon: 'trash', css_class: 'text-danger', permission: 'page_delete' }
+                    - { name: 'cms_edit_aggregate', type: 'route', label: '', title: 'admin.btn.edit', icon: 'edit', permission: 'page_edit' }
+                    - { name: 'cms_clone_aggregate', type: 'route', label: '', title: 'admin.btn.duplicate', icon: 'clone', permission: 'page_clone' }
+                    - { name: 'cms_delete_aggregate', type: 'route', label: '', title: 'admin.btn.delete', icon: 'trash', css_class: 'text-danger', permission: 'page_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    #- 'uuid'
-                    - { property: 'title', css_class: 'title-truncate' }
-                    - 'version'
-                    - 'language'
-                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
-                    - { property: 'published', label: 'State', template: '@cms/Admin/Page/List/published.html.twig' }
-                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'modified', type: 'datetime' }
+                    - { property: 'title', label: 'admin.label.title', css_class: 'title-truncate' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'language', label: 'admin.label.language' }
+                    - { property: 'published', label: 'admin.label.published', template: '@cms/Admin/Page/List/published.html.twig' }
+                    - { property: 'template', label: 'admin.label.template', template: '@cms/Admin/Page/List/template.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }
         PageStreamReadArchive:
-            label: 'Archive'
+            label: 'admin.label.archive'
             class: RevisionTen\CMS\Model\PageStreamRead
             permissions:
                 list: 'page_list'
@@ -209,17 +200,15 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    #- 'uuid'
-                    - { property: 'title', css_class: 'title-truncate' }
-                    - 'version'
-                    - 'language'
-                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
-                    - { property: 'published', label: 'State', template: '@cms/Admin/Page/List/published.html.twig' }
-                    - { property: 'template', label: "Page template", template: '@cms/Admin/Page/List/template.html.twig' }
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'modified', type: 'datetime' }
+                    - { property: 'title', label: 'admin.label.title', css_class: 'title-truncate' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'language', label: 'admin.label.language' }
+                    - { property: 'published', label: 'admin.label.published', template: '@cms/Admin/Page/List/published.html.twig' }
+                    - { property: 'template', label: 'admin.label.template', template: '@cms/Admin/Page/List/template.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }
         EventStreamObject:
-            label: 'Log'
+            label: 'admin.label.log'
             class: RevisionTen\CQRS\Model\EventStreamObject
             permissions:
                 list: 'event_list'
@@ -230,23 +219,23 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
+                    - { property: 'payload', label: 'admin.label.payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
             list:
-                help: 'This list shows all persisted events.'
+                help: 'admin.help.log'
                 sort: ['created', 'DESC']
                 actions:
-                    - { name: 'show', label: '', title: 'inspect payload', icon: 'eye' }
+                    - { name: 'show', label: '', title: 'admin.btn.show', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'uuid', label: 'Title', template: '@cms/Admin/User/List/uuid.html.twig' }
-                    - { property: 'message', label: 'Message', template: '@cms/Admin/Event/List/message.html.twig' }
-                    - 'version'
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'user', template: '@cms/Admin/User/List/small.html.twig' }
+                    - { property: 'uuid', label: 'admin.label.title', template: '@cms/Admin/User/List/uuid.html.twig' }
+                    - { property: 'message', label: 'admin.label.message', template: '@cms/Admin/Event/List/message.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'user', label: 'admin.label.user', template: '@cms/Admin/User/List/small.html.twig' }
         Task:
-            label: 'Tasks'
+            label: 'admin.label.tasks'
             class: RevisionTen\CMS\Model\Task
             permissions:
                 list: 'task_list'
@@ -257,27 +246,27 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - 'uuid'
-                    - 'aggregateUuid'
-                    - 'command'
-                    - { property: 'due', type: 'datetime' }
-                    - { property: 'payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
-                    - { property: 'resultMessage', template: '@cms/Admin/Event/Show/payload.html.twig' }
+                    - { property: 'uuid', label: 'admin.label.uuid' }
+                    - { property: 'aggregateUuid', label: 'admin.label.aggregateUuid' }
+                    - { property: 'command', label: 'admin.label.command' }
+                    - { property: 'due', label: 'admin.label.due', type: 'datetime' }
+                    - { property: 'payload', label: 'admin.label.payload', template: '@cms/Admin/Event/Show/payload.html.twig' }
+                    - { property: 'resultMessage', label: 'admin.label.resultMessage', template: '@cms/Admin/Event/Show/payload.html.twig' }
             list:
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', label: '', title: 'inspect payload', icon: 'eye' }
+                    - { name: 'show', label: '', title: 'admin.btn.show', icon: 'eye' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - 'uuid'
-                    - 'command'
-                    - { property: 'due', type: 'datetime' }
-                    - { property: 'resultMessage', label: 'Executed', template: '@cms/Admin/Task/List/result-message.html.twig' }
+                    - { property: 'uuid', label: 'admin.label.uuid' }
+                    - { property: 'command', label: 'admin.label.command' }
+                    - { property: 'due', label: 'admin.label.due', type: 'datetime' }
+                    - { property: 'resultMessage', label: 'admin.label.resultMessage', template: '@cms/Admin/Task/List/result-message.html.twig' }
         UserRead:
-            label: 'Users'
+            label: 'admin.label.users'
             class: RevisionTen\CMS\Model\UserRead
             permissions:
                 list: 'user_list'
@@ -289,26 +278,26 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
-                    - { property: 'username' }
-                    - { property: 'email' }
-                    - { property: 'devices' }
-                    - { property: 'ips' }
+                    - { property: 'id', label: 'admin.label.avatar', template: '@cms/Admin/User/List/medium.html.twig' }
+                    - { property: 'username', label: 'admin.label.username' }
+                    - { property: 'email', label: 'admin.label.email' }
+                    - { property: 'devices', label: 'admin.label.devices' }
+                    - { property: 'ips', label: 'admin.label.ips' }
             list:
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', title: 'View', label: '', icon: 'eye', permission: 'user_show' }
-                    - { name: 'cms_user_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'user_edit' }
+                    - { name: 'show', title: 'admin.btn.show', label: '', icon: 'eye', permission: 'user_show' }
+                    - { name: 'cms_user_edit', title: 'admin.btn.edit', type: 'route', label: '', icon: 'edit', permission: 'user_edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'id', label: 'Avatar', template: '@cms/Admin/User/List/medium.html.twig' }
-                    - { property: 'username', label: 'Username' }
-                    - { property: 'email', label: 'Email' }
-                    - { property: 'roles', label: 'Roles', template: '@cms/Admin/User/List/roles.html.twig' }
+                    - { property: 'id', label: 'admin.label.avatar', template: '@cms/Admin/User/List/medium.html.twig' }
+                    - { property: 'username', label: 'admin.label.username' }
+                    - { property: 'email', label: 'admin.label.email' }
+                    - { property: 'roles', label: 'admin.label.roles', template: '@cms/Admin/User/List/roles.html.twig' }
         RoleRead:
-            label: 'Roles'
+            label: 'admin.label.roles'
             class: RevisionTen\CMS\Model\RoleRead
             permissions:
                 list: 'role_list'
@@ -323,20 +312,20 @@ easy_admin:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'title' }
-                    - { property: 'permissions' }
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'permissions', label: 'admin.label.permissions' }
             list:
                 sort: ['id', 'DESC']
                 actions:
-                    - { name: 'show', title: 'View', label: '', icon: 'eye' }
-                    - { name: 'cms_role_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'role_edit' }
+                    - { name: 'show', title: 'admin.btn.show', label: '', icon: 'eye' }
+                    - { name: 'cms_role_edit', title: 'admin.btn.edit', type: 'route', label: '', icon: 'edit', permission: 'role_edit' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'title', label: 'Title' }
+                    - { property: 'title', label: 'admin.label.title' }
         FormRead:
-            label: 'Forms'
+            label: 'admin.label.forms'
             class: RevisionTen\Forms\Model\FormRead
             permissions:
                 list: 'form_list'
@@ -351,20 +340,20 @@ easy_admin:
                 sort: ['modified', 'DESC']
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
-                    - { name: 'forms_submissions_download', type: 'route', title: 'Download form submissions', label: '', icon: 'download', permission: 'form_submissions' }
-                    - { name: 'forms_edit_aggregate', type: 'route', title: 'edit form', label: '', icon: 'edit', permission: 'form_edit' }
-                    - { name: 'forms_clone_aggregate', type: 'route', title: 'clone form', label: '', icon: 'clone', permission: 'form_clone' }
-                    - { name: 'forms_delete_aggregate', type: 'route', title: 'delete form', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
+                    - { name: 'forms_submissions_download', type: 'route', title: 'admin.btn.submissionsDownload', label: '', icon: 'download', permission: 'form_submissions' }
+                    - { name: 'forms_edit_aggregate', type: 'route', title: 'admin.btn.edit', label: '', icon: 'edit', permission: 'form_edit' }
+                    - { name: 'forms_clone_aggregate', type: 'route', title: 'admin.btn.duplicate', label: '', icon: 'clone', permission: 'form_clone' }
+                    - { name: 'forms_delete_aggregate', type: 'route', title: 'admin.btn.delete', label: '', icon: 'trash', css_class: 'text-danger', permission: 'form_delete' }
                     - '-new'
                     - '-edit'
                     - '-delete'
                 fields:
-                    - 'title'
-                    - 'version'
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'modified', type: 'datetime' }
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }
         FormSubmission:
-            label: 'Submissions'
+            label: 'admin.label.submissions'
             class: RevisionTen\Forms\Model\FormSubmission
             permissions:
                 list: 'form_submissions'
@@ -373,33 +362,33 @@ easy_admin:
                 delete: 'form_submissions_delete'
             list:
                 filters:
-                    - 'form'
-                    - 'toEmail'
-                    - 'opened'
+                    - { property: 'form', label: 'admin.label.form' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail' }
+                    - { property: 'opened', label: 'admin.label.opened' }
                 actions:
-                    - 'show'
+                    - { name: 'show', label: 'admin.btn.show' }
                     - '-new'
                     - '-edit'
                 fields:
-                    - 'id'
-                    - 'toEmail'
-                    - { property: 'form', type: 'string' }
-                    - { property: 'opened', template: '@forms/Admin/submission-opened.html.twig' }
-                    - { property: 'created', type: 'datetime' }
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail' }
+                    - { property: 'form', label: 'admin.label.form', type: 'string' }
+                    - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
             show:
                 actions:
                     - '-edit'
                 fields:
-                    - 'id'
-                    - { property: 'toEmail', type: 'string' }
-                    - { property: 'ccEmail', type: 'string' }
-                    - { property: 'bccEmail', type: 'string' }
-                    - { property: 'form', type: 'string' }
-                    - { property: 'opened', template: '@forms/Admin/submission-opened.html.twig' }
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'payload', template: '@forms/Admin/submission-payload.html.twig' }
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail', type: 'string' }
+                    - { property: 'ccEmail', label: 'admin.label.ccEmail', type: 'string' }
+                    - { property: 'bccEmail', label: 'admin.label.bccEmail', type: 'string' }
+                    - { property: 'form', label: 'admin.label.form', type: 'string' }
+                    - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'payload', label: 'admin.label.payload', template: '@forms/Admin/submission-payload.html.twig' }
         MenuRead:
-            label: 'Menus'
+            label: 'admin.label.menus'
             class: RevisionTen\CMS\Model\MenuRead
             permissions:
                 list: 'menu_list'
@@ -414,14 +403,13 @@ easy_admin:
                     - '-new'
                     - '-edit'
                     - '-delete'
-                    - { name: 'cms_edit_menu', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'menu_edit' }
+                    - { name: 'cms_edit_menu', type: 'route', title: 'admin.btn.edit', label: '', icon: 'edit', permission: 'menu_edit' }
                 fields:
-                    - { property: 'title', label: 'Menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
-                    - 'version'
-                    - 'language'
-                    #- { property: 'website', template: '@cms/Admin/Website/List/website.html.twig' }
+                    - { property: 'title', label: 'admin.label.menu', css_class: 'title-truncate', template: '@cms/Admin/Menu/List/title.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'language', label: 'admin.label.language' }
         FileRead:
-            label: 'Files'
+            label: 'admin.label.files'
             class: RevisionTen\CMS\Model\FileRead
             permissions:
                 list: 'file_list'
@@ -436,13 +424,12 @@ easy_admin:
                     - '-new'
                     - '-edit'
                     - '-delete'
-                    - { name: 'cms_file_edit', type: 'route', label: '', title: 'Edit aggregate', icon: 'edit', permission: 'file_edit' }
+                    - { name: 'cms_file_edit', type: 'route', title: 'admin.btn.edit', label: '', icon: 'edit', permission: 'file_edit' }
                 fields:
-                    - { property: 'title', label: 'Title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
-                    - 'version'
-                    - { property: 'mimeType', label: 'MimeType' }
-                    - { property: 'size', template: '@cms/Admin/File/List/size.html.twig' }
-                    - 'language'
-                    - { property: 'created', type: 'datetime' }
-                    - { property: 'modified', type: 'datetime' }
-                    #- { property: 'website', type: 'raw' }
+                    - { property: 'title', label: 'admin.label.title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'mimeType', label: 'admin.label.mimeType' }
+                    - { property: 'size', label: 'admin.label.size', template: '@cms/Admin/File/List/size.html.twig' }
+                    - { property: 'language', label: 'admin.label.language' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }

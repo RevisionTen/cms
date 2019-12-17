@@ -145,20 +145,23 @@ class FileController extends AbstractController
         $builder = $this->createFormBuilder();
 
         $builder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'admin.label.title',
+            'translation_domain' => 'cms',
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Title',
+                'placeholder' => 'admin.label.title',
             ],
         ]);
 
         $builder->add('language', ChoiceType::class, [
-            'label' => 'Language',
+            'label' => 'admin.label.language',
+            'translation_domain' => 'cms',
+            'choice_translation_domain' => 'messages',
             'choices' => $config['page_languages'] ?: [
                 'English' => 'en',
                 'German' => 'de',
             ],
-            'placeholder' => 'Language',
+            'placeholder' => 'admin.label.language',
             'constraints' => new NotBlank(),
             'attr' => [
                 'class' => 'custom-select',
@@ -166,12 +169,14 @@ class FileController extends AbstractController
         ]);
 
         $builder->add('file', FileType::class, [
-            'label' => 'Please select the file you want to upload.',
+            'label' => 'admin.label.fileChoose',
+            'translation_domain' => 'cms',
             'constraints' => new NotBlank(),
         ]);
 
         $builder->add('submit', SubmitType::class, [
-            'label' => 'Upload file',
+            'label' => 'admin.btn.addFile',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],
@@ -226,20 +231,23 @@ class FileController extends AbstractController
         ]);
 
         $builder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'admin.label.title',
+            'translation_domain' => 'cms',
             'constraints' => new NotBlank(),
             'attr' => [
-                'placeholder' => 'Title',
+                'placeholder' => 'admin.label.title',
             ],
         ]);
 
         $builder->add('language', ChoiceType::class, [
-            'label' => 'Language',
+            'label' => 'admin.label.language',
+            'translation_domain' => 'cms',
+            'choice_translation_domain' => 'messages',
             'choices' => $config['page_languages'] ?: [
                 'English' => 'en',
                 'German' => 'de',
             ],
-            'placeholder' => 'Language',
+            'placeholder' => 'admin.label.language',
             'constraints' => new NotBlank(),
             'attr' => [
                 'class' => 'custom-select',
@@ -247,12 +255,14 @@ class FileController extends AbstractController
         ]);
 
         $builder->add('file', FileType::class, [
-            'label' => 'replace file',
+            'label' => 'admin.label.replaceFile',
+            'translation_domain' => 'cms',
             'required' => false,
         ]);
 
         $builder->add('submit', SubmitType::class, [
-            'label' => 'Save file',
+            'label' => 'admin.btn.saveFile',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],

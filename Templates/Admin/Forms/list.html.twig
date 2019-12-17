@@ -6,7 +6,7 @@
     {% if is_granted('form_create') %}
         <div class="button-action">
             <a class="btn btn-success" href="{{ path('forms_create_form') }}">
-                <span class="fa fa-plus"></span> {{ 'Add Form'|trans }}
+                <span class="fa fa-plus"></span> {{ 'admin.btn.addForm'|trans({}, 'cms') }}
             </a>
         </div>
     {% endif %}

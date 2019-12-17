@@ -115,15 +115,16 @@ class MenuController extends AbstractController
      *
      * @Route("/menu/create", name="cms_menu_create")
      *
-     * @param Request    $request
-     * @param CommandBus $commandBus
-     * @param MessageBus $messageBus
+     * @param Request             $request
+     * @param CommandBus          $commandBus
+     * @param MessageBus          $messageBus
+     * @param TranslatorInterface $translator
      *
      * @return JsonResponse|Response
      *
      * @throws Exception
      */
-    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus)
+    public function create(Request $request, CommandBus $commandBus, MessageBus $messageBus, TranslatorInterface $translator)
     {
         $this->denyAccessUnlessGranted('menu_create');
 
@@ -137,9 +138,11 @@ class MenuController extends AbstractController
         $formBuilder = $this->createFormBuilder();
 
         $formBuilder->add('title', ChoiceType::class, [
-            'label' => 'Menu',
+            'label' => 'admin.label.menu',
+            'translation_domain' => 'cms',
             'placeholder' => 'Menu',
             'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
+            'choice_translation_domain' => 'messages',
             'constraints' => new NotBlank(),
             'attr' => [
                 'class' => 'custom-select',
@@ -147,8 +150,10 @@ class MenuController extends AbstractController
         ]);
 
         $formBuilder->add('language', ChoiceType::class, [
-            'label' => 'Language',
-            'placeholder' => 'Language',
+            'label' => 'admin.label.language',
+            'translation_domain' => 'cms',
+            'placeholder' => 'admin.label.language',
+            'choice_translation_domain' => 'messages',
             'choices' => $config['page_languages'],
             'constraints' => new NotBlank(),
             'attr' => [
@@ -157,7 +162,8 @@ class MenuController extends AbstractController
         ]);
 
         $formBuilder->add('submit', SubmitType::class, [
-            'label' => 'Add menu',
+            'label' => 'admin.btn.addMenu',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],
@@ -190,7 +196,7 @@ class MenuController extends AbstractController
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Add menu',
+            'title' => $translator->trans('admin.btn.addMenu', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -261,7 +267,7 @@ class MenuController extends AbstractController
         }
 
         return $this->render($form_template, [
-            'title' => $translator->trans('Add %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
+            'title' => $translator->trans('admin.btn.addMenuItem', ['%itemName%' => $translator->trans($itemName)], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -341,7 +347,7 @@ class MenuController extends AbstractController
             $data = ArrayHelpers::diff($item['data'], $data);
 
             if (empty($data)) {
-                $form->addError(new FormError($translator->trans('Data has not changed.')));
+                $form->addError(new FormError($translator->trans('admin.validation.dataUnchanged', [], 'cms')));
             }
         }
 
@@ -362,7 +368,7 @@ class MenuController extends AbstractController
         }
 
         return $this->render($form_template, [
-            'title' => $translator->trans('Edit %itemName% item', ['%itemName%' => $translator->trans($itemName)]),
+            'title' => $translator->trans('admin.btn.editMenuItem', ['%itemName%' => $translator->trans($itemName)], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -668,7 +674,7 @@ class MenuController extends AbstractController
 
         $this->addFlash(
             'success',
-            $translator->trans('Menu order saved')
+            $translator->trans('admin.label.savedMenuOrder', [], 'cms')
         );
 
         if ($request->get('ajax')) {

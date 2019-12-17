@@ -66,13 +66,13 @@ class SecretService
     {
         $issuer = $this->config['site_name'] ?? 'revisionTen';
 
-        $subject = $this->translator->trans('Login data for %username%', [
+        $subject = $this->translator->trans('admin.label.loginDataFor', [
             '%username%' => $username,
-        ]);
+        ], 'cms');
 
-        $messageText = $this->translator->trans('Your login data for %site_name%', [
+        $messageText = $this->translator->trans('admin.label.yourLoginFor', [
             '%site_name%' => $issuer,
-        ]);
+        ], 'cms');
 
         $messageBody = <<<EOT
 $messageText:<br/><br/>
@@ -89,11 +89,11 @@ EOT;
 
         $qrCode = GoogleQrUrl::generate(rawurlencode($username), $secret, rawurlencode($issuer));
 
-        $subject = $this->translator->trans('Google Authenticator Code for %username%', [
+        $subject = $this->translator->trans('admin.label.authenticatorCodeFor', [
             '%username%' => $username,
-        ]);
+        ], 'cms');
 
-        $messageText = $this->translator->trans('Please keep this Code.');
+        $messageText = $this->translator->trans('admin.label.authenticatorCodeHint', [], 'cms');
 
         $messageBody = <<<EOT
 $messageText<br/><br/>
@@ -109,11 +109,11 @@ EOT;
 
     public function sendPasswordResetMail(string $username, string $token, string $mail): void
     {
-        $subject = $this->translator->trans('Password reset requested for %username%', [
+        $subject = $this->translator->trans('admin.label.passwordResetFor', [
             '%username%' => $username,
-        ]);
+        ], 'cms');
 
-        $messageText = $this->translator->trans('Click here to reset your password.');
+        $messageText = $this->translator->trans('admin.label.passwordResetLink', [], 'cms');
 
         // Generate reset url.
         $context = new RequestContext();

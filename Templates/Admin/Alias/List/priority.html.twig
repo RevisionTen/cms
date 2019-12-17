@@ -1,11 +1,11 @@
 {% if value == 0.1 %}
-    {{ 'Very low'|trans }}
+    {{ 'admin.label.veryLow'|trans({}, 'cms') }}
 {% elseif value == 0.3 %}
-    {{ 'Low'|trans }}
+    {{ 'admin.label.low'|trans({}, 'cms') }}
 {% elseif value == 0.5 %}
-    {{ 'Normal'|trans }}
+    {{ 'admin.label.normal'|trans({}, 'cms') }}
 {% elseif value == 0.6 %}
-    {{ 'High'|trans }}
+    {{ 'admin.label.high'|trans({}, 'cms') }}
 {% elseif value == 1 %}
-    {{ 'Very high'|trans }}
+    {{ 'admin.label.veryHigh'|trans({}, 'cms') }}
 {% endif %}

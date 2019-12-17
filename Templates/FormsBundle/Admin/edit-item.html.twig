@@ -6,7 +6,7 @@
         {% for i in 0 .. level %}{% if i > 0 %}&nbsp;&nbsp;&nbsp;{% endif %}{% endfor %}
         {{ item.data.label }}
         {% if item.data.isSubject is defined and item.data.isSubject %}
-            &nbsp; <span style="font-size: 10px;padding: 4px 4px 1px 4px;" class="label label-primary">{{ 'Subject'|trans }}</span>
+            &nbsp; <span style="font-size: 10px;padding: 4px 4px 1px 4px;" class="label label-primary">{{ 'admin.label.subject'|trans({}, 'cms') }}</span>
         {% endif %}
     </td>
     <td>
@@ -16,10 +16,10 @@
         {{ item.itemName|trans }}
     </td>
     <td class="actions">
-        <a title="{{ 'Shift up'|trans }}" href="{{ path('forms_shift_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid, direction: 'up'}) }}"><span class="fa fa-arrow-up"></span></a>
-        <a title="{{ 'Shift down'|trans }}" href="{{ path('forms_shift_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid, direction: 'down'}) }}"><span class="fa fa-arrow-down"></span></a>
-        <a title="{{ 'Edit'|trans }}" href="{{ path('forms_edit_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid}) }}"><span class="fa fa-edit"></span></a>
-        <a title="{{ 'Delete'|trans }}" href="{{ path('forms_remove_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid}) }}" class="text-danger action-delete"><span class="fa fa-trash"></span></a>
+        <a title="{{ 'admin.btn.shiftUp'|trans({}, 'cms') }}" href="{{ path('forms_shift_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid, direction: 'up'}) }}"><span class="fa fa-arrow-up"></span></a>
+        <a title="{{ 'admin.btn.shiftDown'|trans({}, 'cms') }}" href="{{ path('forms_shift_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid, direction: 'down'}) }}"><span class="fa fa-arrow-down"></span></a>
+        <a title="{{ 'admin.btn.edit'|trans({}, 'cms') }}" href="{{ path('forms_edit_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid}) }}"><span class="fa fa-edit"></span></a>
+        <a title="{{ 'admin.btn.delete'|trans({}, 'cms') }}" href="{{ path('forms_remove_item', {formUuid: formAggregate.uuid, onVersion: formAggregate.streamVersion, itemUuid: item.uuid}) }}" class="text-danger action-delete"><span class="fa fa-trash"></span></a>
     </td>
 </tr>
 

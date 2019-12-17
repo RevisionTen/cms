@@ -2,13 +2,13 @@
 
 {% block content_title %}
     {% if title is defined %}
-        {{ title|trans }}
+        {{ title }}
     {% endif %}
 {% endblock %}
 
 {% block main %}
     <h5 data-toggle="collapse" data-target="#page-payload">
-        {{ 'Payload'|trans }}
+        {{ 'admin.label.payload'|trans({}, 'cms') }}
     </h5>
     <div class="collapse" id="page-payload">
         <pre class="small"><code class="small">{{ page|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>

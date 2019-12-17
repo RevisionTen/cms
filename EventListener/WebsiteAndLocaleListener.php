@@ -6,27 +6,43 @@ namespace RevisionTen\CMS\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Domain;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class WebsiteAndLocaleListener
 {
-    /** @var EntityManagerInterface */
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
-    /** @var RequestStack */
+    /**
+     * @var RequestStack
+     */
     private $requestStack;
 
+    /**
+     * WebsiteAndLocaleListener constructor.
+     *
+     * @param EntityManagerInterface $entityManager
+     * @param RequestStack           $requestStack
+     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * @param RequestEvent $event
+     */
     public function onKernelRequest(RequestEvent $event): void
     {
         if ($event->isMasterRequest()) {
-            /** @var \Symfony\Component\HttpFoundation\Request $request */
+            /**
+             * @var Request $request
+             */
             $request = $event->getRequest();
         } else {
             $request = $this->requestStack->getMasterRequest();
@@ -36,7 +52,9 @@ class WebsiteAndLocaleListener
             // Get the website.
             $host = $request->getHost();
 
-            /** @var Domain $domain */
+            /**
+             * @var Domain $domain
+             */
             $domain = $this->entityManager->getRepository(Domain::class)->findOneBy([
                 'domain' => $host,
             ]);

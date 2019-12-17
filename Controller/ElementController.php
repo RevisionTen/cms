@@ -64,14 +64,15 @@ class ElementController extends AbstractController
     /**
      * @Route("/page/add-element/{pageUuid}/{onVersion}/{parent}", name="cms_add_element")
      *
-     * @param AggregateFactory $aggregateFactory
-     * @param string           $pageUuid
-     * @param int              $onVersion
-     * @param string           $parent
+     * @param AggregateFactory    $aggregateFactory
+     * @param TranslatorInterface $translator
+     * @param string              $pageUuid
+     * @param int                 $onVersion
+     * @param string              $parent
      *
      * @return Response
      */
-    public function addElement(AggregateFactory $aggregateFactory, string $pageUuid, int $onVersion, string $parent): Response
+    public function addElement(AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $parent): Response
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -120,7 +121,7 @@ class ElementController extends AbstractController
         }
 
         return $this->render('@cms/Form/add-element.html.twig', [
-            'title' => 'Add Element',
+            'title' => $translator->trans('admin.label.addElementChooser', [], 'cms'),
             'parent' => $parent,
             'children' => $acceptedChildren,
         ]);
@@ -129,21 +130,21 @@ class ElementController extends AbstractController
     /**
      * @Route("/page/create-element/{elementName}/{pageUuid}/{onVersion}/{parent}", name="cms_create_element")
      *
-     * @param Request     $request
-     * @param CommandBus  $commandBus
-     * @param string      $elementName
-     * @param string      $pageUuid
-     * @param int         $onVersion
-     * @param string|null $parent
-     * @param array|null  $data
-     * @param string      $form_template
+     * @param Request             $request
+     * @param CommandBus          $commandBus
+     * @param TranslatorInterface $translator
+     * @param string              $elementName
+     * @param string              $pageUuid
+     * @param int                 $onVersion
+     * @param string|null         $parent
+     * @param array|null          $data
+     * @param string              $form_template
      *
      * @return JsonResponse|Response
      *
      * @throws InterfaceException
-     * @throws Exception
      */
-    public function createElementForm(Request $request, CommandBus $commandBus, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
+    public function createElementForm(Request $request, CommandBus $commandBus, TranslatorInterface $translator, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -199,7 +200,9 @@ class ElementController extends AbstractController
         }
 
         return $this->render($form_template, [
-            'title' => 'Add Element',
+            'title' => $translator->trans('admin.label.addElement', [
+                '%title%' => $translator->trans($elementName),
+            ], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -288,7 +291,7 @@ class ElementController extends AbstractController
             $data = ArrayHelpers::diff($element['data'], $data);
 
             if (empty($data)) {
-                $form->addError(new FormError($translator->trans('Data has not changed.')));
+                $form->addError(new FormError($translator->trans('admin.validation.dataUnchanged', [], 'cms')));
             }
         }
 
@@ -312,7 +315,9 @@ class ElementController extends AbstractController
         }
 
         return $this->render($form_template, [
-            'title' => 'Edit Element',
+            'title' => $translator->trans('admin.label.editElement', [
+                '%title%' => $translator->trans($elementName),
+            ], 'cms'),
             'form' => $form->createView(),
         ]);
     }

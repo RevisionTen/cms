@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\EventSubscriber;
 
 use DateTime;
+use Doctrine\ORM\ORMException;
+use Exception;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Event\PageAddScheduleEvent;
@@ -39,9 +41,9 @@ class PageSubscriber implements EventSubscriberInterface
     /**
      * PageSubscriber constructor.
      *
-     * @param \RevisionTen\CMS\Services\PageService  $pageService
-     * @param \RevisionTen\CMS\Services\IndexService $indexService
-     * @param \RevisionTen\CMS\Services\TaskService  $taskService
+     * @param PageService  $pageService
+     * @param IndexService $indexService
+     * @param TaskService  $taskService
      */
     public function __construct(PageService $pageService, IndexService $indexService, TaskService $taskService)
     {
@@ -70,10 +72,10 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PagePublishEvent $pagePublishEvent
+     * @param PagePublishEvent $pagePublishEvent
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
+     * @throws ORMException
+     * @throws Exception
      */
     public function updateReadModels(PagePublishEvent $pagePublishEvent): void
     {
@@ -88,10 +90,10 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PageUnpublishEvent $pageUnpublishEvent
+     * @param PageUnpublishEvent $pageUnpublishEvent
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
+     * @throws ORMException
+     * @throws Exception
      */
     public function deleteReadModels(PageUnpublishEvent $pageUnpublishEvent): void
     {
@@ -105,10 +107,10 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PageDeleteEvent $pageDeleteEvent
+     * @param PageDeleteEvent $pageDeleteEvent
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
+     * @throws ORMException
+     * @throws Exception
      */
     public function deleteReadModelsAndTasks(PageDeleteEvent $pageDeleteEvent): void
     {
@@ -124,9 +126,9 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PageSubmitEvent $pageSubmitEvent
+     * @param PageSubmitEvent $pageSubmitEvent
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitPage(PageSubmitEvent $pageSubmitEvent): void
     {
@@ -138,9 +140,9 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PageAddScheduleEvent $pageAddScheduleEvent
+     * @param PageAddScheduleEvent $pageAddScheduleEvent
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addSchedule(PageAddScheduleEvent $pageAddScheduleEvent): void
     {
@@ -165,7 +167,7 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\PageRemoveScheduleEvent $pageRemoveScheduleEvent
+     * @param PageRemoveScheduleEvent $pageRemoveScheduleEvent
      */
     public function removeSchedule(PageRemoveScheduleEvent $pageRemoveScheduleEvent): void
     {

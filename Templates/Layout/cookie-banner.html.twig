@@ -18,8 +18,8 @@
             "showLink": false,
             "position": "bottom-right",
             "content": {
-                "message": "<strong>{{ 'Use of Cookies'|trans }}</strong><br/>{{ 'By continuing your visit to this site, you accept the use of cookies to make visitor statistics.'|trans|raw }} <a href=\"#\">{{ 'Privacy Policy'|trans|raw }}</a>",
-                "dismiss": "{{ 'Accept'|trans }}"
+                "message": "<strong>{{ 'admin.label.useOfCookies'|trans({}, 'cms') }}</strong><br/>{{ 'admin.label.cookieMessage'|trans({}, 'cms')|raw }} <a href=\"#\">{{ 'admin.label.privacyPolicy'|trans({}, 'cms')|raw }}</a>",
+                "dismiss": "{{ 'admin.btn.accept'|trans({}, 'cms') }}"
             },
             "onInitialise": function(status) { window.consentCallback(status); },
             "onStatusChange": function(status, chosenBefore) { window.consentCallback(status); },

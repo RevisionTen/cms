@@ -1,7 +1,7 @@
 {% extends '@EasyAdmin/default/layout.html.twig' %}
 
 {% block content_title %}
-    {{ 'Edit Form %title%'|trans({'%title%': formAggregate.title}) }}
+    {{ 'admin.label.editForm'|trans({'%title%': formAggregate.title}, 'cms') }}
 {% endblock %}
 
 {% block flash_messages %}
@@ -11,7 +11,7 @@
             {% for label, messages in flashes %}
                 {% for message in messages %}
                     <div class="alert alert-{{ label }}">
-                        {{ message|trans|raw }}
+                        {{ message|trans({}, 'cms')|raw }}
                     </div>
                 {% endfor %}
             {% endfor %}
@@ -22,8 +22,8 @@
 {% block main %}
     <div class="p-3">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="nav-item"><a class="nav-link active" href="#fields" aria-controls="fields" role="tab" data-toggle="tab">{{ 'Form Fields'|trans }}</a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link" href="#settings" aria-controls="settings" role="tab" data-toggle="tab">{{ 'Form Settings'|trans }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link active" href="#fields" aria-controls="fields" role="tab" data-toggle="tab">{{ 'admin.label.formFields'|trans({}, 'cms') }}</a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link" href="#settings" aria-controls="settings" role="tab" data-toggle="tab">{{ 'admin.label.formSettings'|trans({}, 'cms') }}</a></li>
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="fields">
@@ -31,19 +31,19 @@
                     <thead>
                         <tr>
                             <th>
-                                <span>{{ 'Required'|trans }}</span>
+                                <span>{{ 'admin.label.required'|trans({}, 'cms') }}</span>
                             </th>
                             <th>
-                                <span>{{ 'Label'|trans }}</span>
+                                <span>{{ 'admin.label.label'|trans({}, 'cms') }}</span>
                             </th>
                             <th>
-                                <span>{{ 'Name'|trans }}</span>
+                                <span>{{ 'admin.label.name'|trans({}, 'cms') }}</span>
                             </th>
                             <th>
-                                <span>{{ 'Type'|trans }}</span>
+                                <span>{{ 'admin.label.type'|trans({}, 'cms') }}</span>
                             </th>
                             <th>
-                                <span class="sr-only">{{ 'Actions'|trans }}</span>
+                                <span class="sr-only">{{ 'admin.label.actions'|trans({}, 'cms') }}</span>
                             </th>
                         </tr>
                     </thead>
@@ -99,7 +99,7 @@
                 {{ form_row(form.successText) }}
                 <div>
                     <div class="form-group">
-                        <h4>{{ 'Advanced Options'|trans }}</h4>
+                        <h4>{{ 'admin.label.advancedOptions'|trans({}, 'cms') }}</h4>
                     </div>
                     {{ form_row(form.template) }}
                     {{ form_row(form.emailCC) }}

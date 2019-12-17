@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\DependencyInjection;
 
+use Exception;
 use RevisionTen\CMS\CmsBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -79,7 +80,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function prepend(ContainerBuilder $container): void
     {
@@ -104,21 +105,21 @@ class CmsExtension extends Extension implements PrependExtensionInterface
         ];
         // Build admin menu config.
         $adminMenu = [
-            ['label' => 'Dashboard', 'route' => 'cms_dashboard', 'icon' => 'nope fas fa-tachometer-alt'],
+            ['label' => 'admin.label.dashboard', 'route' => 'cms_dashboard', 'icon' => 'nope fas fa-tachometer-alt'],
         ];
-        $adminMenu[] = ['label' => 'Content'];
+        $adminMenu[] = ['label' => 'admin.label.content'];
         if (isset($config['admin_menu']['Content'])) {
             foreach ($config['admin_menu']['Content'] as $menuItem) {
                 $adminMenu[] = $menuItem;
             }
         }
-        $adminMenu[] = ['label' => 'Structure'];
+        $adminMenu[] = ['label' => 'admin.label.structure'];
         if (isset($config['admin_menu']['Structure'])) {
             foreach ($config['admin_menu']['Structure'] as $menuItem) {
                 $adminMenu[] = $menuItem;
             }
         }
-        $adminMenu[] = ['label' => 'Settings'];
+        $adminMenu[] = ['label' => 'admin.label.settings'];
         if (isset($config['admin_menu']['Settings'])) {
             foreach ($config['admin_menu']['Settings'] as $menuItem) {
                 $adminMenu[] = $menuItem;

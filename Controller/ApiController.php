@@ -104,7 +104,7 @@ class ApiController extends AbstractController
             'toggle_contrast' => [
                 'css_class' => 'btn-tertiary toggle-contrast',
                 'icon' => 'fas fa-adjust',
-                'label' => $translator->trans('Toggle editor contrast'),
+                'label' => $translator->trans('admin.btn.toggleContrast', [], 'cms'),
                 'url' => '#',
                 'display' => $canToggleContrast,
                 'type' => 'link',
@@ -112,7 +112,7 @@ class ApiController extends AbstractController
             'toggle_tree' => [
                 'css_class' => 'btn-tertiary toggle-tree',
                 'icon' => 'fas fa-layer-group',
-                'label' => $translator->trans('Layers'),
+                'label' => $translator->trans('admin.btn.showLayers', [], 'cms'),
                 'url' => '#',
                 'display' => $canToggleTree,
                 'type' => 'link',
@@ -120,7 +120,7 @@ class ApiController extends AbstractController
             'preview' => [
                 'css_class' => 'btn-tertiary toggle-editor',
                 'icon' => 'fas fa-toggle-on',
-                'label' => $translator->trans('Preview'),
+                'label' => $translator->trans('admin.btn.preview', [], 'cms'),
                 'url' => $this->generateUrl('cms_page_preview', ['pageUuid' => $pageUuid]),
                 'display' => $canPreview,
                 'type' => 'link',
@@ -131,7 +131,7 @@ class ApiController extends AbstractController
             'change_pagesettings' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-edit',
-                'label' => $translator->trans('Change Page Settings'),
+                'label' => $translator->trans('admin.btn.changePageSettings', [], 'cms'),
                 'url' => $this->generateUrl('cms_change_pagesettings', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canChangePagesettings,
                 'type' => 'tab',
@@ -139,7 +139,7 @@ class ApiController extends AbstractController
             'publish' => [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-bullhorn',
-                'label' => $translator->trans('Publish'),
+                'label' => $translator->trans('admin.btn.publish', [], 'cms'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
                 'display' => $canPublish,
                 'type' => 'ajax',
@@ -147,7 +147,7 @@ class ApiController extends AbstractController
             'unpublish' => [
                 'css_class' => 'btn-danger',
                 'icon' => 'fas fa-eye-slash',
-                'label' => $translator->trans('Unpublish'),
+                'label' => $translator->trans('admin.btn.unpublish', [], 'cms'),
                 'url' => $this->generateUrl('cms_unpublish_page', ['pageUuid' => $pageUuid]),
                 'display' => $canUnpublish,
                 'type' => 'ajax',
@@ -155,7 +155,7 @@ class ApiController extends AbstractController
             'schedule' => [
                 'css_class' => '',
                 'icon' => 'fas fa-clock',
-                'label' => $translator->trans('Schedule'),
+                'label' => $translator->trans('admin.btn.schedule', [], 'cms'),
                 'url' => $this->generateUrl('cms_schedule_page', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canSchedule,
                 'type' => 'form',
@@ -163,7 +163,7 @@ class ApiController extends AbstractController
             'optimize' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-sync',
-                'label' => $translator->trans('Optimize'),
+                'label' => $translator->trans('admin.btn.optimize', [], 'cms'),
                 'url' => $this->generateUrl('cms_save_snapshot', ['pageUuid' => $pageUuid]),
                 'display' => $canOptimize,
                 'type' => 'ajax',
@@ -171,7 +171,7 @@ class ApiController extends AbstractController
             'inspect' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fas fa-microscope',
-                'label' => $translator->trans('Inspect'),
+                'label' => $translator->trans('admin.btn.inspect', [], 'cms'),
                 'url' => $this->generateUrl('cms_inspect_page', ['pageUuid' => $pageUuid]),
                 'display' => $canInspect,
                 'type' => 'form',
@@ -179,7 +179,7 @@ class ApiController extends AbstractController
             'undo_change' => [
                 'css_class' => '',
                 'icon' => 'fas fa-undo',
-                'label' => $translator->trans('Undo last change'),
+                'label' => $translator->trans('admin.btn.undoLastChange', [], 'cms'),
                 'url' => $this->generateUrl('cms_undo_change', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canUndoChange,
                 'type' => 'link',
@@ -187,7 +187,7 @@ class ApiController extends AbstractController
             'submit_changes' => [
                 'css_class' => 'btn-success',
                 'icon' => 'fas fa-check-circle',
-                'label' => $translator->trans('Submit changes'),
+                'label' => $translator->trans('admin.btn.submitChanges', [], 'cms'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),
                 'display' => $canSubmitChanges,
                 'type' => 'form',
@@ -195,7 +195,7 @@ class ApiController extends AbstractController
             'rollback_aggregate' => [
                 'css_class' => '',
                 'icon' => 'fas fa-history',
-                'label' => $translator->trans('Rollback'),
+                'label' => $translator->trans('admin.btn.rollback', [], 'cms'),
                 'url' => $this->generateUrl('cms_rollback_aggregate', ['pageUuid' => $pageUuid, 'version' => $page->getVersion()]),
                 'display' => $canRollbackAggregate,
                 'type' => 'form',
@@ -203,7 +203,7 @@ class ApiController extends AbstractController
             'discard_changes' => [
                 'css_class' => 'btn-danger',
                 'icon' => 'fa fa-trash',
-                'label' => $translator->trans('Discard changes'),
+                'label' => $translator->trans('admin.btn.discardChanges', [], 'cms'),
                 'url' => $this->generateUrl('cms_discard_changes', ['pageUuid' => $pageUuid]),
                 'display' => $canDiscardChanges,
                 'type' => 'link',
@@ -211,23 +211,23 @@ class ApiController extends AbstractController
             'clone_aggregate' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-clone',
-                'label' => $translator->trans('Clone page'),
+                'label' => $translator->trans('admin.btn.clonePage', [], 'cms'),
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
                 'display' => $canCloneAggregate,
                 'type' => 'link',
                 'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
-                    'onclick' => 'return confirm(\''.$translator->trans('Unsaved changes will not be cloned').'\')',
+                    'onclick' => 'return confirm(\''.$translator->trans('admin.label.confirmClone', [], 'cms').'\')',
                 ] : [],
             ],
             'delete_aggregate' => [
                 'css_class' => 'btn-tertiary',
                 'icon' => 'fa fa-trash',
-                'label' => $translator->trans('Delete page'),
+                'label' => $translator->trans('admin.btn.deletePage', [], 'cms'),
                 'url' => $this->generateUrl('cms_delete_aggregate', ['id' => $pageStreamRead->getId()]),
                 'display' => $canDeleteAggregate,
                 'type' => 'link',
                 'attributes' => [
-                    'onclick' => 'return confirm(\''.$translator->trans('Do you really want to delete this page?').'\')',
+                    'onclick' => 'return confirm(\''.$translator->trans('admin.label.confirmDelete', [], 'cms').'\')',
                 ],
             ],
         ];

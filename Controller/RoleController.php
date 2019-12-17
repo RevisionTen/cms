@@ -77,14 +77,14 @@ class RoleController extends AbstractController
 
             $this->addFlash(
                 'success',
-                $translator->trans('Role created')
+                $translator->trans('admin.label.roleCreateSuccess', [], 'cms')
             );
 
             return $this->redirectToRoles();
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Add role',
+            'title' => $translator->trans('admin.label.addRole', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -143,12 +143,12 @@ class RoleController extends AbstractController
 
             $this->addFlash(
                 'success',
-                $translator->trans('Role edited')
+                $translator->trans('admin.label.roleEditSuccess', [], 'cms')
             );
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Edit role',
+            'title' => $translator->trans('admin.label.editRole', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -172,13 +172,14 @@ class RoleController extends AbstractController
         $formBuilder = $this->createFormBuilder($defaultData);
 
         $formBuilder->add('title', TextType::class, [
-            'label' => 'Title',
+            'label' => 'admin.label.title',
+            'translation_domain' => 'cms',
             'constraints' => [
                 new NotBlank(),
                 new Regex([
                     'pattern' => '/\d|\W/',
                     'match' => false,
-                    'message' => $translator->trans('Title must be letters only.'),
+                    'message' => $translator->trans('admin.label.titleLetterConstraint', [], 'cms'),
                 ]),
             ],
         ]);
@@ -197,8 +198,10 @@ class RoleController extends AbstractController
         }, $permissionGroups);
 
         $formBuilder->add('permissions', ChoiceType::class, [
-            'label' => 'Permissions',
+            'label' => 'admin.label.permissions',
+            'translation_domain' => 'cms',
             'choices' => $permissionChoices,
+            'choice_translation_domain' => 'messages',
             'multiple' => true,
             'expanded' => true,
             'required' => false,
@@ -208,7 +211,8 @@ class RoleController extends AbstractController
         ]);
 
         $formBuilder->add('submit', SubmitType::class, [
-            'label' => 'Save role',
+            'label' => 'admin.btn.saveRole',
+            'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
             ],

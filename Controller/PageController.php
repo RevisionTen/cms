@@ -147,7 +147,7 @@ class PageController extends AbstractController
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => $translator->trans('Add page'),
+            'title' => $translator->trans('admin.label.addPage', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -226,7 +226,7 @@ class PageController extends AbstractController
             $data = ArrayHelpers::diff($aggregateData, $data);
 
             if (empty($data)) {
-                $form->addError(new FormError($translator->trans('Data has not changed.')));
+                $form->addError(new FormError($translator->trans('admin.validation.dataUnchanged', [], 'cms')));
             }
 
             if ($form->isValid()) {
@@ -244,7 +244,7 @@ class PageController extends AbstractController
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Change Page Settings',
+            'title' => $translator->trans('admin.label.changePageSettings', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -254,16 +254,17 @@ class PageController extends AbstractController
      *
      * @Route("/submit-changes/{pageUuid}/{version}/{qeueUser}", name="cms_submit_changes")
      *
-     * @param Request    $request
-     * @param CommandBus $commandBus
-     * @param string     $pageUuid
-     * @param int        $version
-     * @param int        $qeueUser
+     * @param Request             $request
+     * @param CommandBus          $commandBus
+     * @param TranslatorInterface $translator
+     * @param string              $pageUuid
+     * @param int                 $version
+     * @param int                 $qeueUser
      *
      * @return JsonResponse|Response
      * @throws Exception
      */
-    public function submitChanges(Request $request, CommandBus $commandBus, string $pageUuid, int $version, int $qeueUser)
+    public function submitChanges(Request $request, CommandBus $commandBus, TranslatorInterface $translator, string $pageUuid, int $version, int $qeueUser)
     {
         $this->denyAccessUnlessGranted('page_submit_changes');
 
@@ -274,19 +275,23 @@ class PageController extends AbstractController
          */
         $user = $this->getUser();
 
-        $form = $this->createFormBuilder()
-            ->add('message', TextareaType::class, [
-                'label' => 'Commit Message',
-                'required' => true,
-                'attr' => [
-                    'placeholder' => 'Describe the changes you made',
-                ],
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Submit changes',
-            ])
-            ->getForm();
+        $formBuilder = $this->createFormBuilder();
 
+        $formBuilder->add('message', TextareaType::class, [
+            'label' => 'admin.label.commitMessage',
+            'translation_domain' => 'cms',
+            'required' => true,
+            'attr' => [
+                'placeholder' => 'admin.help.commitMessage',
+            ],
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'admin.btn.submitChanges',
+            'translation_domain' => 'cms',
+        ]);
+
+        $form = $formBuilder->getForm();;
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -307,7 +312,7 @@ class PageController extends AbstractController
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Submit changes',
+            'title' => $translator->trans('admin.label.submitChanges', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -356,13 +361,14 @@ class PageController extends AbstractController
      * @param Request                $request
      * @param CommandBus             $commandBus
      * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface    $translator
      * @param string                 $pageUuid
      * @param int                    $version
      *
      * @return JsonResponse|Response
      * @throws Exception
      */
-    public function schedule(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, string $pageUuid, int $version)
+    public function schedule(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator, string $pageUuid, int $version)
     {
         $this->denyAccessUnlessGranted('page_schedule');
 
@@ -380,28 +386,34 @@ class PageController extends AbstractController
          */
         $user = $this->getUser();
 
-        $form = $this->createFormBuilder()
-            ->add('startDate', DateTimeType::class, [
-                'label' => 'Start date',
-                'input' => 'timestamp',
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-                'html5' => true,
-                'required' => false,
-            ])
-            ->add('endDate', DateTimeType::class, [
-                'label' => 'End date',
-                'input' => 'timestamp',
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-                'html5' => true,
-                'required' => false,
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Schedule',
-            ])
-            ->getForm();
+        $formBuilder = $this->createFormBuilder();
 
+        $formBuilder->add('startDate', DateTimeType::class, [
+            'label' => 'admin.label.startDate',
+            'translation_domain' => 'cms',
+            'input' => 'timestamp',
+            'date_widget' => 'single_text',
+            'time_widget' => 'single_text',
+            'html5' => true,
+            'required' => false,
+        ]);
+
+        $formBuilder->add('endDate', DateTimeType::class, [
+            'label' => 'admin.label.endDate',
+            'translation_domain' => 'cms',
+            'input' => 'timestamp',
+            'date_widget' => 'single_text',
+            'time_widget' => 'single_text',
+            'html5' => true,
+            'required' => false,
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'admin.btn.schedule',
+            'translation_domain' => 'cms',
+        ]);
+
+        $form = $formBuilder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -419,7 +431,7 @@ class PageController extends AbstractController
         }
 
         return $this->render('@cms/Form/form.html.twig', [
-            'title' => 'Schedule',
+            'title' => $translator->trans('admin.label.schedule', [], 'cms'),
             'form' => $form->createView(),
         ]);
     }
@@ -429,13 +441,13 @@ class PageController extends AbstractController
      *
      * @Route("/inspect/{pageUuid}", name="cms_inspect_page")
      *
-     * @param Request          $request
-     * @param AggregateFactory $aggregateFactory
-     * @param string           $pageUuid
+     * @param AggregateFactory    $aggregateFactory
+     * @param TranslatorInterface $translator
+     * @param string              $pageUuid
      *
      * @return JsonResponse|Response
      */
-    public function inspect(Request $request, AggregateFactory $aggregateFactory, string $pageUuid)
+    public function inspect(AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid)
     {
         $this->denyAccessUnlessGranted('page_inspect');
 
@@ -447,7 +459,7 @@ class PageController extends AbstractController
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
         return $this->render('@cms/Admin/Page/inspect.html.twig', [
-            'title' => 'Inspect page',
+            'title' => $translator->trans('admin.label.inspectPage', [], 'cms'),
             'page' => $page,
         ]);
     }
@@ -512,12 +524,13 @@ class PageController extends AbstractController
      * @Route("/create-alias/{pageUuid}", name="cms_create_alias")
      *
      * @param Request                $request
-     * @param string                 $pageUuid
+     * @param TranslatorInterface    $translator
      * @param EntityManagerInterface $entityManager
+     * @param string                 $pageUuid
      *
      * @return JsonResponse|Response
      */
-    public function createAlias(Request $request, string $pageUuid, EntityManagerInterface $entityManager)
+    public function createAlias(Request $request, TranslatorInterface $translator, EntityManagerInterface $entityManager, string $pageUuid)
     {
         $this->denyAccessUnlessGranted('alias_create');
 
@@ -553,19 +566,23 @@ class PageController extends AbstractController
         $alias_prefix = $config['page_templates'][$pageStreamRead->getTemplate()]['alias_prefix'][$pageStreamRead->getLanguage()] ?? '/';
         $pathSuggestion = $alias_prefix.$slugify->slugify($pageStreamRead->getTitle());
 
-        $form = $this->createFormBuilder(['path' => $pathSuggestion])
-            ->add('path', TextType::class, [
-                'label' => 'Path',
-                'required' => true,
-                'attr' => [
-                    'placeholder' => $pathSuggestion,
-                ],
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Create alias',
-            ])
-            ->getForm();
+        $formBuilder = $this->createFormBuilder(['path' => $pathSuggestion]);
 
+        $formBuilder->add('path', TextType::class, [
+            'label' => 'admin.label.path',
+            'translation_domain' => 'cms',
+            'required' => true,
+            'attr' => [
+                'placeholder' => $pathSuggestion,
+            ],
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'admin.btn.createAlias',
+            'translation_domain' => 'cms',
+        ]);
+
+        $form = $formBuilder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -590,7 +607,7 @@ class PageController extends AbstractController
         }
 
         return $this->render('@cms/Form/alias-form.html.twig', [
-            'title' => 'Create alias',
+            'title' => $translator->trans('admin.label.createAlias', [], 'cms'),
             'form' => $form->createView(),
             'websiteUrl' => $websiteUrl,
         ]);
@@ -837,18 +854,14 @@ class PageController extends AbstractController
         }
 
         $translations = [
-            'addElement' => 'Add Element',
-            'delete' => 'Delete',
-            'edit' => 'Edit',
-            'duplicate' => 'Duplicate',
-            'shift' => 'Shift',
-            'enable' => 'Enable',
-            'disable' => 'Disable',
+            'addElement' => $translator->trans('admin.btn.addElement', [], 'cms'),
+            'delete' => $translator->trans('admin.btn.delete', [], 'cms'),
+            'edit' => $translator->trans('admin.btn.edit', [], 'cms'),
+            'duplicate' => $translator->trans('admin.btn.duplicate', [], 'cms'),
+            'shift' => $translator->trans('admin.btn.shift', [], 'cms'),
+            'enable' => $translator->trans('admin.btn.enable', [], 'cms'),
+            'disable' => $translator->trans('admin.btn.disable', [], 'cms'),
         ];
-
-        $translations = array_map(static function ($value) use ($translator) {
-            return $translator->trans($value);
-        }, $translations);
 
         // Convert the page aggregate to a json payload.
         $pageData = json_decode(json_encode($page), true);
@@ -975,7 +988,7 @@ class PageController extends AbstractController
 
         $this->addFlash(
             'success',
-            $translator->trans('Page Cloned')
+            $translator->trans('admin.label.pageCloneSuccess', [], 'cms')
         );
 
         return $this->redirectToPage($pageUuid);
@@ -1033,7 +1046,7 @@ class PageController extends AbstractController
 
         $this->addFlash(
             'success',
-            $translator->trans('Page Deleted')
+            $translator->trans('admin.label.pageDeleteSuccess', [], 'cms')
         );
 
         return $this->redirect('/admin/?entity=PageStreamRead&action=list');
@@ -1075,20 +1088,24 @@ class PageController extends AbstractController
             $versionChoices['Version '.$event['version'].' - '.$label] = $event['version'];
         }
 
-        $form = $this->createFormBuilder()
-            ->add('previousVersion', ChoiceType::class, [
-                'label' => 'Previous Version',
-                'required' => true,
-                'choices' => $versionChoices,
-                'attr' => [
-                    'class' => 'custom-select',
-                ],
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Rollback',
-            ])
-            ->getForm();
+        $formBuilder = $this->createFormBuilder();
 
+        $formBuilder->add('previousVersion', ChoiceType::class, [
+            'label' => 'admin.label.previousVersion',
+            'translation_domain' => 'cms',
+            'required' => true,
+            'choices' => $versionChoices,
+            'attr' => [
+                'class' => 'custom-select',
+            ],
+        ]);
+
+        $formBuilder->add('submit', SubmitType::class, [
+            'label' => 'admin.btn.rollback',
+            'translation_domain' => 'cms',
+        ]);
+
+        $form = $formBuilder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -1101,7 +1118,7 @@ class PageController extends AbstractController
             if ($success) {
                 $this->addFlash(
                     'success',
-                    $translator->trans('Page rolled back')
+                    $translator->trans('admin.label.pageRollbackSuccess', [], 'cms')
                 );
             }
 
@@ -1155,7 +1172,7 @@ class PageController extends AbstractController
 
         $this->addFlash(
             'success',
-            $translator->trans('Page element order saved')
+            $translator->trans('admin.label.pageSaveOrderSuccess', [], 'cms')
         );
 
         if ($request->get('ajax')) {

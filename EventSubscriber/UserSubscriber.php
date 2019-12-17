@@ -13,17 +13,21 @@ use function is_string;
 
 class UserSubscriber implements EventSubscriberInterface
 {
-    /** @var UserService */
+    /**
+     * @var UserService
+     */
     protected $userService;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $config;
 
     /**
      * UserSubscriber constructor.
      *
-     * @param \RevisionTen\CMS\Services\UserService $userService
-     * @param array                                 $config
+     * @param UserService $userService
+     * @param array       $config
      */
     public function __construct(UserService $userService, array $config)
     {
@@ -44,7 +48,7 @@ class UserSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\UserCreateEvent $userCreateEvent
+     * @param UserCreateEvent $userCreateEvent
      */
     public function sendSecretAfterCreate(UserCreateEvent $userCreateEvent): void
     {
@@ -61,7 +65,7 @@ class UserSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\UserCreateEvent $userCreateEvent
+     * @param UserCreateEvent $userCreateEvent
      */
     public function sendSecret(UserCreateEvent $userCreateEvent): void
     {
@@ -75,7 +79,7 @@ class UserSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param \RevisionTen\CMS\Event\UserResetPasswordEvent $userResetPasswordEvent
+     * @param UserResetPasswordEvent $userResetPasswordEvent
      */
     public function resetPassword(UserResetPasswordEvent $userResetPasswordEvent): void
     {
