@@ -36,6 +36,7 @@ class LanguageFilterType extends FilterType
     {
         $resolver->setDefaults([
             'choices' => $this->languages,
+            'choice_translation_domain' => 'messages',
             'attr' => [
                 'class' => 'custom-select',
             ],

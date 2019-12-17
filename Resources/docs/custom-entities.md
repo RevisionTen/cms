@@ -15,4 +15,4 @@ When you create a new entity in easyadmin the website property will be set to th
 
 
 [your-first-backend]: https://symfony.com/doc/current/bundles/EasyAdminBundle/book/your-first-backend.html
-[custom-entity-permissions]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/creating-page-templates.md#adding-permissions-to-custom-entities
+[custom-entity-permissions]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/permissions.md#adding-permissions-to-custom-entities

@@ -6,11 +6,133 @@ namespace RevisionTen\CMS\DependencyInjection;
 
 use RevisionTen\CMS\Form\PageMetaType;
 use RevisionTen\CMS\Form\PageType;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    /**
+     * @return ArrayNodeDefinition
+     */
+    public function addPageTemplatesNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('page_templates');
+
+        $node = $treeBuilder->getRootNode()
+            ->info('Defines the page template the user can choose from.')
+            ->isRequired()
+            ->requiresAtLeastOneElement()
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('template')->end()
+                    ->scalarNode('metatype')->end()
+                    ->scalarNode('solr_serializer')->end()
+                    ->arrayNode('alias_prefix')
+                        ->info('Defines the path prefix for pages with this template')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('websites')
+                        ->info('Defines on which website this template is available')
+                        ->integerPrototype()->end()
+                    ->end()
+                    ->arrayNode('permissions')
+                        ->info('Permissions for this page template.')
+                        ->children()
+                            ->scalarNode('list')->end()
+                            ->scalarNode('search')->end()
+                            ->scalarNode('new')->end()
+                            ->scalarNode('edit')->end()
+                            ->scalarNode('delete')->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+         return $node;
+    }
+
+    /**
+     * @return ArrayNodeDefinition
+     */
+    public function addPageElementsNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('page_elements');
+
+        $node = $treeBuilder->getRootNode()
+            ->info('Defines all element that are available in the page editor.')
+            ->isRequired()
+            ->requiresAtLeastOneElement()
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('class')
+                        ->info('The form type class of the element.')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('type')
+                        ->info('Optional property, defines how the element behaves in the frontend editor.')
+                    ->end()
+                    ->scalarNode('template')
+                        ->info('The template of the element.')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('form_template')
+                        ->info('The form template of the elements form type.')
+                    ->end()
+                    ->scalarNode('icon')
+                        ->info('A fontawesome icon CSS class to represent the element.')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->booleanNode('public')
+                        ->info('Set this to true to make this element available to all elements that accept all child elements.')
+                        ->defaultFalse()
+                    ->end()
+                    ->arrayNode('children')
+                        ->info('The type of children elements this element accepts, add "all" to accept all public elements.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                    ->arrayNode('styles')
+                        ->info('CSS classes this element can have assigned in its settings.')
+                        ->scalarPrototype()->end()
+                    ->end()
+                ->end()
+            ->end();
+
+         return $node;
+    }
+
+    /**
+     * @return ArrayNodeDefinition
+     */
+    public function addMenuItemsNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('menu_items');
+
+        $node = $treeBuilder->getRootNode()
+            ->info('Defines all items that are available in the menu editor.')
+            ->isRequired()
+            ->requiresAtLeastOneElement()
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('class')
+                        ->info('The FormType class of the item.')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->scalarNode('template')
+                        ->info('The template of the item.')
+                        ->isRequired()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ->end();
+
+         return $node;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -22,6 +144,9 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->append($this->addPageTemplatesNode())
+                ->append($this->addPageElementsNode())
+                ->append($this->addMenuItemsNode())
                 ->scalarNode('site_name')
                     ->info('The name of your website')
                     ->defaultValue('RevisionTen CMS')
@@ -80,63 +205,6 @@ class Configuration implements ConfigurationInterface
                     ->info('The form type class for the page settings.')
                     ->defaultValue(PageMetaType::class)
                 ->end()
-                ->arrayNode('page_elements')
-                    ->info('Defines all element that are available in the page editor.')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('class')
-                                ->info('The form type class of the element.')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->scalarNode('type')
-                                ->info('Optional property, defines how the element behaves in the frontend editor.')
-                            ->end()
-                            ->scalarNode('template')
-                                ->info('The template of the element.')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->scalarNode('form_template')
-                                ->info('The form template of the elements form type.')
-                            ->end()
-                            ->scalarNode('icon')
-                                ->info('A fontawesome icon CSS class to represent the element.')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->booleanNode('public')
-                                ->info('Set this to true to make this element available to all elements that accept all child elements.')
-                                ->defaultFalse()
-                            ->end()
-                            ->arrayNode('children')
-                                ->info('The type of children elements this element accepts, add "all" to accept all public elements.')
-                                ->scalarPrototype()->end()
-                            ->end()
-                            ->arrayNode('styles')
-                                ->info('CSS classes this element can have assigned in its settings.')
-                                ->scalarPrototype()->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('menu_items')
-                    ->info('Defines all items that are available in the menu editor.')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('class')
-                                ->info('The FormType class of the item.')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                            ->scalarNode('template')
-                                ->info('The template of the item.')
-                                ->isRequired()
-                                ->cannotBeEmpty()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('page_languages')
                     ->info('Defines all available languages.')
                     ->defaultValue([
@@ -160,30 +228,6 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('template')->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('page_templates')
-                    ->info('Defines the page template the user can choose from.')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('template')->end()
-                            ->scalarNode('metatype')->end()
-                            ->scalarNode('solr_serializer')->end()
-                            ->arrayNode('alias_prefix')
-                                ->info('Defines the path prefix for pages with this template')
-                                ->scalarPrototype()->end()
-                            ->end()
-                            ->arrayNode('permissions')
-                                ->info('Permissions for this page template.')
-                                ->children()
-                                    ->scalarNode('list')->end()
-                                    ->scalarNode('search')->end()
-                                    ->scalarNode('new')->end()
-                                    ->scalarNode('edit')->end()
-                                    ->scalarNode('delete')->end()
-                                ->end()
-                            ->end()
                         ->end()
                     ->end()
                 ->end()

@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType;
 use RevisionTen\CMS\Model\Website;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use function mb_strtolower;
 use function method_exists;
@@ -26,13 +27,22 @@ class EasyAdminController extends BaseController
     private $cmsConfig;
 
     /**
+     * @var int
+     */
+    private $currentWebsite;
+
+    /**
      * EasyAdminController constructor.
      *
-     * @param array $cmsConfig
+     * @param RequestStack $requestStack
+     * @param array        $cmsConfig
      */
-    public function __construct(array $cmsConfig)
+    public function __construct(RequestStack $requestStack, array $cmsConfig)
     {
         $this->cmsConfig = $cmsConfig;
+
+        $request = $requestStack->getMasterRequest();
+        $this->currentWebsite = $request ? (int) $request->get('currentWebsite') : 1;
     }
 
     /**
@@ -271,6 +281,11 @@ class EasyAdminController extends BaseController
         $templates = [];
         foreach ($pageTemplates as $template => $templateConfig) {
             $permission = $templateConfig['permissions'][$permissionName] ?? null;
+            // Check if the website matches.
+            if (!empty($templateConfig['websites']) && !in_array($this->currentWebsite, $templateConfig['websites'], true)) {
+                // Current website is not is defined websites.
+                continue;
+            }
             // Check if permission is not explicitly set or user is granted the permission.
             if (null === $permission || $this->isGranted($permission)) {
                 $templates[] = $template;

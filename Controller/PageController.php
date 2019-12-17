@@ -120,7 +120,7 @@ class PageController extends AbstractController
         }
 
         $pageType = $config['page_type'] ?? PageType::class;
-        $templates = $this->getPermittedTemplates('new');
+        $templates = $this->getPermittedTemplates('new', $currentWebsite);
 
         $form = $this->createForm($pageType, $data, [
             'page_websites' => $currentWebsite ? false : $pageWebsites,
@@ -178,7 +178,7 @@ class PageController extends AbstractController
         $user = $this->getUser();
         $config = $this->getParameter('cms');
         $ignore_validation = $request->get('ignore_validation');
-        $currentWebsite = $request->get('currentWebsite');
+        $currentWebsite = (int) $request->get('currentWebsite');
 
         // Convert Aggregate to data array for form and remove properties we don't want changed.
         /**
@@ -190,7 +190,7 @@ class PageController extends AbstractController
         $aggregateWebsite = $aggregateData['website'] ?? $currentWebsite;
 
         // Check if the user can edit pages with this template.
-        $this->denyAccessUnlessGrantedTemplatePermission('edit', $aggregate->template);
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $aggregate->template, $currentWebsite);
 
         /**
          * @var Website[] $websites
@@ -205,7 +205,7 @@ class PageController extends AbstractController
         }
 
         $pageType = $config['page_type'] ?? PageType::class;
-        $templates = $this->getPermittedTemplates('edit');
+        $templates = $this->getPermittedTemplates('edit', $currentWebsite);
 
         $form = $this->createForm($pageType, $aggregateData, [
             'page_websites' => $currentWebsite && count($pageWebsites) === 1 ? false : $pageWebsites,
@@ -797,9 +797,6 @@ class PageController extends AbstractController
          */
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
-        // Check if the user can edit pages with this template.
-        $this->denyAccessUnlessGrantedTemplatePermission('edit', $page->template);
-
         // Check if user has access to the aggregates current website.
         /**
          * @var ArrayCollection $websites
@@ -811,10 +808,13 @@ class PageController extends AbstractController
              */
             return $website->getId();
         }, $websites->toArray());
-        $currentWebsite = $request->get('currentWebsite');
+        $currentWebsite = (int) $request->get('currentWebsite');
         if ($currentWebsite && $page->website !== $currentWebsite && !in_array($currentWebsite, $websites, false)) {
             throw new AccessDeniedHttpException('Page does not exist on this website');
         }
+
+        // Check if the user can edit pages with this template.
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $page->template, $currentWebsite);
 
         // Get the first alias for this page.
         /**
@@ -972,7 +972,8 @@ class PageController extends AbstractController
         }
 
         // Check if the user can create pages with this template.
-        $this->denyAccessUnlessGrantedTemplatePermission('new', $pageStreamRead->getTemplate());
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $this->denyAccessUnlessGrantedTemplatePermission('new', $pageStreamRead->getTemplate(), $currentWebsite);
 
         $data = [
             'originalUuid' => $pageStreamRead->getUuid(),
@@ -1030,7 +1031,8 @@ class PageController extends AbstractController
         }
 
         // Check if the user can delete pages with this template.
-        $this->denyAccessUnlessGrantedTemplatePermission('delete', $pageStreamRead->getTemplate());
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $this->denyAccessUnlessGrantedTemplatePermission('delete', $pageStreamRead->getTemplate(), $currentWebsite);
 
         $pageUuid = $pageStreamRead->getUuid();
         $version = $pageStreamRead->getVersion();
@@ -1080,7 +1082,8 @@ class PageController extends AbstractController
         $pageAggregate = $aggregateFactory->build($pageUuid, Page::class, $version, $user->getId());
 
         // Check if the user can edit pages with this template.
-        $this->denyAccessUnlessGrantedTemplatePermission('edit', $pageAggregate->template);
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $this->denyAccessUnlessGrantedTemplatePermission('edit', $pageAggregate->template, $currentWebsite);
 
         $versionChoices = [];
         foreach ($pageAggregate->getHistory() as $event) {
@@ -1269,20 +1272,25 @@ class PageController extends AbstractController
 
     /**
      * @param string $permissionName
+     * @param int    $currentWebsite
      *
      * @return array
      */
-    private function getPermittedTemplates(string $permissionName): array
+    private function getPermittedTemplates(string $permissionName, int $currentWebsite): array
     {
         $config = $this->getParameter('cms');
         $pageTemplates = $config['page_templates'] ?? null;
         $templates = [];
         foreach ($pageTemplates as $template => $templateConfig) {
             $permission = $templateConfig['permissions'][$permissionName] ?? null;
+            // Check if the website matches.
+            if (!empty($templateConfig['websites']) && !in_array($currentWebsite, $templateConfig['websites'], true)) {
+                // Current website is not is defined websites.
+                continue;
+            }
             // Check if permission is not explicitly set or user is granted the permission.
             if (null === $permission || $this->isGranted($permission)) {
                 $templates[$template] = $templateConfig;
-                continue;
             }
         }
 
@@ -1294,19 +1302,28 @@ class PageController extends AbstractController
      *
      * @param string $permissionName
      * @param string $template
+     * @param int    $currentWebsite
      *
      * @return void
      */
-    private function denyAccessUnlessGrantedTemplatePermission(string $permissionName, string $template): void
+    private function denyAccessUnlessGrantedTemplatePermission(string $permissionName, string $template, int $currentWebsite): void
     {
         $config = $this->getParameter('cms');
         $permission = $config['page_templates'][$template]['permissions'][$permissionName] ?? null;
+        $websites = $config['page_templates'][$template]['websites'] ?? null;
 
         if (null === $permission) {
             // Permission is not explicitly set, grant access.
             return;
         }
 
+        // Check if the website matches.
+        if (null !== $websites && !in_array($currentWebsite, $websites, true)) {
+            // Current website is not is defined websites.
+            throw new AccessDeniedHttpException();
+        }
+
+        // Check if permission is granted.
         if (!$this->isGranted($permission)) {
             throw new AccessDeniedHttpException();
         }
