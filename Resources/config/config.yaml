@@ -72,7 +72,7 @@ gregwar_image:
 
 easy_admin:
     translation_domain: 'cms'
-    site_name: '<img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> %cms.site_name%'
+    site_name: '%cms.site_name%'
     design:
         menu: '%cms.admin_menu%'
         brand_color: '#41b3f9'

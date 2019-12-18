@@ -174,10 +174,10 @@ body:not(.easyadmin-content-width-full) .wrapper,
     /** dont show default easyadmin header wrapper */
     display: none;
 }
-.main-header {
+.cms-site-chooser {
+    padding-left: 30px;
+    padding-right: 30px;
     background: var(--color-main-header);
-    font-size: 20px;
-    line-height: 20px;
 }
 .main-header #header-logo {
     margin: 0;
@@ -195,9 +195,6 @@ body:not(.easyadmin-content-width-full) .wrapper,
 .revision-ten-logo {
     height: 20px;
     width: 20px;
-    display: block;
-    float: left;
-    margin-right: 5px;
 }
 .sidebar {
     color: var(--color-sidebar);
@@ -211,9 +208,11 @@ body:not(.easyadmin-content-width-full) .wrapper,
 }
 .sidebar-menu .header {
     padding-left: 0;
+    margin-top: 15px;
 }
 .sidebar-menu a {
     color: var(--color-sidebar);
+    padding: 5px 0;
 }
 .sidebar-menu .treeview-menu a {
     padding: 7px 5px 7px 15px;
@@ -423,10 +422,9 @@ body.show .field-text .form-widget {
 }
 /* Avatar */
 .editor-avatar {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto;
-    margin-bottom: 10px;
+    width: 40px;
+    height: 40px;
+    margin: 0;
     position: relative;
 }
 .editor-avatar-small {
@@ -441,11 +439,11 @@ body.show .field-text .form-widget {
     position: relative;
 }
 .editor-avatar-color {
-    width: 60px;
+    width: 40px;
     margin: 0 auto 10px auto;
-    height: 60px;
-    line-height: 60px;
-    font-size: 30px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
 }
 .editor-avatar-color-small {
     width: 14px;
@@ -468,9 +466,6 @@ body.show .field-text .form-widget {
     height: 2rem;
     width: 2rem;
     margin: 0;
-}
-.editor-userinfo {
-    padding: 30px 15px 0 15px;
 }
 #page-tree {
     width: auto;

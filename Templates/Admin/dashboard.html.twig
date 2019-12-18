@@ -2,7 +2,7 @@
 {% import _self as macros %}
 {% macro groupedEvents(eventObjects) %}
     <table class="table datagrid border-0">
-        {% for userId, events in eventObjects %}
+        {% for userId, aggregates in eventObjects %}
             <tr>
                 <td style="width: 4rem;padding-right: 0;vertical-align: top;">
                     {% set value = userId %}
@@ -11,18 +11,22 @@
                     </div>
                 </td>
                 <td>
-                    {% for event in events|slice(0, 3) %}
-                        {% set groupedEvent = {} %}
-                        <div class="row mb-1">
-                            <div class="col">
-                                {{ event.payload.message is defined ? event.payload.message|trans : event.message|trans }}<br/>
-                                <span class="text-muted">
-                                    {% set value = event.uuid %}{% include '@cms/Admin/User/List/uuid.html.twig' %}
-                                </span>
-                            </div>
-                            <div class="col text-right">
-                                {% set value = event.created %}{% include '@cms/Admin/Event/List/datetime_ago.html.twig' %}
-                            </div>
+                    {% for aggregateUuid, events in aggregates %}
+                        <div class="{{ loop.last == false ? 'mb-3' }}">
+                            <strong>
+                                {% set value = aggregateUuid %}{% include '@cms/Admin/User/List/uuid.html.twig' %}
+                            </strong>
+                            {% for event in events|slice(0, 3) %}
+                                {% set groupedEvent = {} %}
+                                <div class="row mb-1 text-muted">
+                                    <div class="col">
+                                        {{ event.payload.message is defined ? event.payload.message|trans : event.message|trans }}
+                                    </div>
+                                    <div class="col text-right">
+                                        {% set value = event.created %}{% include '@cms/Admin/Event/List/datetime_ago.html.twig' %}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% endfor %}
                 </td>
@@ -41,40 +45,33 @@
 <div class="p-3">
     <div class="row align-items-stretch">
         <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card mb-3 border-0">
-                <div class="card-header p-3 border-0 bg-transparent">
-                    <h6>
-                        {{ 'admin.label.latestCommits'|trans({}, 'cms') }}
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    {{ macros.groupedEvents(latestCommits) }}
-                </div>
-            </div>
 
-            <div class="flex-grow-1 card mb-3 border-0">
-                <div class="card-header p-3 border-0 bg-transparent">
-                    <h6>
-                        {{ 'admin.label.latestEvents'|trans({}, 'cms') }}
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    {{ macros.groupedEvents(eventStreamObjects) }}
-                </div>
-            </div>
-
-            {% if eventQueueObjects|length > 0 %}
+            {% if pageEvents|length > 0 %}
                 <div class="flex-grow-1 card mb-3 border-0">
                     <div class="card-header p-3 border-0 bg-transparent">
                         <h6>
-                            {{ 'admin.label.latestDraftEvents'|trans({}, 'cms') }}
+                            {{ 'admin.label.latestCommits'|trans({}, 'cms') }}
                         </h6>
                     </div>
                     <div class="card-body p-0">
-                        {{ macros.groupedEvents(eventQueueObjects) }}
+                        {{ macros.groupedEvents(pageEvents) }}
                     </div>
                 </div>
             {% endif %}
+
+            {% if nonPageEvents|length > 0 and is_granted('event_list') %}
+                <div class="flex-grow-1 card mb-3 border-0">
+                    <div class="card-header p-3 border-0 bg-transparent">
+                        <h6>
+                            {{ 'admin.label.latestNonPageEvents'|trans({}, 'cms') }}
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        {{ macros.groupedEvents(nonPageEvents) }}
+                    </div>
+                </div>
+            {% endif %}
+
         </div>
 
         <div class="col col-sm-6 d-flex flex-column">
@@ -114,13 +111,15 @@
                             <td><span class="fas fa-hourglass-half"></span> PHP Max Execution Time: </td>
                             <td>{{ execution_limit }} sec</td>
                         </tr>
+                        {% set iconEnabled = '<span class="fas fa-check text-success"></span>' %}
+                        {% set iconDisabled = '<span class="fas fa-times text-danger"></span>' %}
                         <tr>
                             <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
-                            <td>{{ apc_enabled }}</td>
+                            <td>{{ (apc_enabled ? iconEnabled : iconDisabled)|raw }}</td>
                         </tr>
                         <tr>
                             <td><span class="fas fa-file"></span> Page Cache: </td>
-                            <td>{{ (cache_enabled ? '<span>enabled</span>' : '<span class="badge" style="background: red;">disabled</span>')|raw }}</td>
+                            <td>{{ (cache_enabled ? iconEnabled : iconDisabled)|raw }}</td>
                         </tr>
                         <tr>
                             <td><span class="fas fa-info-circle"></span> Server IP: </td>
