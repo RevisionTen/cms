@@ -1,12 +1,16 @@
 {% if websites|length > 1 %}
-<div class="dropdown">
-    <button class="btn-website btn btn-sm bg-transparent border-0 text-muted dropdown-toggle" type="button" id="websiteChooser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        {% for website in websites %}{{ website.id == currentWebsite ? website.title : '' }}{% endfor %}
-    </button>
-    <div class="dropdown-menu" aria-labelledby="websiteChooser">
-        {% for website in websites %}
-            <a class="dropdown-item" href="{{ path('cms_set_website', {website: website.id}) }}">{{ website.title }}</a>
-        {% endfor %}
+    <div class="dropdown d-inline-block">
+        <button class="btn-website btn btn-sm bg-transparent border-0 text-white dropdown-toggle" type="button" id="websiteChooser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% for website in websites %}{{ website.id == currentWebsite ? website.title : '' }}{% endfor %}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="websiteChooser">
+            {% for website in websites %}
+                <a class="dropdown-item" href="{{ path('cms_set_website', {website: website.id}) }}">{{ website.title }}</a>
+            {% endfor %}
+        </div>
     </div>
-</div>
+{% else %}
+    <div class="btn-website btn btn-sm bg-transparent border-0 text-white">
+        {{ easyadmin_config('site_name')|raw }}
+    </div>
 {% endif %}

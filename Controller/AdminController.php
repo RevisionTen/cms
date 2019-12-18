@@ -8,12 +8,12 @@ use RevisionTen\CMS\CmsBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Model\MenuRead;
+use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
-use RevisionTen\CQRS\Model\EventQueueObject;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use RevisionTen\Forms\Model\FormRead;
 use Doctrine\Common\Collections\Criteria;
@@ -214,43 +214,29 @@ class AdminController extends AbstractController
      * @Route("/", name="cms_admin_slash")
      * @Route("/dashboard", name="cms_dashboard")
      *
+     * @param Request                $request
      * @param EntityManagerInterface $em
      * @param CacheService           $cacheService
      *
      * @return Response
      */
-    public function dashboardAction(EntityManagerInterface $em, CacheService $cacheService): Response
+    public function dashboardAction(Request $request, EntityManagerInterface $em, CacheService $cacheService): Response
     {
-        /**
-         * @var EventStreamObject[]|null $eventStreamObjects
-         */
-        $eventStreamObjects = $em->getRepository(EventStreamObject::class)->findBy([], ['id' => Criteria::DESC], 6);
+        // Get latest non page events.
+        $nonPageEvents = $this->getNonePageEvents($em);
 
-        /**
-         * @var EventQueueObject[]|null $eventQueueObjects
-         */
-        $eventQueueObjects = $em->getRepository(EventQueueObject::class)->findBy([], ['id' => Criteria::DESC], 6);
-
-        /**
-         * @var EventStreamObject[]|null $latestCommits
-         */
-        $latestCommits = $em->getRepository(EventStreamObject::class)->findBy([
-            'event' => PageSubmitEvent::class,
-        ], [
-            'id' => Criteria::DESC,
-        ], 7);
+        // Get latest page events.
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $pageEvents = $this->getPageEvents($em, $currentWebsite);
 
         return $this->render('@cms/Admin/dashboard.html.twig', [
+            'nonPageEvents' => $nonPageEvents,
+            'pageEvents' => $pageEvents,
             'cache_enabled' => $cacheService->isCacheEnabled(),
-            'shm_enabled' => $cacheService->isCacheEnabled(),
-            'shm_key' => 1,
-            'eventStreamObjects' => $this->groupEventsByUser($eventStreamObjects),
-            'eventQueueObjects' => $this->groupEventsByUser($eventQueueObjects),
-            'latestCommits' => $this->groupEventsByUser($latestCommits),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,
             'php_version' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
-            'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')) ? 'enabled' : 'disabled',
+            'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')),
             'memory_limit' => ini_get('memory_limit'),
             'upload_limit' => ini_get('upload_max_filesize'),
             'post_limit' => ini_get('post_max_size'),
@@ -341,21 +327,119 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @param array|null $events
+     * Get an array of page events grouped by user > page > events.
+     *
+     * @param EntityManagerInterface $em
+     * @param int                    $currentWebsite
      *
      * @return array
      */
-    private function groupEventsByUser(array $events = null): array
+    private function getPageEvents(EntityManagerInterface $em, int $currentWebsite): array
     {
-        $grouped = [];
-        foreach ($events as $event) {
-            $eventUser = $event->getUser();
-            if (!isset($grouped[$eventUser])) {
-                $grouped[$eventUser] = [];
-            }
-            $grouped[$eventUser][] = $event;
+        /**
+         * Get recent page submit events.
+         *
+         * @var EventStreamObject[]|null $latestCommits
+         */
+        $events = $em->getRepository(EventStreamObject::class)->findBy([
+            'event' => PageSubmitEvent::class,
+        ], [
+            'id' => Criteria::DESC,
+        ], 15);
+
+        // Get list of page UUIDs.
+        $pageUuids = array_map(static function (EventStreamObject $event) {
+            return $event->getUuid();
+        }, $events);
+
+        /**
+         * Get the pages.
+         *
+         * @var PageStreamRead[]|null $pages
+         */
+        $pages = $em->getRepository(PageStreamRead::class)->findBy([
+            'uuid' => $pageUuids,
+        ]);
+
+        // Create a list of pages by UUID.
+        $pagesByUuid = [];
+        foreach ($pages as $page) {
+            $pagesByUuid[$page->getUuid()] = $page;
         }
 
-        return $grouped;
+        // Build a multidimensional array of events grouped by user and page.
+        $groupedEvents = [];
+        foreach ($events as $event) {
+            $user = $event->getUser();
+            $aggregateUuid = $event->getUuid();
+
+            /**
+             * Check if page is visible on current website.
+             *
+             * @var PageStreamRead|null $page
+             */
+            $page = $pagesByUuid[$aggregateUuid] ?? null;
+            $visible = null !== $page && $page->getWebsite() === $currentWebsite;
+
+            if ($visible) {
+                // Add the user group if it does not already exist.
+                if (!isset($groupedEvents[$user])) {
+                    $groupedEvents[$user] = [];
+                }
+                // Add the page group if it does not already exist.
+                if (!isset($groupedEvents[$user][$aggregateUuid])) {
+                    $groupedEvents[$user][$aggregateUuid] = [];
+                }
+                // Add the event.
+                $groupedEvents[$user][$aggregateUuid][] = $event;
+            }
+        }
+
+        return $groupedEvents;
+    }
+
+    /**
+     * Get an array of events grouped by user > aggregate > events.
+     *
+     * @param EntityManagerInterface $em
+     *
+     * @return array
+     */
+    private function getNonePageEvents(EntityManagerInterface $em): array
+    {
+        $queryBuilder = $em->createQueryBuilder();
+        $queryBuilder
+            ->select('e')
+            ->from('CqrsBundle:EventStreamObject', 'e')
+            ->where($queryBuilder->expr()->neq('e.aggregateClass', ':pageClass'))
+            ->orderBy('e.id', Criteria::DESC)
+            ->setMaxResults(10)
+            ->setParameter('pageClass', Page::class);
+
+        $query = $queryBuilder->getQuery();
+        /**
+         * @var EventStreamObject[]|null $events
+         */
+        $events = $query->getResult();
+
+        // Build a multidimensional array of events grouped by user and aggregate.
+        $groupedEvents = [];
+        foreach ($events as $event) {
+            $user = $event->getUser();
+            $aggregateUuid = $event->getUuid();
+
+            // Add the user group if it does not already exist.
+            if (!isset($groupedEvents[$user])) {
+                $groupedEvents[$user] = [];
+            }
+            // Add the aggregate group if it does not already exist.
+            if (!isset($groupedEvents[$user][$aggregateUuid])) {
+                $groupedEvents[$user][$aggregateUuid] = [];
+            }
+            // Add the event.
+            $groupedEvents[$user][$aggregateUuid][] = $event;
+        }
+
+        return $groupedEvents;
     }
 }
