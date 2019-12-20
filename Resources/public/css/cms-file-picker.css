@@ -7,7 +7,6 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background:white;
 }
 .cms-file-picker-body {
     overflow: auto;
@@ -16,6 +15,7 @@
     bottom: 0;
     left: 0;
     right: 0;
+    background: var(--form-bg);
 }
 body.file-picker-open {
     overflow: hidden;

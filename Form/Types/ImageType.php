@@ -26,7 +26,7 @@ class ImageType extends AbstractType
         ]);
 
         $builder->add('image', UploadType::class, [
-            'label' => 'teaser.label.image',
+            'label' => 'image.label.image',
             'translation_domain' => 'cms',
             'required' => false,
             'show_file_picker' => true,

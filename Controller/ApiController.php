@@ -215,9 +215,9 @@ class ApiController extends AbstractController
                 'url' => $this->generateUrl('cms_clone_aggregate', ['id' => $pageStreamRead->getId()]),
                 'display' => $canCloneAggregate,
                 'type' => 'link',
-                'attributes' => $page->getVersion() !== $page->getStreamVersion() ? [
-                    'onclick' => 'return confirm(\''.$translator->trans('admin.label.confirmClone', [], 'cms').'\')',
-                ] : [],
+                'attributes' => [
+                    'onclick' => 'return confirm(\''.$translator->trans('admin.label.confirmDuplicate', [], 'cms').'\')',
+                ],
             ],
             'delete_aggregate' => [
                 'css_class' => 'btn-tertiary',

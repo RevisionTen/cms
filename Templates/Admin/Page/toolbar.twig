@@ -67,34 +67,34 @@
             <form class="form-inline d-flex">
                 {% apply spaceless %}
 
-                {% if actions.preview.display %}
-                    {% set deviceIcons = {
-                        'AutoWidth': 'fas fa-expand',
-                        'xs': 'fas fa-mobile-alt',
-                        'sm': 'fas fa-mobile-alt',
-                        'md': 'fas fa-tablet-alt',
-                        'lg': 'fas fa-laptop',
-                        'xl': 'fas fa-desktop'
-                    } %}
-                    <div class="dropdown">
-                        <button title="{{ previewSize|trans }}" class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="{{ deviceIcons[previewSize] }}"></span> <span class="label-text">{{ ('admin.label.'~previewSize)|trans({}, 'cms') }}</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            {% set route = 'cms_edit_aggregate' %}
-                            {% set queries = app.request.query.all %}
-                            {% set queries = queries|merge({'id': id}) %}
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'admin.label.autoWidth'|trans({}, 'cms') }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'admin.label.xs'|trans({}, 'cms') }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'admin.label.sm'|trans({}, 'cms') }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'admin.label.md'|trans({}, 'cms') }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'admin.label.lg'|trans({}, 'cms') }}</a>
-                            <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'admin.label.xl'|trans({}, 'cms') }}</a>
-                        </div>
-                    </div>
-                {% endif %}
-
                 <div class="btn-group">
+                    {% if actions.preview.display %}
+                        {% set deviceIcons = {
+                            'AutoWidth': 'fas fa-expand',
+                            'xs': 'fas fa-mobile-alt',
+                            'sm': 'fas fa-mobile-alt',
+                            'md': 'fas fa-tablet-alt',
+                            'lg': 'fas fa-laptop',
+                            'xl': 'fas fa-desktop'
+                        } %}
+                        <div class="btn-group">
+                            <button title="{{ previewSize|trans }}" class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="{{ deviceIcons[previewSize] }}"></span> <span class="label-text">{{ ('admin.label.'~previewSize)|trans({}, 'cms') }}</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                {% set route = 'cms_edit_aggregate' %}
+                                {% set queries = app.request.query.all %}
+                                {% set queries = queries|merge({'id': id}) %}
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'AutoWidth'})) }}"><i class="{{ deviceIcons.AutoWidth }}"></i> {{ 'admin.label.autoWidth'|trans({}, 'cms') }}</a>
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xs'})) }}"><i class="{{ deviceIcons.xs }}"></i> {{ 'admin.label.xs'|trans({}, 'cms') }}</a>
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'sm'})) }}"><i class="{{ deviceIcons.sm }}"></i> {{ 'admin.label.sm'|trans({}, 'cms') }}</a>
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'md'})) }}"><i class="{{ deviceIcons.md }}"></i> {{ 'admin.label.md'|trans({}, 'cms') }}</a>
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'lg'})) }}"><i class="{{ deviceIcons.lg }}"></i> {{ 'admin.label.lg'|trans({}, 'cms') }}</a>
+                                <a class="dropdown-item" href="{{ path(route, queries|merge({'previewSize': 'xl'})) }}"><i class="{{ deviceIcons.xl }}"></i> {{ 'admin.label.xl'|trans({}, 'cms') }}</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
                     {% set buttonActions = [
                     actions.toggle_contrast,
                     actions.toggle_tree,
@@ -110,37 +110,32 @@
                     {% endfor %}
                 </div>
 
-                {% if actions.rollback_aggregate.display %}
-                    <div class="dropdown ml-3">
-                        {% set historyActions = [
-                        actions.undo_change,
-                        actions.rollback_aggregate,
-                        actions.discard_changes
-                        ] %}
-                        <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'admin.label.history'|trans({}, 'cms') }}</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            {% for action in historyActions %}
-                                {% if action.display %}
-                                    <a class="dropdown-item text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
-                                        <span class="{{ action.icon }}"></span> {{ action.label }}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
+                <div class="btn-group ml-3">
+                    {% if actions.rollback_aggregate.display %}
+                        <div class="btn-group">
+                            {% set historyActions = [
+                                actions.undo_change,
+                                actions.rollback_aggregate,
+                                actions.discard_changes
+                            ] %}
+                            <button class="btn btn-tertiary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="fas fa-history"></span> <span class="badge badge-up">{{ version }}</span> <span class="label-text">{{ 'admin.label.history'|trans({}, 'cms') }}</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                {% for action in historyActions %}
+                                    {% if action.display %}
+                                        <a class="dropdown-item text-{{ action.css_class }}" {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }} target="_top" href="{{ action.url }}">
+                                            <span class="{{ action.icon }}"></span> {{ action.label }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
+                    {% endif %}
 
-                <div class="btn-group">
                     {% set buttonActions = [
-                    actions.change_pagesettings,
-                    actions.publish,
-                    actions.unpublish,
-                    actions.optimize,
-                    actions.submit_changes,
-                    actions.clone_aggregate,
-                    actions.delete_aggregate
+                        actions.change_pagesettings,
+                        actions.optimize,
                     ] %}
 
                     {% for action in buttonActions %}
@@ -150,6 +145,47 @@
                                 class="btn-label-fade btn btn-sm {{ action.css_class }}"
                                 {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }}
                                 target="_top" href="{{ action.url }}"
+                            >
+                                <span class="{{ action.icon }}"></span> <span class="label-text">&nbsp;{{ action.label }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="btn-group ml-3">
+                    {% set buttonActions = [
+                        actions.clone_aggregate,
+                        actions.delete_aggregate
+                    ] %}
+
+                    {% for action in buttonActions %}
+                        {% if action and action.display %}
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }}
+                                    title="{{ action.label }}"
+                                    class="btn-label-fade btn btn-sm {{ action.css_class }}"
+                                    {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }}
+                                    target="_top" href="{{ action.url }}"
+                            >
+                                <span class="{{ action.icon }}"></span> <span class="label-text">&nbsp;{{ action.label }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="btn-group ml-3">
+                    {% set buttonActions = [
+                        actions.publish,
+                        actions.unpublish,
+                        actions.submit_changes
+                    ] %}
+
+                    {% for action in buttonActions %}
+                        {% if action and action.display %}
+                            <a {{ action.attributes is defined ? helper.attributes(action.attributes) : '' }}
+                                    title="{{ action.label }}"
+                                    class="btn-label-fade btn btn-sm {{ action.css_class }}"
+                                    {{ action.type == 'form' ? 'data-target=modal' : 'data-target='~action.type~'' }}
+                                    target="_top" href="{{ action.url }}"
                             >
                                 <span class="{{ action.icon }}"></span> <span class="label-text">&nbsp;{{ action.label }}</span>
                             </a>

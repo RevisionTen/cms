@@ -5,11 +5,7 @@
 {% endblock header %}
 
 {% block main_menu_wrapper %}
-    <div class="cms-site-chooser">
-        <div class="pt-3 pb-3 logo {{ easyadmin_config('site_name')|length > 14 ? 'logo-long' }}">
-            <img class="revision-ten-logo" src="/bundles/cms/icons/logo.svg"> {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteChooser')) }}
-        </div>
-    </div>
+    {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteChooser')) }}
 
     {{ parent() }}
 
