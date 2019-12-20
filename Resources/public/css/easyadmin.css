@@ -374,9 +374,6 @@ body.show .field-text .form-widget {
     color: var(--text-color);
 }
 /* Modal */
-.modal {
-    background: rgba(237, 241, 245, 0.8);
-}
 .modal-dialog {
     pointer-events: auto;
     resize: horizontal;
@@ -385,15 +382,40 @@ body.show .field-text .form-widget {
     min-width: 300px;
     max-width: 90%;
 }
-.modal-body,
-.modal-body .content,
-.modal-body .content-body .form-horizontal,
-.modal-body .content-body form {
-    background: white;
-}
 .modal-body .content-body .form-horizontal,
 .modal-body .content-body form {
     padding: 0;
+}
+.modal-header {
+    background: white;
+}
+.modal-body .content {
+    background: none;
+}
+#element_content > #element > .form-group {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: 0;
+}
+.modal-nav .nav-tabs {
+    margin: 1rem 0 -1rem 0;
+    border: 0;
+}
+.modal-nav .nav-tabs .nav-item {
+    margin-bottom: -1px;
+}
+.modal-body .tab-content {
+    margin-bottom: 1rem;
+}
+.modal-body fieldset {
+    background: none;
+}
+.nav-link {
+    color: var(--text-color);
+}
+.form-inline .form-control[type="date"] + .form-control[type="time"] {
+    margin-left: 5px;
 }
 /* Forms */
 /*
@@ -583,4 +605,3 @@ body.dragging, body.dragging * {
     height: 5px;
     background: #222222;
 }
-

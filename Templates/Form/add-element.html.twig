@@ -11,11 +11,9 @@
         <div class="row">
             {% for elementName, element in children %}
                 <div class="col-3 pt-3 pb-3">
-                    <div data-element-name="{{ elementName }}" data-uuid="{{ parent }}" class="btn-create card border-0" style="cursor: pointer;">
-                        <div class="card-body text-center p-0">
-                            <h2><span class="{{ element.icon }}"></span></h2>
-                            <h6>{{ elementName|trans({}, 'messages') }}</h6>
-                        </div>
+                    <div data-element-name="{{ elementName }}" data-uuid="{{ parent }}" class="btn-create text-center" style="cursor: pointer;">
+                        <h2><span class="{{ element.icon }}"></span></h2>
+                        <h6>{{ elementName|trans({}, 'messages') }}</h6>
                     </div>
                 </div>
             {% endfor %}

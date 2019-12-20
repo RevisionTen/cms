@@ -18,10 +18,6 @@ class Item extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('settings', ItemSettings::class, [
-            'label' => false,
-            'required' => false,
-        ]);
     }
 
     /**

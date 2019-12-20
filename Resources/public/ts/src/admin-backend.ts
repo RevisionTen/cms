@@ -10,6 +10,10 @@ import openModal from "./backend/modal";
 import fireCustomEvent from "./backend/events";
 import getPageInfo from "./backend/pageinfo";
 
+let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
+    confirmDelete: 'Delete?',
+    confirmDuplicate: 'Duplicate?',
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // Bind menu editor.
@@ -44,6 +48,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('bindWidgets', ((event: CustomEvent) => {
         bindFilePicker(event.detail.element);
     }) as EventListener);
+
+    // Confirm delete action in page list.
+    let deleteButtons = document.querySelectorAll('.action-cms_delete_aggregate');
+    deleteButtons.forEach((deleteButton) => {
+        deleteButton.addEventListener('click', () => {
+            if (!confirm(translations.confirmDelete)) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+    });
+    // Confirm duplicate action in page list.
+    let duplicateButtons = document.querySelectorAll('.action-cms_clone_aggregate');
+    duplicateButtons.forEach((duplicateButton) => {
+        duplicateButton.addEventListener('click', () => {
+            if (!confirm(translations.confirmDuplicate)) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+    });
 
     // Only execute on editor pages.
     if (!document.body.classList.contains('edit-page')) {

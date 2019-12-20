@@ -70,6 +70,16 @@ function bindModal(url: string)
         contentHeader.remove();
     }
 
+    // Move the modal nav into the modal header.
+    let modalNavContent = modalElement.querySelector('.modal-nav-content');
+    let modalNav = modalElement.querySelector('.modal-nav');
+    if (null !== modalNav && null !== modalNavContent) {
+        modalNav.innerHTML = modalNavContent.innerHTML;
+        modalNavContent.remove();
+    } else if (null !== modalNav) {
+        modalNav.innerHTML = ''
+    }
+
     // Show the modal.
     $(modalElement).modal('show'); // Todo: Update when Bootstrap 5 releases.
 }
