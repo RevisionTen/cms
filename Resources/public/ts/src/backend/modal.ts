@@ -4,6 +4,7 @@ import bindForm from './forms';
 import onSubmit from './onsubmit';
 import updateElement from './element';
 import updateCKEditorInstances from "./ckeditor";
+import scriptReplace from "./scriptreplace";
 
 function bindModal(url: string)
 {
@@ -12,6 +13,9 @@ function bindModal(url: string)
     if (null === modalElement) {
         return;
     }
+
+    // Execute dynamically inserted script tags in modal.
+    scriptReplace(modalElement);
 
     // Remove content wrapper css class.
     let contentWrapper = modalElement.querySelector('.content-wrapper');

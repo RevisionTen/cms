@@ -4,11 +4,15 @@ import bindForm from './forms';
 import onSubmit from './onsubmit';
 import updateElement from './element';
 import updateCKEditorInstances from "./ckeditor";
+import scriptReplace from "./scriptreplace";
 
 function bindTab(url: string)
 {
     let pageEditorTab = document.querySelector('.page-tabs-tab-editor');
-    let pageSettingsTab = document.querySelector('.page-tabs-tab-settings');
+    let pageSettingsTab = <HTMLElement>document.querySelector('.page-tabs-tab-settings');
+
+    // Execute dynamically inserted script tags in tab.
+    scriptReplace(pageSettingsTab);
 
     // Get first form in content.
     let form = pageSettingsTab.querySelector('form');
