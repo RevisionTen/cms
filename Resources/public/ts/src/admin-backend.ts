@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if ((document.body.classList.contains('edit') || document.body.classList.contains('new')) && (editForm || newForm)) {
         bindWidgets(document.body);
     }
+    // Initialize widgets on menu item form.
+    let menuItemForm = document.querySelector('form[name="element"]');
+    if (menuItemForm) {
+        bindWidgets(document.body);
+    }
     // Initialize widgets after they have been added to collections.
     $(document).on('easyadmin.collection.item-added', () => {
         bindWidgets(document.body);

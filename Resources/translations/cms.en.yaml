@@ -262,6 +262,7 @@ admin:
         published: "Published"
         unpublished: "Unpublished"
         scheduled: "Scheduled"
+        staged: "Staged"
         version: "Version"
         created: "Created"
         modified: "Modified"

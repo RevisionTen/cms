@@ -12,18 +12,18 @@ let bindWidgets = function(element: HTMLElement)
 
     // Enable CKEditor.
     let ckEditorElements = element.querySelectorAll('.ckeditor-custom');
-    ckEditorElements.forEach((select2Element: HTMLTextAreaElement) => {
-        let textAreaInstanceName = select2Element.id;
+    ckEditorElements.forEach((ckEditorElement: HTMLTextAreaElement) => {
+        let textAreaInstanceName = ckEditorElement.id;
         if ((window as any).CKEDITOR.instances[textAreaInstanceName]) {
             // CKEditor is already running.
-            let cke = select2Element.parentElement.querySelector('.cke');
+            let cke = ckEditorElement.parentElement.querySelector('.cke');
             if (null === cke) {
                 // CKEditor instance is old, destroy and replace.
                 (window as any).CKEDITOR.remove(textAreaInstanceName);
-                (window as any).CKEDITOR.replace(select2Element, JSON.parse(select2Element.dataset.config));
+                (window as any).CKEDITOR.replace(ckEditorElement, JSON.parse(ckEditorElement.dataset.config));
             }
         } else {
-            (window as any).CKEDITOR.replace(select2Element, JSON.parse(select2Element.dataset.config));
+            (window as any).CKEDITOR.replace(ckEditorElement, JSON.parse(ckEditorElement.dataset.config));
         }
     });
 
