@@ -216,11 +216,10 @@ class AdminController extends AbstractController
      *
      * @param Request                $request
      * @param EntityManagerInterface $em
-     * @param CacheService           $cacheService
      *
      * @return Response
      */
-    public function dashboardAction(Request $request, EntityManagerInterface $em, CacheService $cacheService): Response
+    public function dashboardAction(Request $request, EntityManagerInterface $em): Response
     {
         // Get latest non page events.
         $nonPageEvents = $this->getNonePageEvents($em);
@@ -232,6 +231,20 @@ class AdminController extends AbstractController
         return $this->render('@cms/Admin/dashboard.html.twig', [
             'nonPageEvents' => $nonPageEvents,
             'pageEvents' => $pageEvents,
+        ]);
+    }
+
+    /**
+     * @Route("/system-info", name="cms_systeminfo")
+     *
+     * @param EntityManagerInterface $em
+     * @param CacheService           $cacheService
+     *
+     * @return Response
+     */
+    public function systemInfoAction(EntityManagerInterface $em, CacheService $cacheService): Response
+    {
+        return $this->render('@cms/Admin/system-info.html.twig', [
             'cache_enabled' => $cacheService->isCacheEnabled(),
             'symfony_version' => Kernel::VERSION,
             'cms_version' => CmsBundle::VERSION,

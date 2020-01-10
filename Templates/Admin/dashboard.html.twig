@@ -11,7 +11,7 @@
                     </div>
                 </td>
                 <td>
-                    {% for aggregateUuid, events in aggregates %}
+                    {% for aggregateUuid, events in aggregates|slice(0, 3) %}
                         <div class="{{ loop.last == false ? 'mb-3' }}">
                             <strong>
                                 {% set value = aggregateUuid %}{% include '@cms/Admin/User/List/uuid.html.twig' %}
@@ -44,8 +44,8 @@
 {% block main %}
 <div class="p-3">
     <div class="row align-items-stretch">
-        <div class="col col-sm-6 d-flex flex-column">
 
+        <div class="col col-sm-6 d-flex flex-column">
             {% if pageEvents|length > 0 %}
                 <div class="flex-grow-1 card mb-3 border-0">
                     <div class="card-header p-3 border-0 bg-transparent">
@@ -58,7 +58,9 @@
                     </div>
                 </div>
             {% endif %}
+        </div>
 
+        <div class="col col-sm-6 d-flex flex-column">
             {% if nonPageEvents|length > 0 and is_granted('event_list') %}
                 <div class="flex-grow-1 card mb-3 border-0">
                     <div class="card-header p-3 border-0 bg-transparent">
@@ -71,67 +73,6 @@
                     </div>
                 </div>
             {% endif %}
-
-        </div>
-
-        <div class="col col-sm-6 d-flex flex-column">
-            <div class="flex-grow-1 card mb-3 border-0">
-                <div class="card-header p-3 border-0 bg-transparent">
-                    <h6>
-                        {{ 'admin.label.systemInformation'|trans({}, 'cms') }}
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table datagrid border-0">
-                        <tr>
-                            <td><span class="fas fa-pencil-ruler"></span> CMS Version: </td>
-                            <td>{{ cms_version }}</td>
-                        </tr>
-                        <tr>
-                            <td><img style="height: 1em;" class="svg-inline--fa" src="{{ asset('/bundles/cms/icons/symfony.svg') }}"> Symfony Version: </td>
-                            <td>{{ symfony_version }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fab fa-php"></span> PHP Version: </td>
-                            <td>{{ php_version }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-microchip"></span> PHP Memory Limit: </td>
-                            <td>{{ memory_limit }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-upload"></span> PHP Upload Max File Size: </td>
-                            <td>{{ upload_limit }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-upload"></span> PHP Post Max Size: </td>
-                            <td>{{ post_limit }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-hourglass-half"></span> PHP Max Execution Time: </td>
-                            <td>{{ execution_limit }} sec</td>
-                        </tr>
-                        {% set iconEnabled = '<span class="fas fa-check text-success"></span>' %}
-                        {% set iconDisabled = '<span class="fas fa-times text-danger"></span>' %}
-                        <tr>
-                            <td><span class="fas fa-rocket"></span> PHP Acceleration: </td>
-                            <td>{{ (apc_enabled ? iconEnabled : iconDisabled)|raw }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-file"></span> Page Cache: </td>
-                            <td>{{ (cache_enabled ? iconEnabled : iconDisabled)|raw }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-info-circle"></span> Server IP: </td>
-                            <td>{{ server_ip }}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="fas fa-database"></span> Database: </td>
-                            <td>{{ database_name }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
         </div>
 
     </div>
