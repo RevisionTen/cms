@@ -125,6 +125,7 @@ class CmsExtension extends Extension implements PrependExtensionInterface
                 $adminMenu[] = $menuItem;
             }
         }
+        $adminMenu[] = ['label' => 'admin.label.systemInformation', 'route' => 'cms_systeminfo', 'icon' => 'nope fas fa-info-circle'];
 
         // Set parameters that are used in other configurations.
         $container->setParameter('cms.version', CmsBundle::VERSION);

@@ -53,7 +53,8 @@ let bindForm = function(formSelector: string, formReloadCallback: any = false)
             });
         });
         conditionalClickElements.forEach((conditionalClickElement: HTMLElement) => {
-            conditionalClickElement.addEventListener('click', () => {
+            conditionalClickElement.addEventListener('click', (event) => {
+                event.preventDefault();
                 reloadForm(formSelector, formReloadCallback, form);
             });
         });

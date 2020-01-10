@@ -294,7 +294,7 @@ admin:
         dashboard: "Dashboard"
         latestCommits: "Latest page commits"
         latestNonPageEvents: "Latest other events"
-        systemInformation: "System Information"
+        systemInformation: "System Infos"
         viewedAs: "viewed as %username%"
         schedule: "Schedule"
         removeSchedule: "Remove Schedule"
