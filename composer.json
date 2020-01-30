@@ -35,6 +35,7 @@
         "psr-4": { "RevisionTen\\CMS\\": "" }
     },
     "conflict": {
-        "symfony/symfony": "*"
+        "symfony/symfony": "*",
+        "twig/twig": ">=3.0"
     }
 }
