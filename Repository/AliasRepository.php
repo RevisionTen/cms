@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -13,7 +13,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class AliasRepository extends ServiceEntityRepository
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $website;
 
     public function __construct(ManagerRegistry $registry, $entityClass, RequestStack $requestStack)
