@@ -1,25 +1,30 @@
 # Installation
 
-#### Install via composer
-
 > :warning: Unfortunately at the moment Symfony 4.4.* includes `twig/twig v3.0.1`  in its lockfile which conflicts with this bundle because `gregwar/image-bundle` is not yet compatible with `twig/twig v3.0.1`.
-> To get around this issue **delete your `composer.lock` file after creating your fresh symfony installation**.
+> To get around this issue **delete your `composer.lock` file and vendor folder after creating your fresh symfony installation**.
 
-#### Step 1: Add the new bundles to the kernel
+#### Preparation
+
+- Install Symfony:
+```
+symfony new --full my_project --version=lts
+```
+
+- **Delete your `composer.lock` file and vendor folder.**
+
+### Step 1. Install the bundle via composer
+
+```bash
+composer req revision-ten/cms
+```
+
+#### Step 2: Add the new bundles to the kernel
 
 Add the following bundles to your config/bundles.php:
 ```PHP
 RevisionTen\CQRS\CqrsBundle::class => ['all' => true],
 RevisionTen\CMS\CmsBundle::class => ['all' => true],
 RevisionTen\Forms\FormsBundle::class => ['all' => true],
-```
-
-This step needs to happen before installing the bundle via composer. Otherwise you will see an error after requiring the bundle.
-
-### Step 2. Install the bundle via composer
-
-```bash
-composer req revision-ten/cms
 ```
 
 ### Step 3: Add routes
@@ -33,7 +38,6 @@ cmsbundle_backend:
 cmsbundle_frontend: # Include the frontend routes last (catch-all).
     resource: "@CmsBundle/Resources/config/frontend_routes.yaml"
     prefix:   /
-
 ```
 
 ### Step 4: Update you database schema
