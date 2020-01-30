@@ -28,7 +28,8 @@
         "symfony/validator": "^4.4",
         "symfony/http-client": "^4.4",
         "symfony/templating": "^4.4",
-        "symfony/serializer-pack": "*"
+        "symfony/serializer-pack": "*",
+        "twig/twig": "2.12.3"
     },
     "autoload": {
         "psr-4": { "RevisionTen\\CMS\\": "" }
