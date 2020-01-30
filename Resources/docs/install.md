@@ -2,13 +2,27 @@
 
 #### Install via composer
 
-The preferred method of installation is via [Packagist][] and [Composer][]. Run the following command to install the package and add it as a requirement to your project's `composer.json`:
+> :warning: Unfortunately at the moment Symfony 4.4.* includes `twig/twig v3.0.1`  in its lockfile which conflicts with this bundle because `gregwar/image-bundle` is not yet compatible with `twig/twig v3.0.1`.
+> To get around this issue **delete your `composer.lock` file after creating your fresh symfony installation**.
+
+#### Step 1: Add the new bundles to the kernel
+
+Add the following bundles to your config/bundles.php:
+```PHP
+RevisionTen\CQRS\CqrsBundle::class => ['all' => true],
+RevisionTen\CMS\CmsBundle::class => ['all' => true],
+RevisionTen\Forms\FormsBundle::class => ['all' => true],
+```
+
+This step needs to happen before installing the bundle via composer. Otherwise you will see an error after requiring the bundle.
+
+### Step 2. Install the bundle via composer
 
 ```bash
 composer req revision-ten/cms
 ```
 
-#### Add routes
+### Step 3: Add routes
 
 Add the routes to your /config/routes.yaml:
 ```YAML
@@ -22,25 +36,15 @@ cmsbundle_frontend: # Include the frontend routes last (catch-all).
 
 ```
 
-#### Add the new bundles to the kernel
-
-Symfony should add the new bundles automatically to your config/bundles.php.
-If not add them manually:
-```PHP
-RevisionTen\CQRS\CqrsBundle::class => ['all' => true],
-RevisionTen\CMS\CmsBundle::class => ['all' => true],
-RevisionTen\Forms\FormsBundle::class => ['all' => true],
-```
-
-#### Update you database schema
+### Step 4: Update you database schema
 
 Run `bin/console doctrine:schema:update --force` to update your database schema.
 
-#### Choose your security configuration
+### Step 5: Choose your security configuration
 
 **Delete your security configuration file** (`config/packages/security.yaml`) to use the default security configuration that comes with this bundle, or copy the contents of `/vendor/revision-ten/cms/Resources/config/security.yaml` to your own security config.
 
-#### Update your assets
+### Step 6: Update your assets
 
 Run `bin/console assets:install --symlink` to install the bundle assets.
 
