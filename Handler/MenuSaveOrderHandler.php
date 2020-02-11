@@ -79,6 +79,10 @@ final class MenuSaveOrderHandler extends MenuBaseHandler implements HandlerInter
      */
     private static function getItems($items, &$flatMenu): void
     {
+        if (empty($items)) {
+            return;
+        }
+
         foreach ($items as $item) {
             // Get child items array.
             $childItems = isset($item['items']) && is_array($item['items']) && !empty($item['items']) ? $item['items'] : null;

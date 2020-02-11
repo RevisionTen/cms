@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.2.1] - 2020-02-11
+## Changed
+- Fixed default template, typos and other bugs
+
 ## [2.2.0] - 2020-01-30
 ## Changed
 - Update to Symfony 4.4 and EasyAdmin 2.3.5

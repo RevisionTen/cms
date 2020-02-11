@@ -28,19 +28,29 @@ use function in_array;
  */
 class InstallRolesCommand extends Command
 {
-    /** @var EntityManagerInterface $entityManager */
+    /**
+     * @var EntityManagerInterface $entityManager
+     */
     private $entityManager;
 
-    /** @var CommandBus $commandBus */
+    /**
+     * @var CommandBus $commandBus
+     */
     private $commandBus;
 
-    /** @var MessageBus $messageBus */
+    /**
+     * @var MessageBus $messageBus
+     */
     private $messageBus;
 
-    /** @var AggregateFactory $aggregateFactory */
+    /**
+     * @var AggregateFactory $aggregateFactory
+     */
     private $aggregateFactory;
 
-    /** @var string $locale */
+    /**
+     * @var string $locale
+     */
     private $locale;
 
     /**
@@ -91,7 +101,7 @@ class InstallRolesCommand extends Command
         if (empty($websites)) {
             $defaultWebsite = new Website();
             $defaultWebsite->setTitle('Localhost');
-            $defaultWebsite->setDefaultLanguage($this->locale);
+            $defaultWebsite->setDefaultLanguage(trim($this->locale, "'"));
             $defaultDomain = new Domain();
             $defaultDomain->setDomain('localhost');
             $defaultWebsite->setDomains([$defaultDomain]);
@@ -191,10 +201,14 @@ class InstallRolesCommand extends Command
 
             // Get admin role and assign it to the user.
             $this->entityManager->clear();
-            /** @var RoleRead $adminRole */
+            /**
+             * @var RoleRead $adminRole
+             */
             $adminRole = $this->entityManager->getRepository(RoleRead::class)->findOneByTitle('Administrator');
             $adminRoleUuid = $adminRole->getUuid();
-            /** @var UserAggregate $user */
+            /**
+             * @var UserAggregate $user
+             */
             $user = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
             if (!in_array($adminRoleUuid, $user->roles, true)) {
