@@ -83,7 +83,7 @@ services:
         autowire: true
         tags: [console.command]
         arguments:
-            $locale: '%locale%'
+            $locale: '%kernel.default_locale%'
     RevisionTen\CMS\Command\Console\MenuMigrateCommand:
         autoconfigure: true
         autowire: true
