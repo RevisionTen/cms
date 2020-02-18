@@ -33,9 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bindForm('form[name=page]');
 
     // Initialize widgets on "edit" and "new" EasyAdmin entity form pages.
-    let editForm = document.querySelector('form.edit-form');
-    let newForm = document.querySelector('form.new-form');
-    if ((document.body.classList.contains('edit') || document.body.classList.contains('new')) && (editForm || newForm)) {
+    if ((document.body.classList.contains('edit') || document.body.classList.contains('new'))) {
         bindWidgets(document.body);
     }
     // Initialize widgets on menu item form.

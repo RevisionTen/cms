@@ -76,6 +76,9 @@ easy_admin:
     design:
         menu: '%cms.admin_menu%'
         brand_color: '#41b3f9'
+        form_theme:
+            - '@cms/Form/form_theme.html.twig'
+            - '@EasyAdmin/form/bootstrap_4.html.twig'
         assets:
             css:
                 - 'https://fonts.googleapis.com/css?family=Rubik'
