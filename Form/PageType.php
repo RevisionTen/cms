@@ -120,17 +120,21 @@ class PageType extends AbstractType
             ]);
         }
 
-        $builder->add('meta', $options['page_metatype'], [
+        // Get default metaType for first template.
+        $defaultPageMetatype = $options['page_metatype'];
+        $defaultPageMetatype = array_values($options['page_templates'])[0]['metatype'] ?? $defaultPageMetatype;
+
+        $builder->add('meta', $defaultPageMetatype, [
             'label' => false,
             'allow_extra_fields' => true,
         ]);
 
         // Change the meta type depending on the chosen template.
-        $formModifier = static function (FormInterface $form, $template = null) use ($options) {
+        $formModifier = static function (FormInterface $form, $template = null) use ($options, $defaultPageMetatype) {
             if ($template) {
                 $metaType = $options['page_templates'][$template]['metatype'] ?? $options['page_metatype'];
             } else {
-                $metaType = $options['page_metatype'];
+                $metaType = $defaultPageMetatype;
             }
 
             $form->add('meta', $metaType, [
