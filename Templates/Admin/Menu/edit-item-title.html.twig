@@ -1,0 +1,9 @@
+<strong>
+    {{ (item.data.title is defined ? item.data.title : item.itemName|trans)|raw }}
+</strong>
+
+{% if item.data.alias is defined %}
+    <span class="text-muted">{{ render(controller('RevisionTen\\CMS\\Controller\\MenuController::getAlias', {'id': item.data.alias})) }}</span>
+{% elseif item.data.url is defined %}
+    <span class="text-muted">{{ item.data.url }}</span>
+{% endif %}

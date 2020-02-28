@@ -404,7 +404,7 @@ class MenuController extends AbstractController
         if (!empty($aggregate->items)) {
             // Get the parent element from the Aggregate.
             MenuBaseHandler::onItem($aggregate, $itemUuid, static function ($element, $collection, $parent) use (&$itemParent) {
-                $itemParent = $parent['uuid'];
+                $itemParent = $parent['uuid'] ?? null;
             });
         }
 
