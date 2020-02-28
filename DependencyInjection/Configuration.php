@@ -127,6 +127,10 @@ class Configuration implements ConfigurationInterface
                         ->isRequired()
                         ->cannotBeEmpty()
                     ->end()
+                    ->scalarNode('admin_template')
+                        ->info('The admin template of the item.')
+                        ->defaultNull()
+                    ->end()
                 ->end()
             ->end();
 
