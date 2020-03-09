@@ -354,7 +354,9 @@ class ElementController extends AbstractController
         if (!empty($aggregate->elements)) {
             // Get the parent element from the Aggregate.
             PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
-                $elementParent = $parent['uuid'];
+                if ($parent) {
+                    $elementParent = $parent['uuid'];
+                }
             });
         }
 
