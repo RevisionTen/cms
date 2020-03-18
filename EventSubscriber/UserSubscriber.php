@@ -65,11 +65,11 @@ class UserSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param UserCreateEvent $userCreateEvent
+     * @param UserGenerateSecretEvent $userGenerateSecretEvent
      */
-    public function sendSecret(UserCreateEvent $userCreateEvent): void
+    public function sendSecret(UserGenerateSecretEvent $userGenerateSecretEvent): void
     {
-        $userUuid = $userCreateEvent->getAggregateUuid();
+        $userUuid = $userGenerateSecretEvent->getAggregateUuid();
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
 
         if (!$useMailCodes) {
