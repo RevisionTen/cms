@@ -7,7 +7,7 @@
                 <div class="col-auto mr-2">
                     <img class="d-block revision-ten-logo" src="/bundles/cms/icons/logo.svg">
                 </div>
-                <div class="col-auto">
+                <div class="col text-truncate">
                     {% for website in websites %}{{ website.id == currentWebsite ? website.title : '' }}{% endfor %}
                 </div>
                 <div class="ml-auto col-auto">
@@ -15,9 +15,9 @@
                 </div>
             </div>
         </button>
-        <div class="dropdown-menu" aria-labelledby="websiteChooser">
+        <div class="dropdown-menu w-100" style="max-width: 160px;" aria-labelledby="websiteChooser">
             {% for website in websites %}
-                <a class="dropdown-item" href="{{ path('cms_set_website', {website: website.id}) }}">{{ website.title }}</a>
+                <a class="dropdown-item text-truncate" href="{{ path('cms_set_website', {website: website.id}) }}">{{ website.title }}</a>
             {% endfor %}
         </div>
     {% else %}
