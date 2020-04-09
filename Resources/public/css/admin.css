@@ -188,10 +188,13 @@ body.hide-editor [data-uuid]::before {
   left: 0;
   right: 0;
   bottom: 0;
-  outline: 1px dashed white;
+  outline: 1px dashed black;
   opacity: 0.2;
   pointer-events: none;
   background: none;
+}
+body.hide-editor.dark-editor-theme [data-uuid]::before {
+  outline: 1px dashed white;
 }
 body.hide-editor [data-type="Column"]::before,
 body.hide-editor [data-type="Row"]::before,
@@ -204,41 +207,46 @@ body:not(.hide-editor) .editor-padding {
 body.hide-editor .editor-padding {
   position: absolute;
   z-index: 999;
+  outline: 1px dashed rgba(0, 0, 0, 0.2);
+}
+body.hide-editor.dark-editor-theme .editor-padding {
+  outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-top {
   top: 0;
   left: 0;
   right: 0;
-  outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-bottom {
   bottom: 0;
   left: 0;
   right: 0;
-  outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-left {
   bottom: 0;
   left: 0;
   top: 0;
-  outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-right {
   bottom: 0;
   right: 0;
   top: 0;
-  outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-controls {
   position: absolute;
   width: 22px;
   height: 12px;
   line-height: 10px;
-  background: black;
   top: 50%;
   left: 50%;
   margin: -6px 0 0 -11px;
   display: flex;
+  background: white;
+  color: black;
+}
+body.hide-editor.dark-editor-theme .editor-padding-controls {
+  background: black;
+  color: white;
 }
 body.hide-editor .editor-padding-left .editor-padding-controls,
 body.hide-editor .editor-padding-right .editor-padding-controls {
@@ -271,6 +279,11 @@ body.hide-editor .editor-padding-save {
   z-index: 9999;
   display: block;
   cursor: pointer;
+  color: black;
+  background: white;
+  border: 1px solid black;
+}
+body.hide-editor.dark-editor-theme .editor-padding-save {
   color: white;
   background: black;
   border: 1px solid white;
@@ -282,11 +295,16 @@ body.hide-editor .editor-padding .btn-padding {
   height: 10px;
   line-height: 8px;
   font-size: 8px;
-  color: white;
   text-align: center;
+  cursor: pointer;
+  color: black;
+  background: white;
+  border: 1px solid black;
+}
+body.hide-editor.dark-editor-theme .editor-padding .btn-padding {
+  color: white;
   background: black;
   border: 1px solid white;
-  cursor: pointer;
 }
   /* ----------------- Hide editor ----------------- */
 body.hide-editor .ui-resizable-handle,
