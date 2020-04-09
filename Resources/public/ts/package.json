@@ -14,6 +14,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/jquery": "^3.3.34",
     "axios": "^0.19.2"
   }
 }

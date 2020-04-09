@@ -36,6 +36,7 @@
     },
     "conflict": {
         "symfony/symfony": "*",
-        "twig/twig": ">=3.0"
+        "twig/twig": ">=3.0",
+        "symfony/security": ">= 5.0.0 < 5.0.7"
     }
 }

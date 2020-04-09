@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use Exception;
 use InvalidArgumentException;
 use RevisionTen\CMS\Command\PageAddElementCommand;
+use RevisionTen\CMS\Command\PageChangeElementPaddingCommand;
 use RevisionTen\CMS\Command\PageDisableElementCommand;
 use RevisionTen\CMS\Command\PageDuplicateElementCommand;
 use RevisionTen\CMS\Command\PageEditElementCommand;
@@ -671,6 +672,46 @@ class ElementController extends AbstractController
             'uuid' => $elementUuid,
             'size' => (int) $size,
             'breakpoint' => $breakpoint,
+        ], $pageUuid, $onVersion, true);
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => $elementUuid,
+            ], 200, $this->getToolbarRefreshHeaders());
+        }
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * Change the padding of an element
+     *
+     * @Route("/page/change-element-padding/{pageUuid}/{onVersion}/{elementUuid}/{padding}", name="cms_page_change_elment_padding")
+     *
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $elementUuid
+     * @param string     $padding
+     *
+     * @return JsonResponse|Response
+     * @throws Exception
+     */
+    public function changeElementPadding(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $padding)
+    {
+        $this->denyAccessUnlessGranted('page_edit');
+
+        $padding = json_decode($padding, true, 2, JSON_THROW_ON_ERROR);
+
+        $success = $this->runCommand($commandBus, PageChangeElementPaddingCommand::class, [
+            'uuid' => $elementUuid,
+            'padding' => $padding,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {

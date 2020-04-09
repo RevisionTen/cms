@@ -160,6 +160,15 @@ class CmsExtension extends AbstractExtension
             $value = $key.'="'.$value.'"';
         });
 
+        $padding = $element['data']['settings']['paddings'][0] ?? [
+            'breakpoint' => null,
+            'top' => null,
+            'bottom' => null,
+            'left' => null,
+            'right' => null,
+        ];
+        $attributes[] = "data-padding='".json_encode($padding)."'";
+
         return implode(' ', $attributes);
     }
 }

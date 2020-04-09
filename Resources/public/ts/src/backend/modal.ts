@@ -43,6 +43,7 @@ function bindModal(url: string)
         // Add an ajax submit handler to the form.
         onSubmit(form, updateCKEditorInstances, (data: any, success: boolean) => {
             if (success && data.success) {
+                // @ts-ignore
                 $(modalElement).modal('hide'); // Todo: Update when Bootstrap 5 releases.
                 updateElement(data);
             } else {
@@ -85,6 +86,7 @@ function bindModal(url: string)
     }
 
     // Show the modal.
+    // @ts-ignore
     $(modalElement).modal('show'); // Todo: Update when Bootstrap 5 releases.
 }
 

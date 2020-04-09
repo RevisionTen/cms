@@ -1,3 +1,5 @@
+import { updatePadding } from "./backend/padding";
+
 const axios = require('axios').default;
 
 // Requires jQuery for column resizing and firing of old jQuery fallback events.
@@ -10,7 +12,8 @@ let translations = typeof (window as any).translations !== 'undefined' ? (window
     duplicate: 'Duplicate',
     shift: 'Shift',
     enable: 'Enable',
-    disable: 'Disable'
+    disable: 'Disable',
+    savePadding: 'Save Padding'
 };
 
 // Make new column button resizable.
@@ -144,6 +147,25 @@ function bindCreateButton(element: HTMLElement)
         });
     });
 }
+/**
+ * Binds all padding buttons
+ *
+ * @param element
+ */
+function bindPaddingButtons(element: HTMLElement)
+{
+    let addButtons = element.querySelectorAll('.btn-padding');
+
+    addButtons.forEach((button: HTMLElement) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            let uuid = element.dataset.uuid;
+            let side = button.dataset.side;
+            let action = button.dataset.action;
+            updatePadding(uuid, side, action);
+        });
+    });
+}
 
 /**
  * Bind actions to the control elements.
@@ -155,6 +177,7 @@ function bindControls(element: HTMLElement)
     let uuid = element.dataset.uuid;
 
     bindCreateButton(element);
+    bindPaddingButtons(element);
 
     bindButton(element, '.btn-add', 'addElement', {'parent': uuid});
     bindButton(element, '.btn-edit', 'editElement', {'uuid': uuid});
@@ -164,6 +187,14 @@ function bindControls(element: HTMLElement)
     bindButton(element, '.btn-disable', 'disableElement', {'uuid': uuid});
     bindButton(element, '.btn-enable', 'enableElement', {'uuid': uuid});
     bindButton(element, '.btn-duplicate', 'duplicateElement', {'uuid': uuid});
+}
+
+function getPaddingButton(side: string, element: HTMLElement): string
+{
+    let cssProperty = 'top' === side || 'bottom' === side ? 'height' : 'width';
+    let padding = window.getComputedStyle(element, null).getPropertyValue('padding-'+side);
+
+    return `<div class="editor-padding editor-padding-${side}" style="${cssProperty}: ${padding};"><div class="editor-padding-controls"><span class="btn-padding" data-side="${side}" data-action="decrease"><span class="fas fa-minus"></span></span><span class="btn-padding" data-side="${side}" data-action="increase"><span class="fas fa-plus"></span></span></div></div>`;
 }
 
 /**
@@ -182,17 +213,6 @@ function bindElement(element: HTMLElement, bindChildren = false)
 
     // Get the type of the element.
     let type = element.dataset.type;
-
-    // Get controls background color from element options.
-    let bg = 'bg-primary';
-    if ('Row' == type) {
-        bg = 'bg-secondary';
-    } else if ('Column' == type) {
-        bg = 'bg-info';
-    }
-    if ('bg' in element.dataset) {
-        bg = element.dataset.bg;
-    }
 
     // Get the state of the element.
     let enabled: boolean = '1' === element.dataset.enabled;
@@ -224,6 +244,14 @@ function bindElement(element: HTMLElement, bindChildren = false)
         + (disabledActions.indexOf('edit') === -1 ? `<span class="btn-edit ${actionButtonClasses}" title="${translations.edit}"><span class="fa fa-edit"></span></span>` : '')
         + (disabledActions.indexOf('delete') === -1 ? `<span class="btn-delete ${actionButtonClasses}" title="${translations.delete}"><span class="fas fa-times"></span></span>` : '')
         +`</div>`;
+
+    if ('Row' !== type && 'Column' !== type && 'Section' !== type) {
+        // Add padding controls.
+        html += getPaddingButton('top', element);
+        html += getPaddingButton('bottom', element);
+        html += getPaddingButton('left', element);
+        html += getPaddingButton('right', element);
+    }
 
     // Wrap the controls in a column if the element is a row.
     if ('Row' === type) {

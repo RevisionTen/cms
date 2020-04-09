@@ -439,6 +439,7 @@ admin:
         shiftUp: "Shift up"
         enable: "Enable"
         disable: "Disable"
+        savePadding: "Save Padding"
         addMenuItem: "Add %itemName% item"
         editMenuItem: "Edit %itemName% item"
         addGenericMenuItem: "Add menu item"
