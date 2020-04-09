@@ -861,6 +861,7 @@ class PageController extends AbstractController
             'shift' => $translator->trans('admin.btn.shift', [], 'cms'),
             'enable' => $translator->trans('admin.btn.enable', [], 'cms'),
             'disable' => $translator->trans('admin.btn.disable', [], 'cms'),
+            'savePadding' => $translator->trans('admin.btn.savePadding', [], 'cms'),
         ];
 
         // Convert the page aggregate to a json payload.

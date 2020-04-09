@@ -236,4 +236,15 @@ document.addEventListener('DOMContentLoaded', () => {
         fireCustomEvent('openAjax', detail, document);
     });
 
+    document.addEventListener('changePadding', (event: CustomEvent) => {
+        let pageUuid = (window as any).pageData.uuid;
+        let onVersion = (window as any).pageData.version;
+        let elementUuid = event.detail.uuid;
+        let padding = event.detail.padding;
+        let detail = {
+            url: `/admin/page/change-element-padding/${pageUuid}/${onVersion}/${elementUuid}/${padding}`
+        };
+        fireCustomEvent('openAjax', detail, document);
+    });
+
 });

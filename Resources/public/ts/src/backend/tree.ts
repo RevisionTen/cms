@@ -16,6 +16,7 @@ function bindTree()
 {
     let treeSaveButton = document.querySelector('.btn-tree-save');
 
+    // @ts-ignore
     let pageTree = $('#page-tree > .cms_tree').sortable({
         group: 'serialization',
         containerSelector: '.cms_tree',
@@ -64,7 +65,7 @@ function bindTree()
                 }
             });
         },
-        afterMove: function () {
+        afterMove: () => {
             // Show tree save button.
             if (null !== treeSaveButton) {
                 treeSaveButton.classList.remove('hidden');

@@ -439,6 +439,7 @@ admin:
         shiftUp: "Nach Oben Verschieben"
         enable: "Aktivieren"
         disable: "Deaktivieren"
+        savePadding: "Abstände speichern"
         addMenuItem: "%itemName%-Menüpunkt hinzufügen"
         editMenuItem: "%itemName%-Menüpunkt bearbeiten"
         addGenericMenuItem: "Menüpunkt hinzufügen"

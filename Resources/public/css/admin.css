@@ -176,15 +176,123 @@ body:not(.editor-dark) .editor .text-white {
 .ui-resizable-se {
   display: none;
 }
-/* ----------------- Padding & Margin Higlighting -----------------
-body:not(.hide-editor) [data-uuid]:not([data-type="Section"]):not([data-type="Row"]):not([data-type="Column"]) {
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%), linear-gradient(to bottom, rgb(204, 226, 255) 0%, rgb(204, 226, 255) 100%);
-  background-clip: content-box, padding-box;
-}*/
-/* ----------------- Hide editor ----------------- */
+/* ----------------- Padding & Margin Highlighting ----------------- */
+body.hide-editor [data-uuid] {
+  position: relative;
+}
+body.hide-editor [data-uuid]::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  outline: 1px dashed white;
+  opacity: 0.2;
+  pointer-events: none;
+  background: none;
+}
+body.hide-editor [data-type="Column"]::before,
+body.hide-editor [data-type="Row"]::before,
+body.hide-editor [data-type="Section"]::before {
+  display: none!important;
+}
+body:not(.hide-editor) .editor-padding {
+  display: none!important;
+}
+body.hide-editor .editor-padding {
+  position: absolute;
+  z-index: 999;
+}
+body.hide-editor .editor-padding-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  outline: 1px dashed rgba(255, 255, 255, 0.2);
+}
+body.hide-editor .editor-padding-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  outline: 1px dashed rgba(255, 255, 255, 0.2);
+}
+body.hide-editor .editor-padding-left {
+  bottom: 0;
+  left: 0;
+  top: 0;
+  outline: 1px dashed rgba(255, 255, 255, 0.2);
+}
+body.hide-editor .editor-padding-right {
+  bottom: 0;
+  right: 0;
+  top: 0;
+  outline: 1px dashed rgba(255, 255, 255, 0.2);
+}
+body.hide-editor .editor-padding-controls {
+  position: absolute;
+  width: 22px;
+  height: 12px;
+  line-height: 10px;
+  background: black;
+  top: 50%;
+  left: 50%;
+  margin: -6px 0 0 -11px;
+  display: flex;
+}
+body.hide-editor .editor-padding-left .editor-padding-controls,
+body.hide-editor .editor-padding-right .editor-padding-controls {
+  margin: -11px 0 0 -6px;
+  width: 12px;
+  height: 22px;
+  flex-wrap: wrap;
+}
+body.hide-editor .editor-padding-left .editor-padding-controls {
+  left: 0;
+}
+body.hide-editor .editor-padding-right .editor-padding-controls {
+  right: 0;
+  left: auto;
+}
+body.hide-editor .editor-padding-bottom .editor-padding-controls,
+body.hide-editor .editor-padding-top .editor-padding-controls {
+  top: 0;
+}
+body:not(.hide-editor) .editor-padding-save {
+  display: none!important;
+}
+body.hide-editor .editor-padding-save {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 10px;
+  line-height: 10px;
+  padding: 5px;
+  z-index: 9999;
+  display: block;
+  cursor: pointer;
+  color: white;
+  background: black;
+  border: 1px solid white;
+}
+body.hide-editor .editor-padding .btn-padding {
+  display: block;
+  margin: 1px;
+  width: 10px;
+  height: 10px;
+  line-height: 8px;
+  font-size: 8px;
+  color: white;
+  text-align: center;
+  background: black;
+  border: 1px solid white;
+  cursor: pointer;
+}
+  /* ----------------- Hide editor ----------------- */
+body.hide-editor .ui-resizable-handle,
 body.hide-editor [data-enabled="0"],
 body.hide-editor [data-visible="0"],
-body.hide-editor [data-uuid]::before,
+/*body.hide-editor [data-uuid]::before,*/
 body.hide-editor .editor {
   display: none!important;
 }
