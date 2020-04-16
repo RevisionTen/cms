@@ -203,6 +203,8 @@ element:
         right: "Rechts"
         background: "Hintergrund"
         backgroundFitted: "Hintergrund angepasst"
+        autoColumnWide: "Dynamische Spaltenbreite"
+        defaultColumnWide: "Standard Spaltenbreite"
         1ColumnWide: "1 Spalte breit"
         2ColumnsWide: "2 Spalten breit"
         3ColumnsWide: "3 Spalten breit (25%)"

@@ -203,6 +203,8 @@ element:
         right: "Right"
         background: "Background"
         backgroundFitted: "Background fitted"
+        autoColumnWide: "auto"
+        defaultColumnWide: "default"
         1ColumnWide: "1 column wide"
         2ColumnsWide: "2 columns wide"
         3ColumnsWide: "3 columns wide"

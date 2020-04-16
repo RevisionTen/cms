@@ -122,6 +122,28 @@ class CmsExtension extends AbstractExtension
             }
         }
 
+        // Add column width classes.
+        $widthXS = $element['data']['widthXS'] ?? null;
+        if (!empty($widthXS)) {
+            $classes[] = 'default' === $widthXS ? 'col' : 'col-'.$widthXS;
+        }
+        $widthSM = $element['data']['widthSM'] ?? null;
+        if (!empty($widthSM)) {
+            $classes[] = 'default' === $widthSM ? 'col-sm' : 'col-sm-'.$widthSM;
+        }
+        $widthMD = $element['data']['widthMD'] ?? null;
+        if (!empty($widthMD)) {
+            $classes[] = 'default' === $widthMD ? 'col-md' : 'col-md-'.$widthMD;
+        }
+        $widthLG = $element['data']['widthLG'] ?? null;
+        if (!empty($widthLG)) {
+            $classes[] = 'default' === $widthLG ? 'col-lg' : 'col-lg-'.$widthLG;
+        }
+        $widthXL = $element['data']['widthXL'] ?? null;
+        if (!empty($widthXL)) {
+            $classes[] = 'default' === $widthXL ? 'col-xl' : 'col-xl-'.$widthXL;
+        }
+
         return implode(' ', $classes);
     }
 

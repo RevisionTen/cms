@@ -259,8 +259,7 @@ body.hide-editor .editor-padding-left .editor-padding-controls {
   left: 0;
 }
 body.hide-editor .editor-padding-right .editor-padding-controls {
-  right: 0;
-  left: auto;
+  left: 100%;
 }
 body.hide-editor .editor-padding-bottom .editor-padding-controls,
 body.hide-editor .editor-padding-top .editor-padding-controls {
