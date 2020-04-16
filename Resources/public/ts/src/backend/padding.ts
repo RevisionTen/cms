@@ -81,13 +81,13 @@ function updatePadding(uuid: string, side: string, action: string): void
 function addSaveButton(element: HTMLElement)
 {
     let saveButton = element.querySelector('.editor-padding-save') as HTMLElement|null;
-    if (null === saveButton) {
+    if (null === saveButton || saveButton.parentElement !== element) {
         let saveButton = document.createElement('div') as HTMLElement;
         saveButton.className = 'editor-padding-save';
         let saveButtonBtn = document.createElement('span');
         saveButtonBtn.innerText = (window as any).translations.savePadding;
         saveButton.insertAdjacentElement('beforeend', saveButtonBtn);
-        element.insertAdjacentElement('beforeend', saveButton);
+        element.insertAdjacentElement('afterbegin', saveButton);
 
         saveButton.addEventListener('click', () => {
             let detail = {

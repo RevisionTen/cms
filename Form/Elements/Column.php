@@ -50,6 +50,8 @@ class Column extends Element
             'translation_domain' => 'cms',
             'required' => false,
             'choices' => [
+                'element.choices.autoColumnWide' => 'auto',
+                'element.choices.defaultColumnWide' => 'default',
                 'element.choices.1ColumnWide' => '1',
                 'element.choices.2ColumnsWide' => '2',
                 'element.choices.3ColumnsWide' => '3',
