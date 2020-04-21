@@ -147,10 +147,11 @@ body:not(.editor-dark) .editor .text-white {
 .editor-grid {
   z-index: -1;
   position: absolute;
-  top: 0;
+  top: 5px;
+  bottom: 5px;
   left: 0;
   right: 0;
-  bottom: 0;
+  margin: 0;
 }
 .editor-grid .col {
   position: relative;
@@ -165,7 +166,9 @@ body:not(.editor-dark) .editor .text-white {
   background: rgba(237, 241, 245, 0.5);
 }
 .editor-dark .editor-grid .col::after {
-  background: rgba(237, 241, 245, 0.05);
+  background: -moz-linear-gradient(top, transparent 0%, rgba(237, 241, 245,0.5) 50%, transparent 100%)!important;
+  background: -webkit-linear-gradient(top, transparent 0%, rgba(237, 241, 245,0.5) 50%, transparent 100%)!important;
+  background: linear-gradient(to bottom, transparent 0%, rgba(237, 241, 245,0.5) 50%, transparent 100%)!important;
 }
 /* ----------------- Resizing ----------------- */
 .ui-resizable-e {

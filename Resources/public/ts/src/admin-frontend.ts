@@ -329,8 +329,8 @@ function bindElement(element: HTMLElement, bindChildren = false)
         element.insertAdjacentHTML('beforeend', '<div class="'+(editorClasses.join(' '))+'">'+addButton+'</div>');
     }
 
-    // Add grid to section.
-    if ('Section' === type) {
+    // Add grid to rows.
+    if ('Row' === type) {
         element.insertAdjacentHTML('afterbegin', '<div class="editor editor-grid row"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div>');
     }
 
