@@ -60,7 +60,7 @@ class CustomPageSerializer extends PageSerializer implements SolrSerializerInter
         // Call the parent function that indexes all the default fields like the title, website, etc.
         $docs = parent::serialize($update, $pageStreamRead, $payload);
     
-        // The §docs array should contain our page, grab it from the array so we can add more fields to it.
+        // The $docs array should contain our page, grab it from the array so we can add more fields to it.
         $id = $pageStreamRead->getUuid();   
         $doc = $docs[$id] ?? null;
 
@@ -97,7 +97,7 @@ After reindexing the page document should now look like this:
             "created_dt":"2019-12-03T16:19:41Z",
             "modified_dt":"2020-01-08T16:24:17Z",
             "url_s":"/",
-            **"email_s":"some.email@domain.tld"**
+            "email_s":"some.email@domain.tld"
         }
     ]
 }
