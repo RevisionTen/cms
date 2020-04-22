@@ -459,6 +459,8 @@ admin:
         setNewPassword: "Neues Passwort festlegen"
         login: "Einloggen"
         saveUser: "Benutzer speichern"
+        maximizeEditor: "Editor vergrößern"
+        minimizeEditor: "Editor verkleinern"
     validation:
         dataUnchanged: "Daten haben sich nicht verändert"
         passwordsMustMatch: "Die Passwortfelder müssen übereinstimmen"
