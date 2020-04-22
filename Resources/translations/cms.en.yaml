@@ -459,6 +459,8 @@ admin:
         setNewPassword: "Set new password"
         login: "Login"
         saveUser: "Save user"
+        maximizeEditor: "Enter distraction free mode"
+        minimizeEditor: "Leave distraction free mode"
     validation:
         dataUnchanged: "Data has not changed"
         passwordsMustMatch: "The password fields must match"

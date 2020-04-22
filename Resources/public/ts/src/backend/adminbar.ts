@@ -93,6 +93,28 @@ function bindLinks()
             }
         });
     }
+
+    // Toggle editor size.
+    let mainSidebar = document.querySelector('.main-sidebar') as HTMLElement|null;
+    let contentWrapper = document.querySelector('.edit-page > .wrapper > .content-wrapper') as HTMLElement|null;
+    let maximizeButton = document.querySelector('.btn-maximize-editor') as HTMLSpanElement|null;
+    let minimizeButton = document.querySelector('.btn-minimize-editor') as HTMLSpanElement|null;
+    if (null !== contentWrapper && null !== mainSidebar && null !== maximizeButton && null !== minimizeButton) {
+        maximizeButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            maximizeButton.classList.add('d-none');
+            minimizeButton.classList.remove('d-none');
+            mainSidebar.classList.add('d-none');
+            contentWrapper.classList.add('p-0');
+        });
+        minimizeButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            minimizeButton.classList.add('d-none');
+            maximizeButton.classList.remove('d-none');
+            mainSidebar.classList.remove('d-none');
+            contentWrapper.classList.remove('p-0');
+        });
+    }
 }
 
 let updateAdminBar = function(pageUuid: string, userId: any)

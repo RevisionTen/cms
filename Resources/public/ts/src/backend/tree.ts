@@ -34,6 +34,11 @@ function bindTree()
         onDrop: function ($item: any, container: any, _super: any) {
             // Clear valid trees.
             clearValidTrees();
+
+            // Show tree save button.
+            if (null !== treeSaveButton) {
+                treeSaveButton.parentElement.classList.remove('d-none');
+            }
         },
         onDragStart: function ($item: any, container: any, _super: any) {
             let element = <HTMLElement>$item[0];
@@ -68,17 +73,13 @@ function bindTree()
         afterMove: () => {
             // Show tree save button.
             if (null !== treeSaveButton) {
-                treeSaveButton.classList.remove('hidden');
-                treeSaveButton.classList.remove('d-none');
+                treeSaveButton.parentElement.classList.remove('d-none');
             }
         }
     });
 
     // Save page tree on button click.
     if (null !== treeSaveButton) {
-        // Hide button by default.
-        treeSaveButton.classList.add('d-none');
-
         treeSaveButton.addEventListener('click', (event) => {
             event.preventDefault();
 

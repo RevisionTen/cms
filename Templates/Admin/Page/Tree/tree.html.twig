@@ -11,10 +11,12 @@
             {% include '@cms/Admin/Page/Tree/tree-node.html.twig' %}
         {% endfor %}
     {% endif %}
+</div>
 
-    {% if root %}
+{% if root %}
+    <div class="align-self-end p-3 d-none w-100">
         <input type="hidden" id="tree-pageUuid" value="{{ pageUuid }}">
         <input type="hidden" id="tree-onVersion" value="{{ onVersion }}">
-        <button class="hidden btn-tree-save btn-success btn btn-block btn-sm">{{ 'admin.btn.saveElementOrder'|trans({}, 'cms') }}</button>
-    {% endif %}
-</div>
+        <button class="btn-tree-save btn-success btn btn-block btn-sm">{{ 'admin.btn.saveElementOrder'|trans({}, 'cms') }}</button>
+    </div>
+{% endif %}

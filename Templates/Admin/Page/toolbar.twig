@@ -193,6 +193,15 @@
                     {% endfor %}
                 </div>
 
+                <div class="btn-group ml-3">
+                    <span class="btn btn-sm btn-maximize-editor" title="{{ 'admin.btn.maximizeEditor'|trans({}, 'cms') }}">
+                        <span class="fas fa-expand-arrows-alt"></span>
+                    </span>
+                    <span class="btn btn-sm btn-minimize-editor d-none" title="{{ 'admin.btn.minimizeEditor'|trans({}, 'cms') }}">
+                        <span class="fas fa-compress-arrows-alt"></span>
+                    </span>
+                </div>
+
                 {% endapply %}
             </form>
         </div>

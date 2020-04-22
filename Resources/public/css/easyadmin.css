@@ -264,6 +264,8 @@ body.show .field-text .form-widget {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+    max-height: 100vh;
+    overflow: hidden;
 }
 .page-tabs-tab-editor > .content {
     flex-grow: 1;
@@ -280,6 +282,8 @@ body.show .field-text .form-widget {
     flex-direction: row;
     flex-wrap: nowrap;
     background: var(--color-light-silver);
+    height: 100%;
+    overflow: hidden;
 }
 .page-tabs-tab-editor > .content > .content-body > iframe {
     height: auto;
@@ -300,6 +304,7 @@ body.show .field-text .form-widget {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    overflow: hidden;
 }
 .page-tabs-tab {
     display: none;
@@ -490,16 +495,19 @@ body.show .field-text .form-widget {
     margin: 0;
 }
 #page-tree {
+    height: 100%;
     width: auto;
     flex-shrink: 0;
     min-width: 200px;
     background: #2f323e;
     color: #edf1f5;
     overflow-y: auto;
-    padding: 1em;
-    padding-left: 0;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
+}
+#page-tree > .cms_tree {
+    padding: 1em;
 }
 .btn-tree-save {
     margin-top: auto;
