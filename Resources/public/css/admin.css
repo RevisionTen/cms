@@ -196,7 +196,7 @@ body.hide-editor [data-uuid]::before {
   pointer-events: none;
   background: none;
 }
-body.hide-editor.dark-editor-theme [data-uuid]::before {
+body.hide-editor.editor-dark [data-uuid]::before {
   outline: 1px dashed white;
 }
 body.hide-editor [data-type="Column"]::before,
@@ -212,7 +212,7 @@ body.hide-editor .editor-padding {
   z-index: 999;
   outline: 1px dashed rgba(0, 0, 0, 0.2);
 }
-body.hide-editor.dark-editor-theme .editor-padding {
+body.hide-editor.editor-dark .editor-padding {
   outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
 body.hide-editor .editor-padding-top {
@@ -247,7 +247,7 @@ body.hide-editor .editor-padding-controls {
   background: white;
   color: black;
 }
-body.hide-editor.dark-editor-theme .editor-padding-controls {
+body.hide-editor.editor-dark .editor-padding-controls {
   background: black;
   color: white;
 }
@@ -285,7 +285,7 @@ body.hide-editor .editor-padding-save {
   background: white;
   border: 1px solid black;
 }
-body.hide-editor.dark-editor-theme .editor-padding-save {
+body.hide-editor.editor-dark .editor-padding-save {
   color: white;
   background: black;
   border: 1px solid white;
@@ -303,7 +303,7 @@ body.hide-editor .editor-padding .btn-padding {
   background: white;
   border: 1px solid black;
 }
-body.hide-editor.dark-editor-theme .editor-padding .btn-padding {
+body.hide-editor.editor-dark .editor-padding .btn-padding {
   color: white;
   background: black;
   border: 1px solid white;
