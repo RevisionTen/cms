@@ -315,10 +315,18 @@ body.show .field-text .form-widget {
 .page-tabs-tab-settings > .content {
     width: 100%;
     background: var(--form-bg);
+    display: flex;
+    flex-direction: column;
 }
 .page-tabs-tab-settings > .content > .content-header {
     background-color: var(--white);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
+    flex-grow: 0;
+}
+.page-tabs-tab-settings > .content > .content-body {
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 #page-frame.size-xl,
 #page-frame.size-AutoWidth {
