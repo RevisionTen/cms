@@ -68,6 +68,11 @@ class CmsExtension extends AbstractExtension
     {
         $classes = [];
 
+        // Breakpoint XS is the same as no breakpoint specified in Bootstrap 4 ("mobile first").
+        if ('xs' === $spacing['breakpoint']) {
+            $spacing['breakpoint'] = null;
+        }
+
         $breakpoint = $spacing['breakpoint'] ? '-'.$spacing['breakpoint'] : '';
         $top = $spacing['top'] ?? null;
         $right = $spacing['right'] ?? null;
