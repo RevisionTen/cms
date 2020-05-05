@@ -49,6 +49,11 @@ function bindTree()
                 return false;
             }
 
+            // Show tree save button.
+            if (null !== treeSaveButton) {
+                treeSaveButton.parentElement.classList.remove('d-none');
+            }
+
             // Look at every tree and see If this item is allowed.
             let trees = document.querySelectorAll('#page-tree .cms_tree');
             trees.forEach((tree: HTMLElement) => {
