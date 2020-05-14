@@ -27,11 +27,11 @@ RevisionTen\Forms\FormsBundle::class => ['all' => true],
 Add the routes to your /config/routes.yaml:
 ```YAML
 cmsbundle_backend:
-    resource: "@CmsBundle/Resources/config/backend_routes.yaml"
+    resource: "@CMSBundle/Resources/config/backend_routes.yaml"
     prefix:   /
     
 cmsbundle_frontend: # Include the frontend routes last (catch-all).
-    resource: "@CmsBundle/Resources/config/frontend_routes.yaml"
+    resource: "@CMSBundle/Resources/config/frontend_routes.yaml"
     prefix:   /
 ```
 

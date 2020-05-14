@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\DependencyInjection;
 
 use Exception;
-use RevisionTen\CMS\CmsBundle;
+use RevisionTen\CMS\CMSBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Filesystem\Filesystem;
@@ -128,7 +128,7 @@ class CMSExtension extends Extension implements PrependExtensionInterface
         $adminMenu[] = ['label' => 'admin.label.systemInformation', 'route' => 'cms_systeminfo', 'icon' => 'nope fas fa-info-circle'];
 
         // Set parameters that are used in other configurations.
-        $container->setParameter('cms.version', CmsBundle::VERSION);
+        $container->setParameter('cms.version', CMSBundle::VERSION);
         $container->setParameter('cms.site_name', $siteName);
         $container->setParameter('cms.page_languages', $pageLanguages);
         $container->setParameter('cms.admin_menu', $adminMenu);

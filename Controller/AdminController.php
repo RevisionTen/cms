@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
-use RevisionTen\CMS\CmsBundle;
+use RevisionTen\CMS\CMSBundle;
 use RevisionTen\CMS\Event\PageSubmitEvent;
 use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Model\MenuRead;
@@ -247,7 +247,7 @@ class AdminController extends AbstractController
         return $this->render('@cms/Admin/system-info.html.twig', [
             'cache_enabled' => $cacheService->isCacheEnabled(),
             'symfony_version' => Kernel::VERSION,
-            'cms_version' => CmsBundle::VERSION,
+            'cms_version' => CMSBundle::VERSION,
             'php_version' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
             'apc_enabled' => (extension_loaded('apcu') && ini_get('apc.enabled') && function_exists('apcu_clear_cache')),
             'memory_limit' => ini_get('memory_limit'),
