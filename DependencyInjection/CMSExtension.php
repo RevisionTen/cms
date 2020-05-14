@@ -16,7 +16,7 @@ use function array_merge;
 use function array_reverse;
 use function ftok;
 
-class CmsExtension extends Extension implements PrependExtensionInterface
+class CMSExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * Merge all cms configs in reverse order.
