@@ -423,7 +423,7 @@ class AdminController extends AbstractController
         $queryBuilder = $em->createQueryBuilder();
         $queryBuilder
             ->select('e')
-            ->from('CqrsBundle:EventStreamObject', 'e')
+            ->from('CQRSBundle:EventStreamObject', 'e')
             ->where($queryBuilder->expr()->neq('e.aggregateClass', ':pageClass'))
             ->orderBy('e.id', Criteria::DESC)
             ->setMaxResults(10)

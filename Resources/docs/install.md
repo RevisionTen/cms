@@ -17,8 +17,8 @@ composer req revision-ten/cms
 
 Add the following bundles to your config/bundles.php:
 ```PHP
-RevisionTen\CQRS\CqrsBundle::class => ['all' => true],
-RevisionTen\CMS\CmsBundle::class => ['all' => true],
+RevisionTen\CQRS\CQRSBundle::class => ['all' => true],
+RevisionTen\CMS\CMSBundle::class => ['all' => true],
 RevisionTen\Forms\FormsBundle::class => ['all' => true],
 ```
 
