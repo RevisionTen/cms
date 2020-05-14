@@ -59,11 +59,11 @@ framework:
 doctrine:
     orm:
         mappings:
-            CmsBundle:
+            CMSBundle:
                 mapping: true
                 type: annotation
                 dir: 'Model'
-                alias: CmsBundle
+                alias: CMSBundle
                 prefix: 'RevisionTen\CMS\Model'
                 is_bundle: true
 

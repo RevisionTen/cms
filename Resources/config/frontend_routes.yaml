@@ -3,6 +3,6 @@ revision_ten_forms_controller_tracking:
     type: annotation
 
 revision_ten_cms_controller_frontend:
-    resource: "@CmsBundle/Controller/FrontendController.php"
+    resource: "@CMSBundle/Controller/FrontendController.php"
     type: annotation
 

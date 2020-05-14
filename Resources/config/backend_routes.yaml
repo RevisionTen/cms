@@ -3,46 +3,46 @@
 #    defaults: { _controller: 'RevisionTen\CMS\Controller\PageController::index' }
 
 revision_ten_cms_controller_security:
-    resource: "@CmsBundle/Controller/SecurityController.php"
+    resource: "@CMSBundle/Controller/SecurityController.php"
     type: annotation
 
 easy_admin_bundle:
-    resource: "@CmsBundle/Controller/EasyAdminController.php"
+    resource: "@CMSBundle/Controller/EasyAdminController.php"
     prefix: /admin
     type: annotation
 
 revision_ten_cms_controller_admin:
-    resource: "@CmsBundle/Controller/AdminController.php"
+    resource: "@CMSBundle/Controller/AdminController.php"
     type: annotation
 
 revision_ten_cms_controller_file:
-    resource: "@CmsBundle/Controller/FileController.php"
+    resource: "@CMSBundle/Controller/FileController.php"
     type: annotation
 
 revision_ten_cms_controller_api:
-    resource: "@CmsBundle/Controller/ApiController.php"
+    resource: "@CMSBundle/Controller/ApiController.php"
     type: annotation
 
 revision_ten_cms_controller_menu:
-    resource: "@CmsBundle/Controller/MenuController.php"
+    resource: "@CMSBundle/Controller/MenuController.php"
     type: annotation
 
 revision_ten_cms_controller_user:
-    resource: "@CmsBundle/Controller/UserController.php"
+    resource: "@CMSBundle/Controller/UserController.php"
     type: annotation
 
 revision_ten_cms_controller_role:
-    resource: "@CmsBundle/Controller/RoleController.php"
+    resource: "@CMSBundle/Controller/RoleController.php"
     type: annotation
 
 revision_ten_cms_controller_form:
-    resource: "@CmsBundle/Controller/FormController.php"
+    resource: "@CMSBundle/Controller/FormController.php"
     type: annotation
 
 revision_ten_cms_controller_page:
-    resource: "@CmsBundle/Controller/PageController.php"
+    resource: "@CMSBundle/Controller/PageController.php"
     type: annotation
 
 revision_ten_cms_controller_element:
-    resource: "@CmsBundle/Controller/ElementController.php"
+    resource: "@CMSBundle/Controller/ElementController.php"
     type: annotation
