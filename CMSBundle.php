@@ -7,9 +7,9 @@ namespace RevisionTen\CMS;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class CmsBundle extends Bundle
+class CMSBundle extends Bundle
 {
-    public const VERSION = '2.2.18';
+    public const VERSION = '2.3.1';
 
     /**
      * {@inheritdoc}
