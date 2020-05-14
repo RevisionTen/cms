@@ -1,16 +1,11 @@
 # Installation
 
-> :warning: Unfortunately at the moment Symfony 4.4.* includes `twig/twig v3.0.1`  in its lockfile which conflicts with this bundle because `gregwar/image-bundle` is not yet compatible with `twig/twig v3.0.1`.
-> To get around this issue **delete your `composer.lock` file and vendor folder after creating your fresh symfony installation**.
-
 #### Preparation
 
 - Install Symfony:
 ```
 symfony new --full my_project --version=lts
 ```
-
-- **Delete your `composer.lock` file and vendor folder.**
 
 ### Step 1. Install the bundle via composer
 
