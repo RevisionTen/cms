@@ -27,11 +27,11 @@ function bindTree()
             let containerElement = <HTMLElement>container.el[0];
             return containerElement.classList.contains('valid-target-tree');
         },
-        onCancel: function ($item: any, container: any, _super: any) {
+        onCancel: ($item: any, container: any, _super: any) => {
             // Clear valid trees.
             clearValidTrees();
         },
-        onDrop: function ($item: any, container: any, _super: any) {
+        onDrop: ($item: any, container: any, _super: any) => {
             // Clear valid trees.
             clearValidTrees();
 
@@ -40,7 +40,7 @@ function bindTree()
                 treeSaveButton.parentElement.classList.remove('d-none');
             }
         },
-        onDragStart: function ($item: any, container: any, _super: any) {
+        onDragStart: ($item: any, container: any, _super: any) => {
             let element = <HTMLElement>$item[0];
             let elementName = element.dataset.elementName;
 

@@ -4,7 +4,13 @@
     </td>
     <td>
         {% for i in 0 .. level %}{% if i > 0 %}&nbsp;&nbsp;&nbsp;{% endif %}{% endfor %}
-        {{ item.data.label }}
+
+        {% if item.data.label|length > 35 %}
+            {{ item.data.label|slice(0, 35) }}...
+        {% else %}
+            {{ item.data.label }}
+        {% endif %}
+
         {% if item.data.isSubject is defined and item.data.isSubject %}
             &nbsp; <span style="font-size: 10px;padding: 4px 4px 1px 4px;" class="label label-primary">{{ 'admin.label.subject'|trans({}, 'cms') }}</span>
         {% endif %}

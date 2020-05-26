@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.5] - 2020-05-26
+### Changed
+- Bugfixes and backend improvements
+
 ## [2.3.4] - 2020-05-14
 ### Changed
 - Replaced all occurrences of `CmsBundle` with `CMSBundle`, **do the same in your project!**
