@@ -20,104 +20,10 @@
             <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
             <link rel="stylesheet" href="{{ asset('/bundles/cms/example-template-files/bootstrap.min.css') }}">
 
-            {% if edit %}
-                <script defer src="{{ asset('/bundles/cms/libs/dist/main.js') }}"></script>
-            {% endif %}
-
             {% include '@cms/Admin/admin-styles.html.twig' %}
         {% endblock %}
     </head>
     <body>
-    {% set created = page.created.date is defined ? date(page.created.date) : page.created %}
-    {% set modified = page.modified.date is defined ? date(page.modified.date) : page.modified %}
-
-        {% if page is defined %}
-            {% block jsonld %}
-                {% if page.meta.address.streetAddress is defined and page.meta.address.streetAddress %}
-                    {# Schema.org for LocalBusiness #}
-                    <script type="application/ld+json">
-                        {
-                            "@context": "http://schema.org",
-                            "@type": "LocalBusiness",
-                            {% if page.meta.image %}"image": {
-                                "@type": "ImageObject",
-                                "url": {{ (app.request.getSchemeAndHttpHost() ~ page.meta.image)|json_encode|raw }}
-                            },{% endif %}
-                            "@id": {{ (app.request.schemeAndHttpHost ~ app.request.requestUri)|json_encode|raw }},
-                            "url": {{ (app.request.schemeAndHttpHost ~ app.request.requestUri)|json_encode|raw }},
-                            "name": {{ page.meta.name|json_encode|raw }},
-                            {% if page.meta.address.streetAddress is defined and page.meta.address.streetAddress %}"address":{
-                                "@type": "PostalAddress",
-                                "addressLocality": {{ page.meta.address.addressLocality|json_encode|raw }},
-                                {% if page.meta.address.addressRegion %}"addressRegion": {{ page.meta.address.addressRegion|json_encode|raw }},{% endif %}
-                                "postalCode": {{ page.meta.address.postalCode|json_encode|raw }},
-                                "addressCountry": {{ page.meta.address.addressCountry|json_encode|raw }},
-                                "streetAddress": {{ page.meta.address.streetAddress|json_encode|raw }}
-                            },{% endif %}
-                            {% if page.meta.geo.latitude is defined and page.meta.geo.latitude and page.meta.geo.longitude is defined and page.meta.geo.longitude %}"geo":{
-                                "@type": "GeoCoordinates",
-                                "latitude": {{ page.meta.geo.latitude }},
-                                "longitude": {{ page.meta.geo.longitude }}
-                            },{% endif %}
-
-                            {% if page.meta.openingHoursSpecification is defined and page.meta.openingHoursSpecification is not empty %}"openingHoursSpecification": [
-                                {% for openingHours in page.meta.openingHoursSpecification %}
-                        {% if loop.first %}{% else %},{% endif %}{
-                                    "@type": "OpeningHoursSpecification",
-                                    "dayOfWeek": {{ openingHours.dayOfWeek|json_encode|raw }},
-                                    "opens": "{{ openingHours.opens }}",
-                                    "closes": "{{ openingHours.closes }}"
-                                }
-                                {% endfor %}
-                            ],{% endif %}
-
-                            {% if page.meta.department is defined and page.meta.department is not empty %}"department": [
-                                {% for departmentEntry in page.meta.department %}
-                                        {% if loop.first %}{% else %},{% endif %}{
-                                        "@type": {{ (departmentEntry.type is defined and departmentEntry.type ? departmentEntry.type : 'LocalBusiness')|json_encode|raw }},
-                                        {% if departmentEntry.image %}"image": {
-                                            "@type": "ImageObject",
-                                            "url": {{ (app.request.getSchemeAndHttpHost() ~ departmentEntry.image)|json_encode|raw }}
-                                        },{% endif %}
-                                        {% if departmentEntry.openingHoursSpecification is defined and departmentEntry.openingHoursSpecification is not empty %}"openingHoursSpecification": [
-                                            {% for openingHours in departmentEntry.openingHoursSpecification %}
-                                        {% if loop.first %}{% else %},{% endif %}{
-                                                    "@type": "OpeningHoursSpecification",
-                                                    "dayOfWeek": {{ openingHours.dayOfWeek|json_encode|raw }},
-                                                    "opens": "{{ openingHours.opens }}",
-                                                    "closes": "{{ openingHours.closes }}"
-                                                }
-                                            {% endfor %}
-                                        ],{% endif %}
-                                        "name": {{ departmentEntry.name|json_encode|raw }}
-                                    }
-                                {% endfor %}
-                            ],{% endif %}
-
-                            "telephone": {{ page.meta.telephone|json_encode|raw }}
-                        }
-                    </script>
-                {% else %}
-                    {# Schema.org for Article #}
-                    <script type="application/ld+json">
-                      {
-                        "@context": "http://schema.org",
-                        "@type": "Article",
-                        "headline": {{ page.title|json_encode|raw }},
-                        "name": {{ page.title|json_encode|raw }},
-                        {% if created %}"datePublished": "{{ created|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
-                        {% if modified %}"dateModified": "{{ modified|date('Y-m-d\\TH:i:s\\Z') }}",{% endif %}
-                        "description": {{ page.description|json_encode|raw }}{% if page.image %},
-                        "image": {
-                          "@type": "ImageObject",
-                          "url": {{ (app.request.getSchemeAndHttpHost() ~ page.image)|json_encode|raw }}
-                        }{% endif %}
-                      }
-                    </script>
-                {% endif %}
-            {% endblock %}
-        {% endif %}
-
         {% block body %}{% endblock %}
 
         {% block scripts %}
@@ -129,7 +35,5 @@
 
             {% include '@cms/Admin/admin-scripts.html.twig' %}
         {% endblock %}
-
-        {% include '@cms/Layout/cookie-banner.html.twig' %}
     </body>
 </html>

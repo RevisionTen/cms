@@ -10,12 +10,37 @@ import openModal from "./backend/modal";
 import fireCustomEvent from "./backend/events";
 import getPageInfo from "./backend/pageinfo";
 
+// Get translations from inline json.
+let translationsElement = document.getElementById('cmsTranslations');
+if (translationsElement) {
+    (window as any).translations = JSON.parse(translationsElement.innerHTML);
+}
+
 let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
     confirmDelete: 'Delete?',
     confirmDuplicate: 'Duplicate?',
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Bind twig-vars in form editor.
+    let twigVars = document.querySelectorAll('[data-twig-var]') as NodeListOf<HTMLElement>;
+    twigVars.forEach((twigVar) => {
+        twigVar.addEventListener('click', () => {
+            // @ts-ignore
+            if (document.selection) {
+                // @ts-ignore
+                let range = document.body.createTextRange();
+                range.moveToElementText(twigVar);
+                range.select();
+            } else if (window.getSelection) {
+                let range = document.createRange();
+                range.selectNode(twigVar);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+            }
+        });
+    });
+
     // Bind menu editor.
     bindMenu();
 

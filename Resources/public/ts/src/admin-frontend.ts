@@ -5,6 +5,16 @@ const axios = require('axios').default;
 // Requires jQuery for column resizing and firing of old jQuery fallback events.
 declare var $: any;
 
+// Get translations and page elements from inline json.
+let translationsElement = document.getElementById('cmsTranslations');
+if (translationsElement) {
+    (window as any).translations = JSON.parse(translationsElement.innerHTML);
+}
+let pageElementsElement = document.getElementById('pageElements');
+if (pageElementsElement) {
+    (window as any).pageElements = JSON.parse(pageElementsElement.innerHTML);
+}
+
 let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
     addElement: 'Add Element',
     delete: 'Delete',

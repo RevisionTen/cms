@@ -81,16 +81,11 @@ easy_admin:
             - '@EasyAdmin/form/bootstrap_4.html.twig'
         assets:
             css:
-                - 'https://fonts.googleapis.com/css?family=Rubik'
-                - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
-                - 'https://use.fontawesome.com/releases/v5.5.0/css/v4-shims.css'
                 - 'bundles/cms/css/trix.css?v=%cms.version%'
                 - 'bundles/cms/css/jquery-ui.min.css?v=%cms.version%'
                 - 'bundles/cms/css/easyadmin.css?v=%cms.version%'
                 - 'bundles/cms/css/cms-file-picker.css?v=%cms.version%'
             js:
-                - 'bundles/cms/js/bootstrap/popper.min.js?v=%cms.version%'
-                - 'bundles/cms/js/bootstrap/bootstrap.min.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/trix.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/ckeditor/ckeditor.js?v=%cms.version%'
                 - 'bundles/cms/libs/dist/jquery-sortable-min.js?v=%cms.version%'
