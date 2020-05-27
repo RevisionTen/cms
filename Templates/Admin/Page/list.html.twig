@@ -14,11 +14,10 @@
 
 {% block body_javascript %}
     {{ parent() }}
-
-    <script>
-        window.translations = {
-            confirmDelete: '{{ 'admin.label.confirmDelete'|trans({}, 'cms') }}',
-            confirmDuplicate: '{{ 'admin.label.confirmDuplicate'|trans({}, 'cms') }}'
-        };
+    <script id="cmsTranslations" type="application/json">
+        {
+            "confirmDelete": "{{ 'admin.label.confirmDelete'|trans({}, 'cms') }}",
+            "confirmDuplicate": "{{ 'admin.label.confirmDuplicate'|trans({}, 'cms') }}"
+        }
     </script>
 {% endblock body_javascript %}

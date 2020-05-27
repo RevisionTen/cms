@@ -69,28 +69,12 @@
                 {{ form_row(form.html) }}
                 {# Check if the form is displayed horizontally (EasyCMS) or vertically #}
                 <div class="form-group">
-                    <script type="text/javascript">
-                        // Script to select all text in clicked DOM element.
-                        function selectText(containerid) {
-                            if (document.selection) {
-                                var range = document.body.createTextRange();
-                                range.moveToElementText(document.getElementById(containerid));
-                                range.select();
-                            } else if (window.getSelection) {
-                                var range = document.createRange();
-                                range.selectNode(document.getElementById(containerid));
-                                window.getSelection().removeAllRanges();
-                                window.getSelection().addRange(range);
-                            }
-                        }
-                    </script>
                     <div>
                         <p>
-                            {# TODO: Support child items #}
                             {{ 'Available variables'|trans }}:<br/>
                             {% for key, vars in itemVariables %}
                                 {% for var in vars %}
-                                    <code id="var-{{ key~loop.index }}" onclick="selectText('var-{{ key~loop.index }}')" class="text-nowrap">{% verbatim %}{{{% endverbatim %} {{ var }} {% verbatim %}}}{% endverbatim %}</code>
+                                    <code data-twig-var id="var-{{ key~loop.index }}" class="text-nowrap">{% verbatim %}{{{% endverbatim %} {{ var }} {% verbatim %}}}{% endverbatim %}</code>
                                 {% endfor %}
                             {% endfor %}
                         </p>
