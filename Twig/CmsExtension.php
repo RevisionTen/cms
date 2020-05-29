@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Twig;
 
-use function array_push;
-use function array_walk;
-use function implode;
-use function is_array;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use function time;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use function array_push;
+use function array_search;
+use function array_walk;
+use function implode;
+use function is_array;
+use function json_encode;
+use function time;
+use function uasort;
 
 class CmsExtension extends AbstractExtension
 {
@@ -28,6 +31,9 @@ class CmsExtension extends AbstractExtension
 
     /**
      * CmsExtension constructor.
+     *
+     * @param array $config
+     * @param TranslatorInterface $translator
      */
     public function __construct(array $config, TranslatorInterface $translator)
     {
@@ -35,6 +41,9 @@ class CmsExtension extends AbstractExtension
         $this->translator = $translator;
     }
 
+    /**
+     * @return array|TwigFunction[]
+     */
     public function getFunctions(): array
     {
         return [
@@ -46,6 +55,9 @@ class CmsExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return array|TwigFilter[]
+     */
     public function getFilters(): array
     {
         return [
@@ -53,6 +65,11 @@ class CmsExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array $element
+     *
+     * @return bool
+     */
     public function isElementVisible(array $element): bool
     {
         $laterThanStartDate = isset($element['data']['startDate']) ? (time() >= $element['data']['startDate']) : true;
@@ -64,8 +81,10 @@ class CmsExtension extends AbstractExtension
     /**
      * Returns an array of bootstrap spacing css classes.
      *
-     * @param array  $spacing     the amount of spacing
+     * @param array $spacing the amount of spacing
      * @param string $propertyAbr the type of spacing ('m' = margin, 'p' = padding)
+     *
+     * @return array
      */
     private static function getSpacing(array $spacing, string $propertyAbr): array
     {
@@ -101,6 +120,11 @@ class CmsExtension extends AbstractExtension
         return $classes;
     }
 
+    /**
+     * @param array $element
+     *
+     * @return string
+     */
     public function elementClasses(array $element): string
     {
         $classes = [];
@@ -155,6 +179,14 @@ class CmsExtension extends AbstractExtension
         return implode(' ', $classes);
     }
 
+    /**
+     * @param array $element
+     * @param bool $edit
+     * @param string|null $bg
+     * @param bool|null $visible
+     *
+     * @return string
+     */
     public function editorAttr(array $element, bool $edit, string $bg = null, bool $visible = null): string
     {
         if (!$edit) {
@@ -218,10 +250,12 @@ class CmsExtension extends AbstractExtension
             'Thursday',
             'Friday',
             'Saturday',
+            'Sunday',
         ];
-        uasort($input, function ($a, $b) use ($templateArray) {
-            $keyA = array_search($a, $templateArray);
-            $keyB = array_search($b, $templateArray);
+
+        uasort($input, static function ($a, $b) use ($templateArray) {
+            $keyA = array_search($a, $templateArray, true);
+            $keyB = array_search($b, $templateArray, true);
 
             return $keyA < $keyB ? -1 : 1;
         });
