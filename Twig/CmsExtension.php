@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Twig;
 
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 use function array_push;
 use function array_walk;
 use function implode;
 use function is_array;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use function time;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class CmsExtension extends AbstractExtension
 {
@@ -27,9 +28,6 @@ class CmsExtension extends AbstractExtension
 
     /**
      * CmsExtension constructor.
-     *
-     * @param array               $config
-     * @param TranslatorInterface $translator
      */
     public function __construct(array $config, TranslatorInterface $translator)
     {
@@ -39,13 +37,20 @@ class CmsExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        return array(
+        return [
             new TwigFunction('isElementVisible', [$this, 'isElementVisible']),
             new TwigFunction('editorAttr', [$this, 'editorAttr'], [
                 'is_safe' => ['html'],
             ]),
             new TwigFunction('elementClasses', [$this, 'elementClasses']),
-        );
+        ];
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('sortWeekdays', [$this, 'sortWeekdays']),
+        ];
     }
 
     public function isElementVisible(array $element): bool
@@ -61,8 +66,6 @@ class CmsExtension extends AbstractExtension
      *
      * @param array  $spacing     the amount of spacing
      * @param string $propertyAbr the type of spacing ('m' = margin, 'p' = padding)
-     *
-     * @return array
      */
     private static function getSpacing(array $spacing, string $propertyAbr): array
     {
@@ -197,5 +200,32 @@ class CmsExtension extends AbstractExtension
         $attributes[] = "data-padding='".json_encode($padding)."'";
 
         return implode(' ', $attributes);
+    }
+
+    /**
+     * Sort weekdays correctly.
+     *
+     * @param array $input
+     *
+     * @return array
+     */
+    public function sortWeekDays(array $input): array
+    {
+        $templateArray = [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+        ];
+        uasort($input, function ($a, $b) use ($templateArray) {
+            $keyA = array_search($a, $templateArray);
+            $keyB = array_search($b, $templateArray);
+
+            return $keyA < $keyB ? -1 : 1;
+        });
+
+        return $input;
     }
 }
