@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
@@ -101,11 +102,9 @@ class FileService
         $public_dir = $this->project_dir.'/public';
 
         // Move the file to the uploads directory.
-        $newFileName = $filename.'.'.$file->getClientOriginalExtension();
+        $file->move($public_dir.$upload_dir, $filename);
 
-        $file->move($public_dir.$upload_dir, $newFileName);
-
-        return $upload_dir.$newFileName;
+        return $upload_dir.$filename;
     }
 
     /**
@@ -140,7 +139,7 @@ class FileService
         ];
     }
 
-    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language): ?array
+    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language, bool $keepOriginalFileName = false): ?array
     {
         if (null === $uuid) {
             $uuid = Uuid::uuid1()->toString();
@@ -154,7 +153,15 @@ class FileService
         $width = $dimensions['width'];
         $height = $dimensions['height'];
 
-        $filePath = $this->saveUploadedFile($file, $upload_dir, $uuid.'-v'.($version + 1));
+        if ($keepOriginalFileName) {
+            $fileName = $file->getClientOriginalName();
+        } else {
+            $slugify = new Slugify();
+            $fileName = $slugify->slugify($title).'.'.$file->getClientOriginalExtension();
+        }
+        // Save files in a versioned sub folder.
+        $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
+        $filePath = $this->saveUploadedFile($file, rtrim($upload_dir, '/').$fileFolder, $fileName);
 
         // Create file aggregate.
         $success = $this->runCommand(FileCreateCommand::class, [
@@ -184,7 +191,7 @@ class FileService
         ];
     }
 
-    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null): ?array
+    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null, bool $keepOriginalFileName = false): ?array
     {
         $uuid = $file['uuid'];
 
@@ -225,7 +232,15 @@ class FileService
             $width = $dimensions['width'];
             $height = $dimensions['height'];
 
-            $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
+            if ($keepOriginalFileName) {
+                $fileName = $newFile->getClientOriginalName();
+            } else {
+                $slugify = new Slugify();
+                $fileName = $slugify->slugify($title).'.'.$newFile->getClientOriginalExtension();
+            }
+            // Save files in a versioned sub folder.
+            $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
+            $filePath = $this->saveUploadedFile($newFile, rtrim($upload_dir, '/').$fileFolder, $fileName);
 
             if ($filePath !== $aggregate->path) {
                 $payload['path'] = $filePath;

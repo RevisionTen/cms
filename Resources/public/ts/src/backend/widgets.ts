@@ -2,6 +2,18 @@ import triggerJqueryEvent from './jqueryevents';
 
 let bindWidgets = function(element: HTMLElement)
 {
+    // Enable file labels for bootstrap custom file inputs.
+    let customFileInputs = element.querySelectorAll('.custom-file-input') as NodeListOf<HTMLInputElement>;
+    customFileInputs.forEach((customFileInput) => {
+        customFileInput.addEventListener('change', () => {
+            let fileName = customFileInput.files[0].name;
+            let fileLabel = customFileInput.parentElement.querySelector('.custom-file-label') as HTMLLabelElement|null;
+            if (fileLabel) {
+                fileLabel.innerText = fileName;
+            }
+        });
+    });
+
     // Enabled select2.
     let select2Elements = element.querySelectorAll('select[data-widget="select2"]:not(.select2-hidden-accessible)');
     select2Elements.forEach((select2Element) => {

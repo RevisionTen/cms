@@ -26,6 +26,8 @@
                         <button class="btn-block btn bg-white border pt-2"
                                 data-file-path="{{ file.path }}"
                                 data-thumb-path="{{ thumbPath }}"
+                                data-uuid="{{ file.uuid ?? '' }}"
+                                data-version="{{ file.version ?? '' }}"
                                 data-title="{{ file.title }}"
                                 data-mime-type="{{ file.mimeType }}"
                                 data-size="{{ file.size }}"

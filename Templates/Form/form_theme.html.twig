@@ -124,7 +124,7 @@
         {% set fileEnding = file|slice(-4) %}
         {% set isSVG = fileEnding|lower == '.svg' %}
         {% if fileEnding|lower in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
-            <a href="{{ file }}" class="d-block">
+            <a href="{{ file }}" class="d-block mt-0 mb-2" target="_blank">
                 <img id="cms-img-{{ form.file.vars.id }}"
                      style="width:200px;height:200px;"
                      width="200"
@@ -134,7 +134,9 @@
                 >
             </a>
         {% else %}
-            <a href="{{ file }}">{{ file }}</a>
+            <a href="{{ file }}" class="d-block mt-0 mb-2" target="_blank">
+                <kbd>{{ file|split('/')|last }}</kbd>
+            </a>
         {% endif %}
     {% else %}
         <img id="cms-img-{{ form.file.vars.id }}"
@@ -169,57 +171,6 @@
     {{ block('form_widget') }}
 {% endblock cms_upload_widget %}
 
-{% block cms_managed_upload_widget %}
-    {% set file = (value.file is defined and value.file) ? value.file : value %}
-    {% set hasFile = file and file.uuid is defined and file.path is defined %}
-
-    {% if enable_title and form.title is defined %}
-        {{ form_row(form.title) }}
-    {% endif %}
-
-    {% if hasFile %}
-        <div class="w-100 bg-white border-light rounded p-3">
-            <div class="row">
-                <div class="col-4">
-                    <div class="form-group">
-                        {% if file.mimeType in ['image/jpeg', 'image/png', 'image/gif'] %}
-                            <a class="d-block w-100" href="{{ file.path }}" target="_blank">
-                                <img class="d-block w-100 h-auto" src="{{ web_image(file.path).cropResize(200, 200) }}">
-                            </a>
-                            <div class="text-muted">
-                                {{ file.mimeType }} {{ file.size ? ((file.size / 1000)|number_format(2)) ~ ' KB' : '' }}
-                            </div>
-                        {% else %}
-                            <a href="{{ file.path }}" target="_blank">{{ value.title is defined and value.title ? value.title : file.path }}</a>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-8">
-                    {{ block('form_widget') }}
-                </div>
-            </div>
-        </div>
-    {% elseif enable_chooser %}
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="nav-item"><a class="nav-link active bg-white" href="#file_upload" aria-controls="file_upload" role="tab" aria-expanded="true" data-toggle="tab">{{ 'admin.label.fileUpload'|trans({}, 'cms') }}</a></li>
-            <li role="presentation" class="nav-item"><a class="nav-link bg-white" href="#file_chooser" aria-controls="file_chooser" role="tab" data-toggle="tab">{{ 'admin.label.fileChoose'|trans({}, 'cms') }}</a></li>
-        </ul>
-        <div class="tab-content bg-white p-3">
-            <div role="tabpanel" class="tab-pane active" id="file_upload">
-                {{ form_row(form.file) }}
-            </div>
-            <div role="tabpanel" class="tab-pane" id="file_chooser">
-                {{ form_row(form.existingFileUuid) }}
-                {{ form_row(form.existingFileVersion) }}
-                {{ render(controller('RevisionTen\\CMS\\Controller\\FileController::files')) }}
-            </div>
-        </div>
-        {{ block('form_widget') }}
-    {% else %}
-        {{ form_row(form.file) }}
-        {{ block('form_widget') }}
-    {% endif %}
-{% endblock cms_managed_upload_widget %}
 
 {% block cms_shift_buttons %}
     {% if form.parent.vars.allow_delete|default(false) %}

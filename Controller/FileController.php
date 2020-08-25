@@ -11,6 +11,7 @@ use RevisionTen\CMS\Services\FileService;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use RevisionTen\CMS\Model\File;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -174,6 +175,12 @@ class FileController extends AbstractController
             'constraints' => new NotBlank(),
         ]);
 
+        $builder->add('keepOriginalFileName', CheckboxType::class, [
+            'label' => 'admin.label.keepOriginalFileName',
+            'translation_domain' => 'cms',
+            'required' => false,
+        ]);
+
         $builder->add('submit', SubmitType::class, [
             'label' => 'admin.btn.addFile',
             'translation_domain' => 'cms',
@@ -188,7 +195,7 @@ class FileController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir, $currentWebsite, $data['language']);
+            $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir, $currentWebsite, $data['language'], $data['keepOriginalFileName']);
 
             return $this->render('@cms/Admin/File/create-success.html.twig', $data);
         }
@@ -260,6 +267,12 @@ class FileController extends AbstractController
             'required' => false,
         ]);
 
+        $builder->add('keepOriginalFileName', CheckboxType::class, [
+            'label' => 'admin.label.keepOriginalFileName',
+            'translation_domain' => 'cms',
+            'required' => false,
+        ]);
+
         $builder->add('submit', SubmitType::class, [
             'label' => 'admin.btn.saveFile',
             'translation_domain' => 'cms',
@@ -276,7 +289,7 @@ class FileController extends AbstractController
 
             $data['file'] = $fileService->replaceFile([
                 'uuid' => $fileUuid,
-            ], $data['file'], $data['title'], $uploadDir, $data['language']);
+            ], $data['file'], $data['title'], $uploadDir, $data['language'], null, $data['keepOriginalFileName']);
 
             return $this->render('@cms/Admin/File/create-success.html.twig', $data);
         }

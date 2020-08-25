@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.8] - 2020-08-24
+### Added
+- Added `keepOriginalFileName` option to UploadType
+### Changed
+- **Changed `File`-element template**
+- **Deprecated `Form/Types/ManagedUploadType`**, use `Form/Types/UploadType` instead
+- Deprecated `DataTransformer/ImageFileTransformer`, use `DataTransformer/FileWithMetaDataTransformer` instead
+
 ## [2.3.7] - 2020-05-29
 ### Added
 - Added sortWeekdays Twig filter (@entepe85)

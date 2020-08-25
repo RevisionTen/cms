@@ -405,6 +405,7 @@ admin:
         color: "Color"
         avatarUrl: "Avatar URL"
         replaceFile: "Replace File"
+        keepOriginalFileName: "Keep original file name"
         addMenu: "Add menu"
         editPage: "Edit Page \"%title%\""
         editElement: "Edit Element \"%title%\""
