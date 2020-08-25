@@ -27,6 +27,8 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
 
             let thumbPath = file.dataset.thumbPath;
             let filePath = file.dataset.filePath;
+            let uuid = file.dataset.uuid;
+            let version = file.dataset.version;
             let title = file.dataset.title;
             let mimeType = file.dataset.mimeType;
             let size = file.dataset.size;
@@ -36,6 +38,16 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
             let fileInput = document.getElementById(targetId+'_file');
             if (null !== fileInput) {
                 fileInput.setAttribute('value', filePath);
+            }
+
+            let uuidInput = document.getElementById(targetId+'_uuid');
+            if (null !== uuidInput) {
+                uuidInput.setAttribute('value', uuid);
+            }
+
+            let versionInput = document.getElementById(targetId+'_version');
+            if (null !== versionInput) {
+                versionInput.setAttribute('value', version);
             }
 
             let titleInput = document.getElementById(targetId+'_title');
@@ -63,14 +75,25 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
                 heightInput.setAttribute('value', height);
             }
 
-            let filePickerUploadFieldInput = document.getElementById(filePickerUploadField);
+            let filePickerUploadFieldInput = document.getElementById(filePickerUploadField) as HTMLInputElement;
             if (null !== filePickerUploadFieldInput) {
                 filePickerUploadFieldInput.removeAttribute('required');
+
+                // Unset selected files.
+                filePickerUploadFieldInput.value = null;
+
+                // Set file input label.
+                let fileLabel = filePickerUploadFieldInput.parentElement.querySelector('.custom-file-label') as HTMLLabelElement|null;
+                if (fileLabel) {
+                    // Get the file name from the path and set it as the label text.
+                    let fileName = filePath.split('/');
+                    fileLabel.innerText = fileName.pop();
+                }
             }
 
             // Set preview thumbnail.
             let thumb = document.getElementById('cms-img-'+targetId+'_file');
-            if (null !== thumb) {
+            if (null !== thumb && '' !== thumbPath) {
                 thumb.setAttribute('src', thumbPath);
                 thumb.classList.remove('d-none');
             }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use RevisionTen\CMS\DataTransformer\FileTransformer;
-use RevisionTen\CMS\DataTransformer\ImageFileTransformer;
+use RevisionTen\CMS\DataTransformer\FileWithMetaDataTransformer;
 use RevisionTen\CMS\Services\FileService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -71,12 +71,25 @@ class UploadType extends AbstractType
     /**
      * @param UploadedFile $uploadedFile
      * @param string       $upload_dir
+     * @param boolean      $keepOriginalFileName
      *
      * @return array|null
      */
-    public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?array
+    public function storeFile(UploadedFile $uploadedFile, string $upload_dir, bool $keepOriginalFileName = false): ?array
     {
-        return $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);
+        $title = $uploadedFile->getClientOriginalName();
+        // Remove extension.
+        $title = str_replace('.'.$uploadedFile->getClientOriginalExtension(), '', $title);
+
+        return $this->fileService->createFile(
+            null,
+            $uploadedFile,
+            $title,
+            $upload_dir,
+            $this->website,
+            $this->language,
+            $keepOriginalFileName
+        );
     }
 
     /**
@@ -100,8 +113,14 @@ class UploadType extends AbstractType
         ]);
 
         if ($options['file_with_meta_data']) {
-            $builder->addModelTransformer(new ImageFileTransformer());
+            $builder->addModelTransformer(new FileWithMetaDataTransformer());
 
+            $builder->add('uuid', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('version', HiddenType::class, [
+                'required' => false,
+            ]);
             $builder->add('title', HiddenType::class, [
                 'required' => false,
             ]);
@@ -158,6 +177,8 @@ class UploadType extends AbstractType
             $delete = !empty($data['delete']);
 
             $file = $data['file'] ?? null;
+            $uuid = $data['uuid'] ?? null;
+            $version = $data['version'] ?? null;
             $title = $data['title'] ?? null;
             $size = $data['size'] ?? null;
             $width = $data['width'] ?? null;
@@ -196,10 +217,12 @@ class UploadType extends AbstractType
                 }
                 if ($valid) {
                     // Save the file.
-                    $file = $this->storeFile($uploadedFile, $options['upload_dir']);
+                    $file = $this->storeFile($uploadedFile, $options['upload_dir'], $options['keepOriginalFileName']);
                     // Overwrite uploaded File with file path string.
                     $event->setData([
                         'file' => $file['path'],
+                        'uuid' => $file['uuid'] ?? null,
+                        'version' => $file['version'] ?? null,
                         'title' => $file['title'] ?? null,
                         'size' => $file['size'] ?? null,
                         'width' => $file['width'] ?? null,
@@ -214,6 +237,8 @@ class UploadType extends AbstractType
                 // Keep the file.
                 $event->setData([
                     'file' => $file,
+                    'uuid' => $uuid,
+                    'version' => $version,
                     'title' => $title,
                     'size' => $size,
                     'width' => $width,
@@ -224,6 +249,8 @@ class UploadType extends AbstractType
                 // File is object, just get the file path.
                 $event->setData([
                     'file' => $file->getPathname(),
+                    'uuid' => $uuid,
+                    'version' => $version,
                     'title' => $title,
                     'size' => $size,
                     'width' => $width,
@@ -280,6 +307,7 @@ class UploadType extends AbstractType
             'validation_groups' => false,
             'constraints' => null,
             'allow_extra_fields' => true,
+            'keepOriginalFileName' => false,
         ]);
 
         $resolver->setDeprecated('keep_deleted_file');
