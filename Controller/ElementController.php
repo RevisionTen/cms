@@ -707,7 +707,8 @@ class ElementController extends AbstractController
     {
         $this->denyAccessUnlessGranted('page_edit');
 
-        $padding = json_decode($padding, true, 2, JSON_THROW_ON_ERROR);
+        #$padding = json_decode($padding, true, 2, JSON_THROW_ON_ERROR); // Does not work in PHP 7.1
+        $padding = json_decode($padding, true, 2);
 
         $success = $this->runCommand($commandBus, PageChangeElementPaddingCommand::class, [
             'uuid' => $elementUuid,
