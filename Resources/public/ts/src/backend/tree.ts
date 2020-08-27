@@ -35,9 +35,10 @@ function bindTree()
             // Clear valid trees.
             clearValidTrees();
 
-            // Show tree save button.
+            // Highlight tree save button.
             if (null !== treeSaveButton) {
-                treeSaveButton.parentElement.classList.remove('d-none');
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
             }
         },
         onDragStart: ($item: any, container: any, _super: any) => {
@@ -49,9 +50,10 @@ function bindTree()
                 return false;
             }
 
-            // Show tree save button.
+            // Highlight tree save button.
             if (null !== treeSaveButton) {
-                treeSaveButton.parentElement.classList.remove('d-none');
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
             }
 
             // Look at every tree and see If this item is allowed.
@@ -76,9 +78,10 @@ function bindTree()
             });
         },
         afterMove: () => {
-            // Show tree save button.
+            // Highlight tree save button.
             if (null !== treeSaveButton) {
-                treeSaveButton.parentElement.classList.remove('d-none');
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
             }
         }
     });
