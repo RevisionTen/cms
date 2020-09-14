@@ -51,6 +51,9 @@ final class PageCloneHandler extends PageBaseHandler implements HandlerInterface
             // Override title.
             $baseAggregate->title .= ' duplicate';
 
+            // Do not copy scheduled tasks.
+            $baseAggregate->schedule = [];
+
             // Override aggregate meta info.
             $baseAggregate->setUuid($aggregate->getUuid());
             $baseAggregate->setVersion($aggregate->getVersion() ?? 1);

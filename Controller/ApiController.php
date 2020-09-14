@@ -88,6 +88,7 @@ class ApiController extends AbstractController
         $canToggleContrast = !$previewUser;
         $canToggleTree = !$previewUser;
         $canPreview = !$previewUser;
+        $canUseSpacingTool = !$previewUser;
         $canChangePagesettings = !$previewUser;
         $canRollbackAggregate = !$previewUser;
         $canOptimize = !$previewUser && $page->shouldTakeSnapshot();
@@ -127,6 +128,14 @@ class ApiController extends AbstractController
                 'attributes' => [
                     'target' => '_blank',
                 ],
+            ],
+            'spacing_tool' => [
+                'css_class' => 'btn-tertiary toggle-spacing-tool',
+                'icon' => 'fas fa-ruler-combined',
+                'label' => $translator->trans('admin.btn.spacingTool', [], 'cms'),
+                'url' => '#',
+                'display' => $canUseSpacingTool,
+                'type' => 'link',
             ],
             'change_pagesettings' => [
                 'css_class' => 'btn-tertiary',

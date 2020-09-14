@@ -66,6 +66,38 @@ function bindLinks()
                 } else {
                     pageFrameFrameBody.classList.add('hide-editor');
                 }
+
+                if (pageFrameFrameBody.classList.contains('show-spacing-tool')) {
+                    pageFrameFrameBody.classList.remove('show-spacing-tool');
+                }
+            }
+        });
+    }
+
+    // Toggle spacing tool.
+    let spacingToolToggleButton = document.querySelector('.toggle-spacing-tool');
+    if (null !== spacingToolToggleButton) {
+        spacingToolToggleButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (spacingToolToggleButton.classList.contains('active')) {
+                spacingToolToggleButton.classList.remove('active');
+            } else {
+                spacingToolToggleButton.classList.add('active');
+            }
+
+            let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
+            if (null !== pageFrame) {
+                let pageFrameFrameBody = pageFrame.contentDocument.body;
+
+                if (pageFrameFrameBody.classList.contains('show-spacing-tool')) {
+                    pageFrameFrameBody.classList.remove('show-spacing-tool');
+                    if (pageFrameFrameBody.classList.contains('hide-editor')) {
+                        pageFrameFrameBody.classList.remove('hide-editor');
+                    }
+                } else {
+                    pageFrameFrameBody.classList.add('show-spacing-tool');
+                    pageFrameFrameBody.classList.add('hide-editor');
+                }
             }
         });
     }
