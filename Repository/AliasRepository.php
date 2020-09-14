@@ -69,6 +69,7 @@ class AliasRepository extends ServiceEntityRepository
             ->setParameter('language', $locale)
             ->setParameter('enabled', true)
             ->setMaxResults(1)
+            ->addOrderBy('a.id', 'ASC')
             ->getQuery();
 
         return $query->getOneOrNullResult();

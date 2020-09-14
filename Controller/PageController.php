@@ -915,6 +915,12 @@ class PageController extends AbstractController
         $alias = (null !== $pageStreamRead->getAliases()) ? $pageStreamRead->getAliases()->first() : null;
 
 
+        $websiteId = $pageStreamRead->getWebsite();
+        /**
+         * @var Website $website
+         */
+        $website = $entityManager->getRepository(Website::class)->find($websiteId);
+
         /**
          * @var Page $page
          */
@@ -932,6 +938,7 @@ class PageController extends AbstractController
 
         return $this->render($template, [
             'alias' => $alias,
+            'website' => $website,
             'page' => $pageData,
             'edit' => false,
             'config' => $config,

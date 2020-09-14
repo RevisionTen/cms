@@ -180,10 +180,10 @@ body:not(.editor-dark) .editor .text-white {
   display: none;
 }
 /* ----------------- Padding & Margin Highlighting ----------------- */
-body.hide-editor [data-uuid] {
+body.show-spacing-tool [data-uuid] {
   position: relative;
 }
-body.hide-editor [data-uuid]::before {
+body.show-spacing-tool [data-uuid]::before {
   content: '';
   display: block;
   position: absolute;
@@ -196,7 +196,7 @@ body.hide-editor [data-uuid]::before {
   pointer-events: none;
   background: none;
 }
-body.hide-editor.editor-dark [data-uuid]::before {
+body.show-spacing-tool.editor-dark [data-uuid]::before {
   outline: 1px dashed white;
 }
 body.hide-editor [data-type="Column"]::before,
@@ -204,38 +204,38 @@ body.hide-editor [data-type="Row"]::before,
 body.hide-editor [data-type="Section"]::before {
   display: none!important;
 }
-body:not(.hide-editor) .editor-padding {
+body:not(.show-spacing-tool) .editor-padding {
   display: none!important;
 }
-body.hide-editor .editor-padding {
+body.show-spacing-tool .editor-padding {
   position: absolute;
   z-index: 999;
   outline: 1px dashed rgba(0, 0, 0, 0.2);
 }
-body.hide-editor.editor-dark .editor-padding {
+body.show-spacing-tool.editor-dark .editor-padding {
   outline: 1px dashed rgba(255, 255, 255, 0.2);
 }
-body.hide-editor .editor-padding-top {
+body.show-spacing-tool .editor-padding-top {
   top: 0;
   left: 0;
   right: 0;
 }
-body.hide-editor .editor-padding-bottom {
+body.show-spacing-tool .editor-padding-bottom {
   bottom: 0;
   left: 0;
   right: 0;
 }
-body.hide-editor .editor-padding-left {
+body.show-spacing-tool .editor-padding-left {
   bottom: 0;
   left: 0;
   top: 0;
 }
-body.hide-editor .editor-padding-right {
+body.show-spacing-tool .editor-padding-right {
   bottom: 0;
   right: 0;
   top: 0;
 }
-body.hide-editor .editor-padding-controls {
+body.show-spacing-tool .editor-padding-controls {
   position: absolute;
   width: 22px;
   height: 12px;
@@ -247,31 +247,31 @@ body.hide-editor .editor-padding-controls {
   background: white;
   color: black;
 }
-body.hide-editor.editor-dark .editor-padding-controls {
+body.show-spacing-tool.editor-dark .editor-padding-controls {
   background: black;
   color: white;
 }
-body.hide-editor .editor-padding-left .editor-padding-controls,
-body.hide-editor .editor-padding-right .editor-padding-controls {
+body.show-spacing-tool .editor-padding-left .editor-padding-controls,
+body.show-spacing-tool .editor-padding-right .editor-padding-controls {
   margin: -11px 0 0 -6px;
   width: 12px;
   height: 22px;
   flex-wrap: wrap;
 }
-body.hide-editor .editor-padding-left .editor-padding-controls {
+body.show-spacing-tool .editor-padding-left .editor-padding-controls {
   left: 0;
 }
-body.hide-editor .editor-padding-right .editor-padding-controls {
+body.show-spacing-tool .editor-padding-right .editor-padding-controls {
   left: 100%;
 }
-body.hide-editor .editor-padding-bottom .editor-padding-controls,
-body.hide-editor .editor-padding-top .editor-padding-controls {
+body.show-spacing-tool .editor-padding-bottom .editor-padding-controls,
+body.show-spacing-tool .editor-padding-top .editor-padding-controls {
   top: 0;
 }
-body:not(.hide-editor) .editor-padding-save {
+body:not(.show-spacing-tool) .editor-padding-save {
   display: none!important;
 }
-body.hide-editor .editor-padding-save {
+body.show-spacing-tool .editor-padding-save {
   position: absolute;
   top: 0;
   left: 0;
@@ -285,12 +285,12 @@ body.hide-editor .editor-padding-save {
   background: white;
   border: 1px solid black;
 }
-body.hide-editor.editor-dark .editor-padding-save {
+body.show-spacing-tool.editor-dark .editor-padding-save {
   color: white;
   background: black;
   border: 1px solid white;
 }
-body.hide-editor .editor-padding .btn-padding {
+body.show-spacing-tool .editor-padding .btn-padding {
   display: block;
   margin: 1px;
   width: 10px;
@@ -303,7 +303,7 @@ body.hide-editor .editor-padding .btn-padding {
   background: white;
   border: 1px solid black;
 }
-body.hide-editor.editor-dark .editor-padding .btn-padding {
+body.show-spacing-tool.editor-dark .editor-padding .btn-padding {
   color: white;
   background: black;
   border: 1px solid white;
