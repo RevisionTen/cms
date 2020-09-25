@@ -163,9 +163,9 @@ class UploadType extends AbstractType
         };
 
         // Add delete and replace form if the form is loaded with existing data.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($addDeleteReplaceForm): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($addDeleteReplaceForm, $options): void {
             $data = $event->getData();
-            if (!empty($data) && is_string($data) ) {
+            if (!empty($data) && ($options['file_with_meta_data'] || is_string($data))) {
                 $addDeleteReplaceForm($event->getForm());
             }
         });
