@@ -412,6 +412,7 @@ admin:
         editElement: "Element \"%title%\" bearbeiten"
         addElement: "Element \"%title%\" erstellen"
         addElementChooser: "Element erstellen"
+        pageIsDeleted: "(Archiviert)"
     btn:
         edit: "Bearbeiten"
         delete: "Löschen"

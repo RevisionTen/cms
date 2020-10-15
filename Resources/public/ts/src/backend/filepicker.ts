@@ -103,6 +103,28 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
         });
     });
 
+    // Bind pagination.
+    let paginationItems = filePicker.querySelectorAll('a.page-link') as NodeListOf<HTMLLinkElement>;
+    paginationItems.forEach((paginationItem) => {
+        paginationItem.addEventListener('click', (event) => {
+            event.preventDefault();
+            let url = paginationItem.href;
+
+            axios.get(url)
+                .then(function (response: any) {
+                    filePicker.innerHTML = response.data;
+                    bindFilePickerWindow(filePicker, filePickerUploadField, targetId);
+                })
+                .catch(function (error: any) {
+                    // handle error
+                    console.log(error);
+                })
+                .finally(function () {
+                    // always executed
+                });
+        });
+    });
+
     // Bind close button.
     let closeButton = filePicker.querySelector('.cms-file-picker-close');
     if (null !== closeButton) {
@@ -143,6 +165,7 @@ let bindFilePicker = function(element: HTMLElement)
                 let queryParams = filePickerMimeTypes ? {
                     mimeTypes: filePickerMimeTypes
                 } : null;
+
                 axios.get(url, {
                     params: queryParams
                 })

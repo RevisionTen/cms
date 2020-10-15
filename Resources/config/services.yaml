@@ -183,6 +183,10 @@ services:
         arguments:
             $config: '%cms%'
         tags: [form.type]
+    RevisionTen\CMS\Form\Admin\PageStreamReadType:
+        autoconfigure: true
+        autowire: true
+        tags: [ form.type ]
 
     # Event listeners.
     RevisionTen\CMS\EventListener\WebsiteAndLocaleListener:
