@@ -1,4 +1,4 @@
-<div class="card flex-grow-1">
+<div class="card flex-grow-1 rounded-0">
     <div class="card-header bg-white">
         <div class="row align-items-center">
             <div class="col">
@@ -56,5 +56,78 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <nav class="col-auto">
+                <ul class="pagination mb-0">
+                    {% if page > 0 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('cms_file_picker', { page: page - 1, mimeTypes: mimeTypes }) }}">
+                                <span class="fa fa-angle-left mx-1"></span>
+                                {{ 'forms.btn.previous'|trans }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <span class="fa fa-angle-left mx-1"></span>
+                                {{ 'forms.btn.previous'|trans }}
+                            </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <nav class="col-auto mx-auto">
+                <ul class="pagination mb-0">
+                    {% if page >= 5 %}
+                        <li class="page-item disabled">
+                        <span class="page-link">
+                            ...
+                        </span>
+                        </li>
+                    {% endif %}
+                    {% for p in 0..totalPages %}
+                        {% if p > (page - 5) and p < (page + 5) %}
+                            <li class="page-item {{ p == page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ path('cms_file_picker', { page: p, mimeTypes: mimeTypes }) }}">
+                                    {{ p+1 }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page <= (totalPages - 5) %}
+                        <li class="page-item disabled">
+                        <span class="page-link">
+                            ...
+                        </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <nav class="col-auto">
+                <ul class="pagination mb-0">
+                    {% if page < totalPages %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('cms_file_picker', { page: page + 1, mimeTypes: mimeTypes }) }}">
+                                {{ 'forms.btn.next'|trans }}
+                                <span class="fa fa-angle-right mx-1"></span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                {{ 'forms.btn.next'|trans }}
+                                <span class="fa fa-angle-right mx-1"></span>
+                            </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+
     </div>
 </div>

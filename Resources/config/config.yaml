@@ -120,7 +120,7 @@ easy_admin:
                 fields:
                     - { property: 'path', label: 'admin.label.path' }
                     - { property: 'language', label: 'admin.label.language', type: 'choice', type_options: { choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
-                    - { property: 'pageStreamRead', label: 'admin.label.page' }
+                    - { property: 'pageStreamRead', label: 'admin.label.page', type: 'RevisionTen\CMS\Form\Admin\PageStreamReadType' }
                     - { property: 'redirect', label: 'admin.label.redirect' }
                     - { property: 'priority', label: 'admin.label.priority', type: 'choice', type_options: { choices: { 'admin.label.veryLow': 0.1, 'admin.label.low': 0.3, 'admin.label.normal': 0.5, 'admin.label.high': 0.6, 'admin.label.veryHigh': 1 }, attr: { class: 'custom-select' } } }
         Website:

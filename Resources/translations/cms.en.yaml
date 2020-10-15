@@ -412,6 +412,7 @@ admin:
         editElement: "Edit Element \"%title%\""
         addElement: "Add Element \"%title%\""
         addElementChooser: "Add Element"
+        pageIsDeleted: "(archived)"
     btn:
         edit: "Edit"
         delete: "Delete"
