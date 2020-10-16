@@ -65,14 +65,14 @@
                         <li class="page-item">
                             <a class="page-link" href="{{ path('cms_file_picker', { page: page - 1, mimeTypes: mimeTypes }) }}">
                                 <span class="fa fa-angle-left mx-1"></span>
-                                {{ 'forms.btn.previous'|trans }}
+                                {{ 'admin.btn.previous'|trans({}, 'cms') }}
                             </a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
                             <span class="page-link">
                                 <span class="fa fa-angle-left mx-1"></span>
-                                {{ 'forms.btn.previous'|trans }}
+                                {{ 'admin.btn.previous'|trans({}, 'cms') }}
                             </span>
                         </li>
                     {% endif %}
@@ -88,7 +88,7 @@
                         </span>
                         </li>
                     {% endif %}
-                    {% for p in 0..totalPages %}
+                    {% for p in 0..(totalPages-1) %}
                         {% if p > (page - 5) and p < (page + 5) %}
                             <li class="page-item {{ p == page ? 'active' : '' }}">
                                 <a class="page-link" href="{{ path('cms_file_picker', { page: p, mimeTypes: mimeTypes }) }}">
@@ -109,17 +109,17 @@
 
             <nav class="col-auto">
                 <ul class="pagination mb-0">
-                    {% if page < totalPages %}
+                    {% if page < (totalPages - 1) %}
                         <li class="page-item">
                             <a class="page-link" href="{{ path('cms_file_picker', { page: page + 1, mimeTypes: mimeTypes }) }}">
-                                {{ 'forms.btn.next'|trans }}
+                                {{ 'admin.btn.next'|trans({}, 'cms') }}
                                 <span class="fa fa-angle-right mx-1"></span>
                             </a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
                             <span class="page-link">
-                                {{ 'forms.btn.next'|trans }}
+                                {{ 'admin.btn.next'|trans({}, 'cms') }}
                                 <span class="fa fa-angle-right mx-1"></span>
                             </span>
                         </li>
