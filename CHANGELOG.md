@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.14] - 2020-10-16
+### Changed
+- Bugfixes
+
 ## [2.3.13] - 2020-10-14
 ### Added
 - Added `RevisionTen\CMS\Form\Admin\PageStreamReadType` which can be used instead of a regular `EntityType` to provide a list of page choices. Choices are filtered by website automatically and archived pages are marked.

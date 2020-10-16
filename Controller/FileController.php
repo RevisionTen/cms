@@ -62,7 +62,7 @@ class FileController extends AbstractController
         $page = (int) $request->get('page');
 
         $orderBy = [
-            'created' => 'ASC',
+            'created' => 'DESC',
         ];
 
         $limit = 90;
@@ -73,7 +73,7 @@ class FileController extends AbstractController
         $files = $entityManager->getRepository(FileRead::class)->findBy($criteria, $orderBy, $limit, $offset);
 
         return $this->render('@cms/Admin/File/picker.html.twig', [
-            'files' => array_reverse($files),
+            'files' => $files,
             'page' => $page,
             'totalPages' => $totalPages,
             'mimeTypes' => $mimeTypes,

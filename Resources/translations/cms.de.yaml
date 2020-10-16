@@ -465,6 +465,8 @@ admin:
         saveUser: "Benutzer speichern"
         maximizeEditor: "Editor vergrößern"
         minimizeEditor: "Editor verkleinern"
+        next: "weiter"
+        previous: "zurück"
     validation:
         dataUnchanged: "Daten haben sich nicht verändert"
         passwordsMustMatch: "Die Passwortfelder müssen übereinstimmen"

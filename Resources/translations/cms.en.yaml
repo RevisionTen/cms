@@ -465,6 +465,8 @@ admin:
         saveUser: "Save user"
         maximizeEditor: "Enter distraction free mode"
         minimizeEditor: "Leave distraction free mode"
+        next: "next"
+        previous: "previous"
     validation:
         dataUnchanged: "Data has not changed"
         passwordsMustMatch: "The password fields must match"
