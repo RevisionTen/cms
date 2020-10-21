@@ -196,6 +196,7 @@ class UploadType extends AbstractType
                 // Validate file field.
                 $valid = true;
                 if ($constraints) {
+                    $uploadedFileForm = $form->get('uploadedFile');
                     /**
                      * @var ConstraintViolationListInterface $violations
                      */
@@ -210,7 +211,6 @@ class UploadType extends AbstractType
                             $violation->getParameters(),
                             $violation->getPlural()
                         );
-                        $uploadedFileForm = $form->get('uploadedFile');
                         $uploadedFileForm->addError($formError);
                         $valid = false;
                     }
@@ -229,6 +229,8 @@ class UploadType extends AbstractType
                         'height' => $file['height'] ?? null,
                         'mimeType' => $file['mimeType'] ?? null,
                     ]);
+                } else {
+                    $event->setData(null);
                 }
             } elseif ($delete) {
                 // Delete the file.
