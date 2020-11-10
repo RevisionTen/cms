@@ -155,6 +155,12 @@ class FileService
 
         if ($keepOriginalFileName) {
             $fileName = $file->getClientOriginalName();
+            $fileExtension = $file->getClientOriginalExtension();
+            $fileName = str_replace($fileExtension, '', $fileName);
+            $slugify = new Slugify([
+                'lowercase' => false,
+            ]);
+            $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
         } else {
             $slugify = new Slugify();
             $fileName = $slugify->slugify($title).'.'.$file->getClientOriginalExtension();
@@ -234,6 +240,12 @@ class FileService
 
             if ($keepOriginalFileName) {
                 $fileName = $newFile->getClientOriginalName();
+                $fileExtension = $newFile->getClientOriginalExtension();
+                $fileName = str_replace($fileExtension, '', $fileName);
+                $slugify = new Slugify([
+                    'lowercase' => false,
+                ]);
+                $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
             } else {
                 $slugify = new Slugify();
                 $fileName = $slugify->slugify($title).'.'.$newFile->getClientOriginalExtension();

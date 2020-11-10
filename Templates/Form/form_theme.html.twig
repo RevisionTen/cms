@@ -120,10 +120,11 @@
 
 {% block cms_upload_widget %}
     {% set file = value.file ?? null %}
+    {% set mimeType = value.mimeType ?? null %}
     {% if file and file is not iterable %}
-        {% set fileEnding = file|slice(-4) %}
-        {% set isSVG = fileEnding|lower == '.svg' %}
-        {% if fileEnding|lower in ['jpeg', '.jpg', '.png', '.gif', '.svg'] %}
+        {% set fileEnding = file|split('.')|last %}
+        {% set isSVG = fileEnding|lower == 'svg' %}
+        {% if (fileEnding|lower in ['jpeg', 'jpg', 'png', 'gif', 'svg']) or (mimeType in ['image/jpeg', 'image/png', 'image/gif']) %}
             <a href="{{ file }}" class="d-block mt-0 mb-2" target="_blank">
                 <img id="cms-img-{{ form.file.vars.id }}"
                      style="width:200px;height:200px;"
@@ -186,12 +187,7 @@
 
                 /* Update index of all collection items */
                 parentDiv.children().each(function() {
-                    var index = $(this).index();
-                    $(this).find('[name]').each(function() {
-                        var input = $(this);
-                        var newName = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
-                        input.attr('name', newName);
-                    });
+                    {{ block('update_collection_index_script') }}
                 });
             });
         {% endset %}
@@ -207,12 +203,7 @@
 
                 /* Update index of all collection items */
                 parentDiv.children().each(function() {
-                    var index = $(this).index();
-                    $(this).find('[name]').each(function() {
-                        var input = $(this);
-                        var newName = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
-                        input.attr('name', newName);
-                    });
+                    {{ block('update_collection_index_script') }}
                 });
             });
         {% endset %}
@@ -223,6 +214,12 @@
                 var containerDiv = $('#{{ id }}').parents('.form-group:first');
                 var parentDiv = containerDiv.parents('[data-prototype]:first');
                 containerDiv.remove();
+
+                /* Update index of all collection items */
+                parentDiv.children().each(function() {
+                    {{ block('update_collection_index_script') }}
+                });
+
                 parentDiv.trigger('easyadmin.collection.item-deleted');
 
                 var hasCountAttr = parentDiv.data('count');
@@ -298,6 +295,30 @@
     </div>
 {% endblock cms_spacing_widget %}
 
+{% block update_collection_index_script %}
+    var index = $(this).index();
+    $(this).find('[name]').each(function() {
+        var input = $(this);
+        var newAttr = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
+        input.attr('name', newAttr);
+    });
+    $(this).find('[id]').each(function() {
+        var input = $(this);
+        var newAttr = input.attr('id').replace(/\_(\d+)\_/, '_'+index+'_');
+        input.attr('id', newAttr);
+    });
+    $(this).find('[data-file-picker-upload]').each(function() {
+        var input = $(this);
+        var newAttr = input.attr('data-file-picker-upload').replace(/\_(\d+)\_/, '_'+index+'_');
+        input.attr('data-file-picker-upload', newAttr);
+    });
+    $(this).find('[data-file-picker]').each(function() {
+        var input = $(this);
+        var newAttr = input.attr('data-file-picker').replace(/\_(\d+)\_/, '_'+index+'_');
+        input.attr('data-file-picker', newAttr);
+    });
+{% endblock update_collection_index_script %}
+
 {% block collection_row %}
     {{ block('form_row') }}
 
@@ -307,7 +328,13 @@
                 event.preventDefault();
 
                 var collection = $('#{{ id }}');
-                // Use a counter to avoid having the same index more than once
+
+                /* Update index of all collection items */
+                collection.children().each(function() {
+                    {{ block('update_collection_index_script') }}
+                });
+
+                /* Use a counter to avoid having the same index more than once */
                 var numItems = collection.data('count') || collection.children('.form-group').length;
 
                 collection.prev('.collection-empty').remove();
@@ -318,7 +345,7 @@
                     .replace(/{{ name }}\]\[{{ prototype.vars.name }}\]/g, '{{ name }}][' + numItems + ']')
                 ;
 
-                // Increment the counter and store it in the collection
+                /* Increment the counter and store it in the collection */
                 collection.data('count', ++numItems);
 
                 collection.append(newItem).trigger('easyadmin.collection.item-added');
