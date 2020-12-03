@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Form\Elements;
 
+use RevisionTen\CMS\Form\Types\CKEditorType;
 use RevisionTen\CMS\Form\Types\DoctrineType;
 use RevisionTen\CMS\Form\Types\UploadType;
 use RevisionTen\CMS\Model\Alias;
@@ -55,13 +56,10 @@ class Card extends Element
             'show_file_picker' => true,
         ]);
 
-        $builder->add('text', TextareaType::class, [
+        $builder->add('text', CKEditorType::class, [
             'required' => false,
             'label' => 'element.label.text',
             'translation_domain' => 'cms',
-            'attr' => [
-                'class' => 'ckeditor',
-            ],
         ]);
 
         $builder->add('buttonText', TextType::class, [
