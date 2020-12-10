@@ -67,8 +67,11 @@ doctrine:
                 prefix: 'RevisionTen\CMS\Model'
                 is_bundle: true
 
+# Use param for gregwar config so it becomes overwriteable.
+parameters:
+    gregwar_image_web_dir: "%kernel.project_dir%/public"
 gregwar_image:
-    web_dir: "%kernel.project_dir%/public"
+    web_dir: "%gregwar_image_web_dir%"
 
 easy_admin:
     translation_domain: 'cms'
