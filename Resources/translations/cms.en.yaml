@@ -184,6 +184,7 @@ element:
         startDate: "Start date"
         endDate: "End date"
         youtubeId: "Youtube Video ID or URL"
+        vimeoId: "Vimeo Video ID or URL"
         optin: "Require opt-in by user"
         formUuid: "Please choose the Form you want to show."
     placeholder:
@@ -361,6 +362,7 @@ admin:
         forever: "forever"
         visibleFromTo: "This element appears from %start% to %end%."
         youtubeEmbedWarning: "This video is embedded from Youtube. <br>Googles <a target=\"_blank\" href=\"%link%\">privacy policy</a> applies."
+        vimeoEmbedWarning: "This video is embedded from Vimeo. <br>Vimeos <a target=\"_blank\" href=\"%link%\">privacy policy</a> applies."
         enableVideo: "Enable Video"
         useOfCookies: "Use of Cookies"
         cookieMessage: "By continuing your visit to this site, you accept the use of cookies to make visitor statistics."

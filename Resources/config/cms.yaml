@@ -184,3 +184,8 @@ cms:
             template: '@cms/Layout/youtube.html.twig'
             public: true
             icon: 'fab fa-youtube'
+        Vimeo:
+            class: RevisionTen\CMS\Form\Elements\Vimeo
+            template: '@cms/Layout/vimeo.html.twig'
+            public: true
+            icon: 'fab fa-vimeo'

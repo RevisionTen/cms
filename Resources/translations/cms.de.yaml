@@ -184,6 +184,7 @@ element:
         startDate: "Startdatum"
         endDate: "Enddatum"
         youtubeId: "Youtube Video ID oder URL"
+        vimeoId: "Vimeo Video ID oder URL"
         optin: "Opt-In vom User erforderlich machen"
         formUuid: "Wähle das Formular aus das erscheinen soll."
     placeholder:
@@ -361,6 +362,7 @@ admin:
         forever: "unbegrenzt"
         visibleFromTo: "Dieses Element erscheint von %start% bis %end%."
         youtubeEmbedWarning: "Dieses Video wird von Youtube eingebettet. <br>Es gelten die <a target=\"_blank\" href=\"%link%\">Datenschutzerklärungen</a> von Google."
+        vimeoEmbedWarning: "Dieses Video wird von Vimeo eingebettet. <br>Es gelten die <a target=\"_blank\" href=\"%link%\">Datenschutzerklärungen</a> von Vimeo."
         enableVideo: "Video aktivieren"
         useOfCookies: "Verwendung von Cookies"
         cookieMessage: "Um unsere Webseite für Sie optimal zu gestalten und fortlaufend verbessern zu können, verwenden wir Cookies. <br/>Durch die weitere Nutzung der Webseite stimmen Sie der Verwendung von Cookies zu."
