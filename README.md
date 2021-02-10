@@ -8,24 +8,14 @@ RevisionTen CMS
 Documentation
 -------
 
-- [Installation][install]
-- [Creating page templates][creating-page-templates]
-- [Adding custom entities][custom-entities]
-- [Included form types][form-types]
-- [Hooking into the frontend editor][frontend-editor]
-- [Solr configuration and page indexing][solr]
+Documentation is available [in the wiki][wiki]
 
 License
 -------
 
 This software is published under the [MIT License](LICENSE)
 
-[install]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/install.md
-[creating-page-templates]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/creating-page-templates.md
-[frontend-editor]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/frontend-editor.md
-[form-types]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/form-types.md
-[custom-entities]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/custom-entities.md
-[solr]: https://github.com/RevisionTen/cms/blob/master/Resources/docs/solr.md
+[wiki]: https://github.com/RevisionTen/cms/wiki
 
 [badge-release]: https://img.shields.io/packagist/v/revision-ten/cms.svg?style=flat-square
 [badge-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square

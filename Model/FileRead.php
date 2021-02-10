@@ -37,6 +37,12 @@ class FileRead
     private $path;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean", options={"default": 0})
+     */
+    private $deleted;
+
+    /**
      * @var string
      * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
@@ -104,6 +110,25 @@ class FileRead
     public function setPath(string $path): self
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param bool $deleted
+     * @return FileRead
+     */
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

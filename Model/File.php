@@ -14,6 +14,12 @@ final class File extends Aggregate
     /** @var string */
     public $path;
 
+    /** @var array */
+    public $oldPaths = [];
+
+    /** @var bool */
+    public $deleted = false;
+
     /** @var string|null */
     public $mimeType;
 

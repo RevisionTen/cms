@@ -417,15 +417,18 @@ easy_admin:
                 search: 'file_search'
                 new: 'file_create'
                 edit: 'file_edit'
+                delete: 'file_delete'
             templates:
                 list: '@cms/Admin/File/list.html.twig'
             list:
                 sort: ['modified', 'DESC']
+                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
                 actions:
                     - '-new'
                     - '-edit'
                     - '-delete'
                     - { name: 'cms_file_edit', type: 'route', title: 'admin.btn.edit', label: '', icon: 'edit', permission: 'file_edit' }
+                    - { name: 'cms_file_delete', type: 'route', title: 'admin.btn.delete', label: '', icon: 'trash', css_class: 'text-danger', permission: 'file_delete' }
                 fields:
                     - { property: 'title', label: 'admin.label.title', css_class: 'title-truncate', template: '@cms/Admin/File/List/title.html.twig' }
                     - { property: 'version', label: 'admin.label.version' }
