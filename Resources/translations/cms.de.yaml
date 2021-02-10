@@ -298,7 +298,7 @@ admin:
         eventSomeMinutesAgo: "vor etwa %minutes% Minuten"
         fileChoose: "Datei auswählen"
         fileDelete: "Datei \"%title%\" löschen"
-        fileDeleteQuestion: "Sind Sie sicher, dass Sie die Datei entgültig löschen wollen? <br><br>Die Datei kann danach nicht wiederhergestellt werden. <br>Wenn eine Seite diese Datei noch verwendet, wird ein Fehlerbild angezeigt."
+        fileDeleteQuestion: "Sind Sie sicher, dass Sie die Datei endgültig löschen wollen? <br><br>Die Datei kann danach nicht wiederhergestellt werden. <br>Wenn eine Seite diese Datei noch verwendet, wird ein Fehlerbild angezeigt."
         fileDeleteSuccess: "Die Datei wurde erfolgreich gelöscht."
         fileSaved: "Ihre Datei \"%title%\" wurde gespeichert!"
         fileUpload: "Datei hochladen"
