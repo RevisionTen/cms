@@ -8,6 +8,7 @@ use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
+use RevisionTen\CMS\Command\FileDeleteCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CMS\Model\FileRead;
@@ -309,10 +310,43 @@ class FileService
 
     public function deleteFile(array $file): ?array
     {
-        // Delete the file (detaches the file aggregate).
-        // $uuid = $file['uuid'];
+        $uuid = $file['uuid'];
 
-        return null;
+        /**
+         * Get Aggregate newest version.
+         *
+         * @var File $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($uuid, File::class);
+        $version = $aggregate->getVersion();
+
+        $public_dir = $this->project_dir.'/public';
+
+        $path = $aggregate->path;
+        $oldPaths = $aggregate->oldPaths;
+
+        // Delete the actual files first.
+        $fileDeleted = unlink($public_dir.$path);
+        if (!$fileDeleted) {
+            throw new Exception("File $path could not be deleted.");
+            return $file;
+        }
+        if ($oldPaths) {
+            foreach ($oldPaths as $oldPath) {
+                $fileDeleted = unlink($public_dir.$oldPath);
+                if (!$fileDeleted) {
+                    throw new Exception("File $path could not be deleted.");
+                    break;
+                }
+            }
+        }
+
+        // Update the aggregate.
+        if ($fileDeleted) {
+            $success = $this->runCommand(FileDeleteCommand::class, [], $uuid, $version);
+        }
+
+        return $success ? null : $file;
     }
 
     /**
@@ -342,6 +376,7 @@ class FileService
         $fileRead->setPayload($fileData);
         $fileRead->setTitle($aggregate->title);
         $fileRead->setPath($aggregate->path);
+        $fileRead->setDeleted($aggregate->deleted);
         $fileRead->setSize($aggregate->size);
         $fileRead->setMimeType($aggregate->mimeType);
         $fileRead->setWebsite($website);

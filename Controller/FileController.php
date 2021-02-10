@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use function array_filter;
 use function array_reverse;
 use function explode;
@@ -53,6 +54,7 @@ class FileController extends AbstractController
 
         $criteria = [
             'website' => $request->get('currentWebsite'),
+            'deleted' => false,
         ];
         $mimeTypes = $request->get('mimeTypes');
         if ($mimeTypes) {
@@ -131,6 +133,11 @@ class FileController extends AbstractController
                 return $file->website === $currentWebsite;
             });
         }
+
+        // Filter deleted files.
+        $files = array_filter($files, static function ($file) {
+            return $file->deleted === false;
+        });
 
         return $this->render('@cms/Admin/File/element-list.html.twig', [
             'files' => $files,
@@ -306,6 +313,54 @@ class FileController extends AbstractController
 
         return $this->render('@cms/Form/file-form.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/file/delete", name="cms_file_delete")
+     *
+     * @param Request                $request
+     * @param FileService            $fileService
+     * @param AggregateFactory       $aggregateFactory
+     * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface    $translator
+     *
+     * @return Response
+     */
+    public function fileDelete(Request $request, FileService $fileService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
+    {
+        $this->denyAccessUnlessGranted('file_edit');
+
+        $id = $request->get('id');
+
+        /**
+         * @var FileRead $fileRead
+         */
+        $fileRead = $entityManager->getRepository(FileRead::class)->find($id);
+        if (null === $fileRead) {
+            return $this->redirect('/admin');
+        }
+        $fileUuid = $fileRead->getUuid();
+
+        if ($request->get('confirm')) {
+
+            $file = $fileService->deleteFile([
+                'uuid' => $fileUuid,
+            ]);
+
+            if (null === $file) {
+                $this->addFlash(
+                    'success',
+                    $translator->trans('admin.label.fileDeleteSuccess', [], 'cms')
+                );
+
+                return $this->redirect('/admin/?entity=FileRead&action=list');
+            }
+        }
+
+        return $this->render('@cms/Admin/File/delete.html.twig', [
+            'id' => $id,
+            'file' => $fileRead,
         ]);
     }
 

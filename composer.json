@@ -15,7 +15,6 @@
         "ext-json": "*",
         "revision-ten/cqrs": "^2.0",
         "revision-ten/forms": "^2.0",
-        "easycorp/easyadmin-bundle": "2.3.5",
         "gregwar/image-bundle": "^2.2",
         "sonata-project/google-authenticator": "^2.1",
         "solarium/solarium": "^5.0",
@@ -29,7 +28,9 @@
         "symfony/http-client": "^4.4",
         "symfony/templating": "^4.4",
         "symfony/serializer-pack": "*",
-        "twig/twig": "^2.0"
+        "twig/twig": "^2.0",
+        "easycorp/easyadmin-bundle": "2.3.5",
+        "doctrine/orm": "2.7.5"
     },
     "autoload": {
         "psr-4": { "RevisionTen\\CMS\\": "" }

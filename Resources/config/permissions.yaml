@@ -86,6 +86,8 @@ cms:
                 label: 'Create file'
             file_edit:
                 label: 'Edit file'
+            file_delete:
+                label: 'Delete file'
         Website:
             website_list:
                 label: 'List websites'
