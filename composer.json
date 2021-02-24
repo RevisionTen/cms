@@ -28,6 +28,7 @@
         "symfony/http-client": "^4.4",
         "symfony/templating": "^4.4",
         "symfony/serializer-pack": "*",
+        "symfony/mime": "*",
         "twig/twig": "^2.0",
         "easycorp/easyadmin-bundle": "2.3.5",
         "doctrine/orm": "2.7.5"
