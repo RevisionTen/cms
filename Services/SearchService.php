@@ -33,16 +33,23 @@ class SearchService
     {
         $this->logger = $logger;
 
-        $this->solrConfig = [
-            'endpoint' => [
-                'localhost' => [
-                    'host' => $config['solr_host'],
-                    'port' => $config['solr_port'],
-                    'path' => '/',
-                    'collection' => $config['solr_collection'],
-                ]
-            ]
+        $endpoint = [
+            'host' => $config['solr_host'],
+            'port' => $config['solr_port'],
+            'path' => '/',
+            'collection' => $config['solr_collection'],
         ];
+
+        if (!empty($config['solr_username']) && !empty($config['solr_password'])) {
+            $endpoint['username'] = $config['solr_username'];
+            $endpoint['password'] = $config['solr_password'];
+        }
+
+        $this->solrConfig = $config['solr_collection'] ? [
+            'endpoint' => [
+                'localhost' => $endpoint,
+            ],
+        ] : null;
     }
 
     public static function getFulltextFilterQuery(Query $query, string $queryString): FilterQuery
