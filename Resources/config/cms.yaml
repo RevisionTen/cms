@@ -18,6 +18,8 @@ cms:
     solr_host: 'localhost'
     solr_port: 8983
     solr_collection: null # The name of your collection
+    solr_username: null
+    solr_password: null
 
     # CKEditor configuration.
     ckeditor_config:
