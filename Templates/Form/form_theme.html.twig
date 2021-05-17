@@ -297,24 +297,33 @@
 
 {% block update_collection_index_script %}
     var index = $(this).index();
+
+    let collectionName = '{{ name }}';
+
+    let idSearchStr = new RegExp('\\_'+collectionName+'_(\\d+)\\_', 'g');
+    let idReplaceStr = '_'+collectionName+'_'+index+'_';
+
+    let nameSearchStr = new RegExp('\\['+collectionName+'\\]\\[(\\d+)\\]', 'g');
+    let nameReplaceStr = '['+collectionName+']['+index+']';
+
     $(this).find('[name]').each(function() {
         var input = $(this);
-        var newAttr = input.attr('name').replace(/\[(\d+)\]/, '['+index+']');
+        var newAttr = input.attr('name').replace(nameSearchStr, nameReplaceStr);
         input.attr('name', newAttr);
     });
     $(this).find('[id]').each(function() {
         var input = $(this);
-        var newAttr = input.attr('id').replace(/\_(\d+)\_/, '_'+index+'_');
+        var newAttr = input.attr('id').replace(idSearchStr, idReplaceStr);
         input.attr('id', newAttr);
     });
     $(this).find('[data-file-picker-upload]').each(function() {
         var input = $(this);
-        var newAttr = input.attr('data-file-picker-upload').replace(/\_(\d+)\_/, '_'+index+'_');
+        var newAttr = input.attr('data-file-picker-upload').replace(idSearchStr, idReplaceStr);
         input.attr('data-file-picker-upload', newAttr);
     });
     $(this).find('[data-file-picker]').each(function() {
         var input = $(this);
-        var newAttr = input.attr('data-file-picker').replace(/\_(\d+)\_/, '_'+index+'_');
+        var newAttr = input.attr('data-file-picker').replace(idSearchStr, idReplaceStr);
         input.attr('data-file-picker', newAttr);
     });
 {% endblock update_collection_index_script %}
