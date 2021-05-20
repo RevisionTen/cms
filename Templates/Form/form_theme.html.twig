@@ -187,6 +187,7 @@
 
                 /* Update index of all collection items */
                 parentDiv.children().each(function() {
+                    let collectionName = '{{ form.parent.vars.name }}';
                     {{ block('update_collection_index_script') }}
                 });
             });
@@ -203,6 +204,7 @@
 
                 /* Update index of all collection items */
                 parentDiv.children().each(function() {
+                    let collectionName = '{{ form.parent.vars.name }}';
                     {{ block('update_collection_index_script') }}
                 });
             });
@@ -217,6 +219,7 @@
 
                 /* Update index of all collection items */
                 parentDiv.children().each(function() {
+                    let collectionName = '{{ form.parent.vars.name }}';
                     {{ block('update_collection_index_script') }}
                 });
 
@@ -298,8 +301,6 @@
 {% block update_collection_index_script %}
     var index = $(this).index();
 
-    let collectionName = '{{ name }}';
-
     let idSearchStr = new RegExp('\\_'+collectionName+'_(\\d+)\\_', 'g');
     let idReplaceStr = '_'+collectionName+'_'+index+'_';
 
@@ -340,6 +341,7 @@
 
                 /* Update index of all collection items */
                 collection.children().each(function() {
+                    let collectionName = '{{ name }}';
                     {{ block('update_collection_index_script') }}
                 });
 
