@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{{ page.language }}">
+    <head>
+        <title>{% block title %}{{ page.title }} | {{ website.title }}{% endblock %}</title>
+        <meta charset="utf-8" />
+        <meta name="referrer" content="no-referrer">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        {% block metatags %}
+            {% if website is defined and website.siteVerification %}<meta name="google-site-verification" content="{{ website.siteVerification }}">{% endif %}
+            {% if page.robots %}<meta name="robots" content="{{ page.robots|join(', ') }}" />{% endif %}
+            {% if page.description %}<meta name="description" content="{{ page.description }}" />{% endif %}
+            {% if page.meta.keywords %}<meta name="keywords" content="{{ page.meta.keywords }}" />{% endif %}
+            {% if page.image %}<meta property="og:image" content="{{ app.request.getSchemeAndHttpHost() ~ page.image }}">{% endif %}
+        {% endblock %}
+
+        {% block styles %}
+            <!-- Full Bootstrap -->
+            <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/bootstrap/bootstrap.min.css') }}">
+
+            {% include '@CMS/Frontend/Editor/admin-styles.html.twig' %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+
+        {% block scripts %}
+            <!-- Full Bootstrap -->
+            <!-- IMPORTANT: REPLACE WITH YOUR OWN VERSION -->
+            <script src="{{ asset('/bundles/cms/bootstrap/bootstrap.bundle.min.js') }}"></script>
+
+            {% include '@CMS/Frontend/Editor/admin-scripts.html.twig' %}
+        {% endblock %}
+    </body>
+</html>

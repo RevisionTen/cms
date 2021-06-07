@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Exception;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -11,33 +12,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use function json_decode;
 use function json_encode;
 
-/**
- * Class MenuService.
- */
 class MenuService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * @var CacheService
-     */
-    protected $cacheService;
+    protected CacheService $cacheService;
 
-    /**
-     * MenuService constructor.
-     *
-     * @param \Doctrine\ORM\EntityManagerInterface        $entityManager
-     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
-     * @param \RevisionTen\CMS\Services\CacheService      $cacheService
-     */
     public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CacheService $cacheService)
     {
         $this->entityManager = $entityManager;
@@ -50,7 +32,7 @@ class MenuService
      *
      * @param string $menuUuid
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateMenuRead(string $menuUuid): void
     {

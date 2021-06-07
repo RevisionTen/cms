@@ -18,26 +18,31 @@ services:
         tags: ['controller.service_arguments']
         arguments:
             $config: '%cms%'
-    RevisionTen\CMS\Controller\EasyAdminController:
+    RevisionTen\CMS\Controller\EntityController:
         autoconfigure: true
         autowire: true
         tags: ['controller.service_arguments']
         arguments:
-            $cmsConfig: '%cms%'
+            $config: '%cms%'
+    RevisionTen\CMS\Services\BackendService:
+        autoconfigure: true
+        autowire: true
+        arguments:
+            $config: '%cms%'
 
     # Various.
     RevisionTen\CMS\DataCollector\CmsCollector:
         autowire: true
         tags:
             - name:     data_collector
-              template: '@cms/Profiler/layout.html.twig'
+              template: '@CMS/Backend/Profiler/layout.html.twig'
               id:       'cms.cms_collector'
         public: false
     RevisionTen\CMS\Repository\AliasRepository:
         autowire: true
         autoconfigure: true
         arguments:
-            $entityClass: 'RevisionTen\CMS\Model\Alias'
+            $entityClass: 'RevisionTen\CMS\Entity\Alias'
     RevisionTen\CMS\Twig\CmsExtension:
         autowire: true
         public: true
@@ -77,25 +82,13 @@ services:
         autowire: true
         tags: [console.command]
         resource: '../../Command/Console'
-        exclude: '../../Command/Console/{InstallRolesCommand.php,MenuMigrateCommand.php,FileMigrateCommand.php}'
+        exclude: '../../Command/Console/{InstallRolesCommand.php}'
     RevisionTen\CMS\Command\Console\InstallRolesCommand:
         autoconfigure: true
         autowire: true
         tags: [console.command]
         arguments:
             $locale: '%kernel.default_locale%'
-    RevisionTen\CMS\Command\Console\MenuMigrateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Command\Console\FileMigrateCommand:
-        autoconfigure: true
-        autowire: true
-        tags: [console.command]
-        arguments:
-            $config: '%cms%'
 
     # Services.
     RevisionTen\CMS\Services\IndexService:
@@ -152,18 +145,6 @@ services:
         tags: [form.type]
         arguments:
             $config: '%cms%'
-    RevisionTen\CMS\Form\Filter\TemplateFilterType:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-        arguments:
-            $config: '%cms%'
-    RevisionTen\CMS\Form\Filter\LanguageFilterType:
-        autoconfigure: true
-        autowire: true
-        tags: [form.type]
-        arguments:
-            $config: '%cms%'
     RevisionTen\CMS\Form\PageType:
         autoconfigure: true
         autowire: true
@@ -199,16 +180,20 @@ services:
             - { name: kernel.event_listener, event: kernel.request, priority: -10 }
 
     # Event subscribers.
-    RevisionTen\CMS\EventSubscriber\:
-        resource: '../../EventSubscriber/*'
-        exclude: '../../EventSubscriber/{AliasSubscriber.php,UserSubscriber.php}'
-        autowire: true
-        autoconfigure: true
     RevisionTen\CMS\EventSubscriber\UserSubscriber:
         autowire: true
         autoconfigure: true
         arguments:
             $config: '%cms%'
+    RevisionTen\CMS\EventSubscriber\AggregateSubscriber:
+        autowire: true
+        autoconfigure: true
+    RevisionTen\CMS\EventSubscriber\ExceptionSubscriber:
+        autowire: true
+        autoconfigure: true
+    RevisionTen\CMS\EventSubscriber\PageSubscriber:
+        autowire: true
+        autoconfigure: true
     RevisionTen\CMS\EventSubscriber\AliasSubscriber:
         autowire: true
         tags:

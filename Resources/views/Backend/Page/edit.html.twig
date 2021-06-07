@@ -1,0 +1,64 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.editPage'|trans({'%title%': pageStreamRead.title}, 'cms') }}
+{% endblock %}
+
+{% block content_top %}
+    <div class="sticky-top px-4 py-3 {{ contentHeaderClass }}">
+        <div id="admin-bar" class="w-100">
+            <div class="btn btn-sm d-block">
+                {{ 'admin.label.toolbarIsLoading'|trans({}, 'cms') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_class %}edit-page{% endblock %}
+
+{% block content_wrapper %}
+    {% set tabClass = 'col flex-grow-1 overflow-auto flex-column ' ~ contentClass %}
+
+    <div id="content" class="page-tabs-tab-editor {{ tabClass }} d-flex position-relative" style="max-height: 100vh;">
+        {{ block('content_top') }}
+        {{ block('messages') }}
+        {{ block('content') }}
+    </div>
+
+    <div class="page-tabs-tab-settings {{ tabClass }} d-none" style="max-height: 100vh;">
+        {# Settings Tab Content #}
+    </div>
+{% endblock content_wrapper %}
+
+{% block content %}
+    <input type="hidden" id="pageUuid" value="{{ pageStreamRead.uuid }}">
+    <input type="hidden" id="userId" value="{{ user.id }}">
+
+    <div class="d-flex flex-grow-1 flex-row h-100" style="overflow-y: auto; overflow-x: hidden;">
+        <div class="d-flex flex-grow-1 flex-row h-100 bg-light justify-content-center align-items-center">
+            {% set iframeSrc = pageStreamRead.locked ? path('cms_page_preview', {pageUuid: pageStreamRead.uuid}) : path('cms_page_edit', {pageUuid: pageStreamRead.uuid, user: user.id}) %}
+            <iframe
+                    class="flex-grow-1 {% if previewSize %}size-{{ previewSize }}{% endif %}"
+                    id="page-frame"
+                    src="{{ iframeSrc }}"
+            ></iframe>
+        </div>
+
+
+        <div id="page-tree"
+             class="d-none bg-dark text-white d-flex flex-column flex-shrink-0 h-100"
+             style="width: auto; min-width: 200px; overflow-y: auto; overflow-x: hidden;">
+        </div>
+    </div>
+
+
+    <!-- Editor Modal -->
+    <div class="modal" id="editor-modal">
+        <div class="modal-dialog" role="document" style="max-width: 700px;">
+            <div class="modal-content overflow-hidden">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Twig;
 
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -19,26 +20,17 @@ use function uasort;
 
 class CmsExtension extends AbstractExtension
 {
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * CmsExtension constructor.
-     *
-     * @param array $config
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(array $config, TranslatorInterface $translator)
+    protected Security $security;
+
+    public function __construct(array $config, TranslatorInterface $translator, Security $security)
     {
         $this->config = $config;
         $this->translator = $translator;
+        $this->security = $security;
     }
 
     /**
@@ -65,11 +57,6 @@ class CmsExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * @param array $element
-     *
-     * @return bool
-     */
     public function isElementVisible(array $element): bool
     {
         $laterThanStartDate = isset($element['data']['startDate']) ? (time() >= $element['data']['startDate']) : true;
@@ -105,7 +92,11 @@ class CmsExtension extends AbstractExtension
             $classes[] = $key.'-'.$top;
         }
         if (null !== $right) {
+            // Bootstrap < 5:
             $key = $propertyAbr.'r'.$breakpoint;
+            $classes[] = $key.'-'.$right;
+            // Boostrap 5:
+            $key = $propertyAbr.'e'.$breakpoint;
             $classes[] = $key.'-'.$right;
         }
         if (null !== $bottom) {
@@ -113,18 +104,17 @@ class CmsExtension extends AbstractExtension
             $classes[] = $key.'-'.$bottom;
         }
         if (null !== $left) {
+            // Bootstrap < 5:
             $key = $propertyAbr.'l'.$breakpoint;
+            $classes[] = $key.'-'.$left;
+            // Boostrap 5:
+            $key = $propertyAbr.'s'.$breakpoint;
             $classes[] = $key.'-'.$left;
         }
 
         return $classes;
     }
 
-    /**
-     * @param array $element
-     *
-     * @return string
-     */
     public function elementClasses(array $element): string
     {
         $classes = [];
@@ -179,33 +169,49 @@ class CmsExtension extends AbstractExtension
         return implode(' ', $classes);
     }
 
-    /**
-     * @param array $element
-     * @param bool $edit
-     * @param string|null $bg
-     * @param bool|null $visible
-     *
-     * @return string
-     */
+    private function addDisabledActionsFromPermission(array $disabledActions, array $elementConfig, string $name): array
+    {
+        $permission = $elementConfig['permissions'][$name] ?? null;
+        if (!empty($permission) && $this->security->isGranted($permission) === false) {
+            $disabledActions[$name] = $name;
+        }
+
+        return $disabledActions;
+    }
+
     public function editorAttr(array $element, bool $edit, string $bg = null, bool $visible = null): string
     {
         if (!$edit) {
             return '';
         }
 
+        $elementConfig = $this->config['page_elements'][$element['elementName']];
+
         $attributes = [
             'data-uuid' => $element['uuid'],
             'data-label' => $this->translator->trans($element['elementName']),
             'data-enabled' => ($element['enabled'] ?? true) ? '1' : '0',
-            'data-type' => $this->config['page_elements'][$element['elementName']]['type'] ?? $element['elementName'],
+            'data-type' => $elementConfig['type'] ?? $element['elementName'],
         ];
 
-        if (isset($this->config['page_elements'][$element['elementName']]['children'])) {
-            $attributes['data-children'] = implode(',', $this->config['page_elements'][$element['elementName']]['children']);
+        if (isset($elementConfig['children'])) {
+            $attributes['data-children'] = implode(',', $elementConfig['children']);
         }
 
+        $disabledActions = [];
         if ('Section' === $element['elementName']) {
-            $attributes['data-disabled-actions'] = 'shift';
+            $disabledActions['shift'] = 'shift';
+        }
+        $disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'edit');
+        // Todo: Not yet configurable permissions:
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'shift');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'delete');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'duplicate');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'enable');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'disable');
+
+        if (!empty($disabledActions)) {
+            $attributes['data-disabled-actions'] = implode(',', $disabledActions);
         }
 
         if (null === $bg) {

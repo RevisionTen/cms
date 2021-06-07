@@ -1,0 +1,58 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_wrapper %}
+    <form method="get" id="content" class="col flex-grow-1 overflow-auto d-flex flex-column {{ contentClass }}" style="max-height: 100vh;">
+        {{ block('content_top') }}
+        {{ block('content') }}
+    </form>
+{% endblock content_wrapper %}
+
+{% block content %}
+
+    {% include '@CMS/Backend/Entity/List/table.html.twig' with {
+        fields: fields,
+        items: items,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
+    } %}
+
+    {% include '@CMS/Backend/Entity/List/pagination.html.twig' with {
+        page: page,
+        resultsPerPage: resultsPerPage,
+        numPages: numPages,
+    } %}
+
+    <script id="cmsTranslations" type="application/json">
+        {
+            "confirmDelete": "{{ 'admin.label.confirmDelete'|trans({}, 'cms') }}",
+            "confirmDuplicate": "{{ 'admin.label.confirmDuplicate'|trans({}, 'cms') }}"
+        }
+    </script>
+{% endblock %}
+
+{% block content_top_actions %}
+    {% block content_top_actions_search %}
+        {% if is_granted(permissions.search) and 'search' in actions %}
+            <div class="col-auto content-actions">
+                <div class="input-group">
+                    <input class="form-control form-control-sm border" type="text" name="q" value="{{ app.request.query.get('q') }}" placeholder="{{ 'admin.label.searchTerm'|trans({}, 'cms') }}">
+                    <button class="btn btn-sm btn-light bg-white border border-start-0" type="submit" aria-label="{{ 'admin.btn.search'|trans({}, 'cms') }}">
+                        <span class="fas fa-search"></span>
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content_top_actions_create %}
+        {% if is_granted(permissions.create) and 'create' in actions %}
+            <div class="col-auto content-actions">
+                <a class="btn btn-sm btn-primary" href="{{ path('cms_create_entity', { entity: entity }) }}">
+                    <span class="fas fa-plus"></span> {{ 'admin.btn.addEntity'|trans({
+                        '%entity%': entity|trans|trans({}, 'cms')
+                    }, 'cms') }}
+                </a>
+            </div>
+        {% endif %}
+    {% endblock %}
+{% endblock content_top_actions %}

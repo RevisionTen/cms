@@ -1,0 +1,20 @@
+<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }}">
+    {% set iframeMarkup = '<iframe title="Vimeo Video" class="embed-responsive-item" src="https://player.vimeo.com/video/'~element.data.vimeoId~'?color=ffffff&byline=0&portrait=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe><script src="https://player.vimeo.com/api/player.js"></script>' %}
+    {% set id = 'vimeo-'~element.uuid %}
+
+    <div id="{{ id }}" class="embed-responsive embed-responsive-16by9 ratio ratio-16x9">
+        {% if element.data.optin is defined and element.data.optin %}
+            <div class="embed-responsive-item bg-light d-flex justify-content-center align-items-center">
+                <div class="text-center">
+                    <p class="small">
+                        {{ 'admin.label.vimeoEmbedWarning'|trans({'%link%': 'https://vimeo.com/cookie_policy'}, 'cms')|raw }}
+                    </p>
+                    <button class="btn btn-primary" onclick="document.getElementById('{{ id }}').innerHTML = '{{ iframeMarkup }}'">{{ 'admin.label.enableVideo'|trans({}, 'cms') }}</button>
+                </div>
+            </div>
+        {% else %}
+            {{ iframeMarkup|raw }}
+        {% endif %}
+
+    </div>
+</div>

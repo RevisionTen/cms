@@ -128,9 +128,13 @@ class UserSecretCommand extends Command
                 $messages = $this->messageBus->getMessagesJson();
                 $output->writeln('UserGenerateSecretCommand failed.');
                 print_r($messages);
+                return 500;
             }
         } else {
             $output->writeln('User not found.');
+            return 500;
         }
+
+        return 0;
     }
 }

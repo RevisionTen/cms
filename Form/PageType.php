@@ -154,7 +154,10 @@ class PageType extends AbstractType
             $formModifier($event->getForm()->getParent(), $template);
         });
 
-        $builder->add('save', SubmitType::class);
+        $builder->add('save', SubmitType::class, [
+            'label' => 'admin.btn.save',
+            'translation_domain' => 'cms',
+        ]);
     }
 
     /**

@@ -7,9 +7,6 @@ namespace RevisionTen\CMS\Repository;
 use DateTime;
 use Doctrine\ORM\EntityRepository;
 
-/**
- * Class TaskRepository
- */
 class TaskRepository extends EntityRepository
 {
     public function findAllDue(DateTime $due)

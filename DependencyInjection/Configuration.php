@@ -12,9 +12,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addPageTemplatesNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('page_templates');
@@ -42,6 +39,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('list')->end()
                             ->scalarNode('search')->end()
                             ->scalarNode('new')->end()
+                            ->scalarNode('create')->end()
                             ->scalarNode('edit')->end()
                             ->scalarNode('delete')->end()
                         ->end()
@@ -52,9 +50,6 @@ class Configuration implements ConfigurationInterface
          return $node;
     }
 
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addPageElementsNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('page_elements');
@@ -98,15 +93,23 @@ class Configuration implements ConfigurationInterface
                         ->info('CSS classes this element can have assigned in its settings.')
                         ->scalarPrototype()->end()
                     ->end()
+                    ->arrayNode('websites')
+                        ->info('Defines on which website this element is available')
+                        ->integerPrototype()->end()
+                    ->end()
+                    ->arrayNode('permissions')
+                        ->info('Permissions for this element.')
+                        ->children()
+                            ->scalarNode('create')->end()
+                            ->scalarNode('edit')->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 
          return $node;
     }
 
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addMenuItemsNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('menu_items');
@@ -137,11 +140,6 @@ class Configuration implements ConfigurationInterface
          return $node;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return TreeBuilder
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('cms');
@@ -266,23 +264,27 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('admin_menu')
                     ->info('Add menu items to the admin menu.')
-                    ->children()
-                        ->arrayNode('Content')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                        ->arrayNode('Structure')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                        ->arrayNode('Settings')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                    ->end()
+                    ->performNoDeepMerging()
+                    ->normalizeKeys(false)
+                    ->ignoreExtraKeys(false)
+                    // Todo: Make this config explicit.
+                    #->arrayPrototype()
+                    #    ->arrayPrototype()
+                    #        ->children()
+                    #            ->scalarNode('label')->end()
+                    #            ->scalarNode('route')->end()
+                    #            ->scalarNode('entity')->end()
+                    #            ->arrayNode('children')->end()
+                    #        ->end()
+                    #    ->end()
+                    #->end()
+                ->end()
+                ->arrayNode('entities')
+                    ->info('Custom entities.')
+                    ->performNoDeepMerging()
+                    ->normalizeKeys(false)
+                    ->ignoreExtraKeys(false)
+                    // Todo: Make this config explicit.
                 ->end()
             ->end();
 

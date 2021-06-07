@@ -244,14 +244,14 @@ function bindElement(element: HTMLElement, bindChildren = false)
     let actionButtonClasses = 'btn btn-sm '+textColor;
 
     // Build controls.
-    let html = `<div class="editor editor-header button-group p-1 text-right w-100 align-self-start">`
-        + (label ? `<span class="btn btn-sm float-left ${textColor} font-weight-bold">${label}</span>` : '')
-        + ((disabledActions.indexOf('enable') === -1 && enabled === false) ? `<span class="btn-enable ${actionButtonClasses}" title="${translations.enable}"><span class="fa fa-eye-slash"></span></span>` : '')
-        + ((disabledActions.indexOf('disable') === -1 && enabled) ? `<span class="btn-disable ${actionButtonClasses}" title="${translations.disable}"><span class="fa fa-eye"></span></span>` : '')
-        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-up ${actionButtonClasses}" title="${translations.shift}"><span class="fa fa-arrow-up"></span></span>` : '')
-        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-down ${actionButtonClasses}" title="${translations.shift}"><span class="fa fa-arrow-down"></span></span>` : '')
+    let html = `<div class="editor editor-header button-group p-1 text-right text-end w-100 align-self-start">`
+        + (label ? `<span class="btn btn-sm ${textColor} fw-bold font-weight-bold" style="float: left;">${label}</span>` : '')
+        + ((disabledActions.indexOf('enable') === -1 && enabled === false) ? `<span class="btn-enable ${actionButtonClasses}" title="${translations.enable}"><span class="fas fa-eye-slash"></span></span>` : '')
+        + ((disabledActions.indexOf('disable') === -1 && enabled) ? `<span class="btn-disable ${actionButtonClasses}" title="${translations.disable}"><span class="fas fa-eye"></span></span>` : '')
+        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-up ${actionButtonClasses}" title="${translations.shift}"><span class="fas fa-arrow-up"></span></span>` : '')
+        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-down ${actionButtonClasses}" title="${translations.shift}"><span class="fas fa-arrow-down"></span></span>` : '')
         + (disabledActions.indexOf('duplicate') === -1 ? `<span class="btn-duplicate ${actionButtonClasses}" title="${translations.duplicate}"><span class="fas fa-clone"></span></span>` : '')
-        + (disabledActions.indexOf('edit') === -1 ? `<span class="btn-edit ${actionButtonClasses}" title="${translations.edit}"><span class="fa fa-edit"></span></span>` : '')
+        + (disabledActions.indexOf('edit') === -1 ? `<span class="btn-edit ${actionButtonClasses}" title="${translations.edit}"><span class="fas fa-edit"></span></span>` : '')
         + (disabledActions.indexOf('delete') === -1 ? `<span class="btn-delete ${actionButtonClasses}" title="${translations.delete}"><span class="fas fa-times"></span></span>` : '')
         +`</div>`;
 
@@ -312,15 +312,19 @@ function bindElement(element: HTMLElement, bindChildren = false)
             'editor-add-button',
             //bg,
             'btn',
-            'btn-block',
             'btn-sm',
+            'd-flex',
+            'flex-grow-1',
+            'align-items-center',
+            'justify-content-center',
+            'fw-bold',
+            'flex-grow',
             'font-weight-bold',
             textColor,
         ];
 
         if ('Row' === type) {
             editorClasses.push('col-auto align-self-stretch d-flex');
-            buttonClasses.push('flex-grow d-flex align-items-center');
         } else {
             editorClasses.push('w-100 align-self-end');
         }

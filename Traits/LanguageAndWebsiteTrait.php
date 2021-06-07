@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\Website;
 
 trait LanguageAndWebsiteTrait
 {
@@ -17,7 +17,7 @@ trait LanguageAndWebsiteTrait
 
     /**
      * @var Website
-     * @ORM\ManyToOne(targetEntity="RevisionTen\CMS\Model\Website")
+     * @ORM\ManyToOne(targetEntity="RevisionTen\CMS\Entity\Website")
      * @ORM\JoinColumn(nullable=true)
      */
     private $website;

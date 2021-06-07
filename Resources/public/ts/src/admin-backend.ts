@@ -9,6 +9,7 @@ import openTab from "./backend/tab";
 import openModal from "./backend/modal";
 import fireCustomEvent from "./backend/events";
 import getPageInfo from "./backend/pageinfo";
+import bootstrap = require("bootstrap");
 
 // Get translations from inline json.
 let translationsElement = document.getElementById('cmsTranslations');
@@ -55,17 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Bind the page form.
-    bindForm('form[name=page]');
+    bindForm('form.content-form');
 
-    // Initialize widgets on "edit" and "new" EasyAdmin entity form pages.
-    if ((document.body.classList.contains('edit') || document.body.classList.contains('new'))) {
-        bindWidgets(document.body);
-    }
-    // Initialize widgets on menu item form.
-    let menuItemForm = document.querySelector('form[name="element"]');
-    if (menuItemForm) {
-        bindWidgets(document.body);
-    }
     // Initialize widgets after they have been added to collections.
     $(document).on('easyadmin.collection.item-added', () => {
         bindWidgets(document.body);
@@ -136,8 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Event that opens a bootstrap modal with dynamic content.
+    let editorModal = new bootstrap.Modal(document.querySelector('#editor-modal '), {});
     document.addEventListener('openModal', (event: CustomEvent) => {
-        openModal(event.detail.url);
+        openModal(event.detail.url, editorModal);
     });
 
     // Event that open the page settings tab with dynamic content.

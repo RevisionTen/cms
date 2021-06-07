@@ -7,10 +7,10 @@ namespace RevisionTen\CMS\Services;
 use Doctrine\Common\Collections\Collection;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Page;
-use RevisionTen\CMS\Model\PageRead;
-use RevisionTen\CMS\Model\PageStreamRead;
-use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\PageRead;
+use RevisionTen\CMS\Entity\PageStreamRead;
+use RevisionTen\CMS\Entity\UserRead;
+use RevisionTen\CMS\Entity\Website;
 use RevisionTen\CQRS\Model\EventQueueObject;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\EventBus;
@@ -27,45 +27,18 @@ use function json_encode;
 use function preg_match_all;
 use function str_replace;
 
-/**
- * Class PageService.
- */
 class PageService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * @var EventStore
-     */
-    protected $eventStore;
+    protected EventStore $eventStore;
 
-    /**
-     * @var EventBus
-     */
-    protected $eventBus;
+    protected EventBus $eventBus;
 
-    /**
-     * @var CacheService
-     */
-    protected $cacheService;
+    protected CacheService $cacheService;
 
-    /**
-     * PageService constructor.
-     *
-     * @param \Doctrine\ORM\EntityManagerInterface        $em
-     * @param \RevisionTen\CQRS\Services\AggregateFactory $aggregateFactory
-     * @param \RevisionTen\CQRS\Services\EventStore       $eventStore
-     * @param \RevisionTen\CQRS\Services\EventBus         $eventBus
-     * @param \RevisionTen\CMS\Services\CacheService      $cacheService
-     */
     public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, EventStore $eventStore, EventBus $eventBus, CacheService $cacheService)
     {
         $this->em = $em;
@@ -330,6 +303,7 @@ class PageService
         $pageStream->setCreated($aggregate->created);
         $pageStream->setModified($aggregate->modified);
         $pageStream->setDeleted($aggregate->deleted);
+        $pageStream->setLocked($aggregate->locked);
         $pageStream->setWebsite($aggregate->website);
         $pageStream->setState($aggregate->state);
         if ($aggregate->deleted) {

@@ -11,27 +11,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use function json_decode;
 use function json_encode;
 
-/**
- * Class RoleService.
- */
 class RoleService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * RoleService constructor.
-     *
-     * @param EntityManagerInterface $em
-     * @param AggregateFactory       $aggregateFactory
-     */
     public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory)
     {
         $this->em = $em;

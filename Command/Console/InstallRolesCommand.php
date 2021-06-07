@@ -23,45 +23,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use function in_array;
 
-/**
- * Class InstallRolesCommand.
- */
 class InstallRolesCommand extends Command
 {
-    /**
-     * @var EntityManagerInterface $entityManager
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var CommandBus $commandBus
-     */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /**
-     * @var MessageBus $messageBus
-     */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /**
-     * @var AggregateFactory $aggregateFactory
-     */
-    private $aggregateFactory;
+    private AggregateFactory $aggregateFactory;
 
-    /**
-     * @var string $locale
-     */
-    private $locale;
+    private string $locale;
 
-    /**
-     * InstallRolesCommand constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     * @param AggregateFactory       $aggregateFactory
-     * @param string                 $locale
-     */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $locale)
     {
         $this->entityManager = $entityManager;
@@ -73,10 +46,7 @@ class InstallRolesCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:install:roles')
@@ -91,9 +61,6 @@ class InstallRolesCommand extends Command
         return $this->commandBus->dispatch($command);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Install default website.
@@ -128,6 +95,7 @@ class InstallRolesCommand extends Command
                 $messages = $this->messageBus->getMessagesJson();
                 $output->writeln('Admin role installation failed.');
                 print_r($messages);
+                return 500;
             }
         }
 
@@ -168,6 +136,7 @@ class InstallRolesCommand extends Command
                 $messages = $this->messageBus->getMessagesJson();
                 $output->writeln('Editor role installation failed.');
                 print_r($messages);
+                return 500;
             }
         }
 
@@ -224,7 +193,10 @@ class InstallRolesCommand extends Command
                 $messages = $this->messageBus->getMessagesJson();
                 $output->writeln('Assigning admin role failed.');
                 print_r($messages);
+                return 500;
             }
         }
+
+        return 0;
     }
 }

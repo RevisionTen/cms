@@ -1,3 +1,7 @@
+import onSubmit from './onsubmit';
+import updateCKEditorInstances from "./ckeditor";
+import updateElement from "./element";
+
 const axios = require('axios').default;
 
 /*
@@ -131,6 +135,15 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
         closeButton.addEventListener('click', (event) => {
             event.preventDefault();
             closeFilePickerWindow(filePicker);
+        });
+    }
+
+    // Add an ajax submit handler to search form.
+    let form = filePicker.querySelector('#file-search') as HTMLFormElement|null;
+    if (form) {
+        onSubmit(form, () => {}, (data: any, success: boolean) => {
+            filePicker.innerHTML = data;
+            bindFilePickerWindow(filePicker, filePickerUploadField, targetId);
         });
     }
 }

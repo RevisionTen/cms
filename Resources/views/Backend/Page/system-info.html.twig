@@ -1,0 +1,63 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.systemInformation'|trans({}, 'cms') }}
+{% endblock %}
+
+{% block content %}
+<div class="">
+
+    <div class="">
+        {% set cssClass = 'p-4 py-2' %}
+        <table class="my-0 table table-hover">
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-pencil-ruler"></span> CMS Version: </td>
+                <td class="{{ cssClass }}">{{ cms_version }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fab fa-symfony"></span> Symfony Version: </td>
+                <td class="{{ cssClass }}">{{ symfony_version }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fab fa-php"></span> PHP Version: </td>
+                <td class="{{ cssClass }}">{{ php_version }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-microchip"></span> PHP Memory Limit: </td>
+                <td class="{{ cssClass }}">{{ memory_limit }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-upload"></span> PHP Upload Max File Size: </td>
+                <td class="{{ cssClass }}">{{ upload_limit }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-upload"></span> PHP Post Max Size: </td>
+                <td class="{{ cssClass }}">{{ post_limit }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-hourglass-half"></span> PHP Max Execution Time: </td>
+                <td class="{{ cssClass }}">{{ execution_limit }} sec</td>
+            </tr>
+            {% set iconEnabled = '<span class="fas fa-check text-success"></span>' %}
+            {% set iconDisabled = '<span class="fas fa-times text-danger"></span>' %}
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-rocket"></span> PHP Acceleration: </td>
+                <td class="{{ cssClass }}">{{ (apc_enabled ? iconEnabled : iconDisabled)|raw }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-file"></span> Page Cache: </td>
+                <td class="{{ cssClass }}">{{ (cache_enabled ? iconEnabled : iconDisabled)|raw }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-info-circle"></span> Server IP: </td>
+                <td class="{{ cssClass }}">{{ server_ip }}</td>
+            </tr>
+            <tr>
+                <td class="{{ cssClass }}"><span class="fas fa-database"></span> Database: </td>
+                <td class="{{ cssClass }}">{{ database_name }}</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

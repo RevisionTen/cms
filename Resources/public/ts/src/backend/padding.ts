@@ -123,10 +123,16 @@ function paddingToClasses(padding: Padding): string[]
         classes.push('pb-'+prefix+padding.bottom)
     }
     if (padding.left) {
+        // Bootstrap < 5:
         classes.push('pl-'+prefix+padding.left)
+        // Boostrap 5:
+        classes.push('ps-'+prefix+padding.left)
     }
     if (padding.right) {
+        // Bootstrap < 5:
         classes.push('pr-'+prefix+padding.right)
+        // Boostrap 5:
+        classes.push('pe-'+prefix+padding.right)
     }
 
     return classes;

@@ -1,0 +1,41 @@
+
+{% set menu = backend_service.getAdminMenu() %}
+{% set route = app.request.get('_route') %}
+
+
+
+{% macro menu_item(item, route) %}
+    {% set btnClass = '' %}
+    {% set btnClassActive = 'btn-primary' %}
+
+    {% set label = item.label ?? item.entity %}
+    {% set isActive = item.active ?? false %}
+
+    {% if item.children is defined and item.children is not empty %}
+        <div class="my-4 small">
+            <label class="mb-3 small text-uppercase">
+                {% if item.icon is defined and item.icon %}
+                    <span class="{{ item.icon }} me-2"></span>
+                {% endif %}
+                {{ label|trans({}, 'cms') }}
+            </label>
+            {% for child in item.children %}
+                {{ _self.menu_item(child, route) }}
+            {% endfor %}
+        </div>
+    {% else %}
+        {% set label = item.label ?? item.entity %}
+
+        <a href="{{ item.path }}" class="d-block btn btn-sm text-start {{ isActive ? btnClassActive : btnClass }}">
+            {% if item.icon is defined and item.icon %}
+                <span class="{{ item.icon }} me-2"></span>
+            {% endif %}
+            {{ label|trans({}, 'cms') }}
+        </a>
+    {% endif %}
+{% endmacro %}
+
+
+{% for item in menu %}
+    {{ _self.menu_item(item, route) }}
+{% endfor %}

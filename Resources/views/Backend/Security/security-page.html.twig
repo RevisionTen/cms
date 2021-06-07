@@ -1,0 +1,23 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+{% form_theme form '@CMS/Backend/Form/form_theme.html.twig' %}
+
+{% block body_class %}bg-light d-flex vh-100 align-items-center justify-content-center{% endblock %}
+
+{% block body %}
+    <div class="my-5 mx-auto align-self-center card" style="width: 320px;">
+
+        <div class="card-body p-3 pb-0">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="ml-3 mr-3 alert alert-{{ label }}">
+                        {{ message|trans({}, 'cms')|trans }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block security_form %}
+            {% endblock security_form %}
+        </div>
+
+    </div>
+{% endblock %}

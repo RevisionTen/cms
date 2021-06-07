@@ -9,13 +9,17 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "ts-loader": "^6.2.2",
-    "typescript": "^3.8.3"
+    "@types/bootstrap": "^5.0.15",
+    "ts-loader": "latest",
+    "typescript": "latest",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "@types/jquery": "^3.3.34",
-    "axios": "^0.21.1"
+    "@types/jquery": "latest",
+    "axios": "latest",
+    "bootstrap": "^5.0.1"
   }
 }

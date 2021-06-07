@@ -104,7 +104,7 @@ class MenuController extends AbstractController
          */
         $menu = $aggregateFactory->build($menuUuid, Menu::class);
 
-        return $this->render('@cms/Admin/Menu/edit.html.twig', [
+        return $this->render('@CMS/Backend/Menu/edit.html.twig', [
             'menu' => $menu,
             'config' => $config,
         ]);
@@ -161,7 +161,7 @@ class MenuController extends AbstractController
             ],
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.addMenu',
             'translation_domain' => 'cms',
             'attr' => [
@@ -195,7 +195,7 @@ class MenuController extends AbstractController
             return $success ? $this->redirectToMenu($aggregateUuid) : $this->errorResponse($messageBus);
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.btn.addMenu', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -220,7 +220,7 @@ class MenuController extends AbstractController
      * @throws InterfaceException
      * @throws Exception
      */
-    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@cms/Form/form.html.twig')
+    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@CMS/Backend/Form/form.html.twig')
     {
         $config = $this->getParameter('cms');
 
@@ -292,7 +292,7 @@ class MenuController extends AbstractController
      * @throws InterfaceException
      * @throws Exception
      */
-    public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@cms/Form/form.html.twig')
+    public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@CMS/Backend/Form/form.html.twig')
     {
         /**
          * @var UserRead $user

@@ -6,7 +6,7 @@ namespace RevisionTen\CMS\Form\Admin;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use RevisionTen\CMS\Model\PageStreamRead;
+use RevisionTen\CMS\Entity\PageStreamRead;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -14,19 +14,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PageStreamReadType extends EntityType
 {
-    protected $translator;
+    protected TranslatorInterface $translator;
 
-    /**
-     * @var string
-     */
-    private $website;
+    private ?int $website;
 
     public function __construct(ManagerRegistry $registry, TranslatorInterface $translator, RequestStack $requestStack)
     {
         parent::__construct($registry);
 
         $this->translator = $translator;
-        $this->website = $requestStack->getMasterRequest() ? $requestStack->getMasterRequest()->get('currentWebsite') : null;
+        $this->website = $requestStack->getMainRequest() ? (int) $requestStack->getMainRequest()->get('currentWebsite') : null;
     }
 
     /**

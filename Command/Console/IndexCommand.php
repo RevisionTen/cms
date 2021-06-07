@@ -46,5 +46,7 @@ class IndexCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->indexService->index($output);
+
+        return 0;
     }
 }

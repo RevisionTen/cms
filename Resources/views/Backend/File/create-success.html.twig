@@ -1,0 +1,18 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.files'|trans({}, 'cms') }}
+{% endblock %}
+
+{% block body_class %}files{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <h4>
+            {{ 'admin.label.fileSaved'|trans({'%title%': title}, 'cms') }}
+        </h4>
+        <p>
+            <code>{{ file.path }}</code>
+        </p>
+    </div>
+{% endblock %}

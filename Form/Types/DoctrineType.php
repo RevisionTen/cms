@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use Doctrine\ORM\EntityManagerInterface;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\Website;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -21,22 +21,10 @@ use function is_array;
 
 class DoctrineType extends AbstractType
 {
-    /**
-     * @var Website|null
-     */
-    private $website;
+    private ?Website $website = null;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * DoctrineType constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param RequestStack           $requestStack
-     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
@@ -49,12 +37,6 @@ class DoctrineType extends AbstractType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -164,11 +146,6 @@ class DoctrineType extends AbstractType
         });
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -184,11 +161,6 @@ class DoctrineType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_doctrine';

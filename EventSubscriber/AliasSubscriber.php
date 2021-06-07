@@ -8,30 +8,19 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Services\IndexService;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class AliasSubscriber implements EventSubscriber
 {
-    /**
-     * @var IndexService
-     */
-    private $indexService;
+    private IndexService $indexService;
 
-    /**
-     * AliasSubscriber constructor.
-     *
-     * @param IndexService $indexService
-     */
     public function __construct(IndexService $indexService)
     {
         $this->indexService = $indexService;
     }
 
-    /**
-     * @return array
-     */
     public function getSubscribedEvents(): array
     {
         return [
@@ -41,9 +30,6 @@ class AliasSubscriber implements EventSubscriber
         ];
     }
 
-    /**
-     * @param LifecycleEventArgs $args
-     */
     public function postUpdate(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -53,9 +39,6 @@ class AliasSubscriber implements EventSubscriber
         }
     }
 
-    /**
-     * @param LifecycleEventArgs $args
-     */
     public function postPersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -65,9 +48,6 @@ class AliasSubscriber implements EventSubscriber
         }
     }
 
-    /**
-     * @param LifecycleEventArgs $args
-     */
     public function postRemove(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -77,9 +57,6 @@ class AliasSubscriber implements EventSubscriber
         }
     }
 
-    /**
-     * @param PageStreamRead $pageStreamRead
-     */
     private function indexPage(PageStreamRead $pageStreamRead): void
     {
         $output = new BufferedOutput();

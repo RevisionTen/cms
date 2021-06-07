@@ -18,9 +18,7 @@ let bindWidgets = function(element: HTMLElement)
     let select2Elements = element.querySelectorAll('select[data-widget="select2"]:not(.select2-hidden-accessible)');
     select2Elements.forEach((select2Element) => {
         // @ts-ignore
-        $(select2Element).select2({
-            theme: 'bootstrap'
-        });
+        $(select2Element).select2();
     });
 
     // Enable CKEditor.

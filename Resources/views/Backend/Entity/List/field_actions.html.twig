@@ -1,0 +1,45 @@
+{% set cssClass = 'text-decoration-none me-2' %}
+
+<div class="text-end">
+    {% for action, actionConfig in actions %}
+
+        {% if action == 'list' or action == 'search' or action == 'create' %}
+            {# Not an item action. #}
+        {% elseif action == 'show' %}
+            {# Todo: Implement show button and function. #}
+        {% elseif action == 'edit' %}
+            {% if is_granted(permissions.edit) %}
+                <a href="{{ path('cms_edit_entity', app.request.query.all|merge({ entity: entity, id: item.id })) }}"
+                   class="{{ cssClass }}"
+                   aria-label="{{ 'admin.btn.edit'|trans({}, 'cms') }}"
+                >
+                    <span class="fas fa-edit"></span>
+                </a>
+            {% endif %}
+        {% elseif action == 'delete' %}
+            {% if is_granted(permissions.delete) %}
+                <a href="{{ path('cms_delete_entity', app.request.query.all|merge({ entity: entity, id: item.id })) }}"
+                   class="{{ cssClass }} text-danger"
+                   aria-label="{{ 'admin.btn.deletePage'|trans({}, 'cms') }}"
+                   onclick="return confirm('{{ 'admin.label.confirmDelete'|trans({}, 'cms') }}');"
+                >
+                    <span class="fas fa-trash"></span>
+                </a>
+            {% endif %}
+        {% else %}
+            {% set permission = actionConfig.permission ?? null %}
+            {% if permission is empty or is_granted(permission) %}
+                <a href="{{ path(actionConfig.route, app.request.query.all|merge({ entity: entity, id: item.id })) }}"
+                   class="{{ cssClass }} {{ actionConfig.cssClass ?? '' }}"
+                   aria-label="{{ actionConfig.label|trans({}, 'cms') }}"
+                >
+                    <span class="{{ actionConfig.icon ?? '' }}"></span>
+                </a>
+            {% endif %}
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+
+

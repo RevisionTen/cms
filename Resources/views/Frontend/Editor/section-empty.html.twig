@@ -1,0 +1,6 @@
+{% if edit %}
+    <div class="editor bg-light rounded p-4 text-center">
+        <h2>{{ sectionName }}</h2>
+        <a class="btn-create-section btn btn-primary" data-section="{{ sectionName }}" target="_top" href="#"><span class="fa fa-th-large"></span> {{ 'admin.btn.addSection'|trans({}, 'cms') }}</a>
+    </div>
+{% endif %}

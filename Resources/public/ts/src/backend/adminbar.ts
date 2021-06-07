@@ -24,7 +24,7 @@ function bindLinks()
     bindLink('[data-target=ajax]', 'openAjax');
     bindLink('[data-target=tab]', 'openTab');
 
-    // Toggle view modes.
+    // Toggle tree.
     let treeToggleButton = document.querySelector('.toggle-tree');
     if (null !== treeToggleButton) {
         treeToggleButton.addEventListener('click', (event) => {
@@ -37,68 +37,51 @@ function bindLinks()
 
             let pageTree = document.getElementById('page-tree');
             if (null !== pageTree) {
-                if (pageTree.classList.contains('hidden')) {
-                    pageTree.classList.remove('hidden');
+                if (pageTree.classList.contains('d-none')) {
+                    pageTree.classList.remove('d-none');
                 } else {
-                    pageTree.classList.add('hidden');
+                    pageTree.classList.add('d-none');
                 }
             }
         });
     }
 
     // Toggle editor.
-    let editorToggleButton = document.querySelector('.toggle-editor');
-    if (null !== editorToggleButton) {
-        editorToggleButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (editorToggleButton.classList.contains('active')) {
-                editorToggleButton.classList.remove('active');
-            } else {
-                editorToggleButton.classList.add('active');
-            }
+    let viewModeToggleButton = document.querySelectorAll('.toggle-view-mode') as NodeListOf<HTMLLinkElement>;
+    if (null !== viewModeToggleButton) {
+        viewModeToggleButton.forEach((btn) => {
+            btn.addEventListener('click', (event) => {
+                event.preventDefault();
 
-            let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
-            if (null !== pageFrame) {
-                let pageFrameFrameBody = pageFrame.contentDocument.body;
-
-                if (pageFrameFrameBody.classList.contains('hide-editor')) {
-                    pageFrameFrameBody.classList.remove('hide-editor');
-                } else {
-                    pageFrameFrameBody.classList.add('hide-editor');
+                let mode = btn.dataset.mode ?? 'editor';
+                let isActive = btn.classList.contains('active');
+                if (isActive) {
+                    return;
                 }
 
-                if (pageFrameFrameBody.classList.contains('show-spacing-tool')) {
-                    pageFrameFrameBody.classList.remove('show-spacing-tool');
-                }
-            }
-        });
-    }
+                // Deactivate other buttons.
+                viewModeToggleButton.forEach((toggleBtn) => {
+                    toggleBtn.classList.remove('active');
+                });
 
-    // Toggle spacing tool.
-    let spacingToolToggleButton = document.querySelector('.toggle-spacing-tool');
-    if (null !== spacingToolToggleButton) {
-        spacingToolToggleButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (spacingToolToggleButton.classList.contains('active')) {
-                spacingToolToggleButton.classList.remove('active');
-            } else {
-                spacingToolToggleButton.classList.add('active');
-            }
+                btn.classList.add('active');
 
-            let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
-            if (null !== pageFrame) {
-                let pageFrameFrameBody = pageFrame.contentDocument.body;
+                let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
+                if (null !== pageFrame) {
+                    let pageFrameFrameBody = pageFrame.contentDocument.body;
 
-                if (pageFrameFrameBody.classList.contains('show-spacing-tool')) {
-                    pageFrameFrameBody.classList.remove('show-spacing-tool');
-                    if (pageFrameFrameBody.classList.contains('hide-editor')) {
+                    if ('editor' === mode) {
                         pageFrameFrameBody.classList.remove('hide-editor');
+                        pageFrameFrameBody.classList.remove('show-spacing-tool');
+                    } else if ('spacing' === mode) {
+                        pageFrameFrameBody.classList.add('hide-editor');
+                        pageFrameFrameBody.classList.add('show-spacing-tool');
+                    } else if ('preview' === mode) {
+                        pageFrameFrameBody.classList.remove('show-spacing-tool');
+                        pageFrameFrameBody.classList.add('hide-editor');
                     }
-                } else {
-                    pageFrameFrameBody.classList.add('show-spacing-tool');
-                    pageFrameFrameBody.classList.add('hide-editor');
                 }
-            }
+            });
         });
     }
 
@@ -127,24 +110,21 @@ function bindLinks()
     }
 
     // Toggle editor size.
-    let mainSidebar = document.querySelector('.main-sidebar') as HTMLElement|null;
-    let contentWrapper = document.querySelector('.edit-page > .wrapper > .content-wrapper') as HTMLElement|null;
+    let sidebar = document.querySelector('.sidebar') as HTMLElement|null;
     let maximizeButton = document.querySelector('.btn-maximize-editor') as HTMLSpanElement|null;
     let minimizeButton = document.querySelector('.btn-minimize-editor') as HTMLSpanElement|null;
-    if (null !== contentWrapper && null !== mainSidebar && null !== maximizeButton && null !== minimizeButton) {
+    if (null !== sidebar && null !== maximizeButton && null !== minimizeButton) {
         maximizeButton.addEventListener('click', (event) => {
             event.preventDefault();
             maximizeButton.classList.add('d-none');
             minimizeButton.classList.remove('d-none');
-            mainSidebar.classList.add('d-none');
-            contentWrapper.classList.add('p-0');
+            sidebar.classList.add('d-none');
         });
         minimizeButton.addEventListener('click', (event) => {
             event.preventDefault();
             minimizeButton.classList.add('d-none');
             maximizeButton.classList.remove('d-none');
-            mainSidebar.classList.remove('d-none');
-            contentWrapper.classList.remove('p-0');
+            sidebar.classList.remove('d-none');
         });
     }
 }

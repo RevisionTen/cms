@@ -12,7 +12,7 @@ use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Templating\EngineInterface;
+use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
 use function array_unique;
 use function json_decode;
@@ -20,35 +20,19 @@ use function json_encode;
 
 class MenuRuntime implements RuntimeExtensionInterface
 {
-    /** @var \Symfony\Component\HttpFoundation\RequestStack */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /** @var \RevisionTen\CMS\Services\CacheService */
-    private $cacheService;
+    private CacheService $cacheService;
 
-    /** @var \Doctrine\ORM\EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var \RevisionTen\CQRS\Services\AggregateFactory */
-    private $aggregateFactory;
+    private AggregateFactory $aggregateFactory;
 
-    /** @var \Symfony\Component\Templating\EngineInterface */
-    private $twig;
+    private Environment $twig;
 
-    /** @var array */
-    private $config;
+    private array $config;
 
-    /**
-     * MenuRuntime constructor.
-     *
-     * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
-     * @param \RevisionTen\CMS\Services\CacheService         $cacheService
-     * @param \Doctrine\ORM\EntityManagerInterface           $entityManager
-     * @param \RevisionTen\CQRS\Services\AggregateFactory    $aggregateFactory
-     * @param \Symfony\Component\Templating\EngineInterface  $twig
-     * @param array                                          $config
-     */
-    public function __construct(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, EngineInterface $twig, array $config)
+    public function __construct(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, Environment $twig, array $config)
     {
         $this->requestStack = $requestStack;
         $this->cacheService = $cacheService;
@@ -58,12 +42,6 @@ class MenuRuntime implements RuntimeExtensionInterface
         $this->config = $config;
     }
 
-    /**
-     * @param array $parameters
-     *
-     * @return string
-     * @throws \Exception
-     */
     public function renderMenu(array $parameters): string
     {
         $name = $parameters['name'];
@@ -72,7 +50,7 @@ class MenuRuntime implements RuntimeExtensionInterface
         $language = $parameters['language'] ?? null;
         $website = $parameters['website'] ?? null;
 
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
 
         if (!isset($this->config['menus'][$name])) {
             return 'Menu '.$name.' does not exist.';
@@ -83,7 +61,9 @@ class MenuRuntime implements RuntimeExtensionInterface
             if (null === $alias || null === $alias->getWebsite() || null === $alias->getLanguage()) {
                 // Alias does not exist or is neutral, get website and language from request.
                 $websiteId = $request && $request->get('websiteId') ? $request->get('websiteId') : 1;
-                /** @var Website|null $website */
+                /**
+                 * @var Website|null $website
+                 */
                 $website = $this->entityManager->getRepository(Website::class)->find($websiteId);
 
                 $language = $request ? $request->getLocale() : null;
@@ -95,14 +75,18 @@ class MenuRuntime implements RuntimeExtensionInterface
                 $language = $alias->getLanguage();
             }
         } else {
-            /** @var Website|null $website */
+            /**
+             * @var Website|null $website
+             */
             $website = $this->entityManager->getRepository(Website::class)->find($website);
         }
 
         $cacheKey = $name.'_'.$website->getId().'_'.$language;
         $menuData = $this->cacheService->get($cacheKey);
         if (null === $menuData) {
-            /** @var MenuRead $menuRead */
+            /**
+             * @var MenuRead $menuRead
+             */
             $menuRead = $this->entityManager->getRepository(MenuRead::class)->findOneBy([
                 'title' => $name,
                 'website' => $website,
@@ -140,17 +124,13 @@ class MenuRuntime implements RuntimeExtensionInterface
         ]);
     }
 
-    /**
-     * @param string $name
-     *
-     * @return array|null
-     * @throws \Exception
-     */
     private function getMenuData(string $name): ?array
     {
         $menu = null;
 
-        /** @var Menu[] $menuAggregates */
+        /**
+         * @var Menu[] $menuAggregates
+         */
         $menuAggregates = $this->aggregateFactory->findAggregates(Menu::class);
         foreach ($menuAggregates as $menuAggregate) {
             if ($name === $menuAggregate->name && isset($config['menus'][$menuAggregate->name])) {
@@ -162,12 +142,6 @@ class MenuRuntime implements RuntimeExtensionInterface
         return $menu;
     }
 
-    /**
-     * @param array                               $items
-     * @param \RevisionTen\CMS\Model\Website|null $website
-     *
-     * @return array
-     */
     private function getPaths(array $items, ?Website $website = null): array
     {
         // Get all aliases.
@@ -175,7 +149,9 @@ class MenuRuntime implements RuntimeExtensionInterface
 
         $aliasIds = $this->getAliasIds($items);
 
-        /** @var Alias[] $aliases */
+        /**
+         * @var Alias[] $aliases
+         */
         $aliases = $this->entityManager->getRepository(Alias::class)->findBy([
             'id' => $aliasIds,
         ]);

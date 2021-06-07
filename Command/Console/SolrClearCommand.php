@@ -46,5 +46,7 @@ class SolrClearCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->indexService->clear($output);
+
+        return 0;
     }
 }

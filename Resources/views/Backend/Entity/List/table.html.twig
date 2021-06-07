@@ -1,0 +1,45 @@
+<table class="my-0 table table-hover small">
+    {% set cssClass = 'p-4 py-2' %}
+    {% set route = app.request.get('_route') %}
+    <tr>
+        {% for fieldName, field in fields %}
+            <th class="{{ cssClass }} cms-field-{{ field.property ?? fieldName }}">
+                {% set sortable = field.sortable is not defined or field.sortable %}
+                {% if field.property is defined and field.property and sortable %}
+                    <a href="{{ path(route, app.request.query.all|merge({
+                        sortBy: field.property,
+                        sortOrder: sortOrder == 'asc' ? 'desc' : 'asc'
+                    })) }}" class="text-body text-decoration-none">
+                        {{ field.label }}
+                        {% if sortBy == field.property %}
+                            {% if sortOrder == 'desc' %}
+                                <span class="fas fa-chevron-down"></span>
+                            {% elseif sortOrder == 'asc' %}
+                                <span class="fas fa-chevron-up"></span>
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                {% else %}
+                    {{ field.label }}
+                {% endif %}
+            </th>
+        {% endfor %}
+    </tr>
+    {% for item in items %}
+        <tr>
+            {% for fieldName, field in fields %}
+                {% set value = field.property is defined and attribute(item, field.property) is defined ? attribute(item, field.property) : null %}
+                {% set template = field.template ?? '@CMS/Backend/Entity/List/field.html.twig' %}
+                <td class="{{ cssClass }} cms-field-{{ field.property ?? fieldName }}" valign="middle">
+                    {% include template with {
+                        item: item,
+                        value: value,
+                        property: field.property ?? fieldName,
+                        label: field.label,
+                        type: field.type ?? null,
+                    } %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
