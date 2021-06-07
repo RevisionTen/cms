@@ -1,0 +1,39 @@
+{% set cssClass = 'text-decoration-none me-2' %}
+
+<div class="text-end">
+    {% if isArchive %}
+        {# Todo: Restore action. #}
+    {% elseif item.locked == false or is_granted('page_lock_unlock') %}
+        {% if is_granted('page_edit') %}
+            <a href="{{ path('cms_edit_aggregate', app.request.query.all|merge({ id: item.id })) }}"
+               class="{{ cssClass }}"
+               aria-label="{{ 'admin.btn.edit'|trans({}, 'cms') }}"
+            >
+                <span class="fas fa-edit"></span>
+            </a>
+        {% endif %}
+
+        {% if is_granted('page_clone') and item.locked == false %}
+            <a href="{{ path('cms_clone_aggregate', app.request.query.all|merge({ id: item.id })) }}"
+               class="{{ cssClass }}"
+               aria-label="{{ 'admin.btn.clonePage'|trans({}, 'cms') }}"
+               onclick="return confirm('{{ 'admin.label.confirmDuplicate'|trans({}, 'cms') }}');"
+            >
+                <span class="fas fa-clone"></span>
+            </a>
+        {% endif %}
+
+        {% if is_granted('page_delete') and item.locked == false %}
+            <a href="{{ path('cms_delete_aggregate', app.request.query.all|merge({ id: item.id })) }}"
+               class="{{ cssClass }} text-danger"
+               aria-label="{{ 'admin.btn.deletePage'|trans({}, 'cms') }}"
+               onclick="return confirm('{{ 'admin.label.confirmDelete'|trans({}, 'cms') }}');"
+            >
+                <span class="fas fa-trash"></span>
+            </a>
+        {% endif %}
+    {% endif %}
+</div>
+
+
+

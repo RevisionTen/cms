@@ -1,0 +1,5 @@
+<div {{ editorAttr(element, edit) }} class="{{ elementClasses(element) }}">
+    {% if element.data.formUuid is defined and element.data.formUuid %}
+        {{ render(controller('RevisionTen\\Forms\\Controller\\FormController::renderCmsForm', {formUuid: element.data.formUuid, defaultData: []})) }}
+    {% endif %}
+</div>

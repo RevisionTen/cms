@@ -1,0 +1,72 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% import _self as macros %}
+{% macro groupedEvents(eventObjects) %}
+
+    {% for userId, aggregates in eventObjects %}
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <h6 class="my-0 py-2">
+                    {% set value = userId %}
+                    {% include '@CMS/Backend/User/List/small.html.twig' %}
+                </h6>
+            </div>
+
+            <div class="card-body">
+                {% for aggregateUuid, events in aggregates|slice(0, 3) %}
+                    <div class="{{ loop.last == false ? 'mb-3' }}">
+                        <strong>
+                            {% set value = aggregateUuid %}{% include '@CMS/Backend/User/List/uuid.html.twig' %}
+                        </strong>
+                        {% for event in events|slice(0, 3) %}
+                            {% set groupedEvent = {} %}
+                            <div class="row text-muted">
+                                <div class="col">
+                                    {% set message = event.payload.message is defined ? event.payload.message : event.message %}
+                                    {{ message|trans({}, 'cms')|trans }}
+                                </div>
+                                <div class="col text-right">
+                                    {% set value = event.created %}{% include '@CMS/Backend/Event/List/datetime_ago.html.twig' %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    {% endfor %}
+
+
+{% endmacro %}
+
+{% block content_title %}
+    {{ 'admin.label.dashboard'|trans({}, 'cms') }}
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <div class="row">
+
+            <div class="col">
+                {% if pageEvents|length > 0 %}
+                    <h5 class="mb-4">
+                        {{ 'admin.label.latestCommits'|trans({}, 'cms') }}
+                    </h5>
+                    {{ macros.groupedEvents(pageEvents) }}
+                {% endif %}
+            </div>
+
+            <div class="col">
+                {% if nonPageEvents|length > 0 and is_granted('event_list') %}
+                    <h5 class="mb-4">
+                        {{ 'admin.label.latestNonPageEvents'|trans({}, 'cms') }}
+                    </h5>
+                    {{ macros.groupedEvents(nonPageEvents) }}
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

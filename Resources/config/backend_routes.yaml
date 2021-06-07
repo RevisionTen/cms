@@ -1,18 +1,13 @@
-#index:
-#    path: /index
-#    defaults: { _controller: 'RevisionTen\CMS\Controller\PageController::index' }
 
 revision_ten_cms_controller_security:
     resource: "@CMSBundle/Controller/SecurityController.php"
     type: annotation
 
-easy_admin_bundle:
-    resource: "@CMSBundle/Controller/EasyAdminController.php"
-    prefix: /admin
-    type: annotation
-
 revision_ten_cms_controller_admin:
     resource: "@CMSBundle/Controller/AdminController.php"
+    type: annotation
+revision_ten_cms_controller_entity:
+    resource: "@CMSBundle/Controller/EntityController.php"
     type: annotation
 
 revision_ten_cms_controller_file:
@@ -35,8 +30,8 @@ revision_ten_cms_controller_role:
     resource: "@CMSBundle/Controller/RoleController.php"
     type: annotation
 
-revision_ten_cms_controller_form:
-    resource: "@CMSBundle/Controller/FormController.php"
+revision_ten_forms_controllers_form:
+    resource: "@FormsBundle/Controller/FormController.php"
     type: annotation
 
 revision_ten_cms_controller_page:

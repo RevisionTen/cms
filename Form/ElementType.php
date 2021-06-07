@@ -26,7 +26,10 @@ class ElementType extends AbstractType
             ]);
         }
 
-        $builder->add('save', SubmitType::class);
+        $builder->add('save', SubmitType::class, [
+            'label' => 'admin.btn.save',
+            'translation_domain' => 'cms',
+        ]);
     }
 
     /**

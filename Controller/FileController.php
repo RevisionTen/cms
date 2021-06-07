@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Exception;
 use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Services\FileService;
@@ -30,9 +31,6 @@ use function explode;
 use function strcmp;
 use function usort;
 
-/**
- * Class FileController.
- */
 class FileController extends AbstractController
 {
     /**
@@ -47,34 +45,64 @@ class FileController extends AbstractController
     {
         $this->denyAccessUnlessGranted('file_list');
 
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         if (null === $request) {
             throw new NotFoundHttpException();
         }
 
-        $criteria = [
-            'website' => $request->get('currentWebsite'),
-            'deleted' => false,
-        ];
+        $page = (int) $request->get('page');
+        $sortBy = 'created';
+        $sortOrder = 'desc';
+
+        $qb = $entityManager->createQueryBuilder();
+        $qb
+            ->select('entity')
+            ->from(FileRead::class, 'entity')
+            ->where($qb->expr()->eq('entity.deleted', 0))
+            ->addOrderBy('entity.'.$sortBy, $sortOrder)
+        ;
+
+        // Add mimeTypes filter.
         $mimeTypes = $request->get('mimeTypes');
         if ($mimeTypes) {
-            $criteria['mimeType'] = explode(',', $mimeTypes);
+            $mimeTypesList = explode(',', $mimeTypes);
+            $fieldQueries = [];
+            foreach ($mimeTypesList as $mimeType) {
+                $fieldQueries[] = $qb->expr()->eq('entity.mimeType', $qb->expr()->literal($mimeType));
+            }
+            $qb->andWhere($qb->expr()->orX(...$fieldQueries));
         }
 
-        $page = (int) $request->get('page');
+        // Add search query.
+        $q = (string) ($request->get('q') ?? '');
+        if (!empty($q)) {
+            $searchFields = ['title', 'path'];
+            $qb = EntityController::addTermQuery($qb, $searchFields, $q);
+        }
 
-        $orderBy = [
-            'created' => 'DESC',
-        ];
+        // Add current website filter.
+        $websiteId = $request->get('currentWebsite');
+        if ($websiteId) {
+            $qb->andWhere($qb->expr()->eq('entity.website', ':websiteId'))->setParameter('websiteId', $websiteId);
+        }
 
-        $limit = 90;
+        $limit = 20;
         $offset = $page * $limit;
-        $total = $entityManager->getRepository(FileRead::class)->count($criteria);
-        $totalPages = ceil($total / $limit);
+        $count = count($qb->getQuery()->getScalarResult());
+        $totalPages = ceil($count / $limit);
 
-        $files = $entityManager->getRepository(FileRead::class)->findBy($criteria, $orderBy, $limit, $offset);
+        // Get results.
+        $query = $qb->getQuery();
+        if (null !== $limit) {
+            $query->setMaxResults($limit);
+        }
+        if (null !== $offset) {
+            $query->setFirstResult($offset);
+        }
+        $paginator = new Paginator($query);
+        $files = $paginator->getIterator();
 
-        return $this->render('@cms/Admin/File/picker.html.twig', [
+        return $this->render('@CMS/Backend/File/picker.html.twig', [
             'files' => $files,
             'page' => $page,
             'totalPages' => $totalPages,
@@ -124,7 +152,7 @@ class FileController extends AbstractController
         $files = array_reverse($files);
 
         // Filter files by current website.
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         if ($request && $currentWebsite = $request->get('currentWebsite')) {
             $files = array_filter($files, static function ($file) use ($currentWebsite) {
                 /**
@@ -139,7 +167,7 @@ class FileController extends AbstractController
             return $file->deleted === false;
         });
 
-        return $this->render('@cms/Admin/File/element-list.html.twig', [
+        return $this->render('@CMS/Backend/File/element-list.html.twig', [
             'files' => $files,
         ]);
     }
@@ -198,7 +226,7 @@ class FileController extends AbstractController
             'required' => false,
         ]);
 
-        $builder->add('submit', SubmitType::class, [
+        $builder->add('save', SubmitType::class, [
             'label' => 'admin.btn.addFile',
             'translation_domain' => 'cms',
             'attr' => [
@@ -214,10 +242,10 @@ class FileController extends AbstractController
 
             $data['file'] = $fileService->createFile(null, $data['file'], $data['title'], $uploadDir, $currentWebsite, $data['language'], $data['keepOriginalFileName']);
 
-            return $this->render('@cms/Admin/File/create-success.html.twig', $data);
+            return $this->render('@CMS/Backend/File/create-success.html.twig', $data);
         }
 
-        return $this->render('@cms/Form/file-form.html.twig', [
+        return $this->render('@CMS/Backend/File/file-form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -290,7 +318,7 @@ class FileController extends AbstractController
             'required' => false,
         ]);
 
-        $builder->add('submit', SubmitType::class, [
+        $builder->add('save', SubmitType::class, [
             'label' => 'admin.btn.saveFile',
             'translation_domain' => 'cms',
             'attr' => [
@@ -308,10 +336,10 @@ class FileController extends AbstractController
                 'uuid' => $fileUuid,
             ], $data['file'], $data['title'], $uploadDir, $data['language'], null, $data['keepOriginalFileName']);
 
-            return $this->render('@cms/Admin/File/create-success.html.twig', $data);
+            return $this->render('@CMS/Backend/File/create-success.html.twig', $data);
         }
 
-        return $this->render('@cms/Form/file-form.html.twig', [
+        return $this->render('@CMS/Backend/File/file-form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -358,19 +386,13 @@ class FileController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Admin/File/delete.html.twig', [
+        return $this->render('@CMS/Backend/File/delete.html.twig', [
             'id' => $id,
             'file' => $fileRead,
         ]);
     }
 
-    /**
-     * @param $a
-     * @param $b
-     *
-     * @return int
-     */
-    private static function sortByCreated($a, $b)
+    private static function sortByCreated($a, $b): int
     {
         $a = (string) $a->created->getTimestamp();
         $b = (string) $b->created->getTimestamp();

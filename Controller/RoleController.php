@@ -83,7 +83,7 @@ class RoleController extends AbstractController
             return $this->redirectToRoles();
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.addRole', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -147,7 +147,7 @@ class RoleController extends AbstractController
             );
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.editRole', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -210,7 +210,7 @@ class RoleController extends AbstractController
             ],
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.saveRole',
             'translation_domain' => 'cms',
             'attr' => [

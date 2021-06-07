@@ -1,0 +1,11 @@
+{% extends '@CMS/Backend/Entity/List/list.html.twig' %}
+
+{% block content_top_actions %}
+    {% if is_granted(permissions.create) and 'create' in actions %}
+        <div class="col-auto content-actions">
+            <a class="btn btn-sm btn-primary" href="{{ path('forms_create_form') }}">
+                <span class="fa fa-plus"></span> {{ 'admin.btn.addForm'|trans({}, 'cms') }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock content_top_actions %}

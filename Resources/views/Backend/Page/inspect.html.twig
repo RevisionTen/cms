@@ -1,0 +1,39 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {% if title is defined %}
+        {{ title }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <h5 data-bs-toggle="collapse" data-bs-target="#page-payload">
+            {{ 'admin.label.payload'|trans({}, 'cms') }}
+        </h5>
+        <div class="collapse" id="page-payload">
+            <pre class="small"><code class="small">{{ page|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+        </div>
+
+        <div>
+            {% for history in page.history %}
+                <div class="border-top mt-3 pt-3">
+                    <div class="row" data-bs-toggle="collapse" data-bs-target="#collapse-{{ history.version }}">
+                        <div class="col">
+                            <span class="text-muted">{{ history.version }}</span> {{ history.message|trans }}
+                        </div>
+                        <div class="col-auto text-end small text-nowrap flex-grow-1">
+                            {% if history.user is defined and history.user is not null %}
+                                {% set value = history.user %}
+                                {% include '@CMS/Backend/User/List/small.html.twig' %}<br/>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="collapse" id="collapse-{{ history.version }}">
+                        <pre class="small"><code class="small">{{ history.payload|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

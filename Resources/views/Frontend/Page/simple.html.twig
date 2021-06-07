@@ -1,0 +1,26 @@
+{% extends '@CMS/Frontend/base.html.twig' %}
+{% import "@CMS/Frontend/Helper/section-helper.html.twig" as section %}
+
+{% block body %}
+    <div class="container">
+        <div class="header jumbotron">
+            HEADER
+        </div>
+        <div class="menu jumbotron">
+            {{ cms_menu({name: 'Main Menu', alias: alias, language: page.language, website: page.website}) }}
+        </div>
+        <div class="content mt-5 mb-5">
+            <div class="row">
+                <div class="col-12 col-md-8">
+                    {{ section.render('Body', '@CMS/Frontend/Editor/section-empty.html.twig', page, edit, config, website, alias) }}
+                </div>
+                <div class="col-12 col-md-4">
+                    {{ section.render('Sidebar', '@CMS/Frontend/Editor/section-empty.html.twig', page, edit, config, website, alias) }}
+                </div>
+            </div>
+        </div>
+        <div class="footer jumbotron">
+            {{ cms_menu({name: 'Footer Menu', alias: alias, language: page.language, website: page.website}) }}
+        </div>
+    </div>
+{% endblock %}

@@ -9,35 +9,21 @@ use RevisionTen\CMS\Event\UserGenerateSecretEvent;
 use RevisionTen\CMS\Event\UserResetPasswordEvent;
 use RevisionTen\CMS\Services\UserService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use function is_string;
 
 class UserSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var UserService
-     */
-    protected $userService;
+    protected UserService $userService;
 
-    /**
-     * @var array
-     */
-    protected $config;
+    protected array $config;
 
-    /**
-     * UserSubscriber constructor.
-     *
-     * @param UserService $userService
-     * @param array       $config
-     */
     public function __construct(UserService $userService, array $config)
     {
         $this->userService = $userService;
         $this->config = $config;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -47,9 +33,6 @@ class UserSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param UserCreateEvent $userCreateEvent
-     */
     public function sendSecretAfterCreate(UserCreateEvent $userCreateEvent): void
     {
         $payload = $userCreateEvent->getPayload();
@@ -60,13 +43,12 @@ class UserSubscriber implements EventSubscriberInterface
 
         if (!$useMailCodes && !$migrated) {
             // Send the secret QRCode via mail.
-            $this->userService->sendSecret($userUuid);
+            try {
+                $this->userService->sendSecret($userUuid);
+            } catch (TransportExceptionInterface $e) {}
         }
     }
 
-    /**
-     * @param UserGenerateSecretEvent $userGenerateSecretEvent
-     */
     public function sendSecret(UserGenerateSecretEvent $userGenerateSecretEvent): void
     {
         $userUuid = $userGenerateSecretEvent->getAggregateUuid();
@@ -74,13 +56,12 @@ class UserSubscriber implements EventSubscriberInterface
 
         if (!$useMailCodes) {
             // Send the secret QRCode via mail.
-            $this->userService->sendSecret($userUuid);
+            try {
+                $this->userService->sendSecret($userUuid);
+            } catch (TransportExceptionInterface $e) {}
         }
     }
 
-    /**
-     * @param UserResetPasswordEvent $userResetPasswordEvent
-     */
     public function resetPassword(UserResetPasswordEvent $userResetPasswordEvent): void
     {
         $userUuid = $userResetPasswordEvent->getAggregateUuid();
@@ -90,7 +71,9 @@ class UserSubscriber implements EventSubscriberInterface
 
         if (null !== $token && is_string($token)) {
             // Send password reset mail.
-            $this->userService->sendPasswordResetMail($userUuid, $token);
+            try {
+                $this->userService->sendPasswordResetMail($userUuid, $token);
+            } catch (TransportExceptionInterface $e) {}
         }
     }
 }

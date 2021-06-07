@@ -1,0 +1,26 @@
+
+{% if type == 'boolean' %}
+    {% if value is null %}
+        <span class="badge bg-secondary">
+            {{ 'admin.value.typeNull'|trans({}, 'cms') }}
+        </span>
+    {% elseif value  %}
+        <span class="badge bg-success">
+            {{ 'admin.value.typeTrue'|trans({}, 'cms') }}
+        </span>
+    {% else %}
+        <span class="badge bg-danger">
+            {{ 'admin.value.typeFalse'|trans({}, 'cms') }}
+        </span>
+    {% endif %}
+{% elseif type == 'collection' %}
+    <span class="badge bg-secondary">
+        {{ value|length }}
+    </span>
+{% elseif type == 'datetime' %}
+    {{ value|date('d.m.Y H:i') }}
+{% elseif type == 'object' %}
+    {{ value }}
+{% else %}
+    {{ value }}
+{% endif %}

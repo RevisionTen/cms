@@ -1,0 +1,52 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@CMS/Backend/Profiler/logo.svg') }}
+        <span class="sf-toolbar-value">{{ collector.messages|length }}</span>
+    {% endset %}
+
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>Messages</b>
+            <span>{{ collector.messages|length }}</span>
+        </div>
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">{{ include('@CMS/Backend/Profiler/logo.svg') }}</span>
+        <strong>CMS</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Messages</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Message</th>
+            <th>Code</th>
+            <th>Command Uuid</th>
+            <th>Aggregate Uuid</th>
+            <th>Exception</th>
+            <th>Context</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for message in collector.messages %}
+            <tr>
+                <td>{{ message.message }}</td>
+                <td>{{ message.code }}</td>
+                <td>{{ message.commandUuid }}</td>
+                <td>{{ message.aggregateUuid }}</td>
+                <td>{{ message.exception }}</td>
+                <td>{{ dump(message.context) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

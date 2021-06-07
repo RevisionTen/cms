@@ -1,0 +1,17 @@
+
+{{ form_start(form) }}
+{% if form.username is defined %}
+
+    {{ form_row(form.username) }}
+
+    <div class="input-group mb-3">
+        {{ form_widget(form.password) }}
+        {{ form_widget(form.send) }}
+    </div>
+
+    <div class="text-center w-100 mb-3">
+        <a href="{{ path('cms_reset_password')  }}">{{ 'admin.label.forgotPassword'|trans({}, 'cms') }}</a>
+    </div>
+{% endif  %}
+{{ form_widget(form) }}
+{{ form_end(form) }}

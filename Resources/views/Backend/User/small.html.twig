@@ -1,0 +1,12 @@
+<div class="d-inline-block">
+    <div class="ratio ratio-1x1 d-block" title="{{ user.username }}" style="width: 1.4em;display: inline-block;position: relative; margin: -0.2em 0;">
+        <div class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center text-white small" style="background: {{ user.color }};">
+            {% if user.avatarUrl %}
+                <img src="{{ user.avatarUrl }}" style="object-fit: cover;max-width: 120%;max-height:120%;">
+            {% else %}
+                {{ user.username|first }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{{ user.username }}

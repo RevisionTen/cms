@@ -11,11 +11,13 @@ use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Serializer\PageSerializer;
-use Solarium\Client;
+use Solarium\Core\Client\Adapter\Curl;
+use Solarium\Core\Client\Client;
 use Solarium\Core\Query\Helper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use function array_push;
 use function array_values;
 use function array_walk;
@@ -106,7 +108,9 @@ class IndexService
             return;
         }
 
-        $client = new Client($this->solrConfig);
+        $adapter = new Curl();
+        $eventDispatcher = new EventDispatcher();
+        $client = new Client($adapter, $eventDispatcher, $this->solrConfig);
 
         $update = $client->createUpdate();
         $update->addDeleteQuery('*:*');
@@ -134,7 +138,9 @@ class IndexService
             return;
         }
 
-        $client = new Client($this->solrConfig);
+        $adapter = new Curl();
+        $eventDispatcher = new EventDispatcher();
+        $client = new Client($adapter, $eventDispatcher, $this->solrConfig);
 
         if (null === $uuid) {
             /** @var PageRead[] $pageReads */
@@ -147,7 +153,9 @@ class IndexService
         }
         $pageReadsByUuid = [];
         array_walk($pageReads, static function ($page, $key) use(&$pageReadsByUuid) {
-            /** @var PageRead $page */
+            /**
+             * @var PageRead $page
+             */
             $pageReadsByUuid[$page->getUuid()] = $page;
         });
 

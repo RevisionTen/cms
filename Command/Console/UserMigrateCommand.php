@@ -128,6 +128,9 @@ class UserMigrateCommand extends Command
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserCreateCommand failed.');
             print_r($messages);
+            return 500;
         }
+
+        return 0;
     }
 }

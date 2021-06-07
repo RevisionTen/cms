@@ -52,11 +52,6 @@ class ArrayHelpers
         return $diff;
     }
 
-    /**
-     * @param array $order
-     *
-     * @return array
-     */
     public static function cleanOrderTree(array $order): array
     {
         $orderTree = [];

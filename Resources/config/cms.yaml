@@ -29,9 +29,7 @@ cms:
         stylesSet: 'bootstrap4styles:/bundles/cms/js/ckeditor-styles.js' # To use ckeditor defaults use: default:/bundles/cms/libs/dist/ckeditor/styles.js
         contentsCss:
             - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
-            - '/bundles/cms/example-template-files/bootstrap.min.css'
-            - '/bundles/cms/libs/dist/ckeditor/contents.css'
-            - '/bundles/cms/css/ckeditor.css'
+            - '/bundles/cms/bootstrap/bootstrap.min.css'
         toolbar:
             - { name: 'basicstyles', items: [ 'Source', 'PasteFromWord', 'RemoveFormat', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] }
             - { name: 'tools', items: [ 'Maximize' ] }
@@ -40,38 +38,49 @@ cms:
 
     # Admin menu configuration.
     admin_menu:
+        Dashboard:
+            label: 'admin.admin_menu.dashboard'
+            route: 'cms_dashboard'
+            icon: 'fas fa-tachometer-alt'
         Content:
-            - { entity: PageStreamRead, icon: 'file-alt' }
-            - { entity: PageStreamReadArchive, icon: 'archive' }
-            - { entity: Alias, icon: 'link' }
-            - { entity: FileRead, icon: 'download' }
+            label: 'admin.admin_menu.content'
+            children:
+                - { label: 'admin.admin_menu.pages', route: 'cms_list_pages', icon: 'fas fa-file-alt', permissions: ['page_list'] }
+                - { label: 'admin.admin_menu.archive', route: 'cms_list_deleted_pages', icon: 'fas fa-archive', permissions: ['page_list', 'page_delete'] }
+                - { label: 'admin.admin_menu.paths', entity: Alias, icon: 'fas fa-link', permissions: ['alias_list'] }
+                - { label: 'admin.admin_menu.files', entity: FileRead, icon: 'fas fa-download', permissions: ['file_list'] }
         Structure:
-            - { entity: Website, icon: 'globe-africa' }
-            - { entity: MenuRead, icon: 'bars' }
-            - { entity: FormRead, icon: 'mail-bulk' }
-            - { entity: FormSubmission, icon: 'envelope' }
+            label: 'admin.admin_menu.structure'
+            children:
+                - { label: 'admin.admin_menu.website', entity: Website, icon: 'fas fa-globe-africa', permissions: ['website_list'] }
+                - { label: 'admin.admin_menu.menus', entity: MenuRead, icon: 'fas fa-bars', permissions: ['menu_list'] }
+                - { label: 'admin.admin_menu.forms', entity: FormRead, icon: 'fas fa-mail-bulk', permissions: ['form_list'] }
+                - { label: 'admin.admin_menu.submissions', entity: FormSubmission, icon: 'fas fa-envelope', permissions: ['form_submissions'] }
         Settings:
-            - { entity: UserRead, icon: 'users' }
-            - { entity: RoleRead, icon: 'user-shield' }
-            - { entity: Task, icon: 'tasks' }
-            - { entity: EventStreamObject, icon: 'clock' }
+            label: 'admin.admin_menu.settings'
+            children:
+                - { label: 'admin.admin_menu.users', entity: UserRead, icon: 'fas fa-users', permissions: ['user_list'] }
+                - { label: 'admin.admin_menu.roles', entity: RoleRead, icon: 'fas fa-user-shield', permissions: ['role_list'] }
+                - { label: 'admin.admin_menu.tasks', entity: Task, icon: 'fas fa-tasks', permissions: ['task_list'] }
+                - { label: 'admin.admin_menu.log', entity: EventStreamObject, icon: 'fas fa-clock', permissions: ['event_list'] }
+                - { label: 'admin.admin_menu.systeminfo', route: 'cms_systeminfo', icon: 'fas fa-info-circle', permissions: ['do_everything'] }
 
     # Menu configuration.
     menus:
         Main Menu:
-            template: '@cms/Menu/main.html.twig'
+            template: '@CMS/Frontend/Menu/main.html.twig'
         Footer Menu:
-            template: '@cms/Menu/footer.html.twig'
+            template: '@CMS/Frontend/Menu/footer.html.twig'
     menu_items:
         Page:
             class: RevisionTen\CMS\Form\Menu\Page
-            template: '@cms/Menu/Items/page.html.twig'
+            template: '@CMS/Frontend/Menu/Items/page.html.twig'
         Link:
             class: RevisionTen\CMS\Form\Menu\Link
-            template: '@cms/Menu/Items/link.html.twig'
+            template: '@CMS/Frontend/Menu/Items/link.html.twig'
         Divider:
             class: RevisionTen\CMS\Form\Menu\Divider
-            template: '@cms/Menu/Items/divider.html.twig'
+            template: '@CMS/Frontend/Menu/Items/divider.html.twig'
 
     # Controller choices for controller page element.
     controller:
@@ -89,7 +98,7 @@ cms:
         French: 'fr'
     page_templates:
         Simple Page:
-            template: '@cms/layout.html.twig'
+            template: '@CMS/Frontend/Page/simple.html.twig'
             # Options to further customize the page type:
             #metatype: RevisionTen\CMS\Form\Meta\LocalBusinessMetaType
             #solr_serializer: App\Serializer\PageSerializer # Must implement RevisionTen\CMS\Interface\SolrSerializerInterface
@@ -107,14 +116,14 @@ cms:
         Section:
             class: RevisionTen\CMS\Form\Elements\Section
             type: 'Section' # Optional property, defines how the element behaves in the frontend editor.
-            template: '@cms/Layout/section.html.twig'
+            template: '@CMS/Frontend/Elements/section.html.twig'
             icon: 'fa fa-th-large'
             children:
                 - 'Row'
         Row:
             class: RevisionTen\CMS\Form\Elements\Row
             type: 'Row' # Optional property, defines how the element behaves in the frontend editor.
-            template: '@cms/Layout/row.html.twig'
+            template: '@CMS/Frontend/Elements/row.html.twig'
             icon: 'fa fa-window-maximize'
             children:
                 - 'Column'
@@ -126,7 +135,7 @@ cms:
         Column:
             class: RevisionTen\CMS\Form\Elements\Column
             type: 'Column' # Optional property, defines how the element behaves in the frontend editor.
-            template: '@cms/Layout/column.html.twig'
+            template: '@CMS/Frontend/Elements/column.html.twig'
             icon: 'fa fa-columns'
             children:
                 - 'all'
@@ -136,58 +145,351 @@ cms:
                 align items end: 'd-flex flex-wrap align-items-end'
         Text:
             class: RevisionTen\CMS\Form\Elements\Text
-            template: '@cms/Layout/text.html.twig'
+            template: '@CMS/Frontend/Elements/text.html.twig'
             public: true
             icon: 'fa fa-file'
         Form:
             class: RevisionTen\CMS\Form\Elements\Form
-            template: '@cms/Layout/form.html.twig'
+            template: '@CMS/Frontend/Elements/form.html.twig'
             public: true
             icon: 'fab fa-wpforms'
         Image:
             class: RevisionTen\CMS\Form\Elements\Image
-            template: '@cms/Layout/image.html.twig'
+            template: '@CMS/Frontend/Elements/image.html.twig'
             public: true
             icon: 'fa fa-image'
         Images:
             class: RevisionTen\CMS\Form\Elements\Images
-            template: '@cms/Layout/images.html.twig'
+            template: '@CMS/Frontend/Elements/images.html.twig'
             public: true
             icon: 'fa fa-images'
         File:
             class: RevisionTen\CMS\Form\Elements\File
-            template: '@cms/Layout/file.html.twig'
+            template: '@CMS/Frontend/Elements/file.html.twig'
             public: true
             icon: 'fa fa-file'
         Controller:
             class: RevisionTen\CMS\Form\Elements\Controller
-            template: '@cms/Layout/controller.html.twig'
+            template: '@CMS/Frontend/Elements/controller.html.twig'
             public: true
             icon: 'fa fa-magic'
+            #permissions:
+            #    create: 'create_generic'
+            #    edit: 'edit_generic'
+            #websites: [2] # Array of website ids this element is available on
         Timing:
             class: RevisionTen\CMS\Form\Elements\Timing
-            template: '@cms/Layout/timing.html.twig'
+            template: '@CMS/Frontend/Elements/timing.html.twig'
             public: true
             icon: 'fa fa-clock'
             children:
                 - 'all'
         Anchor:
             class: RevisionTen\CMS\Form\Elements\Anchor
-            template: '@cms/Layout/anchor.html.twig'
+            template: '@CMS/Frontend/Elements/anchor.html.twig'
             public: true
             icon: 'fas fa-anchor'
-        Card:
-            class: RevisionTen\CMS\Form\Elements\Card
-            template: '@cms/Layout/card.html.twig'
-            public: true
-            icon: 'fas fa-id-card'
         Youtube:
             class: RevisionTen\CMS\Form\Elements\Youtube
-            template: '@cms/Layout/youtube.html.twig'
+            template: '@CMS/Frontend/Elements/youtube.html.twig'
             public: true
             icon: 'fab fa-youtube'
         Vimeo:
             class: RevisionTen\CMS\Form\Elements\Vimeo
-            template: '@cms/Layout/vimeo.html.twig'
+            template: '@CMS/Frontend/Elements/vimeo.html.twig'
             public: true
             icon: 'fab fa-vimeo'
+
+    entities:
+        Alias:
+            label: 'admin.label.aliases'
+            class: RevisionTen\CMS\Entity\Alias
+            permissions:
+                list: 'alias_list'
+                search: 'alias_search'
+                new: 'alias_create'
+                edit: 'alias_edit'
+                delete: 'alias_delete'
+            list:
+                search_fields:
+                    - 'path'
+                fields:
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'enabled', label: 'admin.label.enabled', type: 'boolean' }
+                    - { property: 'path', label: 'admin.label.path', template: '@CMS/Backend/Alias/List/path.html.twig' }
+                    - { property: 'language', label: 'admin.label.language', template: '@CMS/Backend/Alias/List/language.html.twig' }
+                    - { property: 'pageStreamRead', label: 'admin.label.page', type: 'object', template: '@CMS/Backend/Alias/List/page.html.twig', sortable: false }
+                    - { property: 'redirect', label: 'admin.label.redirect', template: '@CMS/Backend/Alias/List/redirect.html.twig' }
+                    - { property: 'priority', label: 'admin.label.priority', template: '@CMS/Backend/Alias/List/priority.html.twig' }
+            form:
+                fields:
+                    - { property: 'path', label: 'admin.label.path', type: 'Symfony\Component\Form\Extension\Core\Type\TextType' }
+                    - { property: 'language', label: 'admin.label.language', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { required: false, choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
+                    - { property: 'pageStreamRead', label: 'admin.label.page', type: 'RevisionTen\CMS\Form\Admin\PageStreamReadType', type_options: { required: false } }
+                    - { property: 'redirect', label: 'admin.label.redirect', type: 'Symfony\Component\Form\Extension\Core\Type\TextType', type_options: { required: false } }
+                    - { property: 'priority', label: 'admin.label.priority', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { choices: { 'admin.label.veryLow': 0.1, 'admin.label.low': 0.3, 'admin.label.normal': 0.5, 'admin.label.high': 0.6, 'admin.label.veryHigh': 1 }, attr: { class: 'custom-select' } } }
+        Website:
+            label: 'admin.label.websites'
+            class: RevisionTen\CMS\Entity\Website
+            permissions:
+                list: 'website_list'
+                search: 'website_search'
+                new: 'website_create'
+                edit: 'website_edit'
+            list:
+                search_fields:
+                    - 'title'
+                actions:
+                    - '-delete'
+                fields:
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage' }
+                    - { property: 'users', label: 'admin.label.users', type: 'collection' }
+                    - { property: 'domains', label: 'admin.label.domains', type: 'collection' }
+                    - { property: 'aliases', label: 'admin.label.aliases', type: 'collection' }
+            form:
+                fields:
+                    - { property: 'title', label: 'admin.label.title', type: 'Symfony\Component\Form\Extension\Core\Type\TextType' }
+                    - { property: 'siteVerification', label: 'admin.label.siteVerification', type: 'Symfony\Component\Form\Extension\Core\Type\TextType', type_options: { required: false } }
+                    - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
+                    - { property: 'domains', label: 'admin.label.domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
+                    - { property: 'errorPages', label: 'admin.label.errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { required: false, multiple: true, class: 'RevisionTen\CMS\Entity\PageStreamRead', attr: { data-widget: 'select2' } } }
+        EventStreamObject:
+            label: 'admin.label.log'
+            class: RevisionTen\CQRS\Model\EventStreamObject
+            permissions:
+                list: 'event_list'
+                search: 'event_search' # Todo: Useless.
+                show: 'event_show'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'payload', label: 'admin.label.payload', template: '@CMS/Backend/Event/Show/payload.html.twig' }
+            list:
+                sort: [ 'created', 'desc' ]
+                actions:
+                    - '-search'
+                    - '-create'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'uuid', label: 'admin.label.title', template: '@CMS/Backend/User/List/uuid.html.twig' }
+                    - { property: 'message', label: 'admin.label.message', template: '@CMS/Backend/Event/List/message.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'user', label: 'admin.label.user', template: '@CMS/Backend/User/List/small.html.twig' }
+        Task:
+            label: 'admin.label.tasks'
+            class: RevisionTen\CMS\Entity\Task
+            permissions:
+                list: 'task_list'
+                search: 'task_search'
+                show: 'task_show'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'uuid', label: 'admin.label.uuid' }
+                    - { property: 'aggregateUuid', label: 'admin.label.aggregateUuid' }
+                    - { property: 'command', label: 'admin.label.command' }
+                    - { property: 'due', label: 'admin.label.due', type: 'datetime' }
+                    - { property: 'payload', label: 'admin.label.payload', template: '@CMS/Backend/Event/Show/payload.html.twig' }
+                    - { property: 'resultMessage', label: 'admin.label.resultMessage', template: '@CMS/Backend/Event/Show/payload.html.twig' }
+            list:
+                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
+                sort: [ 'id', 'desc' ]
+                search_fields:
+                    - 'command'
+                actions:
+                    - '-create'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'uuid', label: 'admin.label.uuid' }
+                    - { property: 'command', label: 'admin.label.command' }
+                    - { property: 'due', label: 'admin.label.due', type: 'datetime' }
+                    - { property: 'resultMessage', label: 'admin.label.resultMessage', template: '@CMS/Backend/Task/List/result-message.html.twig' }
+        UserRead:
+            label: 'admin.label.users'
+            class: RevisionTen\CMS\Entity\UserRead
+            permissions:
+                list: 'user_list'
+                search: 'user_search'
+                edit: 'user_edit'
+                show: 'user_show'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'id', label: 'admin.label.avatar', template: '@CMS/Backend/User/List/medium.html.twig' }
+                    - { property: 'username', label: 'admin.label.username' }
+                    - { property: 'email', label: 'admin.label.email' }
+                    - { property: 'devices', label: 'admin.label.devices' }
+                    - { property: 'ips', label: 'admin.label.ips' }
+            list:
+                sort: [ 'username', 'asc' ]
+                search_fields:
+                    - 'username'
+                    - 'email'
+                actions:
+                    - '-create'
+                    - '-edit'
+                    - '-delete'
+                    - { route: 'cms_user_edit', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'user_edit' }
+                fields:
+                    - { property: 'id', label: 'admin.label.avatar', template: '@CMS/Backend/User/List/medium.html.twig', sortable: false }
+                    - { property: 'username', label: 'admin.label.username' }
+                    - { property: 'email', label: 'admin.label.email' }
+                    - { property: 'roles', label: 'admin.label.roles', template: '@CMS/Backend/User/List/roles.html.twig', sortable: false }
+        RoleRead:
+            label: 'admin.label.roles'
+            class: RevisionTen\CMS\Entity\RoleRead
+            permissions:
+                list: 'role_list'
+                search: 'role_search' # Useless permission.
+                create: 'role_create'
+                edit: 'role_edit'
+                show: 'role_show'
+            templates:
+                list: '@CMS/Backend/Role/list.html.twig'
+            show:
+                actions:
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'permissions', label: 'admin.label.permissions' }
+            list:
+                sort: [ 'id', 'desc' ]
+                search_fields:
+                    - 'title'
+                actions:
+                    - '-edit'
+                    - '-delete'
+                    - { route: 'cms_role_edit', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'role_edit' }
+                fields:
+                    - { property: 'title', label: 'admin.label.title' }
+        FormRead:
+            label: 'admin.label.forms'
+            class: RevisionTen\Forms\Entity\FormRead
+            permissions:
+                list: 'form_list'
+                search: 'form_search'
+                new: 'form_create'
+                edit: 'form_edit'
+                delete: 'form_delete'
+                clone: 'form_clone'
+            templates:
+                list: '@CMS/Backend/Forms/list.html.twig'
+            list:
+                sort: [ 'modified', 'desc' ]
+                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
+                actions:
+                    - { route: 'forms_submissions_download', label: 'admin.btn.submissionsDownload', icon: 'fas fa-download', permission: 'form_submissions' }
+                    - { route: 'forms_edit_aggregate', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'form_edit' }
+                    - { route: 'forms_clone_aggregate', label: 'admin.btn.duplicate', icon: 'fas fa-clone', permission: 'form_clone' }
+                    - { route: 'forms_delete_aggregate', label: 'admin.btn.delete', icon: 'fas fa-trash', css_class: 'text-danger', permission: 'form_delete' }
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                fields:
+                    - { property: 'title', label: 'admin.label.title' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }
+        FormSubmission:
+            label: 'admin.label.submissions'
+            class: RevisionTen\Forms\Entity\FormSubmission
+            permissions:
+                list: 'form_submissions'
+                show: 'form_submissions'
+                search: 'form_submissions'
+                delete: 'form_submissions_delete'
+            list:
+                # Todo: Implement filters.
+                filters:
+                    - { property: 'form', label: 'admin.label.form' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail' }
+                    - { property: 'opened', label: 'admin.label.opened' }
+                actions:
+                    - '-create'
+                    - '-edit'
+                search_fields:
+                    - 'payload'
+                    - 'toEmail'
+                fields:
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail' }
+                    - { property: 'form', label: 'admin.label.form' }
+                    - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+            # Todo: Implement show.
+            show:
+                actions:
+                    - '-edit'
+                fields:
+                    - { property: 'id', label: 'admin.label.id' }
+                    - { property: 'toEmail', label: 'admin.label.toEmail', type: 'string' }
+                    - { property: 'ccEmail', label: 'admin.label.ccEmail', type: 'string' }
+                    - { property: 'bccEmail', label: 'admin.label.bccEmail', type: 'string' }
+                    - { property: 'form', label: 'admin.label.form', type: 'string' }
+                    - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'payload', label: 'admin.label.payload', template: '@forms/Admin/submission-payload.html.twig' }
+        MenuRead:
+            label: 'admin.label.menus'
+            class: RevisionTen\CMS\Entity\MenuRead
+            permissions:
+                list: 'menu_list'
+                search: 'menu_search' # Todo: Useless.
+                new: 'menu_create'
+                edit: 'menu_edit'
+            templates:
+                list: '@CMS/Backend/Menu/list.html.twig'
+            list:
+                sort: [ 'title', 'desc' ]
+                actions:
+                    - '-search'
+                    - '-new'
+                    - '-edit'
+                    - '-delete'
+                    - { route: 'cms_edit_menu', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'menu_edit' }
+                fields:
+                    - { property: 'title', label: 'admin.label.menu', css_class: 'title-truncate', template: '@CMS/Backend/Menu/List/title.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'language', label: 'admin.label.language' }
+        FileRead:
+            label: 'admin.label.files'
+            class: RevisionTen\CMS\Entity\FileRead
+            permissions:
+                list: 'file_list'
+                search: 'file_search'
+                new: 'file_create'
+                edit: 'file_edit'
+                delete: 'file_delete'
+            templates:
+                list: '@CMS/Backend/File/list.html.twig'
+            list:
+                sort: [ 'modified', 'desc' ]
+                dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
+                search_fields:
+                    - 'title'
+                    - 'path'
+                actions:
+                    - '-create'
+                    - '-edit'
+                    - '-delete'
+                    - { route: 'cms_file_edit', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'file_edit' }
+                    - { route: 'cms_file_delete', label: 'admin.btn.delete', icon: 'fas fa-trash', css_class: 'text-danger', permission: 'file_delete' }
+                fields:
+                    - { property: 'title', label: 'admin.label.title', css_class: 'title-truncate', template: '@CMS/Backend/File/List/title.html.twig' }
+                    - { property: 'version', label: 'admin.label.version' }
+                    - { property: 'mimeType', label: 'admin.label.mimeType' }
+                    - { property: 'size', label: 'admin.label.size', template: '@CMS/Backend/File/List/size.html.twig' }
+                    - { property: 'language', label: 'admin.label.language' }
+                    - { property: 'created', label: 'admin.label.created', type: 'datetime' }
+                    - { property: 'modified', label: 'admin.label.modified', type: 'datetime' }

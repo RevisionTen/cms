@@ -11,9 +11,9 @@ use RevisionTen\CMS\Command\FileCreateCommand;
 use RevisionTen\CMS\Command\FileDeleteCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Model\File;
-use RevisionTen\CMS\Model\FileRead;
-use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\FileRead;
+use RevisionTen\CMS\Entity\UserRead;
+use RevisionTen\CMS\Entity\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,52 +24,29 @@ use function json_decode;
 use function json_encode;
 use function in_array;
 
-/**
- * Class FileService.
- */
 class FileService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
+    protected CommandBus $commandBus;
 
-    /**
-     * @var UserRead
-     */
-    protected $user;
+    protected UserRead $user;
 
-    /**
-     * @var string
-     */
-    protected $project_dir;
+    protected string $project_dir;
 
-    /**
-     * PageService constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param AggregateFactory       $aggregateFactory
-     * @param CommandBus             $commandBus
-     * @param TokenStorageInterface  $tokenStorage
-     * @param string                 $project_dir
-     */
     public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
     {
         $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
         $this->commandBus = $commandBus;
-        $this->user = $tokenStorage->getToken() ? $tokenStorage->getToken()->getUser() : -1;
         $this->project_dir = $project_dir;
+
+        $systemUser = new UserRead();
+        $systemUser->setId(-1);
+        $user = $tokenStorage->getToken() ? $tokenStorage->getToken()->getUser() : null;
+        $this->user = $user instanceOf UserRead ? $user : $systemUser;
     }
 
     /**

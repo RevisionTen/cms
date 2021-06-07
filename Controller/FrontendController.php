@@ -80,7 +80,7 @@ class FrontendController extends AbstractController
          */
         $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('websiteId'), $request->getLocale());
 
-        $response = $this->render('@cms/sitemap.xml.twig', [
+        $response = $this->render('@CMS/Frontend/sitemap.xml.twig', [
             'aliases' => $aliases,
         ]);
 
@@ -246,7 +246,7 @@ class FrontendController extends AbstractController
 
         $results = !empty($query) && is_string($query) ? $searchService->getFulltextResults($query) : null;
 
-        return $this->render('@cms/Search/fulltext.html.twig', [
+        return $this->render('@CMS/Frontend/Search/fulltext.html.twig', [
             'query' => $query,
             'results' => $results,
         ]);

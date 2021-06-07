@@ -1,0 +1,39 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.editMenu'|trans({'%menu%': menu.name|trans}, 'cms') }} &nbsp;
+    <span class="text-muted">{{ menu.language }} | {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteTitle', {'id': menu.website})) }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <ul data-uuid="{{ menu.uuid }}" data-version="{{ menu.version }}" class="cms-admin-menu cms-admin-menu-root list-unstyled small border-bottom border-end">
+            {% for item in menu.items %}
+                {% set level = 0 %}
+                {% include '@CMS/Backend/Menu/edit-item.html.twig' %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content_top_actions %}
+    <div class="col-auto ms-auto content-actions">
+        <div class="dropdown">
+                <span class="dropdown-toggle btn btn-sm btn-primary" data-bs-toggle="dropdown">
+                    <span class="fas fa-plus"></span> {{ 'admin.btn.addGenericMenuItem'|trans({}, 'cms') }}
+                </span>
+            <div class="dropdown-menu">
+                {% for itemName, itemConfig in config.menu_items %}
+                    <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+                        {{ 'admin.btn.addMenuItem'|trans({'%itemName%': itemName|trans}, 'cms') }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-auto content-actions">
+        <button class="btn-save-order btn btn-sm btn-success" data-uuid="{{ menu.uuid }}">
+            {{ 'admin.btn.saveMenuOrder'|trans({}, 'cms') }}
+        </button>
+    </div>
+{% endblock %}

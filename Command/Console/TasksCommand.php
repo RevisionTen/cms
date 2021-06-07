@@ -46,5 +46,7 @@ class TasksCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->taskService->runTasks($output);
+
+        return 0;
     }
 }

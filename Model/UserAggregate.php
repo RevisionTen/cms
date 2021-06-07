@@ -8,39 +8,29 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class UserAggregate extends Aggregate
 {
-    /** @var string */
-    public $username;
+    public ?string $username = null;
 
-    /** @var string */
-    public $email;
+    public ?string $email = null;
 
-    /** @var string */
-    public $password;
+    public ?string $password = null;
 
-    /** @var string */
-    public $secret;
+    public ?string $secret = null;
 
-    /** @var string */
-    public $resetToken;
+    public ?string $resetToken = null;
 
-    /** @var string */
-    public $color;
+    public ?string $color = null;
 
-    /** @var string */
-    public $avatarUrl;
+    public ?string $avatarUrl = null;
 
-    /** @var array */
-    public $devices = [];
+    public ?string $theme = null;
 
-    /** @var array */
-    public $ips = [];
+    public array $devices = [];
 
-    /** @var array */
-    public $websites = [];
+    public array $ips = [];
 
-    /** @var array */
-    public $roles = [];
+    public array $websites = [];
 
-    /** @var array */
-    public $extra = [];
+    public array $roles = [];
+
+    public array $extra = [];
 }

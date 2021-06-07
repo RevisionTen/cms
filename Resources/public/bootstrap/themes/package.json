@@ -1,0 +1,25 @@
+{
+  "name": "themes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx webpack"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.0.15",
+    "css-loader": "latest",
+    "mini-css-extract-plugin": "latest",
+    "postcss-loader": "latest",
+    "sass": "latest",
+    "sass-loader": "latest",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
+  },
+  "dependencies": {
+    "bootstrap": "^5.0.1"
+  },
+  "author": "",
+  "license": "MIT"
+}

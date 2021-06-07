@@ -14,8 +14,10 @@ class EntityVoter extends Voter
         return true;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        #var_dump($attribute);
+
         $user = $token->getUser();
 
         if (!$user instanceof UserRead) {

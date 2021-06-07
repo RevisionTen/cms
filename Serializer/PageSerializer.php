@@ -39,7 +39,9 @@ class PageSerializer implements SolrSerializerInterface
 
         // Get path of first alias attached to the pageStreamRead entity.
         $path = null;
-        /** @var \RevisionTen\CMS\Model\Alias[] $aliases */
+        /**
+         * @var \RevisionTen\CMS\Model\Alias[] $aliases
+         */
         $aliases = $pageStreamRead->getAliases();
         if (null !== $aliases) {
             if ($aliases instanceof Collection) {

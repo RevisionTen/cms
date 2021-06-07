@@ -8,9 +8,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * Class AliasRepository
- */
 class AliasRepository extends ServiceEntityRepository
 {
     /**

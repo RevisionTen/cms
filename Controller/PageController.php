@@ -9,11 +9,13 @@ use Exception;
 use RevisionTen\CMS\Command\PageAddScheduleCommand;
 use RevisionTen\CMS\Command\PageCloneCommand;
 use RevisionTen\CMS\Command\PageDeleteCommand;
+use RevisionTen\CMS\Command\PageLockCommand;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageRemoveScheduleCommand;
 use RevisionTen\CMS\Command\PageRollbackCommand;
 use RevisionTen\CMS\Command\PageSaveOrderCommand;
 use RevisionTen\CMS\Command\PageSubmitCommand;
+use RevisionTen\CMS\Command\PageUnlockCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Form\PageType;
 use RevisionTen\CMS\Model\Alias;
@@ -61,16 +63,8 @@ use function json_encode;
  */
 class PageController extends AbstractController
 {
-    /**
-     * @var MessageBus
-     */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /**
-     * PageController constructor.
-     *
-     * @param MessageBus $messageBus
-     */
     public function __construct(MessageBus $messageBus)
     {
         $this->messageBus = $messageBus;
@@ -146,7 +140,7 @@ class PageController extends AbstractController
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.addPage', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -243,7 +237,7 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.changePageSettings', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -286,7 +280,7 @@ class PageController extends AbstractController
             ],
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.submitChanges',
             'translation_domain' => 'cms',
         ]);
@@ -311,7 +305,7 @@ class PageController extends AbstractController
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.submitChanges', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -408,7 +402,7 @@ class PageController extends AbstractController
             'required' => false,
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.schedule',
             'translation_domain' => 'cms',
         ]);
@@ -430,7 +424,7 @@ class PageController extends AbstractController
             return $this->createAliasResponse($pageUuid, $request, $success, $hasAlias);
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.schedule', [], 'cms'),
             'form' => $form->createView(),
         ]);
@@ -458,7 +452,7 @@ class PageController extends AbstractController
 
         $page = $aggregateFactory->build($pageUuid, Page::class, null, $user->getId());
 
-        return $this->render('@cms/Admin/Page/inspect.html.twig', [
+        return $this->render('@CMS/Backend/Page/inspect.html.twig', [
             'title' => $translator->trans('admin.label.inspectPage', [], 'cms'),
             'page' => $page,
         ]);
@@ -577,7 +571,7 @@ class PageController extends AbstractController
             ],
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.createAlias',
             'translation_domain' => 'cms',
         ]);
@@ -606,7 +600,7 @@ class PageController extends AbstractController
             ]) : $this->redirectToPage($pageUuid);
         }
 
-        return $this->render('@cms/Form/alias-form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.createAlias', [], 'cms'),
             'form' => $form->createView(),
             'websiteUrl' => $websiteUrl,
@@ -840,7 +834,7 @@ class PageController extends AbstractController
         }
 
         // Get the page template from the template name.
-        $template = $config['page_templates'][$page->template]['template'] ?? '@cms/layout.html.twig';
+        $template = $config['page_templates'][$page->template]['template'] ?? '@CMS/Frontend/Page/simple.html.twig';
 
         // Build element info for admin-frontend.js.
         $pageElements = [];
@@ -934,7 +928,7 @@ class PageController extends AbstractController
 
         // Get the page template from the template name.
         $templateName = $pageData['template'];
-        $template = $config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
+        $template = $config['page_templates'][$templateName]['template'] ?? '@CMS/Frontend/Page/simple.html.twig';
 
         return $this->render($template, [
             'alias' => $alias,
@@ -1004,6 +998,124 @@ class PageController extends AbstractController
     }
 
     /**
+     * Locks a page.
+     *
+     * Must ignore queued events on page because they might not exist in the future.
+     *
+     * @Route("/page/lock", name="cms_lock_page")
+     *
+     * @param Request $request
+     * @param CommandBus $commandBus
+     * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface $translator
+     * @param EventStore $eventStore
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function lockPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator, EventStore $eventStore): Response
+    {
+        $this->denyAccessUnlessGranted('page_lock_unlock');
+
+        /**
+         * @var UserRead $user
+         */
+        $user = $this->getUser();
+
+        /**
+         * @var int $id PageStreamRead Id.
+         */
+        $id = $request->get('id');
+
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
+
+        if (null === $pageStreamRead) {
+            return $this->redirect('/admin');
+        }
+
+        $pageUuid = $pageStreamRead->getUuid();
+        $version = $pageStreamRead->getVersion();
+
+        // Discard this users queued changes before attempting to lock the page.
+        $eventStore->discardQueued($pageUuid, $user->getId());
+
+        $success = $this->runCommand($commandBus, PageLockCommand::class, [], $pageUuid, $version);
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        $this->addFlash(
+            'success',
+            $translator->trans('admin.label.pageLockSuccess', [], 'cms')
+        );
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * Unlocks a page.
+     *
+     * Must ignore queued events on page because they might not exist in the future.
+     *
+     * @Route("/page/unlock", name="cms_unlock_page")
+     *
+     * @param Request $request
+     * @param CommandBus $commandBus
+     * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface $translator
+     * @param EventStore $eventStore
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function unlockPage(Request $request, CommandBus $commandBus, EntityManagerInterface $entityManager, TranslatorInterface $translator, EventStore $eventStore): Response
+    {
+        $this->denyAccessUnlessGranted('page_lock_unlock');
+
+        /**
+         * @var UserRead $user
+         */
+        $user = $this->getUser();
+
+        /**
+         * @var int $id PageStreamRead Id.
+         */
+        $id = $request->get('id');
+
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
+        $pageStreamRead = $entityManager->getRepository(PageStreamRead::class)->find($id);
+
+        if (null === $pageStreamRead) {
+            return $this->redirect('/admin');
+        }
+
+        $pageUuid = $pageStreamRead->getUuid();
+        $version = $pageStreamRead->getVersion();
+
+        // Discard this users queued changes before attempting to lock the page.
+        $eventStore->discardQueued($pageUuid, $user->getId());
+
+        $success = $this->runCommand($commandBus, PageUnlockCommand::class, [], $pageUuid, $version);
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        $this->addFlash(
+            'success',
+            $translator->trans('admin.label.pageUnlockSuccess', [], 'cms')
+        );
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
      * @Route("/delete-aggregate", name="cms_delete_aggregate")
      *
      * @param Request                $request
@@ -1059,7 +1171,7 @@ class PageController extends AbstractController
             $translator->trans('admin.label.pageDeleteSuccess', [], 'cms')
         );
 
-        return $this->redirect('/admin/?entity=PageStreamRead&action=list');
+        return $this->redirectToRoute('cms_list_pages');
     }
 
     /**
@@ -1111,7 +1223,7 @@ class PageController extends AbstractController
             ],
         ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
+        $formBuilder->add('save', SubmitType::class, [
             'label' => 'admin.btn.rollback',
             'translation_domain' => 'cms',
         ]);
@@ -1143,8 +1255,9 @@ class PageController extends AbstractController
             return $success ? $this->redirectToPage($pageUuid) : $this->errorResponse();
         }
 
-        return $this->render('@cms/Form/form.html.twig', array(
+        return $this->render('@CMS/Backend/Form/form.html.twig', array(
             'form' => $form->createView(),
+            'title' => $translator->trans('admin.btn.rollback', [], 'cms'),
         ));
     }
 
@@ -1290,10 +1403,15 @@ class PageController extends AbstractController
         $pageTemplates = $config['page_templates'] ?? null;
         $templates = [];
         foreach ($pageTemplates as $template => $templateConfig) {
-            $permission = $templateConfig['permissions'][$permissionName] ?? null;
+            if ('new' === $permissionName || 'create' === $permissionName) {
+                // Create permission can be "new" or "create"
+                $permission = $templateConfig['permissions']['create'] ?? ($templateConfig['permissions']['new'] ?? null);
+            } else {
+                $permission = $templateConfig['permissions'][$permissionName] ?? null;
+            }
             // Check if the website matches.
             if (!empty($templateConfig['websites']) && !in_array($currentWebsite, $templateConfig['websites'], true)) {
-                // Current website is not is defined websites.
+                // Current website is not in defined websites.
                 continue;
             }
             // Check if permission is not explicitly set or user is granted the permission.

@@ -6,7 +6,7 @@ import updateElement from './element';
 import updateCKEditorInstances from "./ckeditor";
 import scriptReplace from "./scriptreplace";
 
-function bindModal(url: string)
+function bindModal(url: string, editorModal: bootstrap.Modal)
 {
     let modalElement = <HTMLDivElement>document.getElementById('editor-modal');
 
@@ -17,16 +17,28 @@ function bindModal(url: string)
     // Execute dynamically inserted script tags in modal.
     scriptReplace(modalElement);
 
-    // Remove content wrapper css class.
-    let contentWrapper = modalElement.querySelector('.content-wrapper');
-    if (null !== contentWrapper) {
-        contentWrapper.classList.remove('content-wrapper');
+    // Convert page header to modal header.
+    let header = modalElement.querySelector('.sticky-top');
+    if (header) {
+        header.classList.remove('sticky-top');
+        header.classList.add('d-block');
+        header.classList.add('modal-header');
+        let contentTitle = header.querySelector('.content-title');
+        if (contentTitle) {
+            let closeBtn = document.createElement("div");
+            closeBtn.innerHTML = '<span class="fas fa-times"></span>';
+            closeBtn.className = 'btn btn-sm';
+            closeBtn.addEventListener('click', () => {
+                editorModal.hide();
+            });
+            contentTitle.insertAdjacentElement('afterbegin', closeBtn);
+        }
     }
 
     // Get first form in content.
     let form = <HTMLFormElement>modalElement.querySelector('form');
     if (null !== form) {
-        let formSelector = '#main form';
+        let formSelector = 'form';
         if (form.name) {
             // This modals form has a name, always get forms with this name.
             formSelector = 'form[name="'+form.name+'"]';
@@ -37,14 +49,13 @@ function bindModal(url: string)
 
         // Bind widgets and conditional form fields.
         bindForm(formSelector, () => {
-            bindModal(url);
+            bindModal(url, editorModal);
         });
 
         // Add an ajax submit handler to the form.
         onSubmit(form, updateCKEditorInstances, (data: any, success: boolean) => {
             if (success && data.success) {
-                // @ts-ignore
-                $(modalElement).modal('hide'); // Todo: Update when Bootstrap 5 releases.
+                editorModal.hide();
                 updateElement(data);
             } else {
                 let html = data;
@@ -58,40 +69,18 @@ function bindModal(url: string)
                 // Replace old form with new form and bind it.
                 if (null !== newForm) {
                     form.parentNode.replaceChild(newForm, form);
-                    bindModal(url);
+                    bindModal(url, editorModal);
                 }
             }
         });
     }
 
-    // Get the original title and set it as the modal title.
-    let oldTitle = document.getElementById('editor-modal-title');
-    let newTitle = modalElement.querySelector('.content-header .title');
-    if (null !== newTitle) {
-        oldTitle.innerHTML = newTitle.innerHTML;
-    }
-    let contentHeader = modalElement.querySelector('.content-header');
-    if (null !== contentHeader) {
-        contentHeader.remove();
-    }
-
-    // Move the modal nav into the modal header.
-    let modalNavContent = modalElement.querySelector('.modal-nav-content');
-    let modalNav = modalElement.querySelector('.modal-nav');
-    if (null !== modalNav && null !== modalNavContent) {
-        modalNav.innerHTML = modalNavContent.innerHTML;
-        modalNavContent.remove();
-    } else if (null !== modalNav) {
-        modalNav.innerHTML = ''
-    }
-
     // Show the modal.
-    // @ts-ignore
-    $(modalElement).modal('show'); // Todo: Update when Bootstrap 5 releases.
+    editorModal.show();
 }
 
-let openModal = function(url: string) {
-    let modalContent = document.querySelector('#editor-modal .modal-body');
+let openModal = function(url: string, editorModal: bootstrap.Modal) {
+    let modalContent = document.querySelector('#editor-modal .modal-content');
     if (null === modalContent) {
         return;
     }
@@ -108,10 +97,10 @@ let openModal = function(url: string) {
             // Get element from response.
             let parser = new DOMParser();
             let htmlDoc = <HTMLDocument>parser.parseFromString(html, 'text/html');
-            let newModalContent = <HTMLElement>htmlDoc.querySelector('.content-wrapper .content');
+            let newModalContent = <HTMLElement>htmlDoc.querySelector('form');
             if (null !== newModalContent) {
                 modalContent.insertAdjacentElement('beforeend', newModalContent);
-                bindModal(url);
+                bindModal(url, editorModal);
             }
         })
         .catch(function (error: any) {

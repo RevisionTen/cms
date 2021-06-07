@@ -15,33 +15,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CQRS\Services\MessageBus;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class TaskService.
- */
 class TaskService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
+    protected CommandBus $commandBus;
 
-    /**
-     * @var CommandBus
-     */
-    protected $messageBus;
+    protected MessageBus $messageBus;
 
-    /**
-     * TaskService constructor.
-     *
-     * @param EntityManagerInterface  $em
-     * @param CommandBus              $commandBus
-     * @param MessageBus              $messageBus
-     */
     public function __construct(EntityManagerInterface $em, CommandBus $commandBus, MessageBus $messageBus)
     {
         $this->em = $em;

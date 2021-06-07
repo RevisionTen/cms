@@ -33,6 +33,7 @@ class CMSExtension extends Extension implements PrependExtensionInterface
         $permissions = [];
         $page_elements = [];
         $admin_menu = [];
+        $entities = [];
         $config = [];
         foreach ($configs as $subConfig) {
             $config = array_merge($config, $subConfig);
@@ -49,24 +50,20 @@ class CMSExtension extends Extension implements PrependExtensionInterface
             if (isset($subConfig['admin_menu'])) {
                 $admin_menu = array_merge_recursive($admin_menu, $subConfig['admin_menu']);
             }
+            // Aggregate all entities, dont override.
+            if (isset($subConfig['entities'])) {
+                $entities = array_merge_recursive($entities, $subConfig['entities']);
+            }
         }
 
         $config['permissions'] = $permissions;
         $config['page_elements'] = $page_elements;
         $config['admin_menu'] = $admin_menu;
-
-        // Use deprecated "page_menues" config If it is set.
-        if (!empty($config['page_menues'])) {
-            $config['menus'] = $config['page_menues'];
-            unset($config['page_menues']);
-        }
+        $config['entities'] = $entities;
 
         return $config;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = self::mergeCMSConfig($configs);
@@ -78,8 +75,6 @@ class CMSExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Exception
      */
     public function prepend(ContainerBuilder $container): void
@@ -125,7 +120,7 @@ class CMSExtension extends Extension implements PrependExtensionInterface
                 $adminMenu[] = $menuItem;
             }
         }
-        $adminMenu[] = ['label' => 'admin.label.systemInformation', 'route' => 'cms_systeminfo', 'icon' => 'nope fas fa-info-circle'];
+        $adminMenu[] = ['label' => 'admin.label.systemInformation', 'route' => 'cms_systeminfo', 'icon' => 'fas fa-info-circle'];
 
         // Set parameters that are used in other configurations.
         $container->setParameter('cms.version', CMSBundle::VERSION);

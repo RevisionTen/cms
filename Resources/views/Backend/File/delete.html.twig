@@ -1,0 +1,30 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.fileDelete'|trans({'%title%': file.title}, 'cms') }}
+{% endblock %}
+
+{% block body_class %}files{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <p>
+            {{ 'admin.label.fileDeleteQuestion'|trans({}, 'cms')|raw }}
+        </p>
+        <p>
+
+        </p>
+    </div>
+{% endblock %}
+
+{% block content_top_actions %}
+    <div class="col-auto ms-auto content-actions">
+        <a class="btn btn-sm btn-danger"
+           href="{{ path('cms_file_delete', {
+               id: id,
+               confirm: true
+           }) }}">
+            {{ 'admin.btn.deleteFile'|trans({}, 'cms')|raw }}
+        </a>
+    </div>
+{% endblock %}

@@ -34,6 +34,7 @@ final class UserEditHandler implements HandlerInterface
         // Update nullable fields.
         $aggregate->avatarUrl = $payload['avatarUrl'] ?? null;
         $aggregate->color = $payload['color'] ?? null;
+        $aggregate->theme = $payload['theme'] ?? null;
         $aggregate->websites = $payload['websites'] ?? [];
         $aggregate->roles = $payload['roles'] ?? [];
 
