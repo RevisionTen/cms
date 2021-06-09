@@ -280,6 +280,7 @@ class EntityController extends AbstractController
 
         $this->denyAccessUnlessGranted($permissionList);
 
+        $defaultResultsPerPage = $entityConfig['list']['resultsPerPage'] ?? 20;
         $defaultSortBy = $entityConfig['list']['sort'][0] ?? 'id';
         $defaultSortOrder = strtolower($entityConfig['list']['sort'][1] ?? 'desc');
 
@@ -287,7 +288,7 @@ class EntityController extends AbstractController
         $sortBy = (string) ($request->get('sortBy') ?? $defaultSortBy);
         $sortOrder = (string) ($request->get('sortOrder') ?? $defaultSortOrder);
         $page = (int) $request->get('page');
-        $limit = (int) ($request->get('resultsPerPage') ?? 20);
+        $limit = (int) ($request->get('resultsPerPage') ?? $defaultResultsPerPage);
         $offset = (int) ($page * $limit);
 
         $listFields = $entityConfig['list']['fields'] ?? [];
