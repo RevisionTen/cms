@@ -1,7 +1,7 @@
 
 {% set route = app.request.get('_route') %}
 
-<div class="py-3 px-4 border-bottom">
+<div class="pagination-wrapper py-3 px-4 border-bottom">
     <input type="hidden" name="page" value="{{ app.request.query.get('page') }}">
     {% if entity is defined and entity %}
         <input type="hidden" name="entity" value="{{ entity }}">
@@ -19,7 +19,7 @@
                     {{ 'pagination.resultsPerPage'|trans({}, 'cms') }}
                 </div>
                 <div class="col-auto">
-                    {% set options = [10, 20, 50, 100] %}
+                    {% set options = [10, 20, 50, 100, 1000] %}
                     <select name="resultsPerPage" class="form-select form-select-sm" onchange="this.form.submit()">
                         {% for key, option in options %}
                             <option {% if resultsPerPage == option %}selected{% endif %} value="{{ option }}">{{ option }}</option>

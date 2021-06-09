@@ -1,5 +1,7 @@
 {% extends '@CMS/Backend/base.html.twig' %}
 
+{% block body_class %}list-{{ entity|default('generic')|lower }} {% endblock %}
+
 {% block content_wrapper %}
     <form method="get" id="content" class="col flex-grow-1 overflow-auto d-flex flex-column {{ contentClass }}" style="max-height: 100vh;">
         {{ block('content_top') }}

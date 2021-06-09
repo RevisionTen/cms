@@ -129,3 +129,15 @@ body.dragging, body.dragging * {
     height: 2rem;
     background: #bbbbbb;
 }
+
+/* Modal */
+.modal {
+    bottom: 0;
+}
+.modal-content > .overflow-auto {
+    max-height: none!important;
+    overflow: visible!important;
+}
+body.file-picker-open .modal {
+    overflow: hidden!important;
+}
