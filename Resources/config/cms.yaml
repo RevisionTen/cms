@@ -69,12 +69,14 @@ cms:
     menus:
         Main Menu:
             template: '@CMS/Frontend/Menu/main.html.twig'
+            #websites: [1, 2, 3]
         Footer Menu:
             template: '@CMS/Frontend/Menu/footer.html.twig'
     menu_items:
         Page:
             class: RevisionTen\CMS\Form\Menu\Page
             template: '@CMS/Frontend/Menu/Items/page.html.twig'
+            #websites: [1, 2, 3]
         Link:
             class: RevisionTen\CMS\Form\Menu\Link
             template: '@CMS/Frontend/Menu/Items/link.html.twig'

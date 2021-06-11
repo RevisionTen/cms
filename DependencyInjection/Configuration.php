@@ -134,6 +134,10 @@ class Configuration implements ConfigurationInterface
                         ->info('The admin template of the item.')
                         ->defaultNull()
                     ->end()
+                    ->arrayNode('websites')
+                        ->info('Defines on which website this menu item is available')
+                        ->integerPrototype()->end()
+                    ->end()
                 ->end()
             ->end();
 
@@ -238,6 +242,10 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('template')->end()
+                            ->arrayNode('websites')
+                                ->info('Defines on which website this menu is available')
+                                ->integerPrototype()->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()

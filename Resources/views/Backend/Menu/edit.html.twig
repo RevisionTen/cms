@@ -23,10 +23,14 @@
                     <span class="fas fa-plus"></span> {{ 'admin.btn.addGenericMenuItem'|trans({}, 'cms') }}
                 </span>
             <div class="dropdown-menu">
+                {% set currentWebsite = app.request.get('currentWebsite') %}
                 {% for itemName, itemConfig in config.menu_items %}
-                    <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
-                        {{ 'admin.btn.addMenuItem'|trans({'%itemName%': itemName|trans}, 'cms') }}
-                    </a>
+                    {% set websites = itemConfig.websites ?? null %}
+                    {% if websites is empty or currentWebsite in websites %}
+                        <a class="dropdown-item" href="{{ path('cms_menu_additem', {menuUuid: menu.uuid, itemName: itemName, onVersion: menu.version, parent: null}) }}">
+                            {{ 'admin.btn.addMenuItem'|trans({'%itemName%': itemName|trans}, 'cms') }}
+                        </a>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
