@@ -28,7 +28,12 @@ final class Page extends Aggregate
 
     public ?string $type = null;
 
-    public ?string $image = null;
+    /*
+     * Todo: Use PHP 8 union type string|array|null
+     *
+     * @var string|array|null $image
+     */
+    public $image = null;
 
     public ?array $robots = null;
 
