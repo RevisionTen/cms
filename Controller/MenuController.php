@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -49,8 +50,6 @@ use function sprintf;
 use function trigger_error;
 
 /**
- * Class MenuController.
- *
  * @Route("/admin")
  */
 class MenuController extends AbstractController
@@ -137,11 +136,17 @@ class MenuController extends AbstractController
 
         $formBuilder = $this->createFormBuilder();
 
+        // Filter menus by website.
+        $menus = array_filter($config['menus'], static function ($menu) use ($currentWebsite) {
+            return empty($menu['websites']) || (is_array($menu['websites']) && in_array($currentWebsite, $menu['websites']));
+        });
+        $menus = array_combine(array_keys($menus), array_keys($menus));
+
         $formBuilder->add('title', ChoiceType::class, [
             'label' => 'admin.label.menu',
             'translation_domain' => 'cms',
-            'placeholder' => 'Menu',
-            'choices' => array_combine(array_keys($config['menus']), array_keys($config['menus'])),
+            'placeholder' => '',
+            'choices' => $menus,
             'choice_translation_domain' => 'messages',
             'constraints' => new NotBlank(),
             'attr' => [
@@ -222,6 +227,8 @@ class MenuController extends AbstractController
      */
     public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@CMS/Backend/Form/form.html.twig')
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         $config = $this->getParameter('cms');
 
         $itemExists = isset($config['menu_items'][$itemName]);
@@ -231,6 +238,13 @@ class MenuController extends AbstractController
         }
 
         $itemConfig = $config['menu_items'][$itemName];
+
+        // Check if item belongs to currentWebsite.
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $websites = $itemConfig['websites'] ?? null;
+        if ($websites && !in_array($currentWebsite, $websites, true)) {
+            throw new AccessDeniedHttpException();
+        }
 
         /**
          * @var string $formClass
@@ -294,6 +308,8 @@ class MenuController extends AbstractController
      */
     public function editItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $menuUuid, int $onVersion, string $itemUuid, string $form_template = '@CMS/Backend/Form/form.html.twig')
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         /**
          * @var UserRead $user
          */
@@ -328,6 +344,14 @@ class MenuController extends AbstractController
         }
 
         $itemConfig = $config['menu_items'][$itemName];
+
+        // Check if item belongs to currentWebsite.
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $websites = $itemConfig['websites'] ?? null;
+        if ($websites && !in_array($currentWebsite, $websites, true)) {
+            throw new AccessDeniedHttpException();
+        }
+
         $formClass = $itemConfig['class'];
         $implements = class_implements($formClass);
 
@@ -391,6 +415,8 @@ class MenuController extends AbstractController
      */
     public function deleteItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         /**
          * @var UserRead $user
          */
@@ -445,6 +471,8 @@ class MenuController extends AbstractController
      */
     public function shiftItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid, string $direction)
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         /**
          * @var UserRead $user
          */
@@ -500,6 +528,8 @@ class MenuController extends AbstractController
      */
     public function disableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         /**
          * @var UserRead $user
          */
@@ -553,6 +583,8 @@ class MenuController extends AbstractController
      */
     public function enableItem(Request $request, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, string $menuUuid, int $onVersion, string $itemUuid)
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         /**
          * @var UserRead $user
          */
@@ -657,6 +689,8 @@ class MenuController extends AbstractController
      */
     public function saveOrder(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $menuUuid, int $onVersion)
     {
+        $this->denyAccessUnlessGranted('menu_edit');
+
         $order = json_decode($request->getContent(), true);
 
         if ($order && isset($order[0])) {
