@@ -222,6 +222,7 @@ cms:
                     - { property: 'language', label: 'admin.label.language', template: '@CMS/Backend/Alias/List/language.html.twig' }
                     - { property: 'pageStreamRead', label: 'admin.label.page', type: 'object', template: '@CMS/Backend/Alias/List/page.html.twig', sortable: false }
                     - { property: 'redirect', label: 'admin.label.redirect', template: '@CMS/Backend/Alias/List/redirect.html.twig' }
+                    - { property: 'redirectCode', label: 'admin.label.redirectCode' }
                     - { property: 'priority', label: 'admin.label.priority', template: '@CMS/Backend/Alias/List/priority.html.twig' }
             form:
                 fields:
@@ -229,7 +230,8 @@ cms:
                     - { property: 'language', label: 'admin.label.language', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { required: false, choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
                     - { property: 'pageStreamRead', label: 'admin.label.page', type: 'RevisionTen\CMS\Form\Admin\PageStreamReadType', type_options: { required: false } }
                     - { property: 'redirect', label: 'admin.label.redirect', type: 'Symfony\Component\Form\Extension\Core\Type\TextType', type_options: { required: false } }
-                    - { property: 'priority', label: 'admin.label.priority', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { choices: { 'admin.label.veryLow': 0.1, 'admin.label.low': 0.3, 'admin.label.normal': 0.5, 'admin.label.high': 0.6, 'admin.label.veryHigh': 1 }, attr: { class: 'custom-select' } } }
+                    - { property: 'redirectCode', label: 'admin.label.redirectCode', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { expanded: true, choices: { 'admin.label.redirectCode301': 301, 'admin.label.redirectCode302': 302 } } }
+                    - { property: 'priority', label: 'admin.label.priority', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { choices: { 'admin.label.veryLow': 0.1, 'admin.label.low': 0.3, 'admin.label.normal': 0.5, 'admin.label.high': 0.6, 'admin.label.veryHigh': 1 } } }
         Website:
             label: 'admin.label.websites'
             class: RevisionTen\CMS\Entity\Website

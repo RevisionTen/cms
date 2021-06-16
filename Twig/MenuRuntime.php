@@ -10,6 +10,7 @@ use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\Website;
 use RevisionTen\CMS\Services\CacheService;
+use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
@@ -22,6 +23,8 @@ class MenuRuntime implements RuntimeExtensionInterface
 {
     private RequestStack $requestStack;
 
+    private PageService $pageService;
+
     private CacheService $cacheService;
 
     private EntityManagerInterface $entityManager;
@@ -32,9 +35,10 @@ class MenuRuntime implements RuntimeExtensionInterface
 
     private array $config;
 
-    public function __construct(RequestStack $requestStack, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, Environment $twig, array $config)
+    public function __construct(RequestStack $requestStack, PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, Environment $twig, array $config)
     {
         $this->requestStack = $requestStack;
+        $this->pageService = $pageService;
         $this->cacheService = $cacheService;
         $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
@@ -116,11 +120,17 @@ class MenuRuntime implements RuntimeExtensionInterface
             }
         }
 
+        // Hydrate the menu with doctrine entities.
+        if (!empty($menuData)) {
+            $menuData = $this->pageService->hydratePage($menuData);
+        }
+
         return $this->twig->render($template ?: $this->config['menus'][$name]['template'], [
             'request' => $request,
             'alias' => $alias,
             'menu' => $menuData,
             'config' => $this->config,
+            'parameters' => $parameters,
         ]);
     }
 

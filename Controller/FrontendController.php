@@ -217,7 +217,7 @@ class FrontendController extends AbstractController
             }
         } elseif ($redirect) {
             // Redirect request.
-            $redirectResponse = $this->redirect($redirect);
+            $redirectResponse = $this->redirect($redirect, $alias->getRedirectCode());
             // Redirect expires immediately to prevent browser caching.
             $redirectResponse->setExpires(new DateTime());
             $response = $redirectResponse;
@@ -240,7 +240,7 @@ class FrontendController extends AbstractController
      */
     public function fulltextSearch(RequestStack $requestStack, SearchService $searchService): Response
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
 
         $query = $request ? $request->get('q') : null;
 

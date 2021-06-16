@@ -43,6 +43,7 @@ class EntityController extends AbstractController
      * @param TranslatorInterface $translator
      *
      * @return Response
+     * @throws Exception
      */
     public function create(Request $request, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {
@@ -82,6 +83,10 @@ class EntityController extends AbstractController
             // Todo: Add flash message.
             $em->persist($entityObject);
             $em->flush();
+            return $this->redirectToRoute('cms_edit_entity', [
+                'entity' => $entity,
+                'id' => $entityObject->getId(),
+            ]);
         }
 
         return $this->render('@CMS/Backend/Form/form.html.twig', [
