@@ -20,6 +20,7 @@ use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CMS\Model\UserRead;
+use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Twig\MenuRuntime;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Exception\InterfaceException;
@@ -69,13 +70,14 @@ class MenuController extends AbstractController
     /**
      * @Route("/edit-menu", name="cms_edit_menu")
      *
-     * @param Request                $request
+     * @param Request $request
+     * @param PageService $pageService
      * @param EntityManagerInterface $entityManager
-     * @param AggregateFactory       $aggregateFactory
+     * @param AggregateFactory $aggregateFactory
      *
      * @return Response
      */
-    public function editMenu(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory): Response
+    public function editMenu(Request $request, PageService $pageService, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory): Response
     {
         $this->denyAccessUnlessGranted('menu_edit');
 
@@ -102,6 +104,10 @@ class MenuController extends AbstractController
          * @var Menu $menu
          */
         $menu = $aggregateFactory->build($menuUuid, Menu::class);
+
+        if (!empty($menu->items)) {
+            $menu->items = $pageService->hydratePage($menu->items);
+        }
 
         return $this->render('@CMS/Backend/Menu/edit.html.twig', [
             'menu' => $menu,

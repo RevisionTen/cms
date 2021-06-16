@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.4] - 2021-06-16
+### Added
+- Added support for `RevisionTen\CMS\Form\Types\DoctrineType` to menu items
+- Pass `cms_menu()` parameters to menu templates
+- Added redirect type choice (301, 302) to Alias entity 
+- **Update your database schema**
+
 ## [3.0.3] - 2021-06-11
 ### Changed
 - Removed string type declaration from`RevisionTen\CMS\Model\Page::$image` because on some sites this is an array of image data.

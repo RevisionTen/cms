@@ -43,16 +43,19 @@ class Alias
     private $controller;
 
     /**
-     * @var string
      * @ORM\Column(type="string", nullable=true)
      */
-    private $redirect;
+    private ?string $redirect;
 
     /**
-     * @var float
+     * @ORM\Column(type="integer", options={"default":301})
+     */
+    private ?int $redirectCode = 301;
+
+    /**
      * @ORM\Column(type="float", options={"default":0.5})
      */
-    private $priority;
+    private ?float $priority = 0.5;
 
     /**
      * @var array
@@ -77,7 +80,7 @@ class Alias
      * @var bool
      * @ORM\Column(type="boolean", options={"default":1})
      */
-    private $enabled;
+    private $enabled = true;
 
     /**
      * @return string
@@ -85,15 +88,6 @@ class Alias
     public function __toString(): string
     {
         return $this->path;
-    }
-
-    /**
-     * Alias constructor.
-     */
-    public function __construct()
-    {
-        $this->priority = 0.5;
-        $this->enabled = true;
     }
 
     public function getHost(?string $port = ''): ?string
@@ -157,22 +151,26 @@ class Alias
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getRedirect(): ?string
     {
         return $this->redirect;
     }
 
-    /**
-     * @param string|null $redirect
-     *
-     * @return Alias
-     */
-    public function setRedirect(string $redirect = null): self
+    public function setRedirect(?string $redirect): Alias
     {
         $this->redirect = $redirect;
+
+        return $this;
+    }
+
+    public function getRedirectCode(): ?int
+    {
+        return $this->redirectCode;
+    }
+
+    public function setRedirectCode(?int $redirectCode): Alias
+    {
+        $this->redirectCode = $redirectCode;
 
         return $this;
     }
