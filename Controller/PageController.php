@@ -18,6 +18,7 @@ use RevisionTen\CMS\Command\PageSubmitCommand;
 use RevisionTen\CMS\Command\PageUnlockCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Form\PageType;
+use RevisionTen\CMS\Interfaces\AliasSuggesterInterface;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Domain;
 use RevisionTen\CMS\Model\Page;
@@ -26,6 +27,7 @@ use RevisionTen\CMS\Command\PageCreateCommand;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Services\AliasSuggester;
 use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Utilities\ArrayHelpers;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -36,6 +38,7 @@ use RevisionTen\CQRS\Services\SnapshotStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -65,9 +68,12 @@ class PageController extends AbstractController
 {
     private MessageBus $messageBus;
 
-    public function __construct(MessageBus $messageBus)
+    protected ContainerInterface $fullContainer;
+
+    public function __construct(MessageBus $messageBus, ContainerInterface $fullContainer)
     {
         $this->messageBus = $messageBus;
+        $this->fullContainer = $fullContainer;
     }
 
     /**
@@ -556,9 +562,18 @@ class PageController extends AbstractController
         } else {
             $websiteUrl = null;
         }
-        $slugify = new Slugify();
-        $alias_prefix = $config['page_templates'][$pageStreamRead->getTemplate()]['alias_prefix'][$pageStreamRead->getLanguage()] ?? '/';
-        $pathSuggestion = $alias_prefix.$slugify->slugify($pageStreamRead->getTitle());
+
+        $suggesterClass = $config['page_templates'][$pageStreamRead->getTemplate()]['alias_suggester'] ?? null;
+        if ($suggesterClass) {
+            /**
+             * @var AliasSuggesterInterface $suggester
+             */
+            $suggester = $this->fullContainer->get($suggesterClass);
+        } else {
+            $suggester = new AliasSuggester($config);
+        }
+
+        $pathSuggestion = $suggester->suggest($pageStreamRead);
 
         $formBuilder = $this->createFormBuilder(['path' => $pathSuggestion]);
 

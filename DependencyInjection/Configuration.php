@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->children()
                     ->scalarNode('template')->end()
                     ->scalarNode('metatype')->end()
+                    ->scalarNode('alias_suggester')->info('A public service class that implements the AliasSuggesterInterface')->end()
                     ->scalarNode('solr_serializer')->end()
                     ->arrayNode('alias_prefix')
                         ->info('Defines the path prefix for pages with this template')
