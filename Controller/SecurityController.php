@@ -101,7 +101,7 @@ class SecurityController extends AbstractController
      */
     public function loginForm(RequestStack $requestStack, FormFactoryInterface $formFactory): Response
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
 
         $form = $this->buildLoginForm($formFactory);
         $form->handleRequest($request);

@@ -16,22 +16,10 @@ use function strpos;
 
 class CurrentWebsiteListener
 {
-    /**
-     * @var SessionInterface
-     */
-    private $session;
+    private SessionInterface $session;
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
-    /**
-     * CurrentWebsiteListener constructor.
-     *
-     * @param SessionInterface $session
-     * @param Security         $security
-     */
     public function __construct(SessionInterface $session, Security $security)
     {
         $this->session = $session;
@@ -45,7 +33,7 @@ class CurrentWebsiteListener
      */
     public function onKernelRequest(RequestEvent $event): void
     {
-        if ($event->isMasterRequest()) {
+        if ($event->isMainRequest()) {
             $request = $event->getRequest();
 
             // Path must begin with /admin, otherwise stop execution of this method.

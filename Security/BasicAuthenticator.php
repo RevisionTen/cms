@@ -53,7 +53,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     private function getSession(RequestStack $requestStack): SessionInterface
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         $session = $request ? $request->getSession() : null;
 
         if (null === $session) {

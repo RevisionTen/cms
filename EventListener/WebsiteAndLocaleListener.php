@@ -12,22 +12,10 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class WebsiteAndLocaleListener
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * WebsiteAndLocaleListener constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param RequestStack           $requestStack
-     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
@@ -39,13 +27,13 @@ class WebsiteAndLocaleListener
      */
     public function onKernelRequest(RequestEvent $event): void
     {
-        if ($event->isMasterRequest()) {
+        if ($event->isMainRequest()) {
             /**
              * @var Request $request
              */
             $request = $event->getRequest();
         } else {
-            $request = $this->requestStack->getMasterRequest();
+            $request = $this->requestStack->getMainRequest();
         }
 
         if ($request && null === $request->get('websiteId')) {

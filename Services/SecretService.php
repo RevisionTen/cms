@@ -43,6 +43,12 @@ class SecretService
     {
         $issuer = $this->config['site_name'] ?? 'revisionTen';
 
+        // Generate login url.
+        $context = new RequestContext();
+        $context->fromRequest($this->requestStack->getMainRequest());
+        $this->router->setContext($context);
+        $loginUrl = $this->router->generate('cms_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         $subject = $this->translator->trans('admin.label.loginDataFor', [
             '%username%' => $username,
         ], 'cms');
@@ -54,7 +60,8 @@ class SecretService
         $messageBody = <<<EOT
 $messageText:<br/><br/>
 User: $username<br/>
-Password: $password
+Password: $password<br/>
+<a href="$loginUrl">Login Link</a>
 EOT;
 
         $this->sendMail($subject, $messageBody, $mail);
@@ -100,7 +107,7 @@ EOT;
 
         // Generate reset url.
         $context = new RequestContext();
-        $context->fromRequest($this->requestStack->getMasterRequest());
+        $context->fromRequest($this->requestStack->getMainRequest());
         $this->router->setContext($context);
         $resetUrl = $this->router->generate('cms_reset_password_form', [
             'resetToken' => $token,

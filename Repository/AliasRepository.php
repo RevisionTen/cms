@@ -19,7 +19,7 @@ class AliasRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, $entityClass);
 
-        $this->website = $requestStack->getMasterRequest() ? $requestStack->getMasterRequest()->get('currentWebsite') : null;
+        $this->website = $requestStack->getMainRequest() ? $requestStack->getMainRequest()->get('currentWebsite') : null;
     }
 
     /**
