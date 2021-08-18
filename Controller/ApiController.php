@@ -84,7 +84,16 @@ class ApiController extends AbstractController
             $previewSize = 'AutoWidth';
         }
 
-        $canBePublished = $page->state === Page::STATE_STAGED || $page->state === Page::STATE_UNPUBLISHED;
+        // Pages can also be published if the state is not in the list of predefined states.
+        #$canBePublished = $page->state === Page::STATE_STAGED || $page->state === Page::STATE_UNPUBLISHED;
+        $canBePublished = !in_array($page->state, [
+            Page::STATE_PUBLISHED,
+            Page::STATE_SCHEDULED,
+            Page::STATE_SCHEDULED_UNPUBLISH,
+            Page::STATE_DELETED,
+            Page::STATE_DRAFT,
+        ], true);
+
         $canBeUnpublished = $page->state === Page::STATE_PUBLISHED;
 
         $canSubmitChanges = !$page->locked && $this->isGranted('page_submit_changes') && ($page->getVersion() !== $page->getStreamVersion());

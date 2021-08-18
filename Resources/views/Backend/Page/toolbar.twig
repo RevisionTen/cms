@@ -26,7 +26,7 @@
                     </div>
                 </div>
             {% endif %}
-            <span class="btn btn-sm font-weight-bold">
+            <span class="btn btn-sm font-weight-bold d-flex">
                 {% if state == 'published' %}
                     {% set color = 'success' %}
                 {% elseif state == 'unpublished' %}
@@ -36,9 +36,11 @@
                 {% else %}
                     {% set color = 'info' %}
                 {% endif %}
-                <span class="text-muted">{{ 'admin.label.page'|trans({}, 'cms') }}</span>
-                {{ title }}
-                <small class="text-{{ color }}">({{ ('admin.label.'~state)|trans({}, 'cms') }})</small>
+                <span class="d-inline-block text-muted">{{ 'admin.label.page'|trans({}, 'cms') }}</span>
+                <span title="{{ title }}" class="d-inline-block text-truncate px-2" style="max-width: 250px;">
+                    {{ title }}
+                </span>
+                <small class="d-inline-block text-{{ color }}">({{ ('admin.label.'~state)|trans({}, 'cms') }})</small>
             </span>
 
             {% if previewUser %}

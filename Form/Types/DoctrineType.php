@@ -29,7 +29,7 @@ class DoctrineType extends AbstractType
     {
         $this->entityManager = $entityManager;
 
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         $website = $request ? $request->get('currentWebsite') : null;
 
         if (null !== $website) {

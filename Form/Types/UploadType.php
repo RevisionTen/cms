@@ -29,52 +29,26 @@ use function is_string;
 
 class UploadType extends AbstractType
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
+    private FileService $fileService;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ValidatorInterface $validator;
 
-    /**
-     * @var int
-     */
-    protected $website = 1;
+    protected int $website = 1;
 
-    /**
-     * @var string
-     */
-    protected $language = 'en';
+    protected string $language = 'en';
 
-    /**
-     * UploadType constructor.
-     *
-     * @param FileService        $fileService
-     * @param RequestStack       $requestStack
-     * @param ValidatorInterface $validator
-     */
     public function __construct(FileService $fileService, RequestStack $requestStack, ValidatorInterface $validator)
     {
         $this->fileService = $fileService;
         $this->validator = $validator;
 
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         if (null !== $request) {
-            $this->website = $request->get('currentWebsite') ?? ($request->get('websiteId') ?? $this->website);
+            $this->website = (int) ($request->get('currentWebsite') ?? ($request->get('websiteId') ?? $this->website));
             $this->language = $request->getLocale();
         }
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     * @param string       $upload_dir
-     * @param boolean      $keepOriginalFileName
-     *
-     * @return array|null
-     */
     public function storeFile(UploadedFile $uploadedFile, string $upload_dir, bool $keepOriginalFileName = false): ?array
     {
         $title = $uploadedFile->getClientOriginalName();
@@ -92,12 +66,6 @@ class UploadType extends AbstractType
         );
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('file', HiddenType::class, [
@@ -272,13 +240,6 @@ class UploadType extends AbstractType
         });
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormView      $view
-     * @param FormInterface $form
-     * @param array         $options
-     */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['show_file_picker'] = $options['show_file_picker'];
@@ -287,11 +248,6 @@ class UploadType extends AbstractType
         parent::buildView($view, $form, $options);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -315,11 +271,6 @@ class UploadType extends AbstractType
         $resolver->setDeprecated('keep_deleted_file');
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_upload';
