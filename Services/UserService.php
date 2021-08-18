@@ -103,7 +103,7 @@ class UserService
          */
         $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
-        $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email);
+        $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email, $aggregate->websites);
     }
 
     /**

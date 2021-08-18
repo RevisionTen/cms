@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Entity\Domain;
+use RevisionTen\CMS\Entity\Website;
 use Sonata\GoogleAuthenticator\GoogleQrUrl;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -27,27 +31,63 @@ class SecretService
 
     protected RouterInterface $router;
 
-    public function __construct(MailerInterface $mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router)
+    protected EntityManagerInterface $entityManager;
+
+    public function __construct(MailerInterface $mailer, array $config, TranslatorInterface $translator, RequestStack $requestStack, RouterInterface $router, EntityManagerInterface $entityManager)
     {
         $this->mailer = $mailer;
         $this->config = $config;
         $this->translator = $translator;
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->entityManager = $entityManager;
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public function sendLoginInfo(string $username, string $password, string $mail): void
+    public function sendLoginInfo(string $username, string $password, string $mail, array $websites): void
     {
         $issuer = $this->config['site_name'] ?? 'revisionTen';
 
-        // Generate login url.
-        $context = new RequestContext();
-        $context->fromRequest($this->requestStack->getMainRequest());
-        $this->router->setContext($context);
-        $loginUrl = $this->router->generate('cms_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        // Get users first website.
+        $websiteId = array_values($websites)[0] ?? null;
+        if ($websiteId) {
+            /**
+             * @var Website|null $website
+             */
+            $website = $this->entityManager->getRepository(Website::class)->find($websiteId);
+        } else {
+            /**
+             * @var Collection $websites
+             */
+            $websites = $this->entityManager->getRepository(Website::class)->findBy([], [
+                'id' => 'asc',
+            ]);
+            /**
+             * @var Website|null $website
+             */
+            $website = $websites->first();
+        }
+
+        $loginHtml = 'Login-URL: /login';
+
+        if ($website) {
+            /**
+             * @var Domain|null $domain
+             */
+            $domain = $website->getDomains()->first();
+
+            if ($domain) {
+                // Generate login url.
+                $context = new RequestContext();
+                $context->setHost($domain->getDomain());
+                $context->setScheme('https');
+                $this->router->setContext($context);
+                $loginUrl = $this->router->generate('cms_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+                $loginHtml = '<a href="'.$loginUrl.'">Login Link</a>';
+            }
+        }
 
         $subject = $this->translator->trans('admin.label.loginDataFor', [
             '%username%' => $username,
@@ -61,7 +101,7 @@ class SecretService
 $messageText:<br/><br/>
 User: $username<br/>
 Password: $password<br/>
-<a href="$loginUrl">Login Link</a>
+$loginHtml
 EOT;
 
         $this->sendMail($subject, $messageBody, $mail);
