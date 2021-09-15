@@ -125,6 +125,11 @@ services:
         autowire: true
         arguments:
             $project_dir: '%kernel.project_dir%'
+    RevisionTen\CMS\Services\AliasSuggester:
+        autowire: true
+        public: true
+        arguments:
+            $config: '%cms%'
 
     # Form types.
     RevisionTen\CMS\Form\Types\UploadType:
@@ -206,3 +211,4 @@ services:
     RevisionTen\CMS\Handler\PageRollbackHandler:
         autowire: true
         public: true
+

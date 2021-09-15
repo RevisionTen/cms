@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
-use Cocur\Slugify\Slugify;
+use Cocur\Slugify\SlugifyInterface;
 use RevisionTen\CMS\Entity\PageStreamRead;
 use RevisionTen\CMS\Interfaces\AliasSuggesterInterface;
 
@@ -12,17 +12,18 @@ class AliasSuggester implements AliasSuggesterInterface
 {
     private array $config;
 
-    public function __construct(array $config)
+    private SlugifyInterface $slugify;
+
+    public function __construct(SlugifyInterface $slugify, array $config)
     {
+        $this->slugify = $slugify;
         $this->config = $config;
     }
 
     public function suggest(PageStreamRead $pageStreamRead): string
     {
-        $slugify = new Slugify();
-
         $alias_prefix = $this->config['page_templates'][$pageStreamRead->getTemplate()]['alias_prefix'][$pageStreamRead->getLanguage()] ?? '/';
 
-        return $alias_prefix.$slugify->slugify($pageStreamRead->getTitle());
+        return $alias_prefix.$this->slugify->slugify($pageStreamRead->getTitle());
     }
 }

@@ -570,7 +570,10 @@ class PageController extends AbstractController
              */
             $suggester = $this->fullContainer->get($suggesterClass);
         } else {
-            $suggester = new AliasSuggester($config);
+            /**
+             * @var AliasSuggesterInterface $suggester
+             */
+            $suggester = $this->fullContainer->get(AliasSuggester::class);
         }
 
         $pathSuggestion = $suggester->suggest($pageStreamRead);
