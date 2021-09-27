@@ -1,5 +1,7 @@
 {% extends '@CMS/Backend/base.html.twig' %}
 
+{% set currentWebsite = app.request.get('currentWebsite') %}
+
 {% block content_title %}
     {{ 'admin.label.editMenu'|trans({'%menu%': menu.name|trans}, 'cms') }} &nbsp;
     <span class="text-muted">{{ menu.language }} | {{ render(controller('RevisionTen\\CMS\\Controller\\AdminController::websiteTitle', {'id': menu.website})) }}</span>
@@ -23,7 +25,6 @@
                     <span class="fas fa-plus"></span> {{ 'admin.btn.addGenericMenuItem'|trans({}, 'cms') }}
                 </span>
             <div class="dropdown-menu">
-                {% set currentWebsite = app.request.get('currentWebsite') %}
                 {% for itemName, itemConfig in config.menu_items %}
                     {% set websites = itemConfig.websites ?? null %}
                     {% if websites is empty or currentWebsite in websites %}
