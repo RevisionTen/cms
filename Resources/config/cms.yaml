@@ -213,6 +213,8 @@ cms:
                 edit: 'alias_edit'
                 delete: 'alias_delete'
             list:
+                actions:
+                    - '-show'
                 search_fields:
                     - 'path'
                 fields:
@@ -244,6 +246,7 @@ cms:
                 search_fields:
                     - 'title'
                 actions:
+                    - '-show'
                     - '-delete'
                 fields:
                     - { property: 'title', label: 'admin.label.title' }
@@ -263,18 +266,22 @@ cms:
             class: RevisionTen\CQRS\Model\EventStreamObject
             permissions:
                 list: 'event_list'
-                search: 'event_search' # Todo: Useless.
+                search: 'event_search'
                 show: 'event_show'
             show:
                 actions:
                     - '-edit'
                     - '-delete'
                 fields:
-                    - { property: 'payload', label: 'admin.label.payload', template: '@CMS/Backend/Event/Show/payload.html.twig' }
+                    - { property: 'payload', label: 'admin.label.payload' }
             list:
                 sort: [ 'created', 'desc' ]
+                search_fields:
+                    - 'uuid'
+                    - 'commandUuid'
+                    - 'payload'
+                    - 'message'
                 actions:
-                    - '-search'
                     - '-create'
                     - '-edit'
                     - '-delete'
@@ -360,6 +367,7 @@ cms:
                 show: 'role_show'
             templates:
                 list: '@CMS/Backend/Role/list.html.twig'
+            # Todo: Make permissions show list user readable.
             show:
                 actions:
                     - '-edit'
@@ -372,6 +380,7 @@ cms:
                 search_fields:
                     - 'title'
                 actions:
+                    - '-show'
                     - '-edit'
                     - '-delete'
                     - { route: 'cms_role_edit', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'role_edit' }
@@ -400,6 +409,7 @@ cms:
                     - '-new'
                     - '-edit'
                     - '-delete'
+                    - '-show'
                 fields:
                     - { property: 'title', label: 'admin.label.title' }
                     - { property: 'version', label: 'admin.label.version' }
@@ -431,7 +441,6 @@ cms:
                     - { property: 'form', label: 'admin.label.form' }
                     - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
                     - { property: 'created', label: 'admin.label.created', type: 'datetime' }
-            # Todo: Implement show.
             show:
                 actions:
                     - '-edit'
@@ -443,7 +452,7 @@ cms:
                     - { property: 'form', label: 'admin.label.form', type: 'string' }
                     - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
                     - { property: 'created', label: 'admin.label.created', type: 'datetime' }
-                    - { property: 'payload', label: 'admin.label.payload', template: '@forms/Admin/submission-payload.html.twig' }
+                    - { property: 'payload', label: 'admin.label.payload' }
         MenuRead:
             label: 'admin.label.menus'
             class: RevisionTen\CMS\Entity\MenuRead
@@ -457,6 +466,7 @@ cms:
             list:
                 sort: [ 'title', 'desc' ]
                 actions:
+                    - '-show'
                     - '-search'
                     - '-new'
                     - '-edit'
@@ -484,6 +494,7 @@ cms:
                     - 'title'
                     - 'path'
                 actions:
+                    - '-show'
                     - '-create'
                     - '-edit'
                     - '-delete'
