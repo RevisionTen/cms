@@ -6,7 +6,14 @@
         {% if action == 'list' or action == 'search' or action == 'create' %}
             {# Not an item action. #}
         {% elseif action == 'show' %}
-            {# Todo: Implement show button and function. #}
+            {% if is_granted(permissions.show) %}
+                <a href="{{ path('cms_show_entity', app.request.query.all|merge({ entity: entity, id: item.id })) }}"
+                   class="{{ cssClass }}"
+                   aria-label="{{ 'admin.btn.show'|trans({}, 'cms') }}"
+                >
+                    <span class="fas fa-eye"></span>
+                </a>
+            {% endif %}
         {% elseif action == 'edit' %}
             {% if is_granted(permissions.edit) %}
                 <a href="{{ path('cms_edit_entity', app.request.query.all|merge({ entity: entity, id: item.id })) }}"

@@ -391,6 +391,7 @@ admin:
         searchSomeResults: "Ihre Suche nach \"%query%\" ergab %count% Ergebnisse"
         searchTerm: "Suchbegriff"
         settings: "Einstellungen"
+        showEntity: "%entity% %title% ansehen"
         siteVerification: "Google Site Verification Meta-Tag"
         size: "Dateigröße"
         sm: "Großes Handy"

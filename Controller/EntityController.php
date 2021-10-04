@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use ReflectionProperty;
 use RevisionTen\CMS\Entity\Website;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -91,10 +92,9 @@ class EntityController extends AbstractController
 
         return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.addEntity', [
-                '%entity%' => $entity,
+                '%entity%' => $translator->trans($entity),
             ], 'cms'),
             'form' => $form->createView(),
-
             'entity' => $entity,
             'entityObject' => $entityObject,
         ]);
@@ -106,8 +106,10 @@ class EntityController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
+     * @param int $id
      *
      * @return Response
+     * @throws Exception
      */
     public function edit(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, int $id): Response
     {
@@ -147,17 +149,23 @@ class EntityController extends AbstractController
 
         return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.editEntity', [
-                '%entity%' => $entity,
+                '%entity%' => $translator->trans($entity),
                 '%title%' => $entityTitle,
             ], 'cms'),
             'form' => $form->createView(),
-
             'entity' => $entity,
             'entityObject' => $entityObject,
         ]);
     }
 
-    private function getEntityForm($entityConfig, $data): FormInterface
+    /**
+     * @param array $entityConfig
+     * @param mixed|null $data
+     *
+     * @return FormInterface
+     * @throws Exception
+     */
+    private function getEntityForm(array $entityConfig, $data): FormInterface
     {
         $entityType = $entityConfig['form']['type'] ?? null;
         $fields = $entityConfig['form']['fields'] ?? [];
@@ -265,6 +273,7 @@ class EntityController extends AbstractController
      * @param TranslatorInterface $translator
      *
      * @return Response
+     * @throws Exception
      */
     public function list(Request $request, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {
@@ -391,14 +400,21 @@ class EntityController extends AbstractController
             $items = $paginator->getIterator();
         }
 
+        // Default actions.
         $actions = [
             'list',
             'search',
             'create',
-            'show',
             'edit',
             'delete',
         ];
+
+        // Check if show view is configured.
+        $showConfig = $entityConfig['show']['fields'] ?? [];
+        if (!empty($showConfig)) {
+            $actions[] = 'show';
+        }
+
         $actionsConfig = $entityConfig['list']['actions'] ?? [];
         $actions = array_combine($actions, $actions);
         foreach ($actionsConfig as $action) {
@@ -462,5 +478,73 @@ class EntityController extends AbstractController
             ->setParameter('q', '%'.$term.'%');
 
         return $qb;
+    }
+
+    /**
+     * @Route("/show/{id}", name="cms_show_entity")
+     *
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param TranslatorInterface $translator
+     * @param int $id
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function show(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, int $id): Response
+    {
+        $entity = $request->query->get('entity') ??  'doesnotexist';
+
+        $entityConfig = $this->config['entities'][$entity] ?? null;
+        if (empty($entityConfig)) {
+            throw new NotFoundHttpException();
+        }
+
+        $permissionShow = $entityConfig['permissions']['show'] ?? 'show_generic';
+        $this->denyAccessUnlessGranted($permissionShow);
+
+        $entityClass = $entityConfig['class'] ?? null;
+        if (empty($entityClass)) {
+            throw new Exception('Class not set for entities entry '.$entity);
+        }
+
+        $entityObject = $em->getRepository($entityClass)->find($id);
+        if (empty($entityObject)) {
+            throw new NotFoundHttpException();
+        }
+
+        $entityTitle = method_exists($entityObject,'__toString' ) ? '"'.((string) $entityObject).'" ' : '';
+
+        $fields = $entityConfig['show']['fields'] ?? [];
+        foreach ($fields as $key => $field) {
+            $property = $field['property'] ?? null;
+            if ($property) {
+                $get = 'get'.ucfirst($property);
+                $has = 'has'.ucfirst($property);
+                $is = 'is'.ucfirst($property);
+                if (method_exists($entityObject, $get)) {
+                    $fields[$key]['value'] = $entityObject->{$get}();
+                } elseif (method_exists($entityObject, $has)) {
+                    $fields[$key]['value'] = $entityObject->{$has}();
+                } elseif (method_exists($entityObject, $is)) {
+                    $fields[$key]['value'] = $entityObject->{$is}();
+                } else {
+                    $rp = new ReflectionProperty($entityObject, $property);
+                    if ($rp->isPublic()) {
+                        $fields[$key]['value'] = $entityObject->{$property};
+                    }
+                }
+            }
+        }
+
+        return $this->render('@CMS/Backend/Entity/Show/show.html.twig', [
+            'title' => $translator->trans('admin.label.showEntity', [
+                '%entity%' => $translator->trans($entity),
+                '%title%' => $entityTitle,
+            ], 'cms'),
+            'entity' => $entity,
+            'entityObject' => $entityObject,
+            'fields' => $fields,
+        ]);
     }
 }
