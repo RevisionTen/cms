@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\ORMException;
+use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\Page;
 use RevisionTen\CMS\Entity\PageRead;
@@ -55,7 +58,7 @@ class PageService
      * @param string $pageUuid
      *
      * @return array
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public function getPageData(string $pageUuid): array
     {
@@ -73,18 +76,22 @@ class PageService
      *
      * @param string $pageUuid
      *
-     * @return \Doctrine\Common\Collections\Collection|null
+     * @return Collection|null
      */
     public function getAliases(string $pageUuid): ?Collection
     {
-        /** @var PageStreamRead|null $pageStreamRead */
+        /**
+         * @var PageStreamRead|null $pageStreamRead
+         */
         $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null === $pageStreamRead) {
             return null;
         }
 
-        /** @var \Doctrine\Common\Collections\Collection|null $aliases */
+        /**
+         * @var Collection|null $aliases
+         */
         $aliases = $pageStreamRead->getAliases();
 
         return $aliases;
@@ -95,7 +102,7 @@ class PageService
      *
      * @param string $pageUuid
      *
-     * @return \RevisionTen\CMS\Model\Alias|null
+     * @return Alias|null
      */
     public function getFirstAlias(string $pageUuid): ?Alias
     {
@@ -143,23 +150,27 @@ class PageService
     }
 
     /**
-     * Updates all of the pages aliases based on the state of the page.
+     * Updates all the pages aliases based on the state of the page.
      * This needs to happen after the PageStreamRead has been updated!
      *
      * @param string $pageUuid
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function updateAliases(string $pageUuid): void
     {
-        /** @var PageStreamRead $pageStreamRead */
+        /**
+         * @var PageStreamRead $pageStreamRead
+         */
         $pageStreamRead = $this->em->getRepository(PageStreamRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if (null !== $pageStreamRead) {
             $aliases = $pageStreamRead->getAliases();
             if (null !== $aliases) {
                 foreach ($aliases as $alias) {
-                    /* @var \RevisionTen\CMS\Model\Alias $alias */
+                    /**
+                     * @var Alias $alias
+                     */
                     // Update status of the alias.
                     $enabled = $pageStreamRead->isPublished() || !empty($alias->getRedirect());
                     $alias->setEnabled($enabled);
@@ -183,7 +194,7 @@ class PageService
      * @param string $pageUuid
      * @param int    $version
      *
-     * @throws \Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function updatePageRead(string $pageUuid, int $version): void
     {
@@ -218,11 +229,15 @@ class PageService
      * Delete the PageRead.
      *
      * @param string $pageUuid
+     *
+     * @throws InvalidArgumentException
      */
     public function deletePageRead(string $pageUuid): void
     {
         // Remove read model.
-        /** @var PageRead $pageRead */
+        /**
+         * @var PageRead $pageRead
+         */
         $pageRead = $this->em->getRepository(PageRead::class)->findOneBy(['uuid' => $pageUuid]);
 
         if ($pageRead) {
@@ -244,14 +259,14 @@ class PageService
      * @param int    $user
      * @param int    $maxVersion the max version for queued events
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitPage(string $pageUuid, int $user, int $maxVersion): void
     {
         /**
          * Find the queued events for this user and page.
          *
-         * @var \RevisionTen\CQRS\Model\EventQueueObject[] $eventQueueObjects
+         * @var EventQueueObject[] $eventQueueObjects
          */
         $eventQueueObjects = $this->eventStore->findEventObjects(EventQueueObject::class, $pageUuid, $maxVersion, null, $user);
 
@@ -268,7 +283,9 @@ class PageService
      */
     private function removeQueuedEvents(string $pageUuid): void
     {
-        /** @var UserRead[] $users */
+        /**
+         * @var UserRead[] $users
+         */
         $users = $this->em->getRepository(UserRead::class)->findAll();
 
         // Remove all other queued Events for this Page.
@@ -282,7 +299,7 @@ class PageService
      *
      * @param string $pageUuid
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updatePageStreamRead(string $pageUuid): void
     {

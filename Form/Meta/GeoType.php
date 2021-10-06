@@ -10,12 +10,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class GeoType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('latitude', TextType::class, [

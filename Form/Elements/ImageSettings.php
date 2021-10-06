@@ -11,12 +11,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class ImageSettings extends ElementSettings
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('showOriginal', CheckboxType::class, [

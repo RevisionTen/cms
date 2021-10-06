@@ -10,31 +10,21 @@ use RevisionTen\CMS\Entity\Website;
 trait LanguageAndWebsiteTrait
 {
     /**
-     * @var string
      * @ORM\Column(type="string", nullable=true)
      */
-    private $language;
+    private ?string $language = null;
 
     /**
-     * @var Website
      * @ORM\ManyToOne(targetEntity="RevisionTen\CMS\Entity\Website")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $website;
+    private ?Website $website = null;
 
-    /**
-     * @return string
-     */
     public function getLanguage(): ?string
     {
         return $this->language;
     }
 
-    /**
-     * @param string|null $language
-     *
-     * @return self
-     */
     public function setLanguage(string $language = null): self
     {
         $this->language = $language;
@@ -42,19 +32,11 @@ trait LanguageAndWebsiteTrait
         return $this;
     }
 
-    /**
-     * @return Website
-     */
     public function getWebsite(): ?Website
     {
         return $this->website;
     }
 
-    /**
-     * @param Website|null $website
-     *
-     * @return self
-     */
     public function setWebsite(Website $website = null): self
     {
         $this->website = $website;

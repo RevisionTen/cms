@@ -13,12 +13,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LocalBusinessMetaType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('name', TextType::class, [

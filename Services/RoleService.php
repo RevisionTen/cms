@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Exception;
 use RevisionTen\CMS\Model\Role;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -28,7 +29,7 @@ class RoleService
      *
      * @param string $roleUuid
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateRoleRead(string $roleUuid): void
     {

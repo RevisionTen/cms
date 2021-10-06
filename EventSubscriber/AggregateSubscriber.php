@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\EventSubscriber;
 
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\Page;
@@ -47,7 +48,7 @@ class AggregateSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function updateReadModel(AggregateUpdatedEvent $aggregateUpdatedEvent): void
     {

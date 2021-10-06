@@ -8,9 +8,7 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class Role extends Aggregate
 {
-    /** @var string */
-    public $title;
+    public ?string $title = null;
 
-    /** @var array */
-    public $permissions;
+    public array $permissions = [];
 }

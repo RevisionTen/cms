@@ -1,11 +1,19 @@
 services:
+    Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'
+
     # Controllers.
     RevisionTen\CMS\Controller\:
         autowire: true
         autoconfigure: true
         resource: '../../Controller'
-        exclude: '../../Controller/{FrontendController.php}'
+        exclude: '../../Controller/{FrontendController.php,PageController.php,AdminController.php,EntityController.php}'
         tags: ['controller.service_arguments']
+    RevisionTen\CMS\Controller\PageController:
+        autoconfigure: true
+        autowire: true
+        tags: ['controller.service_arguments']
+        arguments:
+            $fullContainer: '@service_container'
     RevisionTen\CMS\Controller\FrontendController:
         autoconfigure: true
         autowire: true
@@ -97,6 +105,7 @@ services:
         public: true
         arguments:
             $config: '%cms%'
+            $container: '@service_container'
     RevisionTen\CMS\Services\SearchService:
         autoconfigure: true
         autowire: true

@@ -35,33 +35,18 @@ use function strip_tags;
 
 class IndexService
 {
-    /** @var ContainerInterface */
-    private $container;
+    private ContainerInterface $container;
 
-    /** @var EntityManagerInterface */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /** @var LoggerInterface */
-    protected $logger;
+    protected LoggerInterface $logger;
 
-    /** @var PageService */
-    protected $pageService;
+    protected PageService $pageService;
 
-    /** @var array */
-    protected $config;
+    protected array $config;
 
-    /** @var array */
-    protected $solrConfig;
+    protected array $solrConfig;
 
-    /**
-     * IndexService constructor.
-     *
-     * @param ContainerInterface     $container
-     * @param LoggerInterface        $logger
-     * @param EntityManagerInterface $entityManager
-     * @param PageService            $pageService
-     * @param array                  $config
-     */
     public function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $entityManager, PageService $pageService, array $config)
     {
         $this->container = $container;

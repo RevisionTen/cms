@@ -9,12 +9,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Column extends Element
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -26,23 +20,11 @@ class Column extends Element
         $this->widthForm($builder, 'element.label.xl', 'element.placeholder.xl', 'widthXL');
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_column';
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param string               $label
-     * @param                      $placeholder
-     * @param string               $key
-     * @param string|null          $empty_data
-     */
     private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null): void
     {
         $builder->add($key, ChoiceType::class, [

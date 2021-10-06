@@ -7,9 +7,11 @@ use RevisionTen\CMS\Utilities\RandomHelpers;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -103,8 +105,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     {
         $username = $credentials['username'];
 
-        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
-        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
+        // If it's a User object, checkCredentials() is called, otherwise authentication will fail.
+        return null !== $username ? $userProvider->loadUserByIdentifier($username) : null;
     }
 
     /**
@@ -120,7 +122,10 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         return $this->encoder->isPasswordValid($user, $credentials['password']);
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
     {
         // Remember the username in the session for the Code Authenticator.
         $username = $request->get('login')['username'] ?? null;
@@ -157,6 +162,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      *
      * @param UserRead $user
      * @param string   $code
+     *
+     * @throws TransportExceptionInterface
      */
     private function sendCodeMail(UserRead $user, string $code): void
     {
@@ -200,10 +207,7 @@ EOT;
         $this->mailer->send($message);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = $this->translator->trans('admin.label.loginError', [], 'cms');
         $flashBag = $this->session->getFlashBag();
@@ -229,9 +233,6 @@ EOT;
         return new RedirectResponse('/login');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsRememberMe(): bool
     {
         return false;

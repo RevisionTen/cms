@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use function extension_loaded;
 use function function_exists;
@@ -13,6 +14,7 @@ use function is_bool;
 
 // These function might not exist and should therefore not be imported,
 // even though this would not cause an error.
+// requires ext-sysvshm and ext-apcu
 #use function shm_attach;
 #use function shm_get_var;
 #use function shm_has_var;
@@ -23,40 +25,27 @@ use function is_bool;
  */
 class CacheService
 {
-    /**
-     * @var string
-     */
-    private $issuer;
+    private ?string $issuer;
 
     /**
      * @var resource
      */
     private $shmSegment;
 
-    /**
-     * @var int
-     */
-    private $shmVarKey;
+    private ?int $shmVarKey = null;
 
-    /**
-     * @var array
-     */
-    private $uuidStore = [];
+    private array $uuidStore = [];
 
-    /**
-     * @var null|ApcuAdapter
-     */
-    private $cache;
+    private ?ApcuAdapter $cache = null;
 
-    /**
-     * @var bool
-     */
-    private $disableCacheWorkaround;
+    private bool $disableCacheWorkaround;
 
     /**
      * CacheService constructor.
      *
      * @param array $config
+     *
+     * @throws InvalidArgumentException
      */
     public function __construct(array $config)
     {
@@ -75,7 +64,7 @@ class CacheService
                 // Create or get the shared memory segment in which a map of uuids with version numbers is saved.
                 $key = (int) ($config['shm_key'] ?? 1);
                 $this->shmVarKey = 1;
-                // Create a 1MB shared memory segment for the UuidStore.
+                // Create a 1 MB shared memory segment for the UuidStore.
                 $this->shmSegment = shm_attach($key, 1000000);
                 $this->initUuidStore();
             } catch (Exception $exception) {
@@ -95,6 +84,9 @@ class CacheService
         return !is_bool($this->shmSegment) && shm_has_var($this->shmSegment, $this->shmVarKey);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function initUuidStore(): void
     {
         if ($this->disableCacheWorkaround) {
@@ -121,6 +113,9 @@ class CacheService
         }
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function saveUuidStore(): void
     {
         if ($this->disableCacheWorkaround) {
@@ -141,6 +136,8 @@ class CacheService
      * @param int    $version
      *
      * @return int|null
+     *
+     * @throws InvalidArgumentException
      */
     private function setVersion(string $uuid, int $version): ?int
     {
@@ -190,6 +187,8 @@ class CacheService
      * @param array  $data
      *
      * @return bool|null
+     *
+     * @throws InvalidArgumentException
      */
     public function put(string $uuid, int $version, array $data): ?bool
     {
@@ -211,6 +210,8 @@ class CacheService
      * @param string $uuid
      *
      * @return array|null
+     *
+     * @throws InvalidArgumentException
      */
     public function get(string $uuid): ?array
     {
@@ -240,6 +241,8 @@ class CacheService
      * @param int    $version
      *
      * @return bool|null
+     *
+     * @throws InvalidArgumentException
      */
     public function delete(string $uuid, int $version): ?bool
     {
