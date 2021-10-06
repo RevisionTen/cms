@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
+use Exception;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
@@ -30,30 +32,16 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  */
 class UserCreateCommand extends Command
 {
-    /** @var EntityManagerInterface $entityManager */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var UserPasswordEncoderInterface $encoder */
-    private $encoder;
+    private UserPasswordEncoderInterface $encoder;
 
-    /** @var CommandBus $commandBus */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /** @var MessageBus $messageBus */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /** @var UserService $userService */
-    private $userService;
+    private UserService $userService;
 
-    /**
-     * UserCreateCommand constructor.
-     *
-     * @param UserPasswordEncoderInterface $encoder
-     * @param EntityManagerInterface       $entityManager
-     * @param CommandBus                   $commandBus
-     * @param MessageBus                   $messageBus
-     * @param UserService                  $userService
-     */
     public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService)
     {
         $this->entityManager = $entityManager;
@@ -65,10 +53,7 @@ class UserCreateCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:user:create')
@@ -82,9 +67,10 @@ class UserCreateCommand extends Command
     }
 
     /**
-     * {@inheritdoc}
+     * @throws TransportExceptionInterface
+     * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
 

@@ -10,12 +10,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Link extends Item
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);

@@ -26,6 +26,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use function is_object;
 use function is_string;
+use function str_replace;
 
 class UploadType extends AbstractType
 {
@@ -165,9 +166,6 @@ class UploadType extends AbstractType
                 $valid = true;
                 if ($constraints) {
                     $uploadedFileForm = $form->get('uploadedFile');
-                    /**
-                     * @var ConstraintViolationListInterface $violations
-                     */
                     $violations = $this->validator->validate($uploadedFile, $constraints);
                     foreach ($violations as $violation) {
                         /**
@@ -215,7 +213,7 @@ class UploadType extends AbstractType
                     'height' => $height,
                     'mimeType' => $mimeType,
                 ]);
-            } elseif (is_object($file) && ($file instanceof UploadedFile || $file instanceof File)) {
+            } elseif ($file instanceof UploadedFile || $file instanceof File) {
                 // File is object, just get the file path.
                 $event->setData([
                     'file' => $file->getPathname(),

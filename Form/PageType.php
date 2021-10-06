@@ -19,30 +19,17 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use function array_combine;
 use function array_keys;
+use function array_values;
 
 class PageType extends AbstractType
 {
-    /**
-     * @var Security
-     */
-    protected $security;
+    protected Security $security;
 
-    /**
-     * PageType constructor.
-     *
-     * @param Security $security
-     */
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('title', TextType::class, [
@@ -160,11 +147,6 @@ class PageType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

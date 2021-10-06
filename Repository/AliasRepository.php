@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AliasRepository extends ServiceEntityRepository
 {
-    /**
-     * @var string
-     */
-    private $website;
+    private ?int $website;
 
     public function __construct(ManagerRegistry $registry, $entityClass, RequestStack $requestStack)
     {
@@ -24,8 +21,6 @@ class AliasRepository extends ServiceEntityRepository
 
     /**
      * Filter aliases by currently viewed website.
-     *
-     * {@inheritdoc}
      */
     public function findAll()
     {

@@ -11,12 +11,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class ElementSettings extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('paddings', CollectionType::class, [
@@ -68,11 +62,6 @@ class ElementSettings extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_element_settings';

@@ -33,6 +33,16 @@
         "symfony/serializer-pack": "*",
         "twig/twig": "^3.3"
     },
+    "suggest": {
+        "ext-apcu": "Enables caching",
+        "ext-sysvshm": "Enables consistent caching",
+        "ext-ctype": "Needed to enable full functionality",
+        "ext-fileinfo": "Needed to enable full functionality",
+        "ext-gd": "Needed to enable full functionality",
+        "ext-iconv": "Needed to enable full functionality",
+        "ext-xml": "Needed to enable full functionality",
+        "ext-mbstring": "Needed to enable full functionality"
+    },
     "autoload": {
         "psr-4": { "RevisionTen\\CMS\\": "/" }
     }

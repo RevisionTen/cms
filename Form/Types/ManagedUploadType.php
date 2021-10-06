@@ -9,15 +9,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class ManagedUploadType
  *
- * @deprecated Deprecated since version 2.3.8. Will be removed in version 3.
+ * @deprecated Deprecated since version 2.3.8. Will be removed in the future.
  */
 class ManagedUploadType extends UploadType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

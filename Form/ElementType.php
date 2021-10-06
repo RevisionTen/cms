@@ -11,12 +11,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElementType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (isset($options['elementConfig']['class'])) {
@@ -32,11 +26,6 @@ class ElementType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

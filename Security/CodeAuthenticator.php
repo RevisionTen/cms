@@ -25,34 +25,14 @@ use function time;
 
 class CodeAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @var SessionInterface
-     */
-    private $session;
+    private SessionInterface $session;
 
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /**
-     * @var bool
-     */
-    private $isDev;
+    private bool $isDev;
 
-    /**
-     * CodeAuthenticator constructor.
-     *
-     * @param RequestStack $requestStack
-     * @param CommandBus   $commandBus
-     * @param array        $config
-     * @param string        $env
-     */
     public function __construct(RequestStack $requestStack, CommandBus $commandBus, array $config, string $env)
     {
         $this->session = $this->getSession($requestStack);
@@ -61,13 +41,6 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         $this->isDev = 'dev' === $env;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param Request $request
-     *
-     * @return bool
-     */
     public function supports(Request $request): bool
     {
         $code = $request->get('code')['code'] ?? null;
@@ -83,7 +56,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
      *
      * @param Request $request
      *
-     * @return array|bool
+     * @return mixed
      */
     public function getCredentials(Request $request)
     {
@@ -108,19 +81,12 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         return [];
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param mixed                 $credentials
-     * @param UserProviderInterface $userProvider
-     *
-     * @return UserInterface|null
-     */
+
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $username = $credentials['username'] ?? null;
 
-        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
+        // If it's a User object, checkCredentials() is called, otherwise authentication will fail.
         return null !== $username ? $userProvider->loadUserByUsername($username) : null;
     }
 
@@ -148,16 +114,14 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws Exception
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
     {
         $user = $token->getUser();
 
         if (!is_object($user)) {
-            return false;
+            return null;
         }
 
         if (!$this->isDev) {
@@ -181,15 +145,7 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param Request                 $request
-     * @param AuthenticationException $exception
-     *
-     * @return RedirectResponse|Response|null
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
         $flashBag = $this->session->getFlashBag();
@@ -215,20 +171,11 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         return new RedirectResponse('/code');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsRememberMe(): bool
     {
         return false;
     }
 
-    /**
-     * @param string $secret
-     * @param string $code
-     *
-     * @return bool
-     */
     private function isCodeValid(string $secret, string $code): bool
     {
         $useMailCodes = $this->config['use_mail_codes'] ?? false;

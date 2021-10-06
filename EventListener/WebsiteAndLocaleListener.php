@@ -6,7 +6,6 @@ namespace RevisionTen\CMS\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Domain;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
@@ -28,9 +27,6 @@ class WebsiteAndLocaleListener
     public function onKernelRequest(RequestEvent $event): void
     {
         if ($event->isMainRequest()) {
-            /**
-             * @var Request $request
-             */
             $request = $event->getRequest();
         } else {
             $request = $this->requestStack->getMainRequest();

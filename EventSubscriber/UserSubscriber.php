@@ -69,7 +69,7 @@ class UserSubscriber implements EventSubscriberInterface
         $payload = $userResetPasswordEvent->getPayload();
         $token = $payload['token'] ?? null;
 
-        if (null !== $token && is_string($token)) {
+        if (is_string($token)) {
             // Send password reset mail.
             try {
                 $this->userService->sendPasswordResetMail($userUuid, $token);

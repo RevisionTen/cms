@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\EventSubscriber;
 use DateTime;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Event\PageAddScheduleEvent;
@@ -52,6 +53,11 @@ class PageSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws ORMException
+     * @throws Exception
+     */
     public function updateReadModels(PagePublishEvent $pagePublishEvent): void
     {
         $output = new NullOutput();
@@ -64,6 +70,11 @@ class PageSubscriber implements EventSubscriberInterface
         $this->indexService->index($output, $pageUuid);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws ORMException
+     * @throws Exception
+     */
     public function deleteReadModels(PageUnpublishEvent $pageUnpublishEvent): void
     {
         $output = new NullOutput();
@@ -75,6 +86,11 @@ class PageSubscriber implements EventSubscriberInterface
         $this->indexService->index($output, $pageUuid);
     }
 
+    /**
+     * @throws ORMException
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
     public function deleteReadModelsAndTasks(PageDeleteEvent $pageDeleteEvent): void
     {
         $output = new NullOutput();
@@ -88,6 +104,9 @@ class PageSubscriber implements EventSubscriberInterface
         $this->taskService->markTasksAsDeleted($pageUuid);
     }
 
+    /**
+     * @throws Exception
+     */
     public function submitPage(PageSubmitEvent $pageSubmitEvent): void
     {
         $pageUuid = $pageSubmitEvent->getAggregateUuid();

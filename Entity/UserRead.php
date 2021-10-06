@@ -5,14 +5,26 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Serializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
+use function hash;
+use function is_array;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function serialize;
+use function sprintf;
+use function strtoupper;
+use function substr;
+use function unpack;
+use function unserialize;
 
 /**
  * @ORM\Entity
  * @ORM\Table("user")
  */
-class UserRead implements UserInterface, \Serializable
+class UserRead implements UserInterface, Serializable
 {
     /**
      * @ORM\Column(type="integer")
@@ -136,29 +148,40 @@ class UserRead implements UserInterface, \Serializable
     {
     }
 
-    /**
-     * @see \Serializable::serialize()
-     */
-    public function serialize()
+    public function getRoles(): array
     {
-        return serialize(array(
-            $this->id,
-            $this->username,
-            $this->password,
-        ));
+        $roles = ['ROLE_USER'];
+
+        foreach ($this->roles as $role) {
+            $roles[] = 'ROLE_'. strtoupper($role->getTitle());
+        }
+
+        return $roles;
     }
 
     /**
-     * @see \Serializable::unserialize()
-     *
-     * @param string $serialized
+     * @see Serializable::serialize()
      */
-    public function unserialize($serialized)
+    public function serialize(): ?string
     {
-        list(
+        return serialize([
             $this->id,
             $this->username,
-            $this->password) = unserialize($serialized, [
+            $this->password,
+        ]);
+    }
+
+    /**
+     * @see Serializable::unserialize()
+     *
+     * @param string $data
+     */
+    public function unserialize($data): void
+    {
+        [
+            $this->id,
+            $this->username,
+            $this->password] = unserialize($data, [
                 'allowed_classes' => false,
         ]);
     }
@@ -402,17 +425,6 @@ class UserRead implements UserInterface, \Serializable
         return $this;
     }
 
-    public function getRoles(): array
-    {
-        $roles = ['ROLE_USER'];
-
-        foreach ($this->roles as $role) {
-            $roles[] = 'ROLE_'.strtoupper($role->getTitle());
-        }
-
-        return $roles;
-    }
-
     /**
      * @return ArrayCollection|RoleRead[]
      */
@@ -463,7 +475,7 @@ class UserRead implements UserInterface, \Serializable
 
     public function getExtra(): ?array
     {
-        return \is_string($this->extra) ? json_decode($this->extra, true) : $this->extra;
+        return is_string($this->extra) ? json_decode($this->extra, true) : $this->extra;
     }
 
     public function setExtra(array $extra = null): self

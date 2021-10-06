@@ -8,15 +8,11 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class Menu extends Aggregate
 {
-    /** @var string */
-    public $name;
+    public ?string $name = null;
 
-    /** @var string */
-    public $language;
+    public ?string $language = null;
 
-    /** @var int */
-    public $website;
+    public ?int $website = null;
 
-    /** @var array */
-    public $items;
+    public array $items = [];
 }

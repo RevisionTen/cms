@@ -8,11 +8,6 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class TrixType extends HiddenType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_trix';

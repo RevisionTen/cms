@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Serializer;
 
 use Doctrine\Common\Collections\Collection;
 use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
+use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Services\IndexService;
 use Solarium\QueryType\Update\Query\Query;
@@ -40,7 +41,7 @@ class PageSerializer implements SolrSerializerInterface
         // Get path of first alias attached to the pageStreamRead entity.
         $path = null;
         /**
-         * @var \RevisionTen\CMS\Model\Alias[] $aliases
+         * @var Alias[] $aliases
          */
         $aliases = $pageStreamRead->getAliases();
         if (null !== $aliases) {

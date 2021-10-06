@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Services;
 
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\MenuRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -32,7 +33,7 @@ class MenuService
      *
      * @param string $menuUuid
      *
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function updateMenuRead(string $menuUuid): void
     {

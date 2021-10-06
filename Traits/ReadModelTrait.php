@@ -12,93 +12,64 @@ use function json_encode;
 trait ReadModelTrait
 {
     /**
-     * @var int
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var string
      * @ORM\Column(type="string", options={"collation": "utf8_unicode_ci"})
      */
-    private $uuid;
+    private ?string $uuid = null;
 
     /**
-     * @var int
      * @ORM\Column(type="integer")
      */
-    private $version;
+    private ?int $version = null;
 
     /**
-     * @var array
+     * Todo: Add PHP 8 union type.
+     * @var array|string|null
      * @ORM\Column(type="text")
      */
     private $payload;
 
-    /**
-     * @return int
-     */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getUuid(): string
+    public function getUuid(): ?string
     {
         return $this->uuid;
     }
 
-    /**
-     * @param string $uuid
-     *
-     * @return self
-     */
-    public function setUuid($uuid): self
+    public function setUuid(?string $uuid = null): self
     {
         $this->uuid = $uuid;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getVersion(): int
+    public function getVersion(): ?int
     {
         return $this->version;
     }
 
-    /**
-     * @param int $version
-     *
-     * @return self
-     */
-    public function setVersion($version): self
+    public function setVersion(?int $version = null): self
     {
         $this->version = $version;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getPayload(): array
+    public function getPayload(): ?array
     {
         return is_string($this->payload) ? json_decode($this->payload, true) : $this->payload;
     }
 
-    /**
-     * @param array $payload
-     *
-     * @return self
-     */
-    public function setPayload($payload): self
+    public function setPayload(?array $payload = null): self
     {
         $this->payload = json_encode($payload);
 

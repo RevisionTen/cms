@@ -61,7 +61,7 @@ class InstallRolesCommand extends Command
         return $this->commandBus->dispatch($command);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Install default website.
         $websites = $this->entityManager->getRepository(Website::class)->findAll();

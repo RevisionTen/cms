@@ -16,8 +16,6 @@ class EntityVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        #var_dump($attribute);
-
         $user = $token->getUser();
 
         if (!$user instanceof UserRead) {
@@ -25,7 +23,7 @@ class EntityVoter extends Voter
             return false;
         }
 
-        // Check if the users role has this attribute as a permission.
+        // Check if the users' role has this attribute as a permission.
         foreach ($user->getRoleEntities() as $role) {
             foreach ($role->getPermissions() as $permission) {
                 if ($permission === $attribute || 'do_everything' === $permission) {
