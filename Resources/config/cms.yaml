@@ -209,7 +209,7 @@ cms:
             permissions:
                 list: 'alias_list'
                 search: 'alias_search'
-                new: 'alias_create'
+                create: 'alias_create'
                 edit: 'alias_edit'
                 delete: 'alias_delete'
             list:
@@ -240,7 +240,7 @@ cms:
             permissions:
                 list: 'website_list'
                 search: 'website_search'
-                new: 'website_create'
+                create: 'website_create'
                 edit: 'website_edit'
             list:
                 search_fields:
@@ -392,7 +392,7 @@ cms:
             permissions:
                 list: 'form_list'
                 search: 'form_search'
-                new: 'form_create'
+                create: 'form_create'
                 edit: 'form_edit'
                 delete: 'form_delete'
                 clone: 'form_clone'
@@ -406,7 +406,6 @@ cms:
                     - { route: 'forms_edit_aggregate', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'form_edit' }
                     - { route: 'forms_clone_aggregate', label: 'admin.btn.duplicate', icon: 'fas fa-clone', permission: 'form_clone' }
                     - { route: 'forms_delete_aggregate', label: 'admin.btn.delete', icon: 'fas fa-trash', css_class: 'text-danger', permission: 'form_delete' }
-                    - '-new'
                     - '-edit'
                     - '-delete'
                     - '-show'
@@ -459,7 +458,7 @@ cms:
             permissions:
                 list: 'menu_list'
                 search: 'menu_search' # Todo: Useless.
-                new: 'menu_create'
+                create: 'menu_create'
                 edit: 'menu_edit'
             templates:
                 list: '@CMS/Backend/Menu/list.html.twig'
@@ -468,7 +467,6 @@ cms:
                 actions:
                     - '-show'
                     - '-search'
-                    - '-new'
                     - '-edit'
                     - '-delete'
                     - { route: 'cms_edit_menu', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'menu_edit' }
@@ -482,7 +480,7 @@ cms:
             permissions:
                 list: 'file_list'
                 search: 'file_search'
-                new: 'file_create'
+                create: 'file_create'
                 edit: 'file_edit'
                 delete: 'file_delete'
             templates:

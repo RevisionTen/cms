@@ -55,7 +55,7 @@ class EntityController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $permissionCreate = $entityConfig['permissions']['create'] ?? 'create_generic';
+        $permissionCreate = $entityConfig['permissions']['create'] ?? ($entityConfig['permissions']['new'] ?? 'create_generic');
         $this->denyAccessUnlessGranted($permissionCreate);
 
         $entityClass = $entityConfig['class'] ?? null;
