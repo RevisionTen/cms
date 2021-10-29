@@ -30,6 +30,7 @@ cms:
         contentsCss:
             - 'https://use.fontawesome.com/releases/v5.5.0/css/all.css'
             - '/bundles/cms/bootstrap/bootstrap.min.css'
+            - '/bundles/cms/libs/ckeditor/contents.css'
         toolbar:
             - { name: 'basicstyles', items: [ 'Source', 'PasteFromWord', 'RemoveFormat', '-', 'Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] }
             - { name: 'tools', items: [ 'Maximize' ] }
