@@ -282,6 +282,7 @@ class PageController extends AbstractController
             'required' => true,
             'attr' => [
                 'placeholder' => 'admin.help.commitMessage',
+                'autofocus' => 'autofocus',
             ],
         ]);
 

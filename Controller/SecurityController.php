@@ -325,6 +325,7 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
             'attr' => [
                 'placeholder' => 'admin.label.code',
+                'autofocus' => 'autofocus',
             ],
         ]);
 
@@ -358,6 +359,7 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
             'attr' => [
                 'placeholder' => 'admin.label.username',
+                'autofocus' => 'autofocus',
             ],
         ]);
 

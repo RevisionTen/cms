@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Controller;
 
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -467,12 +468,17 @@ class EntityController extends AbstractController
         ]);
     }
 
-    public static function addTermQuery($qb, $fields, $term)
+    public static function addTermQuery(QueryBuilder $qb, $fields, string $term)
     {
         $fieldQueries = [];
         foreach ($fields as $field) {
-            $fieldQueries[] = $qb->expr()->like('entity.'.$field, ':q');
+            if ('payload' === $field) {
+                $fieldQueries[] = $qb->expr()->isNotNull("JSON_SEARCH(LOWER(entity.payload), 'all', LOWER(:q))");
+            } else {
+                $fieldQueries[] = $qb->expr()->like('entity.'.$field, ':q');
+            }
         }
+
         $qb
             ->andWhere($qb->expr()->orX(...$fieldQueries))
             ->setParameter('q', '%'.$term.'%');

@@ -17,6 +17,7 @@
         "revision-ten/cqrs": "^3.0",
         "revision-ten/forms": "^3.0",
         "gregwar/image-bundle": "^3.0.1",
+        "scienta/doctrine-json-functions": "*",
         "sonata-project/google-authenticator": "^2.3",
         "solarium/solarium": "^6.1.1",
         "cocur/slugify": "^4.0",

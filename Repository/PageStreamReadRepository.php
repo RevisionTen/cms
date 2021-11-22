@@ -15,7 +15,8 @@ class PageStreamReadRepository extends EntityRepository
         $qb = $this->createQueryBuilder('page');
 
         if (!empty($q)) {
-            $qb->where($qb->expr()->like('page.payload', ':q'))->setParameter('q', '%'.$q.'%');
+            $qb->where("JSON_SEARCH(LOWER(page.payload), 'all', LOWER(:search)) IS NOT NULL")->setParameter('search', '%'.$q.'%');
+            #$qb->where($qb->expr()->like('page.payload', ':q'))->setParameter('q', '%'.$q.'%');
         }
 
         if (null !== $websiteId) {
@@ -51,7 +52,8 @@ class PageStreamReadRepository extends EntityRepository
         $qb = $this->createQueryBuilder('page')->select('count(page.id)');
 
         if (!empty($q)) {
-            $qb->where($qb->expr()->like('page.payload', ':q'))->setParameter('q', '%'.$q.'%');
+            $qb->where("JSON_SEARCH(LOWER(page.payload), 'all', LOWER(:search)) IS NOT NULL")->setParameter('search', '%'.$q.'%');
+            #$qb->where($qb->expr()->like('page.payload', ':q'))->setParameter('q', '%'.$q.'%');
         }
 
         if (null !== $websiteId) {
