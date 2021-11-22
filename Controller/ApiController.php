@@ -175,7 +175,7 @@ class ApiController extends AbstractController
                 'type' => 'tab',
             ],
             'publish' => [
-                'css_class' => 'btn-success',
+                'css_class' => 'btn-success btn-save-event',
                 'icon' => 'fas fa-bullhorn',
                 'label' => $translator->trans('admin.btn.publish', [], 'cms'),
                 'url' => $this->generateUrl('cms_publish_page', ['pageUuid' => $pageUuid, 'version' => $page->getStreamVersion()]),
@@ -223,7 +223,7 @@ class ApiController extends AbstractController
                 'type' => 'link',
             ],
             'submit_changes' => [
-                'css_class' => 'btn-success',
+                'css_class' => 'btn-success btn-save-event',
                 'icon' => 'fas fa-check-circle',
                 'label' => $translator->trans('admin.btn.submitChanges', [], 'cms'),
                 'url' => $this->generateUrl('cms_submit_changes', ['pageUuid' => $pageUuid, 'version' => $page->getVersion(), 'qeueUser' => $user->getId()]),

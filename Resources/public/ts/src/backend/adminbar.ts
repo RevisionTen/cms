@@ -127,6 +127,21 @@ function bindLinks()
             sidebar.classList.remove('d-none');
         });
     }
+
+    // Bind save buttons.
+    let saveBtn = document.querySelector('.btn-save-event') as HTMLElement|null;
+    if (saveBtn) {
+        window.addEventListener('keydown', function(event: KeyboardEvent) {
+            // @ts-ignore
+            if((event.ctrlKey || event.metaKey) && event.which == 83) {
+                event.preventDefault();
+                if (saveBtn.offsetParent !== null) {
+                    saveBtn.click();
+                }
+                return false;
+            }
+        });
+    }
 }
 
 let updateAdminBar = function(pageUuid: string, userId: any)

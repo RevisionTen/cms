@@ -12,7 +12,7 @@ use function function_exists;
 use function ini_get;
 use function is_bool;
 
-// These function might not exist and should therefore not be imported,
+// These functions might not exist and should therefore not be imported,
 // even though this would not cause an error.
 // requires ext-sysvshm and ext-apcu
 #use function shm_attach;
@@ -109,7 +109,8 @@ class CacheService
             }
 
             // Get from shared memory segment.
-            $this->uuidStore = shm_get_var($this->shmSegment, $this->shmVarKey);
+            $store = shm_get_var($this->shmSegment, $this->shmVarKey);
+            $this->uuidStore = is_array($store) ? $store : [];
         }
     }
 

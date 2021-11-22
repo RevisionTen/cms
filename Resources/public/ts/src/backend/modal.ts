@@ -25,10 +25,11 @@ function bindModal(url: string, editorModal: bootstrap.Modal)
         header.classList.add('modal-header');
         let contentTitle = header.querySelector('.content-title');
         if (contentTitle) {
-            let closeBtn = document.createElement("div");
+            let closeBtn = document.createElement('button');
             closeBtn.innerHTML = '<span class="fas fa-times"></span>';
             closeBtn.className = 'btn btn-sm';
-            closeBtn.addEventListener('click', () => {
+            closeBtn.addEventListener('click', (event) => {
+                event.preventDefault();
                 editorModal.hide();
             });
             contentTitle.insertAdjacentElement('afterbegin', closeBtn);
@@ -77,6 +78,12 @@ function bindModal(url: string, editorModal: bootstrap.Modal)
 
     // Show the modal.
     editorModal.show();
+
+    // Focus autofocus input after modal is shown.
+    let autofocusElement = modalElement.querySelector('[autofocus]') as HTMLElement|null;
+    if (autofocusElement) {
+        autofocusElement.focus();
+    }
 }
 
 let openModal = function(url: string, editorModal: bootstrap.Modal) {

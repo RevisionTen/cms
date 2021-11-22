@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+    mode: 'production',
     entry: {
         'admin-backend': './src/admin-backend.ts',
         'admin-frontend': './src/admin-frontend.ts'
