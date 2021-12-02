@@ -45,7 +45,7 @@ class IndexService
 
     protected array $config;
 
-    protected array $solrConfig;
+    protected ?array $solrConfig = null;
 
     public function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $entityManager, PageService $pageService, array $config)
     {
