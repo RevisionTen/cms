@@ -21,7 +21,7 @@ use function str_replace;
 
 class SearchService
 {
-    protected ?array $solrConfig;
+    protected ?array $solrConfig = null;
 
     protected LoggerInterface $logger;
 
