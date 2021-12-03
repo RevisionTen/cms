@@ -22,9 +22,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function is_object;
 use function is_string;
 use function str_replace;
 
@@ -159,12 +157,12 @@ class UploadType extends AbstractType
              */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
-            $constraints = $options['constraints'] ?? NULL;
+            $constraints = $options['constraints'] ?? [];
 
             if ($isFileUpload) {
                 // Validate file field.
                 $valid = true;
-                if ($constraints) {
+                if (!empty($constraints)) {
                     $uploadedFileForm = $form->get('uploadedFile');
                     $violations = $this->validator->validate($uploadedFile, $constraints);
                     foreach ($violations as $violation) {
@@ -213,7 +211,7 @@ class UploadType extends AbstractType
                     'height' => $height,
                     'mimeType' => $mimeType,
                 ]);
-            } elseif ($file instanceof UploadedFile || $file instanceof File) {
+            } elseif ($file instanceof File) {
                 // File is object, just get the file path.
                 $event->setData([
                     'file' => $file->getPathname(),
@@ -261,7 +259,7 @@ class UploadType extends AbstractType
             'file_with_meta_data' => false,
             // Do not validate this form type with the passed constraints, use them for the file field instead.
             'validation_groups' => false,
-            'constraints' => null,
+            'constraints' => [],
             'allow_extra_fields' => true,
             'keepOriginalFileName' => false,
         ]);
