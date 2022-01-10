@@ -1,6 +1,6 @@
 {% extends '@CMS/Backend/Entity/List/list.html.twig' %}
 
-{% block content_top_actions %}
+{% block content_top_actions_create %}
     {% if is_granted(permissions.create) and 'create' in actions %}
         <div class="col-auto content-actions">
             <a class="btn btn-sm btn-primary" href="{{ path('forms_create_form') }}">
@@ -8,4 +8,4 @@
             </a>
         </div>
     {% endif %}
-{% endblock content_top_actions %}
+{% endblock content_top_actions_create %}

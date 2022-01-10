@@ -400,8 +400,11 @@ cms:
             templates:
                 list: '@CMS/Backend/Forms/list.html.twig'
             list:
-                sort: [ 'modified', 'desc' ]
                 dql_filter: 'entity.deleted IS NULL OR entity.deleted = 0'
+                sort: [ 'modified', 'desc' ]
+                search_fields:
+                    - 'payload'
+                    - 'title'
                 actions:
                     - { route: 'forms_submissions_download', label: 'admin.btn.submissionsDownload', icon: 'fas fa-download', permission: 'form_submissions' }
                     - { route: 'forms_edit_aggregate', label: 'admin.btn.edit', icon: 'fas fa-edit', permission: 'form_edit' }
