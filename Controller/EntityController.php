@@ -82,9 +82,16 @@ class EntityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Todo: Add flash message.
             $em->persist($entityObject);
             $em->flush();
+
+            $this->addFlash(
+                'success',
+                $translator->trans('admin.label.createEntitySuccess', [
+                    '%entity%' => $translator->trans($entity),
+                ], 'cms')
+            );
+
             return $this->redirectToRoute('cms_edit_entity', [
                 'entity' => $entity,
                 'id' => $entityObject->getId(),
@@ -141,9 +148,20 @@ class EntityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Todo: Add flash message.
             $em->persist($entityObject);
             $em->flush();
+
+            $this->addFlash(
+                'success',
+                $translator->trans('admin.label.editEntitySuccess', [
+                    '%entity%' => $translator->trans($entity),
+                ], 'cms')
+            );
+
+            return $this->redirectToRoute('cms_edit_entity', [
+                'entity' => $entity,
+                'id' => $entityObject->getId(),
+            ]);
         }
 
         $entityTitle = method_exists($entityObject,'__toString' ) ? '"'.((string) $entityObject).'" ' : '';

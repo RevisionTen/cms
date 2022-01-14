@@ -280,6 +280,8 @@ admin:
         domains: "Domains"
         due: "Fälligkeit"
         editEntity: "%entity% %title% bearbeiten"
+        editEntitySuccess: "%entity% wurde gespeichert."
+        createEntitySuccess: "%entity% wurde erstellt."
         editElement: "Element \"%title%\" bearbeiten"
         editForm: "Formular %title% bearbeiten"
         editMenu: "%menu% bearbeiten"
