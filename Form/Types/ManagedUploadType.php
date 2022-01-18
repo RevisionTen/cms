@@ -28,7 +28,7 @@ class ManagedUploadType extends UploadType
             'file_with_meta_data' => true,
             // Do not validate this form type with the passed constraints, use them for the file field instead.
             'validation_groups' => false,
-            'constraints' => null,
+            'constraints' => [],
             'allow_extra_fields' => true,
             'keepOriginalFileName' => false,
             'enable_title' => true,

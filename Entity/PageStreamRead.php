@@ -120,6 +120,11 @@ class PageStreamRead
         return $this->getTitle();
     }
 
+    public function getWebsiteChoiceTitle(): string
+    {
+        return $this->getTitle() . ' (' . $this->getLanguage() . ', Website: ' . $this->getWebsite() . ')';
+    }
+
     public function getId(): int
     {
         return $this->id;
