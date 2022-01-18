@@ -261,7 +261,7 @@ cms:
                     - { property: 'siteVerification', label: 'admin.label.siteVerification', type: 'Symfony\Component\Form\Extension\Core\Type\TextType', type_options: { required: false } }
                     - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage', type: 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', type_options: { choices: '%cms.page_languages%', choice_translation_domain: 'messages', attr: { class: 'custom-select' } } }
                     - { property: 'domains', label: 'admin.label.domains', type: 'Symfony\Component\Form\Extension\Core\Type\CollectionType', type_options: { entry_type: 'RevisionTen\CMS\Form\Admin\DomainType', entry_options: { label: false }, by_reference: false, allow_delete: true, delete_empty: true, allow_add: true } }
-                    - { property: 'errorPages', label: 'admin.label.errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { required: false, multiple: true, class: 'RevisionTen\CMS\Entity\PageStreamRead', attr: { data-widget: 'select2' } } }
+                    - { property: 'errorPages', label: 'admin.label.errorPages', type: 'Symfony\Bridge\Doctrine\Form\Type\EntityType', type_options: { required: false, multiple: true, class: 'RevisionTen\CMS\Entity\PageStreamRead', choice_label: 'websiteChoiceTitle', attr: { data-widget: 'select2' } } }
         EventStreamObject:
             label: 'admin.label.log'
             class: RevisionTen\CQRS\Model\EventStreamObject

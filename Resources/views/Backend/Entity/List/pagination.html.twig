@@ -33,20 +33,18 @@
             <nav>
                 <ul class="pagination pagination-sm my-0">
 
-                    {% set currentPageIsInLast3 = page > numPages - 3 %}
-                    {% set currentPageIsInLast4 = page > numPages - 4 %}
-                    {% set currentPageIsInLast5 = page > numPages - 5 %}
+                    {% set pages = [] %}
+                    {% for p in 0..(numPages-1) %}
+                        {% set pages = pages|merge([p]) %}
+                    {% endfor %}
 
-                    {% set currentPageIsInFirst3 = page < 3 %}
-                    {% set currentPageIsInFirst4 = page < 4 %}
-
-
+                    {# Backwards #}
                     {% if page > 0 %}
                         <li class="page-item">
                             <a class="page-link"
                                href="{{ path(route, app.request.query.all|merge({
-                                    page: page-1
-                                })) }}"
+                                   page: page-1
+                               })) }}"
                                aria-label="{{ 'pagination.prev'|trans({}, 'cms') }}"
                             >
                                 <span class="fas fa-chevron-left"></span>
@@ -55,70 +53,57 @@
                     {% else %}
                         <li class="page-item disabled">
                             <span class="page-link"
-                                aria-label="{{ 'pagination.prev'|trans({}, 'cms') }}"
+                                  aria-label="{{ 'pagination.prev'|trans({}, 'cms') }}"
                             >
                                 <span class="fas fa-chevron-left"></span>
                             </span>
                         </li>
                     {% endif %}
 
-                    {% if page > 0 and currentPageIsInFirst3 == false %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="{{ path(route, app.request.query.all|merge({
-                                    page: 0
-                               })) }}"
-                               aria-label="{{ 'pagination.first'|trans({}, 'cms') }}"
-                            >
-                                1
-                                {% if currentPageIsInFirst4 == false %}
-                                ...
-                                {% endif %}
-                            </a>
-                        </li>
-                    {% endif %}
-
-                    {% for p in 1..numPages %}
-                        {% set isGreaterThanMinus3 = (p-1) > (page-3) %}
-                        {% set isLessThanPlus3 = (p-1) < (page+3)  %}
-
-                        {% set isInLast6 = p > numPages - 6 %}
-                        {% set isInFirst6 = p < 6 %}
-
-                        {% if (isGreaterThanMinus3 or (currentPageIsInLast3 and isInLast6)) and (isLessThanPlus3 or (currentPageIsInFirst3 and isInFirst6)) %}
-                            <li class="page-item {{ (p-1) == page ? 'active' : '' }}">
+                    {% set maxOffsetToCurrentPage = 4 %}
+                    {% for p in pages %}
+                        {% set isActive = p == page %}
+                        {% if p > (page-maxOffsetToCurrentPage) and p < (page+maxOffsetToCurrentPage) %}
+                            <li class="page-item {{ isActive ? 'active' : '' }}">
                                 <a class="page-link" href="{{ path(route, app.request.query.all|merge({
-                                    page: p-1
+                                    page: p
                                 })) }}">
-                                    {{ p }}
+                                    {{ p+1 }}
+                                </a>
+                            </li>
+                        {% elseif p == 0 %}
+                            {# First #}
+                            <li class="page-item {{ isActive ? 'active' : '' }}">
+                                <a class="page-link" href="{{ path(route, app.request.query.all|merge({
+                                    page: p
+                                })) }}">
+                                    {{ p+1 }}
+                                    {% if page > maxOffsetToCurrentPage %}
+                                        ...
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% elseif p == (numPages-1) %}
+                            {# Last #}
+                            <li class="page-item {{ isActive ? 'active' : '' }}">
+                                <a class="page-link" href="{{ path(route, app.request.query.all|merge({
+                                    page: p
+                                })) }}">
+                                    {% if page < (numPages-1) - maxOffsetToCurrentPage %}
+                                        ...
+                                    {% endif %}
+                                    {{ p+1 }}
                                 </a>
                             </li>
                         {% endif %}
                     {% endfor %}
 
-                    {% set isNotLast = page < numPages-1 %}
-
-                    {% if isNotLast and currentPageIsInLast4 == false %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="{{ path(route, app.request.query.all|merge({
-                                    page: numPages-1
-                                })) }}"
-                                aria-label="{{ 'pagination.last'|trans({}, 'cms') }}"
-                            >
-                                {% if currentPageIsInLast5 == false %}
-                                    ...
-                                {% endif %}
-                                {{ numPages }}
-                            </a>
-                        </li>
-                    {% endif %}
-
-                    {% if isNotLast %}
+                    {# Forward #}
+                    {% if page < (numPages-1) %}
                         <li class="page-item">
                             <a class="page-link" href="{{ path(route, app.request.query.all|merge({
-                                    page: page+1
-                                })) }}"
+                                page: page+1
+                            })) }}"
                                aria-label="{{ 'pagination.next'|trans({}, 'cms') }}"
                             >
                                 <span class="fas fa-chevron-right"></span>
@@ -133,6 +118,7 @@
                             </span>
                         </li>
                     {% endif %}
+
                 </ul>
             </nav>
         </div>
