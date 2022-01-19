@@ -1,9 +1,44 @@
+{# @var backend_service \RevisionTen\CMS\Services\BackendService #}
+{# @var alias \RevisionTen\CMS\Entity\Alias #}
+
 <strong>
     {{ (item.data.title is defined ? item.data.title : item.itemName|trans)|raw }}
 </strong>
 
-{% if item.data.alias is defined %}
-    <span class="text-muted">{{ render(controller('RevisionTen\\CMS\\Controller\\MenuController::getAlias', {'id': item.data.alias})) }}</span>
+{% if item.data.alias is defined and item.data.alias %}
+    {% set alias = backend_service.getAliasById(item.data.alias) %}
+    {% if alias %}
+        {% set editUrl = path('cms_edit_entity', {
+            entity: 'Alias',
+            id: alias.id
+        }) %}
+        <span class="text-muted">
+            {% if alias.enabled == false %}
+                <span class="fas fa-circle text-danger"></span>
+            {% endif %}
+            <a href="{{ editUrl }}" class="text-decoration-none {{ alias.enabled ? 'text-muted' : 'text-danger' }}">
+                {{ alias.path }}
+            </a>
+            {% if alias.pageStreamRead %}
+                <span class="fas fa-arrow-right"></span>
+                {% if alias.pageStreamRead.deleted %}
+                    <span class="fas fa-trash text-danger"></span>
+                    <span class="text-danger">
+                        {{ alias.pageStreamRead.title }}
+                    </span>
+                {% elseif alias.pageStreamRead.state == 'unpublished' %}
+                    <span class="fas fa-circle text-danger"></span>
+                    <a href="{{ path('cms_edit_aggregate', { id: alias.pageStreamRead.id }) }}" class="text-decoration-none text-danger">
+                        {{ alias.pageStreamRead.title }}
+                    </a>
+                {% else %}
+                    <a href="{{ path('cms_edit_aggregate', { id: alias.pageStreamRead.id }) }}" class="text-decoration-none text-muted">
+                        {{ alias.pageStreamRead.title }}
+                    </a>
+                {% endif %}
+            {% endif %}
+        </span>
+    {% endif %}
 {% elseif item.data.url is defined %}
     <span class="text-muted">{{ item.data.url }}</span>
 {% endif %}
