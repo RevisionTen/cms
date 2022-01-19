@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Doctrine\ORM\EntityManagerInterface;
+use RevisionTen\CMS\Entity\Alias;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
 class BackendService
 {
+    protected EntityManagerInterface $entityManager;
+
     protected UrlGeneratorInterface $urlGenerator;
 
     protected Security $security;
@@ -18,8 +22,9 @@ class BackendService
 
     private array $config;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, Security $security, RequestStack $requestStack, array $config)
+    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, Security $security, RequestStack $requestStack, array $config)
     {
+        $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->security = $security;
         $this->requestStack = $requestStack;
@@ -96,5 +101,10 @@ class BackendService
         }
 
         return $item;
+    }
+
+    public function getAliasById(int $id): ?Alias
+    {
+        return $this->entityManager->getRepository(Alias::class)->find($id);
     }
 }
