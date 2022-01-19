@@ -1,13 +1,13 @@
 <li data-uuid="{{ item.uuid }}" class="border-top border-start level-{{ level }} {{ item.enabled is defined and item.enabled == false ? 'disabled' : '' }}">
 
     <div class="row gx-0">
-        <div class="col p-2">
-            <span class="fas fa-arrows-alt text-muted cms-admin-menu-item-move"></span>
+        <div class="col p-2 d-flex align-items-center justify-content-start">
+            <span class="fas fa-arrows-alt text-muted cms-admin-menu-item-move me-3"></span>
             {% set titleTemplate = config['menu_items'][item.itemName]['admin_template'] ?? '@CMS/Backend/Menu/edit-item-title.html.twig' %}
             {% include titleTemplate %}
         </div>
 
-        <div class="col-auto p-2">
+        <div class="col-auto p-2 text-end" style="width: 220px;">
 
             {% set btnClass = 'text-decoration-none me-2' %}
 
