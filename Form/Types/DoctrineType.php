@@ -56,8 +56,23 @@ class DoctrineType extends AbstractType
         $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy'], $options['orderBy']);
 
         if ($entities) {
+            $choiceLabel = $options['choice_label'];
             foreach ($entities as $entity) {
-                $choices[(string) $entity] = $entity->getId();
+                $label = (string) $entity;
+                if ($choiceLabel) {
+                    if (is_callable($choiceLabel)) {
+                        $label = $choiceLabel($entity);
+                    } elseif (is_string($choiceLabel)) {
+                        $getter = 'get'.ucfirst($choiceLabel);
+                        $isser = 'is'.ucfirst($choiceLabel);
+                        if (method_exists($entity, $getter)) {
+                            $label = $entity->{$getter}();
+                        } elseif (method_exists($entity, $isser)) {
+                            $label = $entity->{$isser}();
+                        }
+                    }
+                }
+                $choices[$label] = $entity->getId();
             }
         }
 
@@ -65,6 +80,7 @@ class DoctrineType extends AbstractType
             'required' => $options['required'],
             'expanded' => $options['expanded'],
             'multiple' => $options['multiple'],
+            'choice_attr' => $options['choice_attr'],
             'label' => false,
             'choices' => $choices,
             'attr' => [
@@ -158,6 +174,8 @@ class DoctrineType extends AbstractType
             'orderBy' => [],
             'filterByWebsite' => false,
             'filterByWebsiteId' => false,
+            'choice_label' => null,
+            'choice_attr' => null,
         ]);
     }
 

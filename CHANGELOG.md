@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.23] - 2022-01-20
+### Added
+- `RevisionTen\CMS\Entity\Alias` added `getAdminChoiceTitle` method
+- `RevisionTen\CMS\Entity\PageStreamRead` added `getAdminChoiceTitle` method
+- `RevisionTen\CMS\Form\Types\DoctrineType` added `choice_label` option
+### Removed
+- `RevisionTen\CMS\Entity\PageStreamRead` removed `getWebsiteChoiceTitle` method
+
 ## [3.0.22] - 2022-01-19
 ### Changed
 - `@CMS/Backend/Menu/edit-item-title.html.twig` Improved layout

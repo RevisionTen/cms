@@ -90,6 +90,11 @@ class Alias
         return $this->path;
     }
 
+    public function getAdminChoiceTitle(): string
+    {
+        return $this->path . ' (' . $this->getLanguage() . ', Website: ' . $this->getWebsite() . ')';
+    }
+
     public function getHost(?string $port = ''): ?string
     {
         if (null !== $this->getWebsite() && 0 !== \count($this->getWebsite()->getDomains())) {

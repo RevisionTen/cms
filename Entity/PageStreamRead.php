@@ -12,10 +12,10 @@ use function json_decode;
 use function json_encode;
 
 /**
- * Class PageRead.
+ * Class PageStreamRead.
  *
  * This entity is a representation of the page aggregate as it exists in the event stream.
- * The purpose of this class is to make the aggregate accessible to EasyAdmin.
+ * The purpose of this class is to make the aggregate accessible to the admin interface.
  *
  * @ORM\Entity(repositoryClass="RevisionTen\CMS\Repository\PageStreamReadRepository")
  * @ORM\Table(name="page_stream_read", uniqueConstraints={
@@ -120,7 +120,7 @@ class PageStreamRead
         return $this->getTitle();
     }
 
-    public function getWebsiteChoiceTitle(): string
+    public function getAdminChoiceTitle(): string
     {
         return $this->getTitle() . ' (' . $this->getLanguage() . ', Website: ' . $this->getWebsite() . ')';
     }
