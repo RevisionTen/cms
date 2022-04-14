@@ -43,6 +43,7 @@ cms:
             label: 'admin.admin_menu.dashboard'
             route: 'cms_dashboard'
             icon: 'fas fa-tachometer-alt'
+            #notificationController: 'App\Controller\DashboardController::getNotificationCount'
         Content:
             label: 'admin.admin_menu.content'
             children:

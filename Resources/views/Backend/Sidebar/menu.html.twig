@@ -2,9 +2,22 @@
 {% set menu = backend_service.getAdminMenu() %}
 {% set route = app.request.get('_route') %}
 
+{% macro menu_item_notifications(item) %}
+    {% if item.notificationController is defined %}
+        {% set count = render(controller(item.notificationController, {
+            item: item
+        })) %}
+        {% if count %}
+            <span class="ms-auto d-inline-block">
+                <span class="badge badge-pill bg-danger">
+                    {{ count }}
+                </span>
+            </span>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
 
-
-{% macro menu_item(item, route) %}
+{% macro menu_item(item, route, lvl) %}
     {% set btnClass = '' %}
     {% set btnClassActive = 'btn-primary' %}
 
@@ -12,30 +25,72 @@
     {% set isActive = item.active ?? false %}
 
     {% if item.children is defined and item.children is not empty %}
-        <div class="my-4 small">
-            <label class="mb-3 small text-uppercase">
-                {% if item.icon is defined and item.icon %}
-                    <span class="{{ item.icon }} me-2"></span>
-                {% endif %}
-                {{ label|trans({}, 'cms') }}
-            </label>
-            {% for child in item.children %}
-                {{ _self.menu_item(child, route) }}
-            {% endfor %}
-        </div>
+
+        {% if lvl == 0 %}
+            <div class="my-4 small">
+                <label class="mb-3 small text-uppercase d-flex flex-row align-items-center">
+                    {% if item.icon is defined and item.icon %}
+                        <span class="{{ item.icon }} me-2"></span>
+                    {% endif %}
+                    {{ label|trans({}, 'cms') }}
+                    {{ _self.menu_item_notifications(item) }}
+                </label>
+                <div>
+                    {% set lvl = lvl + 1 %}
+                    {% for child in item.children %}
+                        {{ _self.menu_item(child, route, lvl) }}
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="">
+                {% set hasActiveChild = false %}
+                {% for child in item.children %}
+                    {% if child.active %}
+                        {% set hasActiveChild = true %}
+                    {% endif %}
+                {% endfor %}
+                {% set collapseId = 'collapse-' ~ (item.label|slugify) %}
+                <label class="d-flex flex-row align-items-center btn btn-sm"
+                       data-bs-toggle="collapse"
+                       data-bs-target="#{{ collapseId }}"
+                       aria-expanded="{{ hasActiveChild ? 'true' : 'false' }}"
+                       aria-controls="{{ collapseId }}"
+                >
+                    {% if item.icon is defined and item.icon %}
+                        <span class="{{ item.icon }} me-2"></span>
+                    {% endif %}
+                    {{ label|trans({}, 'cms') }}
+                    {{ _self.menu_item_notifications(item) }}
+                </label>
+                <div class="collapse {{ hasActiveChild ? 'show' : '' }} ps-4"
+                     id="{{ collapseId }}"
+                     data-bs-parent="#sidebar-menu"
+                >
+                    {% set lvl = lvl + 1 %}
+                    {% for child in item.children %}
+                        {{ _self.menu_item(child, route, lvl) }}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
     {% else %}
         {% set label = item.label ?? item.entity %}
-
-        <a href="{{ item.path }}" class="d-block btn btn-sm text-start {{ isActive ? btnClassActive : btnClass }}">
+        <a href="{{ item.path }}" class="{{ lvl > 1 ? '' : '' }} d-flex flex-row align-items-center btn btn-sm {{ isActive ? btnClassActive : btnClass }}">
             {% if item.icon is defined and item.icon %}
                 <span class="{{ item.icon }} me-2"></span>
             {% endif %}
             {{ label|trans({}, 'cms') }}
+            {{ _self.menu_item_notifications(item) }}
         </a>
     {% endif %}
 {% endmacro %}
 
+<div id="sidebar-menu">
+    {% set lvl = 0 %}
+    {% for item in menu %}
+        {{ _self.menu_item(item, route, lvl) }}
+    {% endfor %}
+</div>
 
-{% for item in menu %}
-    {{ _self.menu_item(item, route) }}
-{% endfor %}
