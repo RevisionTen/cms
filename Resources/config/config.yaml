@@ -1,9 +1,5 @@
 
 twig:
-    #paths:
-    #    '%kernel.project_dir%/vendor/revision-ten/cms/Resources/views': cms
-    form_themes:
-          - '@CMS/Backend/Form/form_theme.html.twig'
     globals:
         pageTemplateConfig: '%cms.page_templates%' # Needed to check permissions in admin templates.
         backend_service: '@RevisionTen\CMS\Services\BackendService'
