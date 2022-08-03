@@ -42,7 +42,7 @@
     <div class="col-auto" style="width: 500px;">
         {% if item.data.alias is defined and item.data.alias %}
             {% set alias = backend_service.getAliasById(item.data.alias) %}
-            {% if alias.pageStreamRead %}
+            {% if alias and alias.pageStreamRead %}
                 {% set title = alias.pageStreamRead.title %}
                 {% set item = alias.pageStreamRead %}
                 {% set value = alias.pageStreamRead.state %}
