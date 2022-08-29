@@ -17,10 +17,12 @@
     <span class="badge bg-secondary">
         {{ value|length }}
     </span>
+{% elseif type == 'date' %}
+    {{ value is not null ? value|date('d.m.Y') : '-' }}
 {% elseif type == 'datetime' %}
-    {{ value|date('d.m.Y H:i') }}
+    {{ value is not null ? value|date('d.m.Y H:i') : '-' }}
 {% elseif type == 'object' %}
-    {{ value }}
+    {{ value is not null ? value : '-' }}
 {% else %}
-    {{ value }}
+    {{ value is not null ? value : '-' }}
 {% endif %}
