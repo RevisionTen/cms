@@ -114,12 +114,12 @@ class EntityController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
-     * @param int $id
+     * @param int|string $id
      *
      * @return Response
      * @throws Exception
      */
-    public function edit(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, int $id): Response
+    public function edit(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, $id): Response
     {
         $entity = $request->query->get('entity') ??  'doesnotexist';
 
@@ -247,12 +247,12 @@ class EntityController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
-     * @param int $id
+     * @param int|string $id
      *
      * @return RedirectResponse
      * @throws Exception
      */
-    public function delete(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, int $id): RedirectResponse
+    public function delete(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, $id): RedirectResponse
     {
         $entity = $request->query->get('entity') ??  'doesnotexist';
 
@@ -510,12 +510,12 @@ class EntityController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
-     * @param int $id
+     * @param int|string $id
      *
      * @return Response
      * @throws Exception
      */
-    public function show(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, int $id): Response
+    public function show(Request $request, EntityManagerInterface $em, TranslatorInterface $translator, $id): Response
     {
         $entity = $request->query->get('entity') ??  'doesnotexist';
 
