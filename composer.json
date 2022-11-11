@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^7.4.0",
+        "php": "^7.4.0|^8.1.0",
         "ext-json": "*",
         "ext-curl": "*",
         "revision-ten/cqrs": "^3.0",
