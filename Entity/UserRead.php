@@ -140,8 +140,9 @@ class UserRead implements UserInterface, Serializable
         return $this->getUsername();
     }
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
+        return null;
     }
 
     public function eraseCredentials(): void
@@ -171,6 +172,15 @@ class UserRead implements UserInterface, Serializable
         ]);
     }
 
+    public function __serialize(): array
+    {
+        return [
+            $this->id,
+            $this->username,
+            $this->password,
+        ];
+    }
+
     /**
      * @see Serializable::unserialize()
      *
@@ -184,6 +194,15 @@ class UserRead implements UserInterface, Serializable
             $this->password] = unserialize($data, [
                 'allowed_classes' => false,
         ]);
+    }
+
+    public function __unserialize($data): void
+    {
+        [
+            $this->id,
+            $this->username,
+            $this->password
+        ] = $data;
     }
 
     public function setId(?int $id): self
