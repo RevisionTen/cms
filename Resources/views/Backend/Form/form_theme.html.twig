@@ -124,42 +124,6 @@
     {%- endif -%}
 {%- endblock checkbox_radio_label %}
 
-{% block collection_row %}
-    {{ block('form_row') }}
-
-    {% if allow_add|default(false) %}
-        {% set js_add_item %}
-            $(function() {
-            event.preventDefault();
-
-            var collection = $('#{{ id }}');
-
-            /* Update index of all collection items */
-            collection.children().each(function() {
-            let collectionName = '{{ name }}';
-            {{ block('update_collection_index_script') }}
-            });
-
-            var numItems = collection.children().length;
-            var newItem = collection.attr('data-prototype')
-            .replace(/\>{{ prototype.vars.name }}label__\</g, '>' + numItems + '<')
-            .replace(/_{{ name }}_{{ prototype.vars.name }}/g, '_{{ name }}_' + numItems)
-            .replace(/{{ name }}\]\[{{ prototype.vars.name }}\]/g, '{{ name }}][' + numItems + ']')
-            ;
-
-            collection.append(newItem).trigger('easyadmin.collection.item-added');
-            });
-        {% endset %}
-
-        <div class="text-end field-collection-action mb-3">
-            <span onclick="{{ js_add_item|raw }}" class="btn btn-secondary border">
-                <i class="fa fa-plus-square"></i>
-                {{ 'admin.btn.addNewItem'|trans({}, 'cms') }}
-            </span>
-        </div>
-    {% endif %}
-{% endblock collection_row %}
-
 {% block cms_opening_hours_specification_widget -%}
     {{- block('cms_shift_buttons') -}}
 
@@ -292,71 +256,6 @@
     {{ block('form_widget') }}
 {% endblock cms_upload_widget %}
 
-{% block cms_shift_buttons %}
-    {% if form.parent.vars.allow_delete|default(false) %}
-        {% set shift_item_up_javascript %}
-            $(function() {
-                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
-
-                var containerDiv = $('#{{ id }}').parent();
-                var parentDiv = containerDiv.parents('[data-prototype]:first');
-
-                /* Shift item up */
-                containerDiv.insertBefore(containerDiv.prev());
-
-                /* Update index of all collection items */
-                parentDiv.children().each(function() {
-                    let collectionName = '{{ form.parent.vars.name }}';
-                    {{ block('update_collection_index_script') }}
-                });
-            });
-        {% endset %}
-        {% set shift_item_down_javascript %}
-            $(function() {
-                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
-
-                var containerDiv = $('#{{ id }}').parent();
-                var parentDiv = containerDiv.parents('[data-prototype]:first');
-
-                /* Shift item down */
-                containerDiv.insertAfter(containerDiv.next());
-
-                /* Update index of all collection items */
-                parentDiv.children().each(function() {
-                    let collectionName = '{{ form.parent.vars.name }}';
-                    {{ block('update_collection_index_script') }}
-                });
-            });
-        {% endset %}
-        {% set remove_item_javascript %}
-            $(function() {
-                if (event.preventDefault) event.preventDefault(); else event.returnValue = false;
-
-                var containerDiv = $('#{{ id }}').parent();
-                var parentDiv = containerDiv.parents('[data-prototype]:first');
-                containerDiv.remove();
-
-                /* Update index of all collection items */
-                parentDiv.children().each(function() {
-                    let collectionName = '{{ form.parent.vars.name }}';
-                    {{ block('update_collection_index_script') }}
-                });
-            });
-        {% endset %}
-        <div class="text-end field-collection-item-action">
-            <span title="{{ 'admin.btn.shiftUp'|trans({}, 'cms') }}" onclick="{{ shift_item_up_javascript|raw }}" class="btn btn-sm">
-                <i class="fas fa-arrow-circle-up"></i>
-            </span>
-            <span title="{{ 'admin.btn.shiftDown'|trans({}, 'cms') }}" onclick="{{ shift_item_down_javascript|raw }}" class="btn btn-sm">
-                <i class="fas fa-arrow-circle-down"></i>
-            </span>
-            <span title="{{ 'admin.btn.removeItem'|trans({}, 'cms') }}" onclick="{{ remove_item_javascript|raw }}" class="btn btn-sm text-danger">
-                <i class="fas fa-times-circle"></i>
-            </span>
-        </div>
-    {% endif %}
-{% endblock cms_shift_buttons %}
-
 {% block cms_spacing_widget %}
     {{- block('cms_shift_buttons') -}}
     <div id="{{ form.vars.id }}">
@@ -394,33 +293,136 @@
     </div>
 {% endblock cms_spacing_widget %}
 
+
+{% block cms_shift_buttons %}
+    {% if form.parent.vars.allow_delete|default(false) %}
+        {% set shift_item_up_javascript %}
+            event.preventDefault();
+            var collection = document.getElementById('{{ form.parent.vars.id }}');
+            var collectionName = '{{ form.parent.vars.name }}';
+            var collectionItem = document.getElementById('{{ id }}').parentNode;
+            if (collectionItem.previousElementSibling) {
+                collection.insertBefore(collectionItem, collectionItem.previousElementSibling);
+                {{ block('update_collection_index_script') }}
+            }
+        {% endset %}
+        {% set shift_item_down_javascript %}
+            event.preventDefault();
+            var collection = document.getElementById('{{ form.parent.vars.id }}');
+            var collectionName = '{{ form.parent.vars.name }}';
+            var collectionItem = document.getElementById('{{ id }}').parentNode;
+            if (collectionItem.nextElementSibling) {
+                collection.insertBefore(collectionItem.nextElementSibling, collectionItem);
+                {{ block('update_collection_index_script') }}
+            }
+        {% endset %}
+
+        {% set remove_item_javascript %}
+            event.preventDefault();
+            var item = document.getElementById('{{ id }}');
+            item.parentNode.remove();
+            var collection = document.getElementById('{{ form.parent.vars.id }}');
+            var collectionName = '{{ form.parent.vars.name }}';
+            {{ block('update_collection_index_script') }}
+            document.body.dispatchEvent(new CustomEvent('collection_item_removed', {
+                detail: {
+                    element: collection
+                }
+            }));
+        {% endset %}
+        <div class="text-end field-collection-item-action">
+            <span title="{{ 'admin.btn.shiftUp'|trans({}, 'cms') }}" onclick="{{ shift_item_up_javascript|raw }}" class="btn btn-sm">
+                <i class="fas fa-arrow-circle-up"></i>
+            </span>
+            <span title="{{ 'admin.btn.shiftDown'|trans({}, 'cms') }}" onclick="{{ shift_item_down_javascript|raw }}" class="btn btn-sm">
+                <i class="fas fa-arrow-circle-down"></i>
+            </span>
+            <span title="{{ 'admin.btn.removeItem'|trans({}, 'cms') }}" onclick="{{ remove_item_javascript|raw }}" class="btn btn-sm text-danger">
+                <i class="fas fa-times-circle"></i>
+            </span>
+        </div>
+    {% endif %}
+{% endblock cms_shift_buttons %}
+
+{% block collection_row %}
+    {{ block('form_row') }}
+
+    {% if allow_add|default(false) %}
+        {% set js_add_item %}
+            event.preventDefault();
+            var collection = document.getElementById('{{ id }}');
+            var collectionName = '{{ form.parent.vars.name }}';
+            {{ block('update_collection_index_script') }}
+
+            var numItems = collection.childElementCount;
+            var prototype = collection.dataset.prototype;
+            prototype = prototype.replace(/\>{{ prototype.vars.name }}label__\</g, '>' + numItems + '<');
+            prototype = prototype.replace(/_{{ name }}_{{ prototype.vars.name }}/g, '_{{ name }}_' + numItems);
+            prototype = prototype.replace(/{{ name }}\]\[{{ prototype.vars.name }}\]/g, '{{ name }}][' + numItems + ']');
+
+            collection.insertAdjacentHTML('beforeend', prototype);
+
+            var eventData = {
+                detail: {
+                    element: collection
+                }
+            };
+            document.body.dispatchEvent(new CustomEvent('collection_item_added', eventData));
+            document.dispatchEvent(new CustomEvent('bindWidgets', eventData));
+        {% endset %}
+
+        <div class="text-end field-collection-action mb-3">
+            <span onclick="{{ js_add_item|raw }}" class="btn btn-secondary border">
+                <i class="fa fa-plus-square"></i>
+                {{ 'admin.btn.addNewItem'|trans({}, 'cms') }}
+            </span>
+        </div>
+    {% endif %}
+{% endblock collection_row %}
+
 {% block update_collection_index_script %}
-    var index = $(this).index();
+    var children = collection.childNodes;
+    var idRegEx = new RegExp('\\_'+collectionName+'_(\\d+)\\_', 'g');
+    var nameRegEx = new RegExp(collectionName+'\\[(\\d+)\\]', 'gm')
+    var nameNestedRegEx = new RegExp('\\['+collectionName+'\\]\\[(\\d+)\\]', 'gm')
 
-    let idSearchStr = new RegExp('\\_'+collectionName+'_(\\d+)\\_', 'g');
-    let idReplaceStr = '_'+collectionName+'_'+index+'_';
+    var index = 0;
+    for(i in children) {
+        var childElement = children[i];
+        if (typeof childElement.querySelectorAll !== 'undefined') {
 
-    let nameSearchStr = new RegExp('\\['+collectionName+'\\]\\[(\\d+)\\]', 'g');
-    let nameReplaceStr = '['+collectionName+']['+index+']';
+            var idSubst = '_'+collectionName+'_'+index+'_';
+            var nameSubst = collectionName+'['+index+']';
+            var nameNestedSubst = '['+collectionName+']['+index+']';
 
-    $(this).find('[name]').each(function() {
-        var input = $(this);
-        var newAttr = input.attr('name').replace(nameSearchStr, nameReplaceStr);
-        input.attr('name', newAttr);
-    });
-    $(this).find('[id]').each(function() {
-        var input = $(this);
-        var newAttr = input.attr('id').replace(idSearchStr, idReplaceStr);
-        input.attr('id', newAttr);
-    });
-    $(this).find('[data-file-picker-upload]').each(function() {
-        var input = $(this);
-        var newAttr = input.attr('data-file-picker-upload').replace(idSearchStr, idReplaceStr);
-        input.attr('data-file-picker-upload', newAttr);
-    });
-    $(this).find('[data-file-picker]').each(function() {
-        var input = $(this);
-        var newAttr = input.attr('data-file-picker').replace(idSearchStr, idReplaceStr);
-        input.attr('data-file-picker', newAttr);
-    });
+            var names = childElement.querySelectorAll('[name]');
+            names.forEach((el) => {
+                el.name = el.name.replace(nameRegEx, nameSubst);
+                el.name = el.name.replace(nameNestedRegEx, nameNestedSubst);
+            });
+
+            var ids = childElement.querySelectorAll('[id]');
+            ids.forEach((el) => {
+                el.id = el.id.replace(idRegEx, idSubst);
+            });
+
+            var labelFors = childElement.querySelectorAll('[for]');
+            labelFors.forEach((el) => {
+                var labelFor = el.getAttribute('for');
+                el.setAttribute('for', labelFor.replace(idRegEx, idSubst));
+            });
+
+            var filePickerUploads = childElement.querySelectorAll('[data-file-picker-upload]');
+            filePickerUploads.forEach((el) => {
+                el.dataset.filePickerUpload = el.dataset.filePickerUpload.replace(idRegEx, idSubst);
+            });
+
+            var filePickers = childElement.querySelectorAll('[data-file-picker]');
+            filePickers.forEach((el) => {
+                el.dataset.filePicker = el.dataset.filePicker.replace(idRegEx, idSubst);
+            });
+
+            index++;
+        }
+    }
 {% endblock update_collection_index_script %}

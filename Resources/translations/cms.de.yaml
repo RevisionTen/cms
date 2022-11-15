@@ -308,6 +308,7 @@ admin:
         fileDeleteSuccess: "Die Datei wurde erfolgreich gelöscht."
         fileSaved: "Ihre Datei \"%title%\" wurde gespeichert!"
         fileUpload: "Datei hochladen"
+        fileEdit: "Datei bearbeiten"
         files: "Dateien"
         forever: "unbegrenzt"
         forgotPassword: "Passwort vergessen?"

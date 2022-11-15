@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Services;
 
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
 use RevisionTen\CMS\Command\FileDeleteCommand;
@@ -62,7 +63,7 @@ class FileService
      * @param int|null    $userId
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
@@ -79,7 +80,7 @@ class FileService
     {
         $public_dir = $this->project_dir.'/public';
 
-        // Move the file to the uploads directory.
+        // Move the file to the upload directory.
         $file->move($public_dir.$upload_dir, $filename);
 
         return $upload_dir.$filename;
@@ -99,6 +100,8 @@ class FileService
             'image/jpg',
             'image/png',
             'image/gif',
+            'image/webp',
+            'image/avif',
         ];
         $width = null;
         $height = null;
@@ -117,7 +120,10 @@ class FileService
         ];
     }
 
-    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language, bool $keepOriginalFileName = false): ?array
+    /**
+     * @throws Exception
+     */
+    public function createFile(?string $uuid, UploadedFile $file, string $title, string $upload_dir, int $website, string $language, bool $keepOriginalFileName = false): ?array
     {
         if (null === $uuid) {
             $uuid = Uuid::uuid1()->toString();
@@ -306,7 +312,6 @@ class FileService
         $fileDeleted = unlink($public_dir.$path);
         if (!$fileDeleted) {
             throw new Exception("File $path could not be deleted.");
-            return $file;
         }
         if ($oldPaths) {
             foreach ($oldPaths as $oldPath) {
@@ -330,6 +335,8 @@ class FileService
      * Update the FileRead entity.
      *
      * @param string $fileUuid
+     *
+     * @throws JsonException
      */
     public function updateFileRead(string $fileUuid): void
     {
@@ -347,19 +354,22 @@ class FileService
 
         // Build FileRead entity from Aggregate.
         $fileRead = $this->entityManager->getRepository(FileRead::class)->findOneBy(['uuid' => $fileUuid]) ?? new FileRead();
+
         $fileRead->setVersion($aggregate->getStreamVersion());
         $fileRead->setUuid($fileUuid);
-        $fileData = json_decode(json_encode($aggregate), true);
-        $fileRead->setPayload($fileData);
-        $fileRead->setTitle($aggregate->title);
-        $fileRead->setPath($aggregate->path);
-        $fileRead->setDeleted($aggregate->deleted);
-        $fileRead->setSize($aggregate->size);
-        $fileRead->setMimeType($aggregate->mimeType);
         $fileRead->setWebsite($website);
         $fileRead->setLanguage($aggregate->language);
-        $fileRead->setCreated($aggregate->created);
-        $fileRead->setModified($aggregate->modified);
+
+        $fileData = json_decode(json_encode($aggregate, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        $fileRead->setPayload($fileData);
+
+        $fileRead->title = $aggregate->title;
+        $fileRead->path = $aggregate->path;
+        $fileRead->deleted = $aggregate->deleted;
+        $fileRead->size = $aggregate->size;
+        $fileRead->mimeType = $aggregate->mimeType;
+        $fileRead->created = $aggregate->created;
+        $fileRead->modified = $aggregate->modified;
 
         // Persist FileRead entity.
         $this->entityManager->persist($fileRead);

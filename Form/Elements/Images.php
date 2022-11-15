@@ -25,6 +25,9 @@ class Images extends Element
             ],
             'allow_add' => true,
             'allow_delete' => true,
+            'attr' => [
+                'data-image-collection' => true,
+            ],
         ]);
     }
 

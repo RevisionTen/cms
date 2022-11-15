@@ -26,11 +26,6 @@ class PageStreamReadType extends EntityType
         $this->website = $requestStack->getMainRequest() ? (int) $requestStack->getMainRequest()->get('currentWebsite') : null;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
