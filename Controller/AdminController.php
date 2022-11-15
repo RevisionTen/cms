@@ -450,7 +450,7 @@ class AdminController extends AbstractController
         } elseif ($menuRead) {
             $title = $translator->trans($menuRead->getTitle());
         } elseif ($fileRead) {
-            $title = $fileRead->getTitle();
+            $title = $fileRead->title;
         } elseif ($roleRead) {
             $title = $roleRead->getTitle();
         }
