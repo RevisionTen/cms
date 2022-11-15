@@ -7,23 +7,18 @@ namespace RevisionTen\CMS\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Exception;
+use RevisionTen\CMS\Form\Admin\AdminFileType;
 use RevisionTen\CMS\Model\FileRead;
 use RevisionTen\CMS\Services\FileService;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use RevisionTen\CMS\Model\File;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use function array_filter;
 use function array_reverse;
@@ -36,10 +31,11 @@ class FileController extends AbstractController
     /**
      * @Route("/admin/file/picker", name="cms_file_picker")
      *
-     * @param RequestStack           $requestStack
+     * @param RequestStack $requestStack
      * @param EntityManagerInterface $entityManager
      *
      * @return Response
+     * @throws Exception
      */
     public function getFilePicker(RequestStack $requestStack, EntityManagerInterface $entityManager): Response
     {
@@ -93,9 +89,7 @@ class FileController extends AbstractController
 
         // Get results.
         $query = $qb->getQuery();
-        if (null !== $limit) {
-            $query->setMaxResults($limit);
-        }
+        $query->setMaxResults($limit);
         if (null !== $offset) {
             $query->setFirstResult($offset);
         }
@@ -129,7 +123,7 @@ class FileController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        return $this->redirect($fileRead->getPath());
+        return $this->redirect($fileRead->path);
     }
 
     /**
@@ -175,12 +169,13 @@ class FileController extends AbstractController
     /**
      * @Route("/admin/file/create", name="cms_file_create")
      *
-     * @param Request     $request
+     * @param Request $request
      * @param FileService $fileService
+     * @param TranslatorInterface $translator
      *
      * @return Response
      */
-    public function fileCreate(Request $request, FileService $fileService): Response
+    public function fileCreate(Request $request, FileService $fileService, TranslatorInterface $translator): Response
     {
         $this->denyAccessUnlessGranted('file_create');
 
@@ -188,53 +183,10 @@ class FileController extends AbstractController
         $currentWebsite = $request->get('currentWebsite');
         $config = $this->getParameter('cms');
 
-        $builder = $this->createFormBuilder();
-
-        $builder->add('title', TextType::class, [
-            'label' => 'admin.label.title',
-            'translation_domain' => 'cms',
-            'constraints' => new NotBlank(),
-            'attr' => [
-                'placeholder' => 'admin.label.title',
-            ],
+        $form = $this->createForm(AdminFileType::class, null, [
+            'page_languages' => $config['page_languages'],
         ]);
 
-        $builder->add('language', ChoiceType::class, [
-            'label' => 'admin.label.language',
-            'translation_domain' => 'cms',
-            'choice_translation_domain' => 'messages',
-            'choices' => $config['page_languages'] ?: [
-                'English' => 'en',
-                'German' => 'de',
-            ],
-            'placeholder' => 'admin.label.language',
-            'constraints' => new NotBlank(),
-            'attr' => [
-                'class' => 'custom-select',
-            ],
-        ]);
-
-        $builder->add('file', FileType::class, [
-            'label' => 'admin.label.fileChoose',
-            'translation_domain' => 'cms',
-            'constraints' => new NotBlank(),
-        ]);
-
-        $builder->add('keepOriginalFileName', CheckboxType::class, [
-            'label' => 'admin.label.keepOriginalFileName',
-            'translation_domain' => 'cms',
-            'required' => false,
-        ]);
-
-        $builder->add('save', SubmitType::class, [
-            'label' => 'admin.btn.addFile',
-            'translation_domain' => 'cms',
-            'attr' => [
-                'class' => 'btn-primary',
-            ],
-        ]);
-
-        $form = $builder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -247,20 +199,22 @@ class FileController extends AbstractController
 
         return $this->render('@CMS/Backend/File/file-form.html.twig', [
             'form' => $form->createView(),
+            'title' => $translator->trans('admin.label.fileUpload', [], 'cms'),
         ]);
     }
 
     /**
      * @Route("/admin/file/edit", name="cms_file_edit")
      *
-     * @param Request                $request
-     * @param FileService            $fileService
-     * @param AggregateFactory       $aggregateFactory
+     * @param Request $request
+     * @param FileService $fileService
+     * @param AggregateFactory $aggregateFactory
      * @param EntityManagerInterface $entityManager
+     * @param TranslatorInterface $translator
      *
      * @return Response
      */
-    public function fileEdit(Request $request, FileService $fileService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager): Response
+    public function fileEdit(Request $request, FileService $fileService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
         $this->denyAccessUnlessGranted('file_edit');
 
@@ -277,56 +231,13 @@ class FileController extends AbstractController
         $uploadDir = '/uploads/managed-files/';
         $config = $this->getParameter('cms');
 
-        $builder = $this->createFormBuilder([
+        $form = $this->createForm(AdminFileType::class, [
             'title' => $fileAggregate->title,
             'language' => $fileAggregate->language,
+        ], [
+            'page_languages' => $config['page_languages'],
         ]);
 
-        $builder->add('title', TextType::class, [
-            'label' => 'admin.label.title',
-            'translation_domain' => 'cms',
-            'constraints' => new NotBlank(),
-            'attr' => [
-                'placeholder' => 'admin.label.title',
-            ],
-        ]);
-
-        $builder->add('language', ChoiceType::class, [
-            'label' => 'admin.label.language',
-            'translation_domain' => 'cms',
-            'choice_translation_domain' => 'messages',
-            'choices' => $config['page_languages'] ?: [
-                'English' => 'en',
-                'German' => 'de',
-            ],
-            'placeholder' => 'admin.label.language',
-            'constraints' => new NotBlank(),
-            'attr' => [
-                'class' => 'custom-select',
-            ],
-        ]);
-
-        $builder->add('file', FileType::class, [
-            'label' => 'admin.label.replaceFile',
-            'translation_domain' => 'cms',
-            'required' => false,
-        ]);
-
-        $builder->add('keepOriginalFileName', CheckboxType::class, [
-            'label' => 'admin.label.keepOriginalFileName',
-            'translation_domain' => 'cms',
-            'required' => false,
-        ]);
-
-        $builder->add('save', SubmitType::class, [
-            'label' => 'admin.btn.saveFile',
-            'translation_domain' => 'cms',
-            'attr' => [
-                'class' => 'btn-primary',
-            ],
-        ]);
-
-        $form = $builder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -341,19 +252,21 @@ class FileController extends AbstractController
 
         return $this->render('@CMS/Backend/File/file-form.html.twig', [
             'form' => $form->createView(),
+            'title' => $translator->trans('admin.label.fileEdit', [], 'cms'),
         ]);
     }
 
     /**
      * @Route("/admin/file/delete", name="cms_file_delete")
      *
-     * @param Request                $request
-     * @param FileService            $fileService
-     * @param AggregateFactory       $aggregateFactory
+     * @param Request $request
+     * @param FileService $fileService
+     * @param AggregateFactory $aggregateFactory
      * @param EntityManagerInterface $entityManager
-     * @param TranslatorInterface    $translator
+     * @param TranslatorInterface $translator
      *
      * @return Response
+     * @throws Exception
      */
     public function fileDelete(Request $request, FileService $fileService, AggregateFactory $aggregateFactory, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {

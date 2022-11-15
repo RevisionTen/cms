@@ -12,13 +12,13 @@ trait LanguageAndWebsiteTrait
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $language = null;
+    public ?string $language = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="RevisionTen\CMS\Entity\Website")
      * @ORM\JoinColumn(nullable=true)
      */
-    private ?Website $website = null;
+    public ?Website $website = null;
 
     public function getLanguage(): ?string
     {
