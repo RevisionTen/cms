@@ -52,7 +52,10 @@ class CacheService
         $apcEnabled = extension_loaded('apcu') && ini_get('apc.enabled');
 
         $this->issuer = $config['site_name'] ?? 'revisionTen';
-        $this->disableCacheWorkaround = (bool) ($config['disable_cache_workaround'] ?? false);
+
+        $disableCacheWorkaround = (bool) ($config['disable_cache_workaround'] ?? false);
+        $runFromCli = PHP_SAPI === 'cli';
+        $this->disableCacheWorkaround = $disableCacheWorkaround || $runFromCli;
 
         if ($apcEnabled && $this->disableCacheWorkaround) {
             $this->cache = new ApcuAdapter();
