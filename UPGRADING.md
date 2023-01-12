@@ -98,6 +98,9 @@ Da das CMS nun nur noch den neuen Symfony Mailer verwendet, muss dafür zwingend
 
 Die Entity Konfiguration kann von easy_admin.entities nach cms.entities kopiert werden.
 
+### Database Schema Update
+
+Das Datenbankschema muss abschließend per `bin/console doctrine:schema:update --force` auf den aktuellen Stand gebracht werden.
 
 #### Hinweise:
 - Listenfelder die nicht sortierbar sind (z.b. weil sie eine Relationship sind), sollten mit der Eigenschaft `sortable: false` markiert werden.
