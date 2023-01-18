@@ -18,35 +18,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-/**
- * Class UserChangePasswordCommand.
- */
 class UserChangePasswordCommand extends Command
 {
-    /** @var EntityManagerInterface $entityManager */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommandBus $commandBus */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /** @var MessageBus $messageBus */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /** @var UserPasswordEncoderInterface $encoder */
-    private $encoder;
+    private UserPasswordEncoderInterface $encoder;
 
-    /** @var AggregateFactory $aggregateFactory */
-    private $aggregateFactory;
+    private AggregateFactory $aggregateFactory;
 
-    /**
-     * UserCreateCommand constructor.
-     *
-     * @param EntityManagerInterface       $entityManager
-     * @param CommandBus                   $commandBus
-     * @param MessageBus                   $messageBus
-     * @param UserPasswordEncoderInterface $encoder
-     * @param AggregateFactory             $aggregateFactory
-     */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserPasswordEncoderInterface $encoder, AggregateFactory $aggregateFactory)
     {
         $this->entityManager = $entityManager;
@@ -58,10 +41,7 @@ class UserChangePasswordCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:user:change_password')
@@ -71,10 +51,7 @@ class UserChangePasswordCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
 
@@ -147,6 +124,9 @@ class UserChangePasswordCommand extends Command
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserChangePasswordCommand failed.');
             print_r($messages);
+            return 500;
         }
+
+        return 0;
     }
 }

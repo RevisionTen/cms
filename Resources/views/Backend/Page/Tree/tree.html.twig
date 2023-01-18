@@ -1,0 +1,22 @@
+{% set root = element.uuid is not defined %}
+
+<div class="cms_tree ps-3 d-flex flex-column flex-grow-1 {% if root %}p-3{% endif %}"
+    {% if root == false %}
+        data-uuid="{{ element.uuid }}"
+        data-children="{{ element.supportChildTypes|join(',') }}"
+    {% endif %}
+>
+    {% if tree is defined and tree|length > 0 %}
+        {% for element in tree %}
+            {% include '@CMS/Backend/Page/Tree/tree-node.html.twig' %}
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if root %}
+    <div class="align-self-end p-3 w-100">
+        <input type="hidden" id="tree-pageUuid" value="{{ pageUuid }}">
+        <input type="hidden" id="tree-onVersion" value="{{ onVersion }}">
+        <button class="btn-tree-save btn btn-sm btn-dark d-block w-100">{{ 'admin.btn.saveElementOrder'|trans({}, 'cms') }}</button>
+    </div>
+{% endif %}

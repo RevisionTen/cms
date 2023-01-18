@@ -19,30 +19,17 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use function array_combine;
 use function array_keys;
+use function array_values;
 
 class PageType extends AbstractType
 {
-    /**
-     * @var Security
-     */
-    protected $security;
+    protected Security $security;
 
-    /**
-     * PageType constructor.
-     *
-     * @param Security $security
-     */
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('title', TextType::class, [
@@ -120,17 +107,21 @@ class PageType extends AbstractType
             ]);
         }
 
-        $builder->add('meta', $options['page_metatype'], [
+        // Get default metaType for first template.
+        $defaultPageMetatype = $options['page_metatype'];
+        $defaultPageMetatype = array_values($options['page_templates'])[0]['metatype'] ?? $defaultPageMetatype;
+
+        $builder->add('meta', $defaultPageMetatype, [
             'label' => false,
             'allow_extra_fields' => true,
         ]);
 
         // Change the meta type depending on the chosen template.
-        $formModifier = static function (FormInterface $form, $template = null) use ($options) {
+        $formModifier = static function (FormInterface $form, $template = null) use ($options, $defaultPageMetatype) {
             if ($template) {
                 $metaType = $options['page_templates'][$template]['metatype'] ?? $options['page_metatype'];
             } else {
-                $metaType = $options['page_metatype'];
+                $metaType = $defaultPageMetatype;
             }
 
             $form->add('meta', $metaType, [
@@ -150,14 +141,12 @@ class PageType extends AbstractType
             $formModifier($event->getForm()->getParent(), $template);
         });
 
-        $builder->add('save', SubmitType::class);
+        $builder->add('save', SubmitType::class, [
+            'label' => 'admin.btn.save',
+            'translation_domain' => 'cms',
+        ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

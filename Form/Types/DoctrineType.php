@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use Doctrine\ORM\EntityManagerInterface;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\Website;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -21,27 +21,15 @@ use function is_array;
 
 class DoctrineType extends AbstractType
 {
-    /**
-     * @var Website|null
-     */
-    private $website;
+    private ?Website $website = null;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * DoctrineType constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param RequestStack           $requestStack
-     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
 
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         $website = $request ? $request->get('currentWebsite') : null;
 
         if (null !== $website) {
@@ -49,12 +37,6 @@ class DoctrineType extends AbstractType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -74,8 +56,23 @@ class DoctrineType extends AbstractType
         $entities = $this->entityManager->getRepository($options['entityClass'])->findBy($options['findBy'], $options['orderBy']);
 
         if ($entities) {
+            $choiceLabel = $options['choice_label'];
             foreach ($entities as $entity) {
-                $choices[(string) $entity] = $entity->getId();
+                $label = (string) $entity;
+                if ($choiceLabel) {
+                    if (is_callable($choiceLabel)) {
+                        $label = $choiceLabel($entity);
+                    } elseif (is_string($choiceLabel)) {
+                        $getter = 'get'.ucfirst($choiceLabel);
+                        $isser = 'is'.ucfirst($choiceLabel);
+                        if (method_exists($entity, $getter)) {
+                            $label = $entity->{$getter}();
+                        } elseif (method_exists($entity, $isser)) {
+                            $label = $entity->{$isser}();
+                        }
+                    }
+                }
+                $choices[$label] = $entity->getId();
             }
         }
 
@@ -83,6 +80,7 @@ class DoctrineType extends AbstractType
             'required' => $options['required'],
             'expanded' => $options['expanded'],
             'multiple' => $options['multiple'],
+            'choice_attr' => $options['choice_attr'],
             'label' => false,
             'choices' => $choices,
             'attr' => [
@@ -164,11 +162,6 @@ class DoctrineType extends AbstractType
         });
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -181,14 +174,11 @@ class DoctrineType extends AbstractType
             'orderBy' => [],
             'filterByWebsite' => false,
             'filterByWebsiteId' => false,
+            'choice_label' => null,
+            'choice_attr' => null,
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_doctrine';

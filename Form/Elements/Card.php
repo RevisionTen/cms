@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Form\Elements;
 
+use RevisionTen\CMS\Form\Types\CKEditorType;
 use RevisionTen\CMS\Form\Types\DoctrineType;
 use RevisionTen\CMS\Form\Types\UploadType;
 use RevisionTen\CMS\Model\Alias;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class Card extends Element
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -55,13 +49,10 @@ class Card extends Element
             'show_file_picker' => true,
         ]);
 
-        $builder->add('text', TextareaType::class, [
+        $builder->add('text', CKEditorType::class, [
             'required' => false,
             'label' => 'element.label.text',
             'translation_domain' => 'cms',
-            'attr' => [
-                'class' => 'ckeditor',
-            ],
         ]);
 
         $builder->add('buttonText', TextType::class, [
@@ -82,11 +73,6 @@ class Card extends Element
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_card';

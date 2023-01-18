@@ -8,27 +8,19 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * Class AliasRepository
- */
 class AliasRepository extends ServiceEntityRepository
 {
-    /**
-     * @var string
-     */
-    private $website;
+    private ?int $website;
 
     public function __construct(ManagerRegistry $registry, $entityClass, RequestStack $requestStack)
     {
         parent::__construct($registry, $entityClass);
 
-        $this->website = $requestStack->getMasterRequest() ? $requestStack->getMasterRequest()->get('currentWebsite') : null;
+        $this->website = $requestStack->getMainRequest() ? $requestStack->getMainRequest()->get('currentWebsite') : null;
     }
 
     /**
      * Filter aliases by currently viewed website.
-     *
-     * {@inheritdoc}
      */
     public function findAll()
     {
@@ -69,6 +61,7 @@ class AliasRepository extends ServiceEntityRepository
             ->setParameter('language', $locale)
             ->setParameter('enabled', true)
             ->setMaxResults(1)
+            ->addOrderBy('a.id', 'ASC')
             ->getQuery();
 
         return $query->getOneOrNullResult();

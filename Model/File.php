@@ -8,27 +8,23 @@ use RevisionTen\CQRS\Model\Aggregate;
 
 final class File extends Aggregate
 {
-    /** @var string */
-    public $title;
+    public ?string $title = null;
 
-    /** @var string */
-    public $path;
+    public ?string $path = null;
 
-    /** @var string|null */
-    public $mimeType;
+    public array $oldPaths = [];
 
-    /** @var int|null */
-    public $size;
+    public bool $deleted = false;
 
-    /** @var int|null */
-    public $width;
+    public ?string $mimeType = null;
 
-    /** @var int|null */
-    public $height;
+    public ?int $size = null;
 
-    /** @var string */
-    public $language;
+    public ?int $width = null;
 
-    /** @var int */
-    public $website;
+    public ?int $height = null;
+
+    public ?string $language = null;
+
+    public ?int $website = null;
 }

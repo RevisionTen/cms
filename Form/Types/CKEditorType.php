@@ -12,38 +12,18 @@ use function array_merge;
 
 class CKEditorType extends TextareaType
 {
-    /**
-     * @var array
-     */
-    protected $config;
+    protected array $config;
 
-    /**
-     * CKEditorType constructor.
-     *
-     * @param array $config
-     */
     public function __construct(array $config)
     {
         $this->config = $config['ckeditor_config'] ?? [];
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_ckeditor';
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormView      $view
-     * @param FormInterface $form
-     * @param array         $options
-     */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         parent::buildView($view, $form, $options);
@@ -51,11 +31,6 @@ class CKEditorType extends TextareaType
         $view->vars['config'] = array_merge($this->config, $options['config']);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

@@ -12,9 +12,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addPageTemplatesNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('page_templates');
@@ -27,6 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->children()
                     ->scalarNode('template')->end()
                     ->scalarNode('metatype')->end()
+                    ->scalarNode('alias_suggester')->info('A public service class that implements the AliasSuggesterInterface')->end()
                     ->scalarNode('solr_serializer')->end()
                     ->arrayNode('alias_prefix')
                         ->info('Defines the path prefix for pages with this template')
@@ -42,6 +40,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('list')->end()
                             ->scalarNode('search')->end()
                             ->scalarNode('new')->end()
+                            ->scalarNode('create')->end()
                             ->scalarNode('edit')->end()
                             ->scalarNode('delete')->end()
                         ->end()
@@ -52,9 +51,6 @@ class Configuration implements ConfigurationInterface
          return $node;
     }
 
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addPageElementsNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('page_elements');
@@ -98,15 +94,23 @@ class Configuration implements ConfigurationInterface
                         ->info('CSS classes this element can have assigned in its settings.')
                         ->scalarPrototype()->end()
                     ->end()
+                    ->arrayNode('websites')
+                        ->info('Defines on which website this element is available')
+                        ->integerPrototype()->end()
+                    ->end()
+                    ->arrayNode('permissions')
+                        ->info('Permissions for this element.')
+                        ->children()
+                            ->scalarNode('create')->end()
+                            ->scalarNode('edit')->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 
          return $node;
     }
 
-    /**
-     * @return ArrayNodeDefinition
-     */
     public function addMenuItemsNode(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('menu_items');
@@ -127,17 +131,20 @@ class Configuration implements ConfigurationInterface
                         ->isRequired()
                         ->cannotBeEmpty()
                     ->end()
+                    ->scalarNode('admin_template')
+                        ->info('The admin template of the item.')
+                        ->defaultNull()
+                    ->end()
+                    ->arrayNode('websites')
+                        ->info('Defines on which website this menu item is available')
+                        ->integerPrototype()->end()
+                    ->end()
                 ->end()
             ->end();
 
          return $node;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return TreeBuilder
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('cms');
@@ -155,7 +162,7 @@ class Configuration implements ConfigurationInterface
                     ->info('Set it to true If your hosts APCu cache behaves properly and shares the cache as one would expect')
                     ->defaultFalse()
                 ->end()
-                ->integerNode('shm_key')->setDeprecated()->end()
+                ->integerNode('shm_key')->setDeprecated('revision-ten/cms', '2.3.0', 'This option is no longer needed')->end()
                 ->booleanNode('use_mail_codes')
                     ->info('Set this to true If you want to receive login codes by mail, set this to false to use Google Authenticator.')
                     ->defaultFalse()
@@ -174,6 +181,14 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('solr_collection')
                     ->info('The solr collection name.')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('solr_username')
+                    ->info('The solr HTTP Basic auth username.')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('solr_password')
+                    ->info('The solr HTTP Basic auth password.')
                     ->defaultNull()
                 ->end()
                 ->scalarNode('mailer_from')
@@ -215,7 +230,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->arrayNode('page_menues')
-                    ->setDeprecated('"page_menues" is deprecated, use "menus" instead.')
+                    ->setDeprecated('revision-ten/cms', '2.3.0', '"page_menues" is deprecated, use "menus" instead.')
                     ->info('Defines the menus.')
                     ->arrayPrototype()
                         ->children()
@@ -228,6 +243,10 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('template')->end()
+                            ->arrayNode('websites')
+                                ->info('Defines on which website this menu is available')
+                                ->integerPrototype()->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
@@ -254,23 +273,27 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('admin_menu')
                     ->info('Add menu items to the admin menu.')
-                    ->children()
-                        ->arrayNode('Content')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                        ->arrayNode('Structure')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                        ->arrayNode('Settings')
-                            ->normalizeKeys(false)
-                            ->defaultValue([])
-                            ->prototype('variable')->end()
-                        ->end()
-                    ->end()
+                    ->performNoDeepMerging()
+                    ->normalizeKeys(false)
+                    ->ignoreExtraKeys(false)
+                    // Todo: Make this config explicit.
+                    #->arrayPrototype()
+                    #    ->arrayPrototype()
+                    #        ->children()
+                    #            ->scalarNode('label')->end()
+                    #            ->scalarNode('route')->end()
+                    #            ->scalarNode('entity')->end()
+                    #            ->arrayNode('children')->end()
+                    #        ->end()
+                    #    ->end()
+                    #->end()
+                ->end()
+                ->arrayNode('entities')
+                    ->info('Custom entities.')
+                    ->performNoDeepMerging()
+                    ->normalizeKeys(false)
+                    ->ignoreExtraKeys(false)
+                    // Todo: Make this config explicit.
                 ->end()
             ->end();
 

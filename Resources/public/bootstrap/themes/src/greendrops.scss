@@ -1,0 +1,46 @@
+
+$white: #ffffff;
+$black: #000000;
+$green: #7fc600;
+$primary: $green;
+$yiq-contrasted-threshold: 250;
+$dark: $black;
+$light: $white;
+$secondary: $black;
+$enable-rounded: false;
+$enable-print-styles: false;
+$gray-100: #f0f0f0;
+$gray-200: #e9ecef;
+$input-bg: $gray-200;
+$input-disabled-bg: $gray-100;
+$input-border-color: $gray-200;
+$font-weight-normal: 400;
+$font-weight-light: 300;
+$font-weight-bold: 700;
+$border-color: $gray-200;
+$card-cap-bg: $gray-200;
+$card-border-color: $gray-200;
+$min-contrast-ratio:  1.5;
+
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap');
+
+$font-family-sans-serif: 'Oxygen', sans-serif;
+
+select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.btn-light {
+  background: $border-color!important;
+  border: 1px solid $border-color!important;
+
+  &.active,
+  &:hover {
+    background: $black!important;
+    border: 1px solid $black!important;
+    color: $white!important;
+  }
+}
+
+@import "~bootstrap/scss/bootstrap";

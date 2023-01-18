@@ -1,0 +1,14 @@
+
+{% set currentWebsite = app.request.get('currentWebsite') %}
+{% set websites = app.user.getWebsites() %}
+
+<div class="px-4 py-3 border-top">
+    <div class="form-floating">
+        <select class="form-select" onchange="window.location.href = this.value">
+            {% for website in websites %}
+                <option value="{{ path('cms_set_website', {website: website.id}) }}" {% if website.id == currentWebsite %}selected{% endif %}>{{ website.title }}</option>
+            {% endfor %}
+        </select>
+        <label for="floatingSelect">{{ 'page.label.website'|trans({}, 'cms') }}</label>
+    </div>
+</div>

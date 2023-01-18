@@ -6,6 +6,7 @@ namespace RevisionTen\CMS\Controller;
 
 use DateTime;
 use Exception;
+use RevisionTen\CMS\Event\PageRenderEvent;
 use RevisionTen\CMS\Model\Alias;
 use RevisionTen\CMS\Model\PageRead;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function class_exists;
 use function explode;
 use function is_string;
@@ -30,6 +32,11 @@ use function strtotime;
  */
 class FrontendController extends AbstractController
 {
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
     /**
      * @var PageService
      */
@@ -50,16 +57,9 @@ class FrontendController extends AbstractController
      */
     protected $config;
 
-    /**
-     * FrontendController constructor.
-     *
-     * @param PageService            $pageService
-     * @param CacheService           $cacheService
-     * @param EntityManagerInterface $entityManager
-     * @param array                  $config
-     */
-    public function __construct(PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, array $config)
+    public function __construct(EventDispatcherInterface $eventDispatcher, PageService $pageService, CacheService $cacheService, EntityManagerInterface $entityManager, array $config)
     {
+        $this->eventDispatcher = $eventDispatcher;
         $this->pageService = $pageService;
         $this->cacheService = $cacheService;
         $this->entityManager = $entityManager;
@@ -80,7 +80,7 @@ class FrontendController extends AbstractController
          */
         $aliases = $this->entityManager->getRepository(Alias::class)->findAllMatchingAlias($request->get('websiteId'), $request->getLocale());
 
-        $response = $this->render('@cms/sitemap.xml.twig', [
+        $response = $this->render('@CMS/Frontend/sitemap.xml.twig', [
             'aliases' => $aliases,
         ]);
 
@@ -137,15 +137,21 @@ class FrontendController extends AbstractController
         $template = $this->config['page_templates'][$templateName]['template'] ?? '@cms/layout.html.twig';
 
         // Hydrate the page with doctrine entities.
-        $pageData = $this->pageService->hydratePage($pageData);
+        $page = $this->pageService->hydratePage($pageData);
 
-        return $this->render($template, [
+        $context = [
             'website' => $website,
             'alias' => $alias,
-            'page' => $pageData,
+            'page' => $page,
             'edit' => false,
             'config' => $this->config,
-        ]);
+        ];
+
+        // Send PageRender event.
+        $event = new PageRenderEvent($page, $this->config, $website, $alias);
+        $this->eventDispatcher->dispatch($event, PageRenderEvent::NAME);
+
+        return $this->render($template, $context);
     }
 
     /**
@@ -211,7 +217,7 @@ class FrontendController extends AbstractController
             }
         } elseif ($redirect) {
             // Redirect request.
-            $redirectResponse = $this->redirect($redirect);
+            $redirectResponse = $this->redirect($redirect, $alias->getRedirectCode());
             // Redirect expires immediately to prevent browser caching.
             $redirectResponse->setExpires(new DateTime());
             $response = $redirectResponse;
@@ -234,13 +240,13 @@ class FrontendController extends AbstractController
      */
     public function fulltextSearch(RequestStack $requestStack, SearchService $searchService): Response
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
 
         $query = $request ? $request->get('q') : null;
 
         $results = !empty($query) && is_string($query) ? $searchService->getFulltextResults($query) : null;
 
-        return $this->render('@cms/Search/fulltext.html.twig', [
+        return $this->render('@CMS/Frontend/Search/fulltext.html.twig', [
             'query' => $query,
             'results' => $results,
         ]);

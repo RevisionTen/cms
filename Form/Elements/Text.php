@@ -9,12 +9,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class Text extends Element
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -25,11 +19,6 @@ class Text extends Element
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_text';

@@ -2,17 +2,18 @@
 
 namespace RevisionTen\CMS\Security;
 
-use Exception;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Utilities\RandomHelpers;
-use Swift_Mailer;
-use Swift_Message;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -23,49 +24,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @var Swift_Mailer
-     */
-    private $swift_Mailer;
+    private MailerInterface $mailer;
 
-    /**
-     * @var UserPasswordEncoderInterface $encoder
-     */
-    private $encoder;
+    private UserPasswordEncoderInterface $encoder;
 
-    /**
-     * @var SessionInterface
-     */
-    private $session;
+    private SessionInterface $session;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var bool
-     */
-    private $isDev;
+    private bool $isDev;
 
-    /**
-     * BasicAuthenticator constructor.
-     *
-     * @param Swift_Mailer                $swift_Mailer
-     * @param UserPasswordEncoderInterface $encoder
-     * @param RequestStack                 $requestStack
-     * @param TranslatorInterface          $translator
-     * @param array                        $config
-     * @param string                        $env
-     */
-    public function __construct(Swift_Mailer $swift_Mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
+    public function __construct(MailerInterface $mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
     {
-        $this->swift_Mailer = $swift_Mailer;
+        $this->mailer = $mailer;
         $this->encoder = $encoder;
         $this->translator = $translator;
         $this->session = $this->getSession($requestStack);
@@ -82,7 +55,7 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      */
     private function getSession(RequestStack $requestStack): SessionInterface
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         $session = $request ? $request->getSession() : null;
 
         if (null === $session) {
@@ -96,9 +69,6 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         return $session;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(Request $request): bool
     {
         $username = $request->get('login')['username'] ?? null;
@@ -131,15 +101,12 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         return [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $username = $credentials['username'];
 
-        // If its a User object, checkCredentials() is called, otherwise authentication will fail.
-        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
+        // If it's a User object, checkCredentials() is called, otherwise authentication will fail.
+        return null !== $username ? $userProvider->loadUserByIdentifier($username) : null;
     }
 
     /**
@@ -156,10 +123,9 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * {@inheritdoc}
-     * @throws Exception
+     * @throws TransportExceptionInterface
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
     {
         // Remember the username in the session for the Code Authenticator.
         $username = $request->get('login')['username'] ?? null;
@@ -196,6 +162,8 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
      *
      * @param UserRead $user
      * @param string   $code
+     *
+     * @throws TransportExceptionInterface
      */
     private function sendCodeMail(UserRead $user, string $code): void
     {
@@ -219,28 +187,27 @@ EOT;
         $senderConfigExists = isset($this->config['mailer_from'], $this->config['mailer_sender'], $this->config['mailer_return_path']) && $this->config['mailer_from'] && $this->config['mailer_sender'] && $this->config['mailer_return_path'];
 
         if ($senderConfigExists) {
-            $message = (new Swift_Message($subject))
-                ->setFrom($this->config['mailer_from'])
-                ->setSender($this->config['mailer_sender'])
-                ->setReturnPath($this->config['mailer_return_path'])
-                ->setTo($mail)
-                ->setBody($messageBody, 'text/html')
+            $message = (new Email())
+                ->from($this->config['mailer_from'])
+                ->sender($this->config['mailer_sender'])
+                ->returnPath($this->config['mailer_return_path'])
+                ->to($mail)
+                ->subject($subject)
+                ->html($messageBody)
             ;
         } else {
             // Attempt to send without explicitly setting the sender.
-            $message = (new Swift_Message($subject))
-                ->setTo($mail)
-                ->setBody($messageBody, 'text/html')
+            $message = (new Email())
+                ->to($mail)
+                ->subject($subject)
+                ->html($messageBody)
             ;
         }
 
-        $this->swift_Mailer->send($message);
+        $this->mailer->send($message);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = $this->translator->trans('admin.label.loginError', [], 'cms');
         $flashBag = $this->session->getFlashBag();
@@ -266,9 +233,6 @@ EOT;
         return new RedirectResponse('/login');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsRememberMe(): bool
     {
         return false;

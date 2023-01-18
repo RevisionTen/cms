@@ -1,0 +1,20 @@
+{% set fallbackState = item.published ? 'published' : 'unpublished' %}
+{% set state = value ?? fallbackState %}
+{% if state == 'published' %}
+    {% set badge = 'success' %}
+{% elseif state == 'unpublished' %}
+    {% set badge = 'danger' %}
+{% elseif state == 'deleted' %}
+    {% set badge = 'danger' %}
+{% elseif state == 'scheduled' %}
+    {% set badge = 'warning' %}
+{% else %}
+    {% set badge = 'info' %}
+{% endif %}
+<span class="badge bg-{{ badge }}">
+    {{ ('admin.label.'~state)|trans({}, 'cms') }}
+</span>
+
+{% if item.locked %}
+<span class="fas fa-lock"></span>
+{% endif %}

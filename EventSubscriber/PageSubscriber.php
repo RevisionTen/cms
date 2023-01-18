@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\EventSubscriber;
 use DateTime;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Command\PagePublishCommand;
 use RevisionTen\CMS\Command\PageUnpublishCommand;
 use RevisionTen\CMS\Event\PageAddScheduleEvent;
@@ -23,28 +24,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PageSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var PageService
-     */
-    private $pageService;
+    private PageService $pageService;
 
-    /**
-     * @var IndexService
-     */
-    private $indexService;
+    private IndexService $indexService;
 
-    /**
-     * @var TaskService
-     */
-    private $taskService;
+    private TaskService $taskService;
 
-    /**
-     * PageSubscriber constructor.
-     *
-     * @param PageService  $pageService
-     * @param IndexService $indexService
-     * @param TaskService  $taskService
-     */
     public function __construct(PageService $pageService, IndexService $indexService, TaskService $taskService)
     {
         $this->pageService = $pageService;
@@ -52,9 +37,6 @@ class PageSubscriber implements EventSubscriberInterface
         $this->taskService = $taskService;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -72,8 +54,7 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param PagePublishEvent $pagePublishEvent
-     *
+     * @throws InvalidArgumentException
      * @throws ORMException
      * @throws Exception
      */
@@ -90,8 +71,7 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param PageUnpublishEvent $pageUnpublishEvent
-     *
+     * @throws InvalidArgumentException
      * @throws ORMException
      * @throws Exception
      */
@@ -107,9 +87,8 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param PageDeleteEvent $pageDeleteEvent
-     *
      * @throws ORMException
+     * @throws InvalidArgumentException
      * @throws Exception
      */
     public function deleteReadModelsAndTasks(PageDeleteEvent $pageDeleteEvent): void
@@ -126,8 +105,6 @@ class PageSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param PageSubmitEvent $pageSubmitEvent
-     *
      * @throws Exception
      */
     public function submitPage(PageSubmitEvent $pageSubmitEvent): void
@@ -139,11 +116,6 @@ class PageSubscriber implements EventSubscriberInterface
         $this->pageService->submitPage($pageUuid, $user, $maxVersion);
     }
 
-    /**
-     * @param PageAddScheduleEvent $pageAddScheduleEvent
-     *
-     * @throws Exception
-     */
     public function addSchedule(PageAddScheduleEvent $pageAddScheduleEvent): void
     {
         $pageUuid = $pageAddScheduleEvent->getAggregateUuid();
@@ -166,9 +138,6 @@ class PageSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param PageRemoveScheduleEvent $pageRemoveScheduleEvent
-     */
     public function removeSchedule(PageRemoveScheduleEvent $pageRemoveScheduleEvent): void
     {
         $payload = $pageRemoveScheduleEvent->getPayload();

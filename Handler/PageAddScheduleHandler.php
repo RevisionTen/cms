@@ -35,6 +35,8 @@ final class PageAddScheduleHandler implements HandlerInterface
         // Mark page as scheduled.
         if (null !== $startDate && (Page::STATE_UNPUBLISHED === $aggregate->state || Page::STATE_STAGED === $aggregate->state)) {
             $aggregate->state = Page::STATE_SCHEDULED;
+        } elseif (null !== $endDate && Page::STATE_PUBLISHED === $aggregate->state) {
+            $aggregate->state = Page::STATE_SCHEDULED_UNPUBLISH;
         }
 
         return $aggregate;

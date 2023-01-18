@@ -1,0 +1,4 @@
+{% if edit %}
+    <script id="pageElements" type="application/json">{{ pageElements|json_encode|raw }}</script>
+    <script id="cmsTranslations" type="application/json">{{ translations|json_encode|raw }}</script>
+{% endif %}

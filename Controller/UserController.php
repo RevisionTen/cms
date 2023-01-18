@@ -17,13 +17,16 @@ use RevisionTen\CQRS\Services\MessageBus;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use function array_values;
 
@@ -50,13 +53,14 @@ class UserController extends AbstractController
      */
     public function edit(Request $request, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, int $id)
     {
-        $this->denyAccessUnlessGranted('user_edit');
-
         /**
          * @var UserRead $user
          */
         $user = $this->getUser();
 
+        /**
+         * @var UserRead $userRead
+         */
         $userRead = $entityManager->getRepository(UserRead::class)->find($id);
         if (null === $userRead) {
             return $this->redirectToUsers();
@@ -74,6 +78,13 @@ class UserController extends AbstractController
          * @var UserAggregate $userAggregate
          */
         $userAggregate = $aggregateFactory->build($userRead->getUuid(), UserAggregate::class);
+
+        $userEditsSelf = $user->getUuid() === $userAggregate->getUuid();
+        $canEditOthers = $this->isGranted('user_edit');
+
+        if (!$userEditsSelf) {
+            $this->denyAccessUnlessGranted('user_edit');
+        }
 
         // Get all websites.
         /**
@@ -97,12 +108,31 @@ class UserController extends AbstractController
 
         $formBuilder = $this->createFormBuilder([
             'color' => $userAggregate->color ?? $userRead->getColor(),
+            'theme' => $userAggregate->theme ?? $userRead->getTheme(),
+            'username' => $userAggregate->username,
+            'email' => $userAggregate->email,
             'websites' => $userAggregate->websites,
             'roles' => $userAggregate->roles,
             'avatarUrl' => $userAggregate->avatarUrl,
         ]);
 
-        $formBuilder->add('avatarUrl', TextType::class, [
+        $usernameHelp = $userEditsSelf ? 'admin.help.username' : null;
+        $formBuilder->add('username', TextType::class, [
+            'label' => 'admin.label.username',
+            'help' => $usernameHelp,
+            'translation_domain' => 'cms',
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('email', EmailType::class, [
+            'label' => 'admin.label.email',
+            'translation_domain' => 'cms',
+            'required' => true,
+            'constraints' => new NotBlank(),
+        ]);
+
+        $formBuilder->add('avatarUrl', UrlType::class, [
             'label' => 'admin.label.avatarUrl',
             'translation_domain' => 'cms',
             'required' => false,
@@ -114,27 +144,44 @@ class UserController extends AbstractController
             'required' => false,
         ]);
 
-        $formBuilder->add('websites', ChoiceType::class, [
-            'label' => 'admin.label.websites',
+        $formBuilder->add('theme', ChoiceType::class, [
+            'label' => 'admin.label.theme',
             'translation_domain' => 'cms',
-            'choices' => $websites,
-            'multiple' => true,
-            'expanded' => true,
             'required' => false,
+            'choices' => [
+                'Sandstone' => 'sandstone',
+                'Cosmo' => 'cosmo',
+                'Simplex' => 'simplex',
+                'Litera' => 'litera',
+                'Lux' => 'lux',
+                'Dark' => 'dark',
+                'Greendrops' => 'greendrops',
+            ],
         ]);
 
-        $formBuilder->add('roles', ChoiceType::class, [
-            'label' => 'admin.label.roles',
-            'translation_domain' => 'cms',
-            'choices' => $roles,
-            'choice_translation_domain' => 'messages',
-            'multiple' => true,
-            'expanded' => true,
-            'required' => false,
-        ]);
+        if ($canEditOthers) {
+            $formBuilder->add('websites', ChoiceType::class, [
+                'label' => 'admin.label.websites',
+                'translation_domain' => 'cms',
+                'choices' => $websites,
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ]);
 
-        $formBuilder->add('submit', SubmitType::class, [
-            'label' => 'admin.btn.saveUser',
+            $formBuilder->add('roles', ChoiceType::class, [
+                'label' => 'admin.label.roles',
+                'translation_domain' => 'cms',
+                'choices' => $roles,
+                'choice_translation_domain' => 'messages',
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ]);
+        }
+
+        $formBuilder->add('save', SubmitType::class, [
+            'label' => 'admin.btn.save',
             'translation_domain' => 'cms',
             'attr' => [
                 'class' => 'btn-primary',
@@ -147,9 +194,14 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
+            $usernameHasChanged = $userEditsSelf && !empty($data['username']) && $data['username'] !== $userAggregate->username;
+
             // Update the aggregate.
             $success = $commandBus->execute(UserEditCommand::class, $userAggregate->getUuid(), [
+                'username' => $data['username'],
+                'email' => $data['email'],
                 'color' => $data['color'],
+                'theme' => $data['theme'],
                 'avatarUrl' => $data['avatarUrl'],
                 'websites' => array_values($data['websites']),
                 'roles' => array_values($data['roles']),
@@ -159,13 +211,26 @@ class UserController extends AbstractController
                 return new JsonResponse($messageBus->getMessagesJson());
             }
 
+            if ($usernameHasChanged) {
+                $session = $request->getSession();
+                if ($session) {
+                    $session->clear();
+                }
+
+                return $this->redirectToRoute('cms_login');
+            }
+
             $this->addFlash(
                 'success',
                 $translator->trans('admin.label.userEditSuccess', [], 'cms')
             );
+
+            return $this->redirectToRoute('cms_user_edit', [
+                'id' => $id,
+            ]);
         }
 
-        return $this->render('@cms/Form/form.html.twig', [
+        return $this->render('@CMS/Backend/Form/form.html.twig', [
             'title' => $translator->trans('admin.label.editUser', [], 'cms'),
             'form' => $form->createView(),
         ]);

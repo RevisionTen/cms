@@ -1,0 +1,9 @@
+<div class="ratio ratio-1x1" title="{{ user.username }}" style="max-width: 40px;">
+        <div class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center text-white" style="background: {{ user.color }};">
+                {% if user.avatarUrl %}
+                    <img src="{{ user.avatarUrl }}" style="object-fit: cover;max-width: 120%;max-height:120%;">
+                {% else %}
+                        {{ user.username|first }}
+                {% endif %}
+        </div>
+</div>

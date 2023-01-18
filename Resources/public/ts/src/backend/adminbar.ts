@@ -24,7 +24,7 @@ function bindLinks()
     bindLink('[data-target=ajax]', 'openAjax');
     bindLink('[data-target=tab]', 'openTab');
 
-    // Toggle view modes.
+    // Toggle tree.
     let treeToggleButton = document.querySelector('.toggle-tree');
     if (null !== treeToggleButton) {
         treeToggleButton.addEventListener('click', (event) => {
@@ -37,36 +37,51 @@ function bindLinks()
 
             let pageTree = document.getElementById('page-tree');
             if (null !== pageTree) {
-                if (pageTree.classList.contains('hidden')) {
-                    pageTree.classList.remove('hidden');
+                if (pageTree.classList.contains('d-none')) {
+                    pageTree.classList.remove('d-none');
                 } else {
-                    pageTree.classList.add('hidden');
+                    pageTree.classList.add('d-none');
                 }
             }
         });
     }
 
     // Toggle editor.
-    let editorToggleButton = document.querySelector('.toggle-editor');
-    if (null !== editorToggleButton) {
-        editorToggleButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (editorToggleButton.classList.contains('active')) {
-                editorToggleButton.classList.remove('active');
-            } else {
-                editorToggleButton.classList.add('active');
-            }
+    let viewModeToggleButton = document.querySelectorAll('.toggle-view-mode') as NodeListOf<HTMLLinkElement>;
+    if (null !== viewModeToggleButton) {
+        viewModeToggleButton.forEach((btn) => {
+            btn.addEventListener('click', (event) => {
+                event.preventDefault();
 
-            let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
-            if (null !== pageFrame) {
-                let pageFrameFrameBody = pageFrame.contentDocument.body;
-
-                if (pageFrameFrameBody.classList.contains('hide-editor')) {
-                    pageFrameFrameBody.classList.remove('hide-editor');
-                } else {
-                    pageFrameFrameBody.classList.add('hide-editor');
+                let mode = btn.dataset.mode ?? 'editor';
+                let isActive = btn.classList.contains('active');
+                if (isActive) {
+                    return;
                 }
-            }
+
+                // Deactivate other buttons.
+                viewModeToggleButton.forEach((toggleBtn) => {
+                    toggleBtn.classList.remove('active');
+                });
+
+                btn.classList.add('active');
+
+                let pageFrame = <HTMLIFrameElement>document.getElementById('page-frame');
+                if (null !== pageFrame) {
+                    let pageFrameFrameBody = pageFrame.contentDocument.body;
+
+                    if ('editor' === mode) {
+                        pageFrameFrameBody.classList.remove('hide-editor');
+                        pageFrameFrameBody.classList.remove('show-spacing-tool');
+                    } else if ('spacing' === mode) {
+                        pageFrameFrameBody.classList.add('hide-editor');
+                        pageFrameFrameBody.classList.add('show-spacing-tool');
+                    } else if ('preview' === mode) {
+                        pageFrameFrameBody.classList.remove('show-spacing-tool');
+                        pageFrameFrameBody.classList.add('hide-editor');
+                    }
+                }
+            });
         });
     }
 
@@ -90,6 +105,40 @@ function bindLinks()
                 } else {
                     pageFrameFrameBody.classList.add('editor-dark');
                 }
+            }
+        });
+    }
+
+    // Toggle editor size.
+    let sidebar = document.querySelector('.sidebar') as HTMLElement|null;
+    let maximizeButton = document.querySelector('.btn-maximize-editor') as HTMLSpanElement|null;
+    let minimizeButton = document.querySelector('.btn-minimize-editor') as HTMLSpanElement|null;
+    if (null !== sidebar && null !== maximizeButton && null !== minimizeButton) {
+        maximizeButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            maximizeButton.classList.add('d-none');
+            minimizeButton.classList.remove('d-none');
+            sidebar.classList.add('d-none');
+        });
+        minimizeButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            minimizeButton.classList.add('d-none');
+            maximizeButton.classList.remove('d-none');
+            sidebar.classList.remove('d-none');
+        });
+    }
+
+    // Bind save buttons.
+    let saveBtn = document.querySelector('.btn-save-event') as HTMLElement|null;
+    if (saveBtn) {
+        window.addEventListener('keydown', function(event: KeyboardEvent) {
+            // @ts-ignore
+            if((event.ctrlKey || event.metaKey) && event.which == 83) {
+                event.preventDefault();
+                if (saveBtn.offsetParent !== null) {
+                    saveBtn.click();
+                }
+                return false;
             }
         });
     }

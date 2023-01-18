@@ -4,40 +4,23 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
-use RevisionTen\CMS\Model\RoleRead;
+use Exception;
+use RevisionTen\CMS\Entity\RoleRead;
+use RevisionTen\CMS\Entity\UserRead;
+use RevisionTen\CMS\Entity\Website;
 use RevisionTen\CMS\Model\UserAggregate;
-use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
-/**
- * Class UserService.
- */
 class UserService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * @var SecretService
-     */
-    protected $secretService;
+    protected SecretService $secretService;
 
-    /**
-     * UserService constructor.
-     *
-     * @param EntityManagerInterface $em
-     * @param AggregateFactory       $aggregateFactory
-     * @param SecretService          $secretService
-     */
     public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory, SecretService $secretService)
     {
         $this->em = $em;
@@ -50,7 +33,7 @@ class UserService
      *
      * @param string $userUuid
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateUserRead(string $userUuid): void
     {
@@ -83,6 +66,7 @@ class UserService
         $userRead->setUsername($aggregate->username);
         $userRead->setPassword($aggregate->password);
         $userRead->setColor($aggregate->color);
+        $userRead->setTheme($aggregate->theme);
         $userRead->setDevices($aggregate->devices);
         $userRead->setIps($aggregate->ips);
         $userRead->setResetToken($aggregate->resetToken);
@@ -96,6 +80,9 @@ class UserService
         $this->em->clear();
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function sendSecret(string $userUuid): void
     {
         /**
@@ -106,6 +93,9 @@ class UserService
         $this->secretService->sendSecret($aggregate->secret, $aggregate->username, $aggregate->email);
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function sendLoginInfo(string $userUuid, string $password): void
     {
         /**
@@ -113,9 +103,12 @@ class UserService
          */
         $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
 
-        $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email);
+        $this->secretService->sendLoginInfo($aggregate->username, $password, $aggregate->email, $aggregate->websites);
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function sendPasswordResetMail(string $userUuid, string $token): void
     {
         /**

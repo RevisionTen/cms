@@ -1,3 +1,7 @@
+import onSubmit from './onsubmit';
+import updateCKEditorInstances from "./ckeditor";
+import updateElement from "./element";
+
 const axios = require('axios').default;
 
 /*
@@ -27,6 +31,8 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
 
             let thumbPath = file.dataset.thumbPath;
             let filePath = file.dataset.filePath;
+            let uuid = file.dataset.uuid;
+            let version = file.dataset.version;
             let title = file.dataset.title;
             let mimeType = file.dataset.mimeType;
             let size = file.dataset.size;
@@ -36,6 +42,16 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
             let fileInput = document.getElementById(targetId+'_file');
             if (null !== fileInput) {
                 fileInput.setAttribute('value', filePath);
+            }
+
+            let uuidInput = document.getElementById(targetId+'_uuid');
+            if (null !== uuidInput) {
+                uuidInput.setAttribute('value', uuid);
+            }
+
+            let versionInput = document.getElementById(targetId+'_version');
+            if (null !== versionInput) {
+                versionInput.setAttribute('value', version);
             }
 
             let titleInput = document.getElementById(targetId+'_title');
@@ -63,14 +79,25 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
                 heightInput.setAttribute('value', height);
             }
 
-            let filePickerUploadFieldInput = document.getElementById(filePickerUploadField);
+            let filePickerUploadFieldInput = document.getElementById(filePickerUploadField) as HTMLInputElement;
             if (null !== filePickerUploadFieldInput) {
                 filePickerUploadFieldInput.removeAttribute('required');
+
+                // Unset selected files.
+                filePickerUploadFieldInput.value = null;
+
+                // Set file input label.
+                let fileLabel = filePickerUploadFieldInput.parentElement.querySelector('.custom-file-label') as HTMLLabelElement|null;
+                if (fileLabel) {
+                    // Get the file name from the path and set it as the label text.
+                    let fileName = filePath.split('/');
+                    fileLabel.innerText = fileName.pop();
+                }
             }
 
             // Set preview thumbnail.
             let thumb = document.getElementById('cms-img-'+targetId+'_file');
-            if (null !== thumb) {
+            if (null !== thumb && '' !== thumbPath) {
                 thumb.setAttribute('src', thumbPath);
                 thumb.classList.remove('d-none');
             }
@@ -80,12 +107,43 @@ function bindFilePickerWindow(filePicker: Element, filePickerUploadField: string
         });
     });
 
+    // Bind pagination.
+    let paginationItems = filePicker.querySelectorAll('a.page-link') as NodeListOf<HTMLLinkElement>;
+    paginationItems.forEach((paginationItem) => {
+        paginationItem.addEventListener('click', (event) => {
+            event.preventDefault();
+            let url = paginationItem.href;
+
+            axios.get(url)
+                .then(function (response: any) {
+                    filePicker.innerHTML = response.data;
+                    bindFilePickerWindow(filePicker, filePickerUploadField, targetId);
+                })
+                .catch(function (error: any) {
+                    // handle error
+                    console.log(error);
+                })
+                .finally(function () {
+                    // always executed
+                });
+        });
+    });
+
     // Bind close button.
     let closeButton = filePicker.querySelector('.cms-file-picker-close');
     if (null !== closeButton) {
         closeButton.addEventListener('click', (event) => {
             event.preventDefault();
             closeFilePickerWindow(filePicker);
+        });
+    }
+
+    // Add an ajax submit handler to search form.
+    let form = filePicker.querySelector('#file-search') as HTMLFormElement|null;
+    if (form) {
+        onSubmit(form, () => {}, (data: any, success: boolean) => {
+            filePicker.innerHTML = data;
+            bindFilePickerWindow(filePicker, filePickerUploadField, targetId);
         });
     }
 }
@@ -120,6 +178,7 @@ let bindFilePicker = function(element: HTMLElement)
                 let queryParams = filePickerMimeTypes ? {
                     mimeTypes: filePickerMimeTypes
                 } : null;
+
                 axios.get(url, {
                     params: queryParams
                 })

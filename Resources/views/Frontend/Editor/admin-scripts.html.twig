@@ -1,0 +1,8 @@
+{% include "@CMS/Frontend/Helper/element-config-helper.html.twig" %}
+{% if edit %}
+    {# Todo: Remove jQuery. #}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="{{ asset('/bundles/cms/libs/jquery/jquery-ui.min.js') }}"></script>
+
+    <script src="{{ asset('/bundles/cms/js/admin-frontend.js') }}"></script>
+{% endif %}

@@ -40,6 +40,8 @@ cms:
                 label: 'Inspect page'
             page_change_seo_settings:
                 label: 'Change SEO settings'
+            page_lock_unlock:
+                label: 'Lock and unlock page'
         Alias:
             alias_list:
                 label: 'List aliases'
@@ -86,6 +88,8 @@ cms:
                 label: 'Create file'
             file_edit:
                 label: 'Edit file'
+            file_delete:
+                label: 'Delete file'
         Website:
             website_list:
                 label: 'List websites'

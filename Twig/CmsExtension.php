@@ -4,48 +4,57 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Twig;
 
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 use function array_push;
+use function array_search;
 use function array_walk;
 use function implode;
 use function is_array;
+use function json_encode;
 use function time;
+use function uasort;
 
 class CmsExtension extends AbstractExtension
 {
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * CmsExtension constructor.
-     *
-     * @param array               $config
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(array $config, TranslatorInterface $translator)
+    protected Security $security;
+
+    public function __construct(array $config, TranslatorInterface $translator, Security $security)
     {
         $this->config = $config;
         $this->translator = $translator;
+        $this->security = $security;
     }
 
+    /**
+     * @return array|TwigFunction[]
+     */
     public function getFunctions(): array
     {
-        return array(
+        return [
             new TwigFunction('isElementVisible', [$this, 'isElementVisible']),
             new TwigFunction('editorAttr', [$this, 'editorAttr'], [
                 'is_safe' => ['html'],
             ]),
             new TwigFunction('elementClasses', [$this, 'elementClasses']),
-        );
+        ];
+    }
+
+    /**
+     * @return array|TwigFilter[]
+     */
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('sortWeekdays', [$this, 'sortWeekdays']),
+        ];
     }
 
     public function isElementVisible(array $element): bool
@@ -59,7 +68,7 @@ class CmsExtension extends AbstractExtension
     /**
      * Returns an array of bootstrap spacing css classes.
      *
-     * @param array  $spacing     the amount of spacing
+     * @param array $spacing the amount of spacing
      * @param string $propertyAbr the type of spacing ('m' = margin, 'p' = padding)
      *
      * @return array
@@ -67,6 +76,11 @@ class CmsExtension extends AbstractExtension
     private static function getSpacing(array $spacing, string $propertyAbr): array
     {
         $classes = [];
+
+        // Breakpoint XS is the same as no breakpoint specified in Bootstrap 4 ("mobile first").
+        if ('xs' === $spacing['breakpoint']) {
+            $spacing['breakpoint'] = null;
+        }
 
         $breakpoint = $spacing['breakpoint'] ? '-'.$spacing['breakpoint'] : '';
         $top = $spacing['top'] ?? null;
@@ -78,7 +92,11 @@ class CmsExtension extends AbstractExtension
             $classes[] = $key.'-'.$top;
         }
         if (null !== $right) {
+            // Bootstrap < 5:
             $key = $propertyAbr.'r'.$breakpoint;
+            $classes[] = $key.'-'.$right;
+            // Boostrap 5:
+            $key = $propertyAbr.'e'.$breakpoint;
             $classes[] = $key.'-'.$right;
         }
         if (null !== $bottom) {
@@ -86,7 +104,11 @@ class CmsExtension extends AbstractExtension
             $classes[] = $key.'-'.$bottom;
         }
         if (null !== $left) {
+            // Bootstrap < 5:
             $key = $propertyAbr.'l'.$breakpoint;
+            $classes[] = $key.'-'.$left;
+            // Boostrap 5:
+            $key = $propertyAbr.'s'.$breakpoint;
             $classes[] = $key.'-'.$left;
         }
 
@@ -122,7 +144,39 @@ class CmsExtension extends AbstractExtension
             }
         }
 
+        // Add column width classes.
+        $widthXS = $element['data']['widthXS'] ?? null;
+        if (!empty($widthXS)) {
+            $classes[] = 'default' === $widthXS ? 'col' : 'col-'.$widthXS;
+        }
+        $widthSM = $element['data']['widthSM'] ?? null;
+        if (!empty($widthSM)) {
+            $classes[] = 'default' === $widthSM ? 'col-sm' : 'col-sm-'.$widthSM;
+        }
+        $widthMD = $element['data']['widthMD'] ?? null;
+        if (!empty($widthMD)) {
+            $classes[] = 'default' === $widthMD ? 'col-md' : 'col-md-'.$widthMD;
+        }
+        $widthLG = $element['data']['widthLG'] ?? null;
+        if (!empty($widthLG)) {
+            $classes[] = 'default' === $widthLG ? 'col-lg' : 'col-lg-'.$widthLG;
+        }
+        $widthXL = $element['data']['widthXL'] ?? null;
+        if (!empty($widthXL)) {
+            $classes[] = 'default' === $widthXL ? 'col-xl' : 'col-xl-'.$widthXL;
+        }
+
         return implode(' ', $classes);
+    }
+
+    private function addDisabledActionsFromPermission(array $disabledActions, array $elementConfig, string $name): array
+    {
+        $permission = $elementConfig['permissions'][$name] ?? null;
+        if (!empty($permission) && $this->security->isGranted($permission) === false) {
+            $disabledActions[$name] = $name;
+        }
+
+        return $disabledActions;
     }
 
     public function editorAttr(array $element, bool $edit, string $bg = null, bool $visible = null): string
@@ -131,19 +185,33 @@ class CmsExtension extends AbstractExtension
             return '';
         }
 
+        $elementConfig = $this->config['page_elements'][$element['elementName']];
+
         $attributes = [
             'data-uuid' => $element['uuid'],
             'data-label' => $this->translator->trans($element['elementName']),
             'data-enabled' => ($element['enabled'] ?? true) ? '1' : '0',
-            'data-type' => $this->config['page_elements'][$element['elementName']]['type'] ?? $element['elementName'],
+            'data-type' => $elementConfig['type'] ?? $element['elementName'],
         ];
 
-        if (isset($this->config['page_elements'][$element['elementName']]['children'])) {
-            $attributes['data-children'] = implode(',', $this->config['page_elements'][$element['elementName']]['children']);
+        if (isset($elementConfig['children'])) {
+            $attributes['data-children'] = implode(',', $elementConfig['children']);
         }
 
+        $disabledActions = [];
         if ('Section' === $element['elementName']) {
-            $attributes['data-disabled-actions'] = 'shift';
+            $disabledActions['shift'] = 'shift';
+        }
+        $disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'edit');
+        // Todo: Not yet configurable permissions:
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'shift');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'delete');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'duplicate');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'enable');
+        #$disabledActions = $this->addDisabledActionsFromPermission($disabledActions, $elementConfig, 'disable');
+
+        if (!empty($disabledActions)) {
+            $attributes['data-disabled-actions'] = implode(',', $disabledActions);
         }
 
         if (null === $bg) {
@@ -160,6 +228,44 @@ class CmsExtension extends AbstractExtension
             $value = $key.'="'.$value.'"';
         });
 
+        $padding = $element['data']['settings']['paddings'][0] ?? [
+            'breakpoint' => null,
+            'top' => null,
+            'bottom' => null,
+            'left' => null,
+            'right' => null,
+        ];
+        $attributes[] = "data-padding='".json_encode($padding)."'";
+
         return implode(' ', $attributes);
+    }
+
+    /**
+     * Sort weekdays correctly.
+     *
+     * @param array $input
+     *
+     * @return array
+     */
+    public function sortWeekDays(array $input): array
+    {
+        $templateArray = [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+        ];
+
+        uasort($input, static function ($a, $b) use ($templateArray) {
+            $keyA = array_search($a, $templateArray, true);
+            $keyB = array_search($b, $templateArray, true);
+
+            return $keyA < $keyB ? -1 : 1;
+        });
+
+        return $input;
     }
 }

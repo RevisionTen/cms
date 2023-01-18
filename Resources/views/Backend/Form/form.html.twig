@@ -1,0 +1,40 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% form_theme form '@CMS/Backend/Form/form_theme.html.twig' %}
+
+{% block content_title %}
+    {{ title }}
+{% endblock %}
+
+{% block content_wrapper %}
+    {{ form_start(form, {
+        attr: {
+            class: 'content-form col flex-grow-1 overflow-auto d-flex flex-column ' ~ contentClass,
+            style: 'max-height: 100vh'
+        }
+    }) }}
+        {{ block('content_top') }}
+        {{ block('messages') }}
+        {{ block('content') }}
+    {{ form_end(form) }}
+{% endblock content_wrapper %}
+
+{% block content_top_actions %}
+    {% set typeOptions = { attr: { class: 'btn btn-primary btn-sm' } } %}
+    {% if form.save is defined %}
+        <div class="col-auto ms-auto content-actions">
+            {{ form_widget(form.save, typeOptions) }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        {{ form_rest(form) }}
+    </div>
+{% endblock %}
+
+{% block actions %}
+
+{% endblock actions %}
+

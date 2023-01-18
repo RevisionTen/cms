@@ -18,31 +18,16 @@ use function is_array;
 
 class ExceptionSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /**
-     * @var FrontendController
-     */
-    protected $frontendController;
+    protected FrontendController $frontendController;
 
-    /**
-     * ExceptionSubscriber constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param FrontendController     $frontendController
-     */
     public function __construct(EntityManagerInterface $entityManager, FrontendController $frontendController)
     {
         $this->entityManager = $entityManager;
         $this->frontendController = $frontendController;
     }
 
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -52,12 +37,9 @@ class ExceptionSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param ExceptionEvent $event
-     */
     public function notFoundException(ExceptionEvent $event): void
     {
-        $exception = $event->getException();
+        $exception = $event->getThrowable();
 
         if ($exception instanceof NotFoundHttpException) {
 

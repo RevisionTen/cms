@@ -1,0 +1,42 @@
+{% extends '@CMS/Backend/Entity/List/list.html.twig' %}
+
+{% block content_title %}
+    {{ 'admin.label.pages'|trans({}, 'cms') }}
+{% endblock %}
+
+{% block content_top_actions %}
+    <div class="col-auto content-actions">
+        <div class="input-group">
+            {% set template = app.request.get('template') %}
+            <select class="form-select" name="template" onchange="this.form.submit();">
+                <option value="">{{ 'page.label.template'|trans({}, 'cms') }}</option>
+                {% for templateName, templateConfig in templates %}
+                    <option value="{{ templateName }}"
+                            {% if template == templateName %}selected{% endif %}
+                    >
+                        {{ templateName|trans }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% if is_granted('page_search') %}
+        <div class="col-auto content-actions">
+            <div class="input-group">
+                <input class="form-control form-control-sm border" type="text" name="q" value="{{ app.request.query.get('q') }}" placeholder="{{ 'admin.label.searchTerm'|trans({}, 'cms') }}">
+                <button class="btn btn-sm btn-light bg-white border border-start-0" type="submit" aria-label="{{ 'admin.btn.search'|trans({}, 'cms') }}">
+                    <span class="fas fa-search"></span>
+                </button>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if is_granted('page_create') and isArchive == false %}
+        <div class="col-auto content-actions">
+            <a class="btn btn-sm btn-primary" href="{{ path('cms_create_page') }}">
+                <span class="fas fa-plus"></span> {{ 'admin.btn.addPage'|trans({}, 'cms') }}
+            </a>
+        </div>
+    {% endif %}
+{% endblock content_top_actions %}

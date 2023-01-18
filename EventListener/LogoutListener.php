@@ -15,16 +15,8 @@ use function is_object;
 
 class LogoutListener implements LogoutHandlerInterface
 {
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /**
-     * LogoutListener constructor.
-     *
-     * @param CommandBus $commandBus
-     */
     public function __construct(CommandBus $commandBus)
     {
         $this->commandBus = $commandBus;

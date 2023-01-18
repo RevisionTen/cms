@@ -7,6 +7,7 @@ namespace RevisionTen\CMS\Controller;
 use Exception;
 use InvalidArgumentException;
 use RevisionTen\CMS\Command\PageAddElementCommand;
+use RevisionTen\CMS\Command\PageChangeElementPaddingCommand;
 use RevisionTen\CMS\Command\PageDisableElementCommand;
 use RevisionTen\CMS\Command\PageDuplicateElementCommand;
 use RevisionTen\CMS\Command\PageEditElementCommand;
@@ -40,22 +41,12 @@ use function in_array;
 use function strtoupper;
 
 /**
- * Class ElementController.
- *
  * @Route("/admin")
  */
 class ElementController extends AbstractController
 {
-    /**
-     * @var MessageBus
-     */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /**
-     * ElementController constructor.
-     *
-     * @param MessageBus $messageBus
-     */
     public function __construct(MessageBus $messageBus)
     {
         $this->messageBus = $messageBus;
@@ -64,15 +55,16 @@ class ElementController extends AbstractController
     /**
      * @Route("/page/add-element/{pageUuid}/{onVersion}/{parent}", name="cms_add_element")
      *
-     * @param AggregateFactory    $aggregateFactory
+     * @param Request $request
+     * @param AggregateFactory $aggregateFactory
      * @param TranslatorInterface $translator
-     * @param string              $pageUuid
-     * @param int                 $onVersion
-     * @param string              $parent
+     * @param string $pageUuid
+     * @param int $onVersion
+     * @param string $parent
      *
      * @return Response
      */
-    public function addElement(AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $parent): Response
+    public function addElement(Request $request, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $parent): Response
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -120,7 +112,20 @@ class ElementController extends AbstractController
             throw new InvalidArgumentException('Element with uuid '.$parent.' is not a valid parent element.');
         }
 
-        return $this->render('@cms/Form/add-element.html.twig', [
+        // Filter out elements not allowed on the current website.
+        $currentWebsite = (int) $request->get('currentWebsite');
+        $acceptedChildren = array_filter($acceptedChildren, function ($element) use ($currentWebsite) {
+            // Check if the website matches.
+            $hasWebsite = empty($element['websites']) || in_array($currentWebsite, $element['websites'], true);
+
+            // Check if permission is not explicitly set or user is granted the permission.
+            $permission = $element['permissions']['create'] ?? null;
+            $hasPermission = empty($permission) || $this->isGranted($permission);
+
+            return $hasWebsite && $hasPermission;
+        });
+
+        return $this->render('@CMS/Backend/Form/add-element.html.twig', [
             'title' => $translator->trans('admin.label.addElementChooser', [], 'cms'),
             'parent' => $parent,
             'children' => $acceptedChildren,
@@ -140,7 +145,7 @@ class ElementController extends AbstractController
      * @param array|null          $data
      * @param string              $form_template
      *
-     * @return JsonResponse|Response
+     * @return Response|JsonResponse
      *
      * @throws InterfaceException
      */
@@ -156,9 +161,14 @@ class ElementController extends AbstractController
             throw new InvalidArgumentException('Element type '.$elementName.' does not exist.');
         }
 
+        $permission = $elementConfig['permissions']['create'] ?? null;
+        if (!empty($permission)) {
+            $this->denyAccessUnlessGranted($permission);
+        }
+
         // Get element form template.
         if (null === $form_template) {
-            $form_template = $elementConfig['form_template'] ?? '@cms/Form/element-form.html.twig';
+            $form_template = $elementConfig['form_template'] ?? '@CMS/Backend/Form/element-form.html.twig';
         }
 
         // Check if the element is valid form type.
@@ -263,9 +273,14 @@ class ElementController extends AbstractController
             throw new InvalidArgumentException('Element type '.$elementName.' does not exist.');
         }
 
+        $permission = $elementConfig['permissions']['edit'] ?? null;
+        if (!empty($permission)) {
+            $this->denyAccessUnlessGranted($permission);
+        }
+
         // Get element form template.
         if (null === $form_template) {
-            $form_template = $elementConfig['form_template'] ?? '@cms/Form/element-form.html.twig';
+            $form_template = $elementConfig['form_template'] ?? '@CMS/Backend/Form/element-form.html.twig';
         }
 
         // Check if its a valid form type.
@@ -354,7 +369,9 @@ class ElementController extends AbstractController
         if (!empty($aggregate->elements)) {
             // Get the parent element from the Aggregate.
             PageBaseHandler::onElement($aggregate, $elementUuid, static function ($element, $collection, $parent) use (&$elementParent) {
-                $elementParent = $parent['uuid'];
+                if ($parent) {
+                    $elementParent = $parent['uuid'];
+                }
             });
         }
 
@@ -669,6 +686,47 @@ class ElementController extends AbstractController
             'uuid' => $elementUuid,
             'size' => (int) $size,
             'breakpoint' => $breakpoint,
+        ], $pageUuid, $onVersion, true);
+
+        if ($request->get('ajax')) {
+            return new JsonResponse([
+                'success' => $success,
+                'refresh' => $elementUuid,
+            ], 200, $this->getToolbarRefreshHeaders());
+        }
+
+        if (!$success) {
+            return $this->errorResponse();
+        }
+
+        return $this->redirectToPage($pageUuid);
+    }
+
+    /**
+     * Change the padding of an element
+     *
+     * @Route("/page/change-element-padding/{pageUuid}/{onVersion}/{elementUuid}/{padding}", name="cms_page_change_elment_padding")
+     *
+     * @param Request    $request
+     * @param CommandBus $commandBus
+     * @param string     $pageUuid
+     * @param int        $onVersion
+     * @param string     $elementUuid
+     * @param string     $padding
+     *
+     * @return JsonResponse|Response
+     * @throws Exception
+     */
+    public function changeElementPadding(Request $request, CommandBus $commandBus, string $pageUuid, int $onVersion, string $elementUuid, string $padding)
+    {
+        $this->denyAccessUnlessGranted('page_edit');
+
+        #$padding = json_decode($padding, true, 2, JSON_THROW_ON_ERROR); // Does not work in PHP 7.1
+        $padding = json_decode($padding, true, 2);
+
+        $success = $this->runCommand($commandBus, PageChangeElementPaddingCommand::class, [
+            'uuid' => $elementUuid,
+            'padding' => $padding,
         ], $pageUuid, $onVersion, true);
 
         if ($request->get('ajax')) {

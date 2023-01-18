@@ -11,12 +11,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ImageType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('title', TextType::class, [
@@ -33,11 +27,6 @@ class ImageType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_image';

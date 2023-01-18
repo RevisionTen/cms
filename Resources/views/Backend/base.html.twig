@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}CMS{% endblock %}</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex,nofollow" />
+
+        {% set sidebarHeaderClass = 'bg-light border-bottom' %}
+        {% set sidebarClass = 'bg-light' %}
+        {% set contentHeaderClass = 'bg-light border-bottom' %}
+        {% set contentClass = 'bg-white' %}
+
+        {% set theme = app.user.theme ?? null %}
+        {% if theme == 'lux' %}
+            {% set sidebarHeaderClass = '' %}
+            {% set contentHeaderClass = '' %}
+            {% set contentClass = '' %}
+            {% set sidebarClass = '' %}
+        {% endif %}
+
+        {% block styles %}
+
+            {% set btnLightFix = false %}
+            {% if theme is defined and theme %}
+                {% if theme == 'dark' or theme == 'greendrops' %}
+                    <link rel="stylesheet" href="{{ asset('/bundles/cms/bootstrap/themes/dist/'~theme~'.min.css') }}">
+                {% else %}
+                    <link rel="stylesheet" href="https://bootswatch.com/5/{{ theme }}/bootstrap.min.css">
+                    {% set btnLightFix = true %}
+                {% endif %}
+            {% else %}
+                <link rel="stylesheet" href="{{ asset('/bundles/cms/bootstrap/bootstrap.min.css') }}">
+                {% set btnLightFix = true %}
+            {% endif %}
+            {% if btnLightFix %}
+                {# Styling #}
+                <style>
+                    .btn-light {
+                        background: var(--bs-white);
+                        border-color: #dee2e6;
+                        color: var(--bs-dark);
+                    }
+                    .btn-light.active,
+                    .btn-light:hover {
+                        background: var(--bs-gray);
+                        border-color: var(--bs-gray);
+                        color: var(--bs-white);
+                    }
+                </style>
+            {% endif %}
+
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/libs/jquery/jquery-ui.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/libs/trix/trix.css') }}">
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/libs/select2/css/select2.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('/bundles/cms/css/backend.css') }}">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        {% endblock %}
+    </head>
+    <body class="{% block body_class %}{% endblock %} overflow-hidden vh-100">
+
+        {% block body %}
+
+            <div class="min-vh-100 d-flex flex-column overflow-hidden" style="max-height: 100vh;">
+
+                <div class="row gx-0 flex-grow-1">
+                    <div class="col-auto sidebar border-end d-flex flex-column {{ sidebarClass}} overflow-auto" style="width: 300px;max-height: 100vh;">
+                        {% block sidebar %}
+                            {% block sidebar_top %}
+                                <div class="sticky-top {{ sidebarHeaderClass}} px-4 py-3">
+                                    <div class="row gx-2 align-items-center">
+                                        <div class="col-auto">
+                                            <div class="ratio ratio-1x1" title="{{ app.user.username }}" style="width: 1.6em;">
+                                                <div class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center text-white" style="background: {{ app.user.color }};">
+                                                    {% if app.user.avatarUrl %}
+                                                        <img src="{{ app.user.avatarUrl }}" style="object-fit: cover;max-width: 120%;max-height:120%;">
+                                                    {% else %}
+                                                        {{ app.user.username|first }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="text-truncate {{ theme is defined and theme == 'lux' ? 'small' : '' }}" style="width: {{ theme is defined and theme == 'lux' ? 105 : 125 }}px;">
+                                                {{ app.user.username }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="btn-group">
+                                                <a href="{{ path('cms_user_edit', { id: app.user.id}) }}" aria-label="{{ 'admin.btn.userSettings'|trans({}, 'cms') }}" class="btn btn-sm btn-light">
+                                                    <span class="fas fa-cogs"></span>
+                                                </a>
+                                                <a href="{{ path('cms_logout') }}" aria-label="{{ 'admin.btn.logout'|trans({}, 'cms') }}" class="btn btn-sm btn-light">
+                                                    <span class="fas fa-sign-out-alt"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endblock %}
+                            <div class="p-4 flex-grow-1">
+                                {% block sidebar_content %}
+                                    {% include '@CMS/Backend/Sidebar/menu.html.twig' %}
+                                {% endblock %}
+                            </div>
+                            {% block sidebar_bottom %}
+                                {% include '@CMS/Backend/Website/chooser.html.twig' %}
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+
+                    {% block content_wrapper %}
+                        <form name="content" id="content" class="col flex-grow-1 overflow-auto d-flex flex-column {{ contentClass }}" style="max-height: 100vh;">
+                            {% block content_top %}
+                                <div class="sticky-top px-4 py-3 {{ contentHeaderClass }}">
+                                    <div class="row align-items-center" style="min-height: 31px;">
+                                        <div class="col fw-bold content-title d-flex align-items-center">
+                                            {% block content_title %}
+                                                {% if title is defined and title %}
+                                                    {{ title|trans({}, 'cms') }}
+                                                {% endif %}
+                                            {% endblock %}
+                                        </div>
+
+                                        {% block content_top_actions %}
+                                            {#
+                                            <div class="col-auto ms-auto content-actions">
+                                                <div class="btn btn-sm border">
+                                                    ACTIONS
+                                                </div>
+                                            </div>
+                                            #}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+
+                            {% block messages %}
+                                {% set flashes = app.session.flashbag.all %}
+                                {% if flashes is defined and flashes|length > 0 %}
+                                    <div>
+                                        {% for label, messages in flashes %}
+                                            {% for message in messages %}
+                                                <div class="alert alert-{{ label }} alert-dismissible fade show rounded-0 border-0 m-0 border-start-0 border-end-0">
+                                                    {{ message|trans({}, 'cms')|raw }}
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+
+                            {% block content %}
+                                CONTENT
+                            {% endblock content %}
+                        </form>
+                    {% endblock content_wrapper %}
+                </div>
+
+            </div>
+
+        {% endblock %}
+
+        {% block scripts %}
+            {# Todo: Remove jQuery #}
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+            <script src="{{ asset('/bundles/cms/libs/configurable-date-input-polyfill/configurable-date-input-polyfill.dist.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/libs/select2/js/select2.full.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/libs/jquery/jquery-sortable.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/libs/jquery/jquery-ui.min.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/libs/trix/trix.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/libs/ckeditor/ckeditor.js') }}"></script>
+            <script src="{{ asset('/bundles/cms/js/admin-backend.js') }}"></script>
+        {% endblock %}
+    </body>
+</html>

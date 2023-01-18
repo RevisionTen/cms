@@ -1,0 +1,36 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content %}
+    <div class="p-4">
+        {% for field in fields %}
+            <div class="entity-show-{{ field.property }} mb-3">
+                <label class="form-label">
+                    {{ field.label|trans({}, 'cms') }}
+                </label>
+
+                {% if field.template is defined %}
+                    <div class="form-control">
+                        {% include field.template with {
+                            value: field.value ?? null,
+                            field: field,
+                            entity: entity,
+                            entityObject: entityObject
+                        } %}
+                    </div>
+                {% elseif field.value is defined %}
+                    <div class="form-control">
+                        {% if field.value is null %}
+                            <pre class="my-0"><code>null</code></pre>
+                        {% elseif field.type is not defined %}
+                            <pre class="my-0"><code>{{ field.value|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+                        {% elseif field.type == 'string' %}
+                            <pre class="my-0"><code>{{ field.value }}</code></pre>
+                        {% elseif field.type == 'datetime' %}
+                            <pre class="my-0"><code>{{ field.value|date('d.m.Y H:i') }}</code></pre>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

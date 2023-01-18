@@ -52,7 +52,7 @@ class SecurityController extends AbstractController
         $form = $this->buildLoginForm($formFactory);
         $form->handleRequest($request);
 
-        return $this->render('@cms/Security/login.html.twig', [
+        return $this->render('@CMS/Backend/Security/login.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -86,7 +86,7 @@ class SecurityController extends AbstractController
             $form->handleRequest($request);
         }
 
-        return $this->render('@cms/Security/code.html.twig', [
+        return $this->render('@CMS/Backend/Security/code.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -101,12 +101,12 @@ class SecurityController extends AbstractController
      */
     public function loginForm(RequestStack $requestStack, FormFactoryInterface $formFactory): Response
     {
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
 
         $form = $this->buildLoginForm($formFactory);
         $form->handleRequest($request);
 
-        return $this->render('@cms/Security/login-form.html.twig', [
+        return $this->render('@CMS/Backend/Security/login-form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -138,7 +138,6 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
             'attr' => [
                 'placeholder' => 'admin.label.userNameOrEmail',
-                'class' => 'mt-3',
             ],
         ]);
 
@@ -146,7 +145,7 @@ class SecurityController extends AbstractController
             'label' => 'admin.btn.requestNewPassword',
             'translation_domain' => 'cms',
             'attr' => [
-                'class' => 'btn-primary btn-block',
+                'class' => 'btn-primary d-block w-100',
             ],
         ]);
 
@@ -186,7 +185,7 @@ class SecurityController extends AbstractController
             }
         }
 
-        return $this->render('@cms/Security/reset-password.html.twig', [
+        return $this->render('@CMS/Backend/Security/reset-password.html.twig', [
             'form' => $form->createView(),
             'success' => $success,
         ]);
@@ -281,7 +280,7 @@ class SecurityController extends AbstractController
             $this->addFlash('success', $translator->trans('admin.label.passwordChangedSuccess', [], 'cms'));
         }
 
-        return $this->render('@cms/Security/reset-password.html.twig', [
+        return $this->render('@CMS/Backend/Security/reset-password.html.twig', [
             'form' => $form->createView(),
             'success' => $success,
         ]);
@@ -326,6 +325,7 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
             'attr' => [
                 'placeholder' => 'admin.label.code',
+                'autofocus' => 'autofocus',
             ],
         ]);
 
@@ -359,6 +359,7 @@ class SecurityController extends AbstractController
             'constraints' => new NotBlank(),
             'attr' => [
                 'placeholder' => 'admin.label.username',
+                'autofocus' => 'autofocus',
             ],
         ]);
 

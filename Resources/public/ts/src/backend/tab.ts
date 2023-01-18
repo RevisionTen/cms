@@ -16,7 +16,7 @@ function bindTab(url: string)
 
     // Get first form in content.
     let form = pageSettingsTab.querySelector('form');
-    let formSelector = form.getAttribute('name') ? 'form[name="'+form.getAttribute('name')+'"]' : '#main form';
+    let formSelector = form.getAttribute('name') ? 'form[name="'+form.getAttribute('name')+'"]' : 'form';
 
     // Set the action on the form.
     form.setAttribute('action', url);
@@ -30,8 +30,10 @@ function bindTab(url: string)
     onSubmit(form, updateCKEditorInstances, (data: any, success: boolean) => {
         // handle success
         if (success && data.success) {
-            pageSettingsTab.classList.remove('active');
-            pageEditorTab.classList.add('active');
+            pageSettingsTab.classList.add('d-none');
+            pageSettingsTab.classList.remove('d-flex');
+            pageEditorTab.classList.add('d-flex');
+            pageEditorTab.classList.remove('d-none');
             updateElement(data);
         } else {
             let html = data;
@@ -51,27 +53,31 @@ function bindTab(url: string)
     });
 
     // Add close button.
-    let actionsDiv = pageSettingsTab.querySelector('.content-header .global-actions');
+    let actionsDiv = pageSettingsTab.querySelector('.content-title');
     if (null !== actionsDiv) {
         let closeButton = actionsDiv.querySelector('.btn-close-tab');
         if (null === closeButton) {
-            actionsDiv.insertAdjacentHTML('beforeend', '<button class="btn btn-sm btn-close-tab"><span class="fa fa-times"></span></button>');
+            actionsDiv.insertAdjacentHTML('afterbegin', '<button class="btn btn-sm btn-close-tab"><span class="fas fa-times"></span></button>');
             let closeButton = actionsDiv.querySelector('.btn-close-tab');
             if (null !== closeButton) {
                 closeButton.addEventListener('click', (event) => {
                     event.preventDefault();
                     // Hide the tab.
                     pageSettingsTab.innerHTML = '';
-                    pageSettingsTab.classList.remove('active');
-                    pageEditorTab.classList.add('active');
+                    pageSettingsTab.classList.add('d-none');
+                    pageSettingsTab.classList.remove('d-flex');
+                    pageEditorTab.classList.add('d-flex');
+                    pageEditorTab.classList.remove('d-none');
                 });
             }
         }
     }
 
     // Show the tab.
-    pageEditorTab.classList.remove('active');
-    pageSettingsTab.classList.add('active');
+    pageEditorTab.classList.add('d-none');
+    pageEditorTab.classList.remove('d-flex');
+    pageSettingsTab.classList.add('d-flex');
+    pageSettingsTab.classList.remove('d-none');
 }
 
 let openTab = function(url: string) {
@@ -92,7 +98,7 @@ let openTab = function(url: string) {
             // Get element from response.
             let parser = new DOMParser();
             let htmlDoc = <HTMLDocument>parser.parseFromString(html, 'text/html');
-            let newPageSettingsTabContent = <HTMLElement>htmlDoc.querySelector('.content-wrapper .content');
+            let newPageSettingsTabContent = <HTMLElement>htmlDoc.querySelector('form');
             if (null !== newPageSettingsTabContent) {
                 pageSettingsTab.insertAdjacentElement('beforeend', newPageSettingsTabContent);
                 bindTab(url);

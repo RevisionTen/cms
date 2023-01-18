@@ -23,22 +23,12 @@ use Symfony\Component\Console\Question\Question;
  */
 class UserMigrateCommand extends Command
 {
-    /** @var EntityManagerInterface $entityManager */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommandBus $commandBus */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /** @var MessageBus $messageBus */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /**
-     * UserCreateCommand constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus)
     {
         $this->entityManager = $entityManager;
@@ -48,10 +38,7 @@ class UserMigrateCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:user:migrate')
@@ -60,10 +47,7 @@ class UserMigrateCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
 
@@ -128,6 +112,9 @@ class UserMigrateCommand extends Command
             $messages = $this->messageBus->getMessagesJson();
             $output->writeln('UserCreateCommand failed.');
             print_r($messages);
+            return 500;
         }
+
+        return 0;
     }
 }

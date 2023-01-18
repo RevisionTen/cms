@@ -6,28 +6,15 @@ namespace RevisionTen\CMS\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use RevisionTen\CMS\Model\Domain;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class WebsiteAndLocaleListener
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * WebsiteAndLocaleListener constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param RequestStack           $requestStack
-     */
     public function __construct(EntityManagerInterface $entityManager, RequestStack $requestStack)
     {
         $this->entityManager = $entityManager;
@@ -39,13 +26,10 @@ class WebsiteAndLocaleListener
      */
     public function onKernelRequest(RequestEvent $event): void
     {
-        if ($event->isMasterRequest()) {
-            /**
-             * @var Request $request
-             */
+        if ($event->isMainRequest()) {
             $request = $event->getRequest();
         } else {
-            $request = $this->requestStack->getMasterRequest();
+            $request = $this->requestStack->getMainRequest();
         }
 
         if ($request && null === $request->get('websiteId')) {

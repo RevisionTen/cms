@@ -1,0 +1,7 @@
+<div {{ editorAttr(element, edit, 'bg-info') }} class="{{ elementClasses(element) }} {{ edit ? 'no-outline': '' }}">
+    {% if element.elements is defined and element.elements|length > 0 %}
+        {% for element in element.elements %}
+            {% include config.page_elements[element.elementName].template %}
+        {% endfor %}
+    {% endif %}
+</div>

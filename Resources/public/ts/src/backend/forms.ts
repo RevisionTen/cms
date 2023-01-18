@@ -2,6 +2,7 @@ const axios = require('axios').default;
 
 import updateCKEditorInstances from "./ckeditor";
 import bindWidgets from "./widgets";
+import scriptReplace from "./scriptreplace";
 
 function reloadForm(formSelector: string, formReloadCallback: any, form: HTMLFormElement)
 {
@@ -24,6 +25,11 @@ function reloadForm(formSelector: string, formReloadCallback: any, form: HTMLFor
             let newForm = <HTMLFormElement>htmlDoc.querySelector(formSelector);
             if (null !== newForm) {
                 form.parentNode.replaceChild(newForm, form);
+
+                // Execute dynamically inserted script tags in reloaded form.
+                scriptReplace(newForm);
+
+                // Bind form.
                 if (formReloadCallback) {
                     formReloadCallback();
                 } else {

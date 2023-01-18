@@ -24,7 +24,13 @@ final class FileUpdateHandler implements HandlerInterface
     {
         $payload = $event->getPayload();
 
-        // Change Aggregate state.
+        // Check if file path has changed.
+        // Add the old paths to the list of old paths.
+        $newPath = $payload['path'] ?? null;
+        if ($newPath !== $aggregate->path) {
+            $aggregate->oldPaths[] = $aggregate->path;
+        }
+
         // Get each public property from the aggregate and update it If a new value exists in the payload.
         $reflect = new ReflectionObject($aggregate);
         foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {

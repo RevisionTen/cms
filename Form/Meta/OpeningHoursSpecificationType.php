@@ -12,12 +12,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class OpeningHoursSpecificationType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('opens', TimeType::class, [
@@ -84,11 +78,6 @@ class OpeningHoursSpecificationType extends AbstractType
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_opening_hours_specification';

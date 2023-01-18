@@ -1,0 +1,21 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% block content_title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <div class="row">
+            {% for elementName, element in children %}
+                <div class="col-3 pt-3 pb-3">
+                    <button data-element-name="{{ elementName }}" data-uuid="{{ parent }}" class="d-block w-100 p-0 btn btn-create text-center" style="cursor: pointer;">
+                        <h2><span class="{{ element.icon }}"></span></h2>
+                        <h6>{{ elementName|trans({}, 'messages') }}</h6>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+

@@ -9,6 +9,13 @@ import openTab from "./backend/tab";
 import openModal from "./backend/modal";
 import fireCustomEvent from "./backend/events";
 import getPageInfo from "./backend/pageinfo";
+import bootstrap = require("bootstrap");
+
+// Get translations from inline json.
+let translationsElement = document.getElementById('cmsTranslations');
+if (translationsElement) {
+    (window as any).translations = JSON.parse(translationsElement.innerHTML);
+}
 
 let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
     confirmDelete: 'Delete?',
@@ -16,6 +23,25 @@ let translations = typeof (window as any).translations !== 'undefined' ? (window
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Bind twig-vars in form editor.
+    let twigVars = document.querySelectorAll('[data-twig-var]') as NodeListOf<HTMLElement>;
+    twigVars.forEach((twigVar) => {
+        twigVar.addEventListener('click', () => {
+            // @ts-ignore
+            if (document.selection) {
+                // @ts-ignore
+                let range = document.body.createTextRange();
+                range.moveToElementText(twigVar);
+                range.select();
+            } else if (window.getSelection) {
+                let range = document.createRange();
+                range.selectNode(twigVar);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+            }
+        });
+    });
+
     // Bind menu editor.
     bindMenu();
 
@@ -30,19 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Bind the page form.
-    bindForm('form[name=page]');
+    bindForm('form.content-form');
 
-    // Initialize widgets on "edit" and "new" EasyAdmin entity form pages.
-    let editForm = document.querySelector('form.edit-form');
-    let newForm = document.querySelector('form.new-form');
-    if ((document.body.classList.contains('edit') || document.body.classList.contains('new')) && (editForm || newForm)) {
-        bindWidgets(document.body);
-    }
-    // Initialize widgets on menu item form.
-    let menuItemForm = document.querySelector('form[name="element"]');
-    if (menuItemForm) {
-        bindWidgets(document.body);
-    }
     // Initialize widgets after they have been added to collections.
     $(document).on('easyadmin.collection.item-added', () => {
         bindWidgets(document.body);
@@ -113,8 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Event that opens a bootstrap modal with dynamic content.
+    let editorModal = new bootstrap.Modal(document.querySelector('#editor-modal '), {});
     document.addEventListener('openModal', (event: CustomEvent) => {
-        openModal(event.detail.url);
+        openModal(event.detail.url, editorModal);
     });
 
     // Event that open the page settings tab with dynamic content.
@@ -234,6 +250,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let breakpoint = event.detail.breakpoint;
         let detail = {
             url: `/admin/page/resize-column/${pageUuid}/${onVersion}/${elementUuid}/${size}/${breakpoint}`
+        };
+        fireCustomEvent('openAjax', detail, document);
+    });
+
+    document.addEventListener('changePadding', (event: CustomEvent) => {
+        let pageUuid = (window as any).pageData.uuid;
+        let onVersion = (window as any).pageData.version;
+        let elementUuid = event.detail.uuid;
+        let padding = event.detail.padding;
+        let detail = {
+            url: `/admin/page/change-element-padding/${pageUuid}/${onVersion}/${elementUuid}/${padding}`
         };
         fireCustomEvent('openAjax', detail, document);
     });

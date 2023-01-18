@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Command\Console;
 
+use Exception;
 use RevisionTen\CMS\Command\UserGenerateSecretCommand;
 use RevisionTen\CMS\Model\UserAggregate;
 use RevisionTen\CMS\Model\UserRead;
@@ -26,26 +27,14 @@ use Symfony\Component\Console\Question\Question;
  */
 class UserSecretCommand extends Command
 {
-    /** @var EntityManagerInterface $entityManager */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommandBus $commandBus */
-    private $commandBus;
+    private CommandBus $commandBus;
 
-    /** @var MessageBus $messageBus */
-    private $messageBus;
+    private MessageBus $messageBus;
 
-    /** @var AggregateFactory $aggregateFactory */
-    private $aggregateFactory;
+    private AggregateFactory $aggregateFactory;
 
-    /**
-     * UserSecretCommand constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param CommandBus             $commandBus
-     * @param MessageBus             $messageBus
-     * @param AggregateFactory       $aggregateFactory
-     */
     public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, AggregateFactory $aggregateFactory)
     {
         $this->entityManager = $entityManager;
@@ -56,10 +45,7 @@ class UserSecretCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:user:generate_secret')
@@ -69,9 +55,9 @@ class UserSecretCommand extends Command
     }
 
     /**
-     * {@inheritdoc}
+     * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
 
@@ -104,7 +90,9 @@ class UserSecretCommand extends Command
         if ($user && $user->getUuid()) {
             // Build the aggregate.
             $userUuid = $user->getUuid();
-            /** @var UserAggregate $aggregate */
+            /**
+             * @var UserAggregate $aggregate
+             */
             $aggregate = $this->aggregateFactory->build($userUuid, UserAggregate::class);
             $onVersion = $aggregate->getStreamVersion();
 
@@ -128,9 +116,13 @@ class UserSecretCommand extends Command
                 $messages = $this->messageBus->getMessagesJson();
                 $output->writeln('UserGenerateSecretCommand failed.');
                 print_r($messages);
+                return 500;
             }
         } else {
             $output->writeln('User not found.');
+            return 500;
         }
+
+        return 0;
     }
 }

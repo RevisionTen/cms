@@ -16,6 +16,7 @@ function bindTree()
 {
     let treeSaveButton = document.querySelector('.btn-tree-save');
 
+    // @ts-ignore
     let pageTree = $('#page-tree > .cms_tree').sortable({
         group: 'serialization',
         containerSelector: '.cms_tree',
@@ -26,21 +27,33 @@ function bindTree()
             let containerElement = <HTMLElement>container.el[0];
             return containerElement.classList.contains('valid-target-tree');
         },
-        onCancel: function ($item: any, container: any, _super: any) {
+        onCancel: ($item: any, container: any, _super: any) => {
             // Clear valid trees.
             clearValidTrees();
         },
-        onDrop: function ($item: any, container: any, _super: any) {
+        onDrop: ($item: any, container: any, _super: any) => {
             // Clear valid trees.
             clearValidTrees();
+
+            // Highlight tree save button.
+            if (null !== treeSaveButton) {
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
+            }
         },
-        onDragStart: function ($item: any, container: any, _super: any) {
+        onDragStart: ($item: any, container: any, _super: any) => {
             let element = <HTMLElement>$item[0];
             let elementName = element.dataset.elementName;
 
             // Sections are not draggable.
             if ('Section' === elementName) {
                 return false;
+            }
+
+            // Highlight tree save button.
+            if (null !== treeSaveButton) {
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
             }
 
             // Look at every tree and see If this item is allowed.
@@ -64,20 +77,17 @@ function bindTree()
                 }
             });
         },
-        afterMove: function () {
-            // Show tree save button.
+        afterMove: () => {
+            // Highlight tree save button.
             if (null !== treeSaveButton) {
-                treeSaveButton.classList.remove('hidden');
-                treeSaveButton.classList.remove('d-none');
+                treeSaveButton.classList.remove('btn-dark');
+                treeSaveButton.classList.add('btn-success');
             }
         }
     });
 
     // Save page tree on button click.
     if (null !== treeSaveButton) {
-        // Hide button by default.
-        treeSaveButton.classList.add('d-none');
-
         treeSaveButton.addEventListener('click', (event) => {
             event.preventDefault();
 

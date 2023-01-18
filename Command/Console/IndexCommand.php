@@ -9,19 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use RevisionTen\CMS\Services\IndexService;
 
-/**
- * Class IndexCommand.
- */
 class IndexCommand extends Command
 {
-    /** @var IndexService */
-    private $indexService;
+    private IndexService $indexService;
 
-    /**
-     * IndexCommand constructor.
-     *
-     * @param IndexService $indexService
-     */
     public function __construct(IndexService $indexService)
     {
         $this->indexService = $indexService;
@@ -29,10 +20,7 @@ class IndexCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cms:solr:index')
@@ -40,11 +28,10 @@ class IndexCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->indexService->index($output);
+
+        return 0;
     }
 }

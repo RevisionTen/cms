@@ -1,0 +1,9 @@
+<div {{ editorAttr(element, edit, 'bg-warning') }} class="{{ elementClasses(element) }}">
+
+    {% set filePath = element.data.managedFile.file.path ?? element.data.managedFile.file %}
+    {% set title = element.data.title ?? element.data.managedFile.title  %}
+
+    {% if filePath and title %}
+        <a class="btn btn-primary" target="_blank" href="{{ filePath }}">{{ title }}</a>
+    {% endif %}
+</div>

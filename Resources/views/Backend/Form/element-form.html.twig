@@ -1,0 +1,75 @@
+{% extends '@CMS/Backend/base.html.twig' %}
+
+{% form_theme form '@CMS/Backend/Form/form_theme.html.twig' %}
+
+{% block content_title %}
+    {% if title is defined %}
+        {{ title }}
+    {% endif %}
+{% endblock %}
+
+{% block content_wrapper %}
+    {{ form_start(form, {
+        attr: {
+            class: 'content-form col flex-grow-1 overflow-auto d-flex flex-column ' ~ contentClass,
+            style: 'max-height: 100vh'
+        }
+    }) }}
+    {{ block('content_top') }}
+    {{ block('content') }}
+    {{ form_end(form) }}
+{% endblock content_wrapper %}
+
+{% block content_top_actions %}
+    {% set typeOptions = { attr: { class: 'btn btn-primary btn-sm' } } %}
+    {% if form.save is defined %}
+        <div class="col-auto ms-auto content-actions">
+            {{ form_widget(form.save, typeOptions) }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="p-4">
+        <div class="modal-nav-content">
+            <div class="nav nav-tabs" role="tablist">
+                <a class="nav-link active"
+                   href="#element_content"
+                   aria-controls="element_content"
+                   role="tab"
+                   aria-expanded="true"
+                   data-bs-toggle="tab"
+                   data-bs-target="#element_content"
+                >
+                    {{ 'admin.label.elementContent'|trans({}, 'cms') }}
+                </a>
+                <a class="nav-link"
+                   href="#element_settings"
+                   aria-controls="element_settings"
+                   role="tab"
+                   data-bs-toggle="tab"
+                   data-bs-target="#element_settings"
+                >
+                    {{ 'admin.label.elementSettings'|trans({}, 'cms') }}
+                </a>
+            </div>
+        </div>
+
+        {% set hasSettingsForm = (form.data.settings is defined and form.data.settings.children is defined and form.data.settings.children|length > 0) %}
+        {% if hasSettingsForm %}
+            <div class="tab-content mt-4">
+                <div role="tabpanel" class="tab-pane fade" id="element_settings">
+                    {% if form.data.styles is defined %}
+                        {{ form_row(form.data.styles) }}
+                    {% endif %}
+                    {{ form_widget(form.data.settings) }}
+                </div>
+                <div role="tabpanel" class="tab-pane fade active show" id="element_content">
+                    {{ form_rest(form) }}
+                </div>
+            </div>
+        {% else %}
+            {{ form_rest(form) }}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -28,7 +28,7 @@ final class PageRemoveScheduleHandler implements HandlerInterface
         unset($aggregate->schedule[$scheduleUuid]);
 
         // Reset page state.
-        if (Page::STATE_SCHEDULED === $aggregate->state) {
+        if (Page::STATE_SCHEDULED === $aggregate->state || Page::STATE_SCHEDULED_UNPUBLISH === $aggregate->state) {
             $aggregate->state = $aggregate->published ? Page::STATE_PUBLISHED : Page::STATE_UNPUBLISHED;
         }
 

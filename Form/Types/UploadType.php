@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Form\Types;
 
 use RevisionTen\CMS\DataTransformer\FileTransformer;
-use RevisionTen\CMS\DataTransformer\ImageFileTransformer;
+use RevisionTen\CMS\DataTransformer\FileWithMetaDataTransformer;
 use RevisionTen\CMS\Services\FileService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -22,69 +22,49 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function is_object;
 use function is_string;
+use function str_replace;
 
 class UploadType extends AbstractType
 {
-    /**
-     * @var FileService
-     */
-    private $fileService;
+    private FileService $fileService;
 
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ValidatorInterface $validator;
 
-    /**
-     * @var int
-     */
-    protected $website = 1;
+    protected int $website = 1;
 
-    /**
-     * @var string
-     */
-    protected $language = 'en';
+    protected string $language = 'en';
 
-    /**
-     * UploadType constructor.
-     *
-     * @param FileService        $fileService
-     * @param RequestStack       $requestStack
-     * @param ValidatorInterface $validator
-     */
     public function __construct(FileService $fileService, RequestStack $requestStack, ValidatorInterface $validator)
     {
         $this->fileService = $fileService;
         $this->validator = $validator;
 
-        $request = $requestStack->getMasterRequest();
+        $request = $requestStack->getMainRequest();
         if (null !== $request) {
-            $this->website = $request->get('currentWebsite') ?? ($request->get('websiteId') ?? $this->website);
+            $this->website = (int) ($request->get('currentWebsite') ?? ($request->get('websiteId') ?? $this->website));
             $this->language = $request->getLocale();
         }
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     * @param string       $upload_dir
-     *
-     * @return array|null
-     */
-    public function storeFile(UploadedFile $uploadedFile, string $upload_dir): ?array
+    public function storeFile(UploadedFile $uploadedFile, string $upload_dir, bool $keepOriginalFileName = false): ?array
     {
-        return $this->fileService->createFile(null, $uploadedFile, $uploadedFile->getClientOriginalName(), $upload_dir, $this->website, $this->language);
+        $title = $uploadedFile->getClientOriginalName();
+        // Remove extension.
+        $title = str_replace('.'.$uploadedFile->getClientOriginalExtension(), '', $title);
+
+        return $this->fileService->createFile(
+            null,
+            $uploadedFile,
+            $title,
+            $upload_dir,
+            $this->website,
+            $this->language,
+            $keepOriginalFileName
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('file', HiddenType::class, [
@@ -100,8 +80,14 @@ class UploadType extends AbstractType
         ]);
 
         if ($options['file_with_meta_data']) {
-            $builder->addModelTransformer(new ImageFileTransformer());
+            $builder->addModelTransformer(new FileWithMetaDataTransformer());
 
+            $builder->add('uuid', HiddenType::class, [
+                'required' => false,
+            ]);
+            $builder->add('version', HiddenType::class, [
+                'required' => false,
+            ]);
             $builder->add('title', HiddenType::class, [
                 'required' => false,
             ]);
@@ -144,9 +130,9 @@ class UploadType extends AbstractType
         };
 
         // Add delete and replace form if the form is loaded with existing data.
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($addDeleteReplaceForm): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event) use ($addDeleteReplaceForm, $options): void {
             $data = $event->getData();
-            if (!empty($data) && is_string($data) ) {
+            if (!empty($data) && ($options['file_with_meta_data'] || is_string($data))) {
                 $addDeleteReplaceForm($event->getForm());
             }
         });
@@ -158,6 +144,8 @@ class UploadType extends AbstractType
             $delete = !empty($data['delete']);
 
             $file = $data['file'] ?? null;
+            $uuid = $data['uuid'] ?? null;
+            $version = $data['version'] ?? null;
             $title = $data['title'] ?? null;
             $size = $data['size'] ?? null;
             $width = $data['width'] ?? null;
@@ -169,15 +157,13 @@ class UploadType extends AbstractType
              */
             $uploadedFile = $data['uploadedFile'] ?? null;
             $isFileUpload = $requestHandler->isFileUpload($uploadedFile);
-            $constraints = $options['constraints'] ?? NULL;
+            $constraints = $options['constraints'] ?? [];
 
             if ($isFileUpload) {
                 // Validate file field.
                 $valid = true;
-                if ($constraints) {
-                    /**
-                     * @var ConstraintViolationListInterface $violations
-                     */
+                if (!empty($constraints)) {
+                    $uploadedFileForm = $form->get('uploadedFile');
                     $violations = $this->validator->validate($uploadedFile, $constraints);
                     foreach ($violations as $violation) {
                         /**
@@ -189,23 +175,26 @@ class UploadType extends AbstractType
                             $violation->getParameters(),
                             $violation->getPlural()
                         );
-                        $uploadedFileForm = $form->get('uploadedFile');
                         $uploadedFileForm->addError($formError);
                         $valid = false;
                     }
                 }
                 if ($valid) {
                     // Save the file.
-                    $file = $this->storeFile($uploadedFile, $options['upload_dir']);
+                    $file = $this->storeFile($uploadedFile, $options['upload_dir'], $options['keepOriginalFileName']);
                     // Overwrite uploaded File with file path string.
                     $event->setData([
                         'file' => $file['path'],
+                        'uuid' => $file['uuid'] ?? null,
+                        'version' => $file['version'] ?? null,
                         'title' => $file['title'] ?? null,
                         'size' => $file['size'] ?? null,
                         'width' => $file['width'] ?? null,
                         'height' => $file['height'] ?? null,
                         'mimeType' => $file['mimeType'] ?? null,
                     ]);
+                } else {
+                    $event->setData(null);
                 }
             } elseif ($delete) {
                 // Delete the file.
@@ -214,16 +203,20 @@ class UploadType extends AbstractType
                 // Keep the file.
                 $event->setData([
                     'file' => $file,
+                    'uuid' => $uuid,
+                    'version' => $version,
                     'title' => $title,
                     'size' => $size,
                     'width' => $width,
                     'height' => $height,
                     'mimeType' => $mimeType,
                 ]);
-            } elseif (is_object($file) && ($file instanceof UploadedFile || $file instanceof File)) {
+            } elseif ($file instanceof File) {
                 // File is object, just get the file path.
                 $event->setData([
                     'file' => $file->getPathname(),
+                    'uuid' => $uuid,
+                    'version' => $version,
                     'title' => $title,
                     'size' => $size,
                     'width' => $width,
@@ -243,13 +236,6 @@ class UploadType extends AbstractType
         });
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormView      $view
-     * @param FormInterface $form
-     * @param array         $options
-     */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['show_file_picker'] = $options['show_file_picker'];
@@ -258,11 +244,6 @@ class UploadType extends AbstractType
         parent::buildView($view, $form, $options);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -278,18 +259,14 @@ class UploadType extends AbstractType
             'file_with_meta_data' => false,
             // Do not validate this form type with the passed constraints, use them for the file field instead.
             'validation_groups' => false,
-            'constraints' => null,
+            'constraints' => [],
             'allow_extra_fields' => true,
+            'keepOriginalFileName' => false,
         ]);
 
         $resolver->setDeprecated('keep_deleted_file');
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_upload';

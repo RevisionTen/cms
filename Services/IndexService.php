@@ -11,11 +11,13 @@ use RevisionTen\CMS\Interfaces\SolrSerializerInterface;
 use RevisionTen\CMS\Model\PageRead;
 use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Serializer\PageSerializer;
-use Solarium\Client;
+use Solarium\Core\Client\Adapter\Curl;
+use Solarium\Core\Client\Client;
 use Solarium\Core\Query\Helper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use function array_push;
 use function array_values;
 use function array_walk;
@@ -33,33 +35,18 @@ use function strip_tags;
 
 class IndexService
 {
-    /** @var ContainerInterface */
-    private $container;
+    private ContainerInterface $container;
 
-    /** @var EntityManagerInterface */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /** @var LoggerInterface */
-    protected $logger;
+    protected LoggerInterface $logger;
 
-    /** @var PageService */
-    protected $pageService;
+    protected PageService $pageService;
 
-    /** @var array */
-    protected $config;
+    protected array $config;
 
-    /** @var array */
-    protected $solrConfig;
+    protected ?array $solrConfig = null;
 
-    /**
-     * IndexService constructor.
-     *
-     * @param ContainerInterface     $container
-     * @param LoggerInterface        $logger
-     * @param EntityManagerInterface $entityManager
-     * @param PageService            $pageService
-     * @param array                  $config
-     */
     public function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $entityManager, PageService $pageService, array $config)
     {
         $this->container = $container;
@@ -68,15 +55,22 @@ class IndexService
         $this->pageService = $pageService;
         $this->config = $config;
 
+        $endpoint = [
+            'host' => $config['solr_host'],
+            'port' => $config['solr_port'],
+            'path' => '/',
+            'collection' => $config['solr_collection'],
+        ];
+
+        if (!empty($config['solr_username']) && !empty($config['solr_password'])) {
+            $endpoint['username'] = $config['solr_username'];
+            $endpoint['password'] = $config['solr_password'];
+        }
+
         $this->solrConfig = $config['solr_collection'] ? [
             'endpoint' => [
-                'localhost' => [
-                    'host' => $config['solr_host'],
-                    'port' => $config['solr_port'],
-                    'path' => '/',
-                    'collection' => $config['solr_collection'],
-                ]
-            ]
+                'localhost' => $endpoint,
+            ],
         ] : null;
     }
 
@@ -99,7 +93,9 @@ class IndexService
             return;
         }
 
-        $client = new Client($this->solrConfig);
+        $adapter = new Curl();
+        $eventDispatcher = new EventDispatcher();
+        $client = new Client($adapter, $eventDispatcher, $this->solrConfig);
 
         $update = $client->createUpdate();
         $update->addDeleteQuery('*:*');
@@ -127,7 +123,9 @@ class IndexService
             return;
         }
 
-        $client = new Client($this->solrConfig);
+        $adapter = new Curl();
+        $eventDispatcher = new EventDispatcher();
+        $client = new Client($adapter, $eventDispatcher, $this->solrConfig);
 
         if (null === $uuid) {
             /** @var PageRead[] $pageReads */
@@ -140,7 +138,9 @@ class IndexService
         }
         $pageReadsByUuid = [];
         array_walk($pageReads, static function ($page, $key) use(&$pageReadsByUuid) {
-            /** @var PageRead $page */
+            /**
+             * @var PageRead $page
+             */
             $pageReadsByUuid[$page->getUuid()] = $page;
         });
 

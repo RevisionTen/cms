@@ -1,0 +1,69 @@
+{# @var backend_service \RevisionTen\CMS\Services\BackendService #}
+{# @var alias \RevisionTen\CMS\Entity\Alias #}
+
+<div class="row flex-grow-1">
+
+    {# Menu Item Label #}
+    <div class="col">
+        <strong>
+            {{ (item.data.title is defined ? item.data.title : item.itemName|trans)|raw }}
+        </strong>
+    </div>
+
+    {# Menu Item URL #}
+    <div class="col-auto ms-auto" style="width: 400px;">
+        {% if item.data.alias is defined and item.data.alias %}
+            {% set alias = backend_service.getAliasById(item.data.alias) %}
+            {% if alias %}
+                {% set editUrl = path('cms_edit_entity', {
+                    entity: 'Alias',
+                    id: alias.id
+                }) %}
+                <a href="{{ editUrl }}" class="{{ alias.enabled ? '' : 'text-danger' }}">
+                    {% if alias.path|length > 40 %}
+                        {{ alias.path|slice(0, 40) }}...
+                    {% else %}
+                        {{ alias.path }}
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% elseif item.data.url is defined %}
+            <span>
+                {% if item.data.url|length > 40 %}
+                    {{ item.data.url|slice(0, 40) }}...
+                {% else %}
+                    {{ item.data.url }}
+                {% endif %}
+            </span>
+        {% endif %}
+    </div>
+
+    {# Menu Item Page #}
+    <div class="col-auto" style="width: 500px;">
+        {% if item.data.alias is defined and item.data.alias %}
+            {% set alias = backend_service.getAliasById(item.data.alias) %}
+            {% if alias and alias.pageStreamRead %}
+                {% set title = alias.pageStreamRead.title %}
+                {% set item = alias.pageStreamRead %}
+                {% set value = alias.pageStreamRead.state %}
+                {% include '@CMS/Backend/Menu/List/page_state.html.twig' %}
+                {% if alias.pageStreamRead.deleted %}
+                    {% if title|length > 40 %}
+                        {{ title|slice(0, 40) }}...
+                    {% else %}
+                        {{ title }}
+                    {% endif %}
+                {% else %}
+                    <a href="{{ path('cms_edit_aggregate', { id: alias.pageStreamRead.id }) }}">
+                        {% if title|length > 40 %}
+                            {{ title|slice(0, 40) }}...
+                        {% else %}
+                            {{ title }}
+                        {% endif %}
+                    </a>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+
+</div>

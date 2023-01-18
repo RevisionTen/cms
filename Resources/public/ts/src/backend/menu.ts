@@ -10,6 +10,7 @@ let bindMenu = function()
         let onVersion = menu.dataset.version;
 
         // Make menu sortable.
+        // @ts-ignore
         $(menu).sortable({
             group: 'serialization',
             containerSelector: '.cms-admin-menu',
@@ -23,6 +24,7 @@ let bindMenu = function()
             menuSaveButton.addEventListener('click', (event) => {
                 event.preventDefault();
 
+                // @ts-ignore
                 let data = $(menu).sortable('serialize').get();
                 let jsonString = JSON.stringify(data, null, ' ');
 

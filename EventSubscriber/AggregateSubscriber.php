@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\EventSubscriber;
 
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use RevisionTen\CMS\Model\File;
 use RevisionTen\CMS\Model\Menu;
 use RevisionTen\CMS\Model\Page;
@@ -16,45 +17,20 @@ use RevisionTen\CMS\Services\PageService;
 use RevisionTen\CMS\Services\RoleService;
 use RevisionTen\CMS\Services\UserService;
 use RevisionTen\CQRS\Event\AggregateUpdatedEvent;
-use RevisionTen\CQRS\Interfaces\EventInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AggregateSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var PageService
-     */
-    private $pageService;
+    private PageService $pageService;
 
-    /**
-     * @var MenuService
-     */
-    private $menuService;
+    private MenuService $menuService;
 
-    /**
-     * @var RoleService
-     */
-    private $roleService;
+    private RoleService $roleService;
 
-    /**
-     * @var FileService
-     */
-    private $fileService;
+    private FileService $fileService;
 
-    /**
-     * @var UserService
-     */
-    private $userService;
+    private UserService $userService;
 
-    /**
-     * AggregateSubscriber constructor.
-     *
-     * @param PageService $pageService
-     * @param MenuService $menuService
-     * @param RoleService $roleService
-     * @param FileService $fileService
-     * @param UserService $userService
-     */
     public function __construct(PageService $pageService, MenuService $menuService, RoleService $roleService, FileService $fileService, UserService $userService)
     {
         $this->pageService = $pageService;
@@ -67,20 +43,15 @@ class AggregateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AggregateUpdatedEvent::NAME => 'updateReadModel',
+            AggregateUpdatedEvent::class => 'updateReadModel',
         ];
     }
 
     /**
-     * @param AggregateUpdatedEvent $aggregateUpdatedEvent
-     *
-     * @throws Exception
+     * @throws Exception|InvalidArgumentException
      */
     public function updateReadModel(AggregateUpdatedEvent $aggregateUpdatedEvent): void
     {
-        /**
-         * @var EventInterface $event
-         */
         $event = $aggregateUpdatedEvent->getEvent();
 
         $aggregateClass = $event::getAggregateClass();

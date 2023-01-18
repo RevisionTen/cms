@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Exception;
 use RevisionTen\CMS\Model\Role;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CQRS\Services\AggregateFactory;
@@ -11,27 +12,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use function json_decode;
 use function json_encode;
 
-/**
- * Class RoleService.
- */
 class RoleService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $em;
+    protected EntityManagerInterface $em;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * RoleService constructor.
-     *
-     * @param EntityManagerInterface $em
-     * @param AggregateFactory       $aggregateFactory
-     */
     public function __construct(EntityManagerInterface $em, AggregateFactory $aggregateFactory)
     {
         $this->em = $em;
@@ -43,7 +29,7 @@ class RoleService
      *
      * @param string $roleUuid
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateRoleRead(string $roleUuid): void
     {

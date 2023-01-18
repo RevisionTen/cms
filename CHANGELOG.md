@@ -4,8 +4,365 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.5] - 2023-01-18
+### Added
+- Add template filter to pages list view
 
-## [2.2.0-dev] - 2020-01-30
+## [3.1.4] - 2022-11-16
+### Changed
+- Don't use SHM functions when running in CLI
+
+## [3.1.3] - 2022-11-15
+### Changed
+- Bugfix
+
+## [3.1.2] - 2022-11-15
+### Changed
+- Code cleanup, removed more jQuery
+
+## [3.1.1] - 2022-11-11
+### Changed
+- Fix deprecations
+
+## [3.1.0] - 2022-11-11
+### Changed
+- Allow PHP 8.1
+
+## [3.0.28] - 2022-08-29
+### Changed
+- Support string ids in entity config
+- Improve list datetime field template
+
+## [3.0.27] - 2022-08-03
+### Changed
+- Fixed admin template
+
+## [3.0.26] - 2022-07-29
+### Changed
+- Improved form templates
+
+## [3.0.25] - 2022-04-14
+### Added
+- Added support for nested backend menues
+- Added `notificationController`-option to backend menu items
+
+## [3.0.24] - 2022-04-08
+### Fixed
+- Fixed select2-dropdown text-field in bootstrap modal
+
+## [3.0.23] - 2022-01-20
+### Added
+- `RevisionTen\CMS\Entity\Alias` added `getAdminChoiceTitle` method
+- `RevisionTen\CMS\Entity\PageStreamRead` added `getAdminChoiceTitle` method
+- `RevisionTen\CMS\Form\Types\DoctrineType` added `choice_label` option
+### Removed
+- `RevisionTen\CMS\Entity\PageStreamRead` removed `getWebsiteChoiceTitle` method
+
+## [3.0.22] - 2022-01-19
+### Changed
+- `@CMS/Backend/Menu/edit-item-title.html.twig` Improved layout
+### Added
+- `@CMS/Backend/Menu/List/page_state.html.twig`
+
+## [3.0.21] - 2022-01-19
+### Changed
+- `@CMS/Backend/Menu/edit-item-title.html.twig` Show page/alias state while editing menus
+
+## [3.0.20] - 2022-01-18
+### Fixed
+- Fixed default `null` contraints option in ManagedUploadType
+- Fixed duplicated pagination item for page 4 when only 4 pages are available
+
+## [3.0.19] - 2022-01-14
+### Fixed
+- Properly reload entity form after it was submitted
+
+## [3.0.18] - 2022-01-12
+### Changed
+- Updated CKEditor library
+
+## [3.0.17] - 2022-01-10
+### Fixed
+- Made forms searchable again
+
+## [3.0.16] - 2021-12-03
+### Changed
+- UploadType constraints bugfix
+
+## [3.0.15] - 2021-12-02
+### Changed
+- Bugfix
+
+## [3.0.14] - 2021-11-22
+### Changed
+- Added umlaut-sensitive JSON payload seach
+- Autofocus login code field and commit message field
+
+## [3.0.13] - 2021-10-29
+### Changed
+- Added CKEditor default contents.css
+
+## [3.0.12] - 2021-10-27
+### Changed
+- Fixed path/alias create permissions
+
+## [3.0.11] - 2021-10-06
+### Changed
+- Code cleanup
+
+## [3.0.10] - 2021-10-04
+### Changed
+- Implemented entity show view
+- Made event log searchable again
+
+## [3.0.9] - 2021-09-27
+### Changed
+- Menu backend bugfix
+
+## [3.0.8] - 2021-09-15
+### Added
+- Fixed AliasSuggester Umlaut-conversion
+
+## [3.0.7] - 2021-08-18
+### Added
+- Bugfix
+
+## [3.0.6] - 2021-08-18
+### Added
+- Small Bugfixes
+- Added login URL to welcome email
+
+## [3.0.5] - 2021-07-12
+### Added
+- Menu add sub-item button bugfix
+- Added new `alias_suggester` option to `cms.page_templates` item config. Must be a FQCN of a class that implements `RevisionTen\CMS\Interfaces\AliasSuggesterInterface`. If this option is set, the `alias_prefix` option will be ignored.
+
+## [3.0.4] - 2021-06-16
+### Added
+- Added support for `RevisionTen\CMS\Form\Types\DoctrineType` to menu items
+- Pass `cms_menu()` parameters to menu templates
+- Added redirect type choice (301, 302) to Alias entity 
+- **Update your database schema**
+
+## [3.0.3] - 2021-06-11
+### Changed
+- Removed string type declaration from`RevisionTen\CMS\Model\Page::$image` because on some sites this is an array of image data.
+
+## [3.0.2] - 2021-06-11
+### Added
+- Added `websites` option to `cms.menus` entry configuration
+- Added `websites` option to `cms.menu_items` entry configuration
+- Added more bootstrap styles to CKEditor style dropdown
+
+## [3.0.1] - 2021-06-09
+### Added
+- Added `resultsPerPage` option to `cms.entities.{ENTITY}.list` configuration
+### Changed
+- Fixed Filepicker search field bug
+
+## [3.0.0] - 2021-06-07
+### Changed
+- See [UPGRADING.md](UPGRADING.md)
+
+## [2.3.26] - 2021-05-20
+### Changed
+- CollectionType Javascript bugfix
+
+## [2.3.25] - 2021-05-17
+### Changed
+- CollectionType Javascript bugfix
+
+## [2.3.24] - 2021-04-26
+### Changed
+- Added `solr_username` and `solr_password` options to CMS config.
+
+## [2.3.23] - 2021-02-24
+### Changed
+- Added missing `symfony/mime` dependency
+
+## [2.3.22] - 2021-02-10
+### Changed
+- Typo
+
+## [2.3.21] - 2021-02-10
+### Added
+- Added file delete button
+- Added `file_delete` permission
+- **Update your database schema**
+
+## [2.3.20] - 2021-01-26
+### Added
+- Added `RevisionTen\CMS\Event\PageRenderEvent` event that is dispatched each time a page is displayed
+
+## [2.3.19] - 2021-01-26
+### Added
+- Added vimeo video element
+
+## [2.3.18] - 2020-12-10
+### Changed
+- Read global `gregwar_image_web_dir` parameter. Set this param if you want to overwrite the default `gregwar_image.web_dir` config
+
+## [2.3.17] - 2020-12-03
+### Changed
+- Fixed Card element
+
+## [2.3.16] - 2020-11-10
+### Changed
+- CollectionType template and file upload template bugfixes
+
+## [2.3.15] - 2020-10-21
+### Changed
+- Bugfix
+
+## [2.3.14] - 2020-10-16
+### Changed
+- Bugfixes
+
+## [2.3.13] - 2020-10-14
+### Added
+- Added `RevisionTen\CMS\Form\Admin\PageStreamReadType` which can be used instead of a regular `EntityType` to provide a list of page choices. Choices are filtered by website automatically and archived pages are marked.
+### Changed
+- Added a pagination to the file picker dialog.
+
+## [2.3.12] - 2020-09-25
+### Changed
+- Bugfix for the `allow_delete` option in conjunction with the `file_with_meta_data` option of the `UploadType`
+
+## [2.3.11] - 2020-09-14
+### Changed
+- Fixed cloning pages with scheduled tasks
+- Added spacing tool button in editor toolbar
+- Bugfixes
+
+## [2.3.10] - 2020-08-27
+### Changed
+- Fixed layer tool save-button
+
+## [2.3.9] - 2020-08-27
+### Changed
+- Compatibility fix for PHP 7.1
+
+## [2.3.8] - 2020-08-24
+### Added
+- Added `keepOriginalFileName` option to UploadType
+### Changed
+- **Changed `File`-element template**
+- **Deprecated `Form/Types/ManagedUploadType`**, use `Form/Types/UploadType` instead
+- Deprecated `DataTransformer/ImageFileTransformer`, use `DataTransformer/FileWithMetaDataTransformer` instead
+
+## [2.3.7] - 2020-05-29
+### Added
+- Added sortWeekdays Twig filter (@entepe85)
+
+## [2.3.6] - 2020-05-27
+### Changed
+- Cleaned up backend, removed inline scripts
+
+## [2.3.5] - 2020-05-26
+### Changed
+- Bugfixes and backend improvements
+
+## [2.3.4] - 2020-05-14
+### Changed
+- Replaced all occurrences of `CmsBundle` with `CMSBundle`, **do the same in your project!**
+
+## [2.3.3] - 2020-05-14
+### Changed
+- Bugfixes
+
+## [2.3.2] - 2020-05-14
+### Changed
+- **Changed extension class case** from `CmsExtension` to `CMSExtension`
+
+## [2.3.1] - 2020-05-14
+### Changed
+- **Changed bundle class case** from `CmsBundle` to `CMSBundle`
+
+## [2.3.0] - 2020-05-14
+### Changed
+- Updated twig dependency because gregwar/image-bundle is soon compatible with twig 3
+
+## [2.2.18] - 2020-05-05
+## Changed
+- Bugfixes
+
+## [2.2.17] - 2020-04-23
+## Changed
+- Bugfix
+
+## [2.2.16] - 2020-04-22
+## Changed
+- Changed `dark-editor-theme` CSS class to `editor-dark`
+
+## [2.2.15] - 2020-04-22
+## Added
+- Added distraction free edit mode
+
+## Changed
+- Bugfix
+
+## [2.2.14] - 2020-04-21
+## Changed
+- Bugfix
+
+## [2.2.13] - 2020-04-21
+## Changed
+- Improved editor grid styling
+
+## [2.2.12] - 2020-04-20
+## Changed
+- Updated documentation
+
+## [2.2.11] - 2020-04-16
+## Added
+- Added new column size options `col[-breakpoint]` and `col[-breakpoint]-auto`
+## Changed
+- Bugfixes
+- **Updated column element template** (removed column width css-classes)
+
+## [2.2.10] - 2020-04-09
+## Changed
+- Added padding tool light style. Dark style can be enable by adding the class `dark-editor-theme` to the page body when editing.
+
+## [2.2.9] - 2020-04-09
+## Changed
+- Added padding tool to preview mode
+
+## [2.2.8] - 2020-04-08
+## Changed
+- Security updates
+
+## [2.2.7] - 2020-03-18
+## Changed
+- Bugfix
+
+## [2.2.6] - 2020-03-10
+## Changed
+- Security updates
+
+## [2.2.5] - 2020-03-09
+## Changed
+- Bugfix
+
+## [2.2.4] - 2020-02-28
+## Changed
+- Bugfixes
+- Added `admin_template` option to `menu_items` entry config (default template is `@cms/Admin/Menu/edit-item-title.html.twig`)
+
+## [2.2.3] - 2020-02-19
+## Changed
+- Bugfixes
+
+## [2.2.2] - 2020-02-18
+## Changed
+- Fixed EasyAdmin entity form templates and updated backend javascript
+- **Update your assets**
+
+## [2.2.1] - 2020-02-11
+## Changed
+- Fixed default template, typos and other bugs
+
+## [2.2.0] - 2020-01-30
 ## Changed
 - Update to Symfony 4.4 and EasyAdmin 2.3.5
 

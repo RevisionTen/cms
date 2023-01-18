@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
+use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Ramsey\Uuid\Uuid;
 use RevisionTen\CMS\Command\FileCreateCommand;
+use RevisionTen\CMS\Command\FileDeleteCommand;
 use RevisionTen\CMS\Command\FileUpdateCommand;
 use RevisionTen\CMS\Model\File;
-use RevisionTen\CMS\Model\FileRead;
-use RevisionTen\CMS\Model\UserRead;
-use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Entity\FileRead;
+use RevisionTen\CMS\Entity\UserRead;
+use RevisionTen\CMS\Entity\Website;
 use RevisionTen\CQRS\Services\AggregateFactory;
 use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,52 +25,29 @@ use function json_decode;
 use function json_encode;
 use function in_array;
 
-/**
- * Class FileService.
- */
 class FileService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    /**
-     * @var AggregateFactory
-     */
-    protected $aggregateFactory;
+    protected AggregateFactory $aggregateFactory;
 
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
+    protected CommandBus $commandBus;
 
-    /**
-     * @var UserRead
-     */
-    protected $user;
+    protected UserRead $user;
 
-    /**
-     * @var string
-     */
-    protected $project_dir;
+    protected string $project_dir;
 
-    /**
-     * PageService constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param AggregateFactory       $aggregateFactory
-     * @param CommandBus             $commandBus
-     * @param TokenStorageInterface  $tokenStorage
-     * @param string                 $project_dir
-     */
     public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
     {
         $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
         $this->commandBus = $commandBus;
-        $this->user = $tokenStorage->getToken() ? $tokenStorage->getToken()->getUser() : -1;
         $this->project_dir = $project_dir;
+
+        $systemUser = new UserRead();
+        $systemUser->setId(-1);
+        $user = $tokenStorage->getToken() ? $tokenStorage->getToken()->getUser() : null;
+        $this->user = $user instanceOf UserRead ? $user : $systemUser;
     }
 
     /**
@@ -83,7 +63,7 @@ class FileService
      * @param int|null    $userId
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
     {
@@ -100,12 +80,10 @@ class FileService
     {
         $public_dir = $this->project_dir.'/public';
 
-        // Move the file to the uploads directory.
-        $newFileName = $filename.'.'.$file->getClientOriginalExtension();
+        // Move the file to the upload directory.
+        $file->move($public_dir.$upload_dir, $filename);
 
-        $file->move($public_dir.$upload_dir, $newFileName);
-
-        return $upload_dir.$newFileName;
+        return $upload_dir.$filename;
     }
 
     /**
@@ -122,6 +100,8 @@ class FileService
             'image/jpg',
             'image/png',
             'image/gif',
+            'image/webp',
+            'image/avif',
         ];
         $width = null;
         $height = null;
@@ -140,7 +120,10 @@ class FileService
         ];
     }
 
-    public function createFile(string $uuid = null, UploadedFile $file, string $title, string $upload_dir, int $website, string $language): ?array
+    /**
+     * @throws Exception
+     */
+    public function createFile(?string $uuid, UploadedFile $file, string $title, string $upload_dir, int $website, string $language, bool $keepOriginalFileName = false): ?array
     {
         if (null === $uuid) {
             $uuid = Uuid::uuid1()->toString();
@@ -154,7 +137,21 @@ class FileService
         $width = $dimensions['width'];
         $height = $dimensions['height'];
 
-        $filePath = $this->saveUploadedFile($file, $upload_dir, $uuid.'-v'.($version + 1));
+        if ($keepOriginalFileName) {
+            $fileName = $file->getClientOriginalName();
+            $fileExtension = $file->getClientOriginalExtension();
+            $fileName = str_replace($fileExtension, '', $fileName);
+            $slugify = new Slugify([
+                'lowercase' => false,
+            ]);
+            $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
+        } else {
+            $slugify = new Slugify();
+            $fileName = $slugify->slugify($title).'.'.$file->getClientOriginalExtension();
+        }
+        // Save files in a versioned sub folder.
+        $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
+        $filePath = $this->saveUploadedFile($file, rtrim($upload_dir, '/').$fileFolder, $fileName);
 
         // Create file aggregate.
         $success = $this->runCommand(FileCreateCommand::class, [
@@ -184,7 +181,7 @@ class FileService
         ];
     }
 
-    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null): ?array
+    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null, bool $keepOriginalFileName = false): ?array
     {
         $uuid = $file['uuid'];
 
@@ -225,7 +222,21 @@ class FileService
             $width = $dimensions['width'];
             $height = $dimensions['height'];
 
-            $filePath = $this->saveUploadedFile($newFile, $upload_dir, $uuid.'-v'.($version + 1));
+            if ($keepOriginalFileName) {
+                $fileName = $newFile->getClientOriginalName();
+                $fileExtension = $newFile->getClientOriginalExtension();
+                $fileName = str_replace($fileExtension, '', $fileName);
+                $slugify = new Slugify([
+                    'lowercase' => false,
+                ]);
+                $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
+            } else {
+                $slugify = new Slugify();
+                $fileName = $slugify->slugify($title).'.'.$newFile->getClientOriginalExtension();
+            }
+            // Save files in a versioned sub folder.
+            $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
+            $filePath = $this->saveUploadedFile($newFile, rtrim($upload_dir, '/').$fileFolder, $fileName);
 
             if ($filePath !== $aggregate->path) {
                 $payload['path'] = $filePath;
@@ -282,16 +293,50 @@ class FileService
 
     public function deleteFile(array $file): ?array
     {
-        // Delete the file (detaches the file aggregate).
-        // $uuid = $file['uuid'];
+        $uuid = $file['uuid'];
 
-        return null;
+        /**
+         * Get Aggregate newest version.
+         *
+         * @var File $aggregate
+         */
+        $aggregate = $this->aggregateFactory->build($uuid, File::class);
+        $version = $aggregate->getVersion();
+
+        $public_dir = $this->project_dir.'/public';
+
+        $path = $aggregate->path;
+        $oldPaths = $aggregate->oldPaths;
+
+        // Delete the actual files first.
+        $fileDeleted = unlink($public_dir.$path);
+        if (!$fileDeleted) {
+            throw new Exception("File $path could not be deleted.");
+        }
+        if ($oldPaths) {
+            foreach ($oldPaths as $oldPath) {
+                $fileDeleted = unlink($public_dir.$oldPath);
+                if (!$fileDeleted) {
+                    throw new Exception("File $path could not be deleted.");
+                    break;
+                }
+            }
+        }
+
+        // Update the aggregate.
+        if ($fileDeleted) {
+            $success = $this->runCommand(FileDeleteCommand::class, [], $uuid, $version);
+        }
+
+        return $success ? null : $file;
     }
 
     /**
      * Update the FileRead entity.
      *
      * @param string $fileUuid
+     *
+     * @throws JsonException
      */
     public function updateFileRead(string $fileUuid): void
     {
@@ -309,18 +354,22 @@ class FileService
 
         // Build FileRead entity from Aggregate.
         $fileRead = $this->entityManager->getRepository(FileRead::class)->findOneBy(['uuid' => $fileUuid]) ?? new FileRead();
+
         $fileRead->setVersion($aggregate->getStreamVersion());
         $fileRead->setUuid($fileUuid);
-        $fileData = json_decode(json_encode($aggregate), true);
-        $fileRead->setPayload($fileData);
-        $fileRead->setTitle($aggregate->title);
-        $fileRead->setPath($aggregate->path);
-        $fileRead->setSize($aggregate->size);
-        $fileRead->setMimeType($aggregate->mimeType);
         $fileRead->setWebsite($website);
         $fileRead->setLanguage($aggregate->language);
-        $fileRead->setCreated($aggregate->created);
-        $fileRead->setModified($aggregate->modified);
+
+        $fileData = json_decode(json_encode($aggregate, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+        $fileRead->setPayload($fileData);
+
+        $fileRead->title = $aggregate->title;
+        $fileRead->path = $aggregate->path;
+        $fileRead->deleted = $aggregate->deleted;
+        $fileRead->size = $aggregate->size;
+        $fileRead->mimeType = $aggregate->mimeType;
+        $fileRead->created = $aggregate->created;
+        $fileRead->modified = $aggregate->modified;
 
         // Persist FileRead entity.
         $this->entityManager->persist($fileRead);

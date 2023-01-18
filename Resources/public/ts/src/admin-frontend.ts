@@ -1,7 +1,19 @@
+import { updatePadding } from "./backend/padding";
+
 const axios = require('axios').default;
 
 // Requires jQuery for column resizing and firing of old jQuery fallback events.
 declare var $: any;
+
+// Get translations and page elements from inline json.
+let translationsElement = document.getElementById('cmsTranslations');
+if (translationsElement) {
+    (window as any).translations = JSON.parse(translationsElement.innerHTML);
+}
+let pageElementsElement = document.getElementById('pageElements');
+if (pageElementsElement) {
+    (window as any).pageElements = JSON.parse(pageElementsElement.innerHTML);
+}
 
 let translations = typeof (window as any).translations !== 'undefined' ? (window as any).translations : {
     addElement: 'Add Element',
@@ -10,7 +22,8 @@ let translations = typeof (window as any).translations !== 'undefined' ? (window
     duplicate: 'Duplicate',
     shift: 'Shift',
     enable: 'Enable',
-    disable: 'Disable'
+    disable: 'Disable',
+    savePadding: 'Save Padding'
 };
 
 // Make new column button resizable.
@@ -144,6 +157,25 @@ function bindCreateButton(element: HTMLElement)
         });
     });
 }
+/**
+ * Binds all padding buttons
+ *
+ * @param element
+ */
+function bindPaddingButtons(element: HTMLElement)
+{
+    let addButtons = element.querySelectorAll('.btn-padding');
+
+    addButtons.forEach((button: HTMLElement) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            let uuid = element.dataset.uuid;
+            let side = button.dataset.side;
+            let action = button.dataset.action;
+            updatePadding(uuid, side, action);
+        });
+    });
+}
 
 /**
  * Bind actions to the control elements.
@@ -155,6 +187,7 @@ function bindControls(element: HTMLElement)
     let uuid = element.dataset.uuid;
 
     bindCreateButton(element);
+    bindPaddingButtons(element);
 
     bindButton(element, '.btn-add', 'addElement', {'parent': uuid});
     bindButton(element, '.btn-edit', 'editElement', {'uuid': uuid});
@@ -164,6 +197,14 @@ function bindControls(element: HTMLElement)
     bindButton(element, '.btn-disable', 'disableElement', {'uuid': uuid});
     bindButton(element, '.btn-enable', 'enableElement', {'uuid': uuid});
     bindButton(element, '.btn-duplicate', 'duplicateElement', {'uuid': uuid});
+}
+
+function getPaddingButton(side: string, element: HTMLElement): string
+{
+    let cssProperty = 'top' === side || 'bottom' === side ? 'height' : 'width';
+    let padding = window.getComputedStyle(element, null).getPropertyValue('padding-'+side);
+
+    return `<div class="editor-padding editor-padding-${side}" style="${cssProperty}: ${padding};"><div class="editor-padding-controls"><span class="btn-padding" data-side="${side}" data-action="decrease"><span class="fas fa-minus"></span></span><span class="btn-padding" data-side="${side}" data-action="increase"><span class="fas fa-plus"></span></span></div></div>`;
 }
 
 /**
@@ -182,17 +223,6 @@ function bindElement(element: HTMLElement, bindChildren = false)
 
     // Get the type of the element.
     let type = element.dataset.type;
-
-    // Get controls background color from element options.
-    let bg = 'bg-primary';
-    if ('Row' == type) {
-        bg = 'bg-secondary';
-    } else if ('Column' == type) {
-        bg = 'bg-info';
-    }
-    if ('bg' in element.dataset) {
-        bg = element.dataset.bg;
-    }
 
     // Get the state of the element.
     let enabled: boolean = '1' === element.dataset.enabled;
@@ -214,16 +244,24 @@ function bindElement(element: HTMLElement, bindChildren = false)
     let actionButtonClasses = 'btn btn-sm '+textColor;
 
     // Build controls.
-    let html = `<div class="editor editor-header button-group p-1 text-right w-100 align-self-start">`
-        + (label ? `<span class="btn btn-sm float-left ${textColor} font-weight-bold">${label}</span>` : '')
-        + ((disabledActions.indexOf('enable') === -1 && enabled === false) ? `<span class="btn-enable ${actionButtonClasses}" title="${translations.enable}"><span class="fa fa-eye-slash"></span></span>` : '')
-        + ((disabledActions.indexOf('disable') === -1 && enabled) ? `<span class="btn-disable ${actionButtonClasses}" title="${translations.disable}"><span class="fa fa-eye"></span></span>` : '')
-        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-up ${actionButtonClasses}" title="${translations.shift}"><span class="fa fa-arrow-up"></span></span>` : '')
-        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-down ${actionButtonClasses}" title="${translations.shift}"><span class="fa fa-arrow-down"></span></span>` : '')
+    let html = `<div class="editor editor-header button-group p-1 text-right text-end w-100 align-self-start">`
+        + (label ? `<span class="btn btn-sm ${textColor} fw-bold font-weight-bold" style="float: left;">${label}</span>` : '')
+        + ((disabledActions.indexOf('enable') === -1 && enabled === false) ? `<span class="btn-enable ${actionButtonClasses}" title="${translations.enable}"><span class="fas fa-eye-slash"></span></span>` : '')
+        + ((disabledActions.indexOf('disable') === -1 && enabled) ? `<span class="btn-disable ${actionButtonClasses}" title="${translations.disable}"><span class="fas fa-eye"></span></span>` : '')
+        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-up ${actionButtonClasses}" title="${translations.shift}"><span class="fas fa-arrow-up"></span></span>` : '')
+        + (disabledActions.indexOf('shift') === -1 ? `<span class="btn-down ${actionButtonClasses}" title="${translations.shift}"><span class="fas fa-arrow-down"></span></span>` : '')
         + (disabledActions.indexOf('duplicate') === -1 ? `<span class="btn-duplicate ${actionButtonClasses}" title="${translations.duplicate}"><span class="fas fa-clone"></span></span>` : '')
-        + (disabledActions.indexOf('edit') === -1 ? `<span class="btn-edit ${actionButtonClasses}" title="${translations.edit}"><span class="fa fa-edit"></span></span>` : '')
+        + (disabledActions.indexOf('edit') === -1 ? `<span class="btn-edit ${actionButtonClasses}" title="${translations.edit}"><span class="fas fa-edit"></span></span>` : '')
         + (disabledActions.indexOf('delete') === -1 ? `<span class="btn-delete ${actionButtonClasses}" title="${translations.delete}"><span class="fas fa-times"></span></span>` : '')
         +`</div>`;
+
+    if ('Row' !== type && 'Column' !== type && 'Section' !== type) {
+        // Add padding controls.
+        html += getPaddingButton('top', element);
+        html += getPaddingButton('bottom', element);
+        html += getPaddingButton('left', element);
+        html += getPaddingButton('right', element);
+    }
 
     // Wrap the controls in a column if the element is a row.
     if ('Row' === type) {
@@ -274,15 +312,19 @@ function bindElement(element: HTMLElement, bindChildren = false)
             'editor-add-button',
             //bg,
             'btn',
-            'btn-block',
             'btn-sm',
+            'd-flex',
+            'flex-grow-1',
+            'align-items-center',
+            'justify-content-center',
+            'fw-bold',
+            'flex-grow',
             'font-weight-bold',
             textColor,
         ];
 
         if ('Row' === type) {
             editorClasses.push('col-auto align-self-stretch d-flex');
-            buttonClasses.push('flex-grow d-flex align-items-center');
         } else {
             editorClasses.push('w-100 align-self-end');
         }
@@ -301,8 +343,8 @@ function bindElement(element: HTMLElement, bindChildren = false)
         element.insertAdjacentHTML('beforeend', '<div class="'+(editorClasses.join(' '))+'">'+addButton+'</div>');
     }
 
-    // Add grid to section.
-    if ('Section' === type) {
+    // Add grid to rows.
+    if ('Row' === type) {
         element.insertAdjacentHTML('afterbegin', '<div class="editor editor-grid row"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div>');
     }
 

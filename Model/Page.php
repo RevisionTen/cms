@@ -12,48 +12,42 @@ final class Page extends Aggregate
     public const STATE_UNPUBLISHED = 'unpublished';
     public const STATE_STAGED = 'staged';
     public const STATE_SCHEDULED = 'scheduled';
+    public const STATE_SCHEDULED_UNPUBLISH = 'scheduled_unpublish';
     public const STATE_DELETED = 'deleted';
     public const STATE_DRAFT = 'draft';
 
-    /** @var string */
-    public $title;
+    public ?string $title = null;
 
-    /** @var string */
-    public $language;
+    public ?string $language = null;
 
-    /** @var int */
-    public $website;
+    public ?int $website = null;
 
-    /** @var string */
-    public $template;
+    public ?string $template = null;
 
-    /** @var string */
-    public $description;
+    public ?string $description = null;
 
-    /** @var string */
-    public $type;
+    public ?string $type = null;
 
-    /** @var string */
-    public $image;
+    /*
+     * Todo: Use PHP 8 union type string|array|null
+     *
+     * @var string|array|null $image
+     */
+    public $image = null;
 
-    /** @var array */
-    public $robots;
+    public ?array $robots = null;
 
-    /** @var bool */
-    public $published = false;
+    public bool $published = false;
 
-    /** @var bool */
-    public $deleted = false;
+    public bool $deleted = false;
 
-    /** @var array */
-    public $elements;
+    public bool $locked = false;
 
-    /** @var array */
-    public $meta;
+    public ?array $elements = null;
 
-    /** @var string */
-    public $state;
+    public ?array $meta = null;
 
-    /** @var array */
-    public $schedule;
+    public ?string $state = null;
+
+    public ?array $schedule = null;
 }

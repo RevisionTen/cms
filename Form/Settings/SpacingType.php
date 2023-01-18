@@ -10,12 +10,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class SpacingType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('breakpoint', ChoiceType::class, [
@@ -41,21 +35,11 @@ class SpacingType extends AbstractType
         $this->spacingForm($builder, 'left', 'spacing.label.left');
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'cms_spacing';
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param string               $key
-     * @param string               $label
-     */
     private function spacingForm(FormBuilderInterface $builder, string $key, string $label): void
     {
         $builder->add($key, ChoiceType::class, [
