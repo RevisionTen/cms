@@ -5,6 +5,22 @@
 {% endblock %}
 
 {% block content_top_actions %}
+    <div class="col-auto content-actions">
+        <div class="input-group">
+            {% set template = app.request.get('template') %}
+            <select class="form-select" name="template" onchange="this.form.submit();">
+                <option value="">{{ 'page.label.template'|trans({}, 'cms') }}</option>
+                {% for templateName, templateConfig in templates %}
+                    <option value="{{ templateName }}"
+                            {% if template == templateName %}selected{% endif %}
+                    >
+                        {{ templateName|trans }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
     {% if is_granted('page_search') %}
         <div class="col-auto content-actions">
             <div class="input-group">
