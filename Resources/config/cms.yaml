@@ -17,7 +17,7 @@ cms:
     # Solr configuration.
     solr_host: 'localhost'
     solr_port: 8983
-    solr_collection: null # The name of your collection
+    solr_collection: null
     solr_username: null
     solr_password: null
 

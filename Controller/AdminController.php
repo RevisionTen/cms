@@ -13,6 +13,7 @@ use RevisionTen\CMS\Model\PageStreamRead;
 use RevisionTen\CMS\Model\RoleRead;
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
+use RevisionTen\CMS\Repository\PageStreamReadRepository;
 use RevisionTen\CMS\Services\CacheService;
 use RevisionTen\CQRS\Model\EventStreamObject;
 use Doctrine\Common\Collections\Criteria;
@@ -256,6 +257,7 @@ class AdminController extends AbstractController
         $defaultSortOrder = 'desc';
 
         $q = (string) ($request->get('q') ?? '');
+        $template = (string) ($request->get('template') ?? '');
         $sortBy = (string) ($request->get('sortBy') ?? $defaultSortBy);
         $sortOrder = (string) ($request->get('sortOrder') ?? $defaultSortOrder);
         $page = (int) $request->get('page');
@@ -306,14 +308,18 @@ class AdminController extends AbstractController
         // Check if sortOrder is valid.
         $sortOrder = in_array($sortOrder, ['desc', 'asc'], true) ? $sortOrder : $defaultSortOrder;
 
+        /**
+         * @var PageStreamReadRepository $pageRepo
+         */
         $pageRepo = $em->getRepository(PageStreamRead::class);
 
         $criteria = Criteria::create();
         $expr = Criteria::expr();
         if ($expr) {
             $criteria->where($expr->eq('deleted', (int) $isArchive));
-        } else {
-            $criteria = null;
+            if (!empty($template)) {
+                $criteria->andWhere($expr->eq('template', $template));
+            }
         }
 
         $websiteId = $request->get('currentWebsite') ?? null;
@@ -332,6 +338,8 @@ class AdminController extends AbstractController
             ], $limit, $offset, $q, $websiteId);
         }
 
+        $templates = $this->getPermittedListTemplates($websiteId);
+
         return $this->render('@CMS/Backend/Page/list.html.twig', [
             'isArchive' => $isArchive,
 
@@ -342,6 +350,7 @@ class AdminController extends AbstractController
             'fields' => $fields,
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
+            'templates' => $templates,
         ]);
     }
 
@@ -536,5 +545,26 @@ class AdminController extends AbstractController
         }
 
         return $response;
+    }
+
+    private function getPermittedListTemplates(int $currentWebsite): array
+    {
+        $config = $this->getParameter('cms');
+        $pageTemplates = $config['page_templates'] ?? null;
+        $templates = [];
+        foreach ($pageTemplates as $template => $templateConfig) {
+            $permission = $templateConfig['permissions']['list'] ?? null;
+            // Check if the website matches.
+            if (!empty($templateConfig['websites']) && !in_array($currentWebsite, $templateConfig['websites'], true)) {
+                // Current website is not in defined websites.
+                continue;
+            }
+            // Check if permission is not explicitly set or user is granted the permission.
+            if (null === $permission || $this->isGranted($permission)) {
+                $templates[$template] = $templateConfig;
+            }
+        }
+
+        return $templates;
     }
 }
