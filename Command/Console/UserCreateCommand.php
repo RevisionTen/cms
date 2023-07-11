@@ -23,7 +23,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * Class UserCreateCommand.
@@ -34,7 +34,7 @@ class UserCreateCommand extends Command
 {
     private EntityManagerInterface $entityManager;
 
-    private UserPasswordEncoderInterface $encoder;
+    private UserPasswordHasherInterface $passwordHasher;
 
     private CommandBus $commandBus;
 
@@ -42,10 +42,10 @@ class UserCreateCommand extends Command
 
     private UserService $userService;
 
-    public function __construct(UserPasswordEncoderInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService)
+    public function __construct(UserPasswordHasherInterface $encoder, EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserService $userService)
     {
         $this->entityManager = $entityManager;
-        $this->encoder = $encoder;
+        $this->passwordHasher = $encoder;
         $this->commandBus = $commandBus;
         $this->messageBus = $messageBus;
         $this->userService = $userService;
@@ -214,7 +214,7 @@ class UserCreateCommand extends Command
         }
 
         // Encode the password.
-        $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
+        $encodedPassword = $this->passwordHasher->hashPassword(new UserRead(), $password);
 
         // Generate a secret.
         $googleAuthenticator = new GoogleAuthenticator();

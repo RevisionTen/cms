@@ -25,3 +25,4 @@ doctrine:
         dql:
             string_functions:
                 JSON_SEARCH: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch
+

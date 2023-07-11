@@ -14,16 +14,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use function is_object;
 use function strtr;
 use function time;
 
-class CodeAuthenticator extends AbstractGuardAuthenticator
+class CodeAuthenticator extends AbstractAuthenticator
 {
     private SessionInterface $session;
 
@@ -43,105 +45,64 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
 
     public function supports(Request $request): bool
     {
-        $code = $request->get('code')['code'] ?? null;
-        $username = $this->session->has('username');
+        $hasUsername = $this->session->has('username');
+        $hasCode = !empty($request->get('code')['code'] ?? null);
+        $isCodeLoginPath = $request->getPathInfo() === '/admin/dashboard';
+        $isPost = $request->isMethod('POST');
 
-        // Returns true If a code was submitted or environment is dev and a username exists, otherwise skip authentication.
-        return ($username && $this->isDev) || ($username && $code);
+        return $isCodeLoginPath && $isPost && $hasUsername && $hasCode;
     }
 
-    /**
-     * Called on every request. Return whatever credentials you want to
-     * be passed to getUser() as $credentials.
-     *
-     * @param Request $request
-     *
-     * @return mixed
-     */
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): Passport
     {
         $username = $this->session->get('username');
         $code = $request->get('code')['code'] ?? null;
 
-        if ($username && $code) {
-            // Username and password matches, code needs to be checked.
-            return [
-                'username' => $username,
-                'code' => $code,
-            ];
+        $hasCode = !empty($code);
+        if (empty($username) || !$hasCode) {
+            // The login data was empty, authentication fails with HTTP Status
+            // Code 401 "Unauthorized"
+            throw new UnauthorizedHttpException('No login data provided');
         }
 
-        if ($username && $this->isDev) {
-            // Environment is dev, just return the username.
-            return [
-                'username' => $username,
-            ];
-        }
-
-        return [];
-    }
-
-
-    public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
-    {
-        $username = $credentials['username'] ?? null;
-
-        // If it's a User object, checkCredentials() is called, otherwise authentication will fail.
-        return null !== $username ? $userProvider->loadUserByUsername($username) : null;
-    }
-
-    /**
-     * Return true to cause authentication success.
-     *
-     * @param array         $credentials
-     * @param UserInterface $user
-     *
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user): bool
-    {
-        if ($this->isDev) {
-            return true;
-        }
-
-        // Check if submitted Code is Valid.
-        /**
-         * @var UserRead $user
-         */
-        $secret = $user->getSecret();
-
-        return $this->isCodeValid($secret, $credentials['code']);
+        return new Passport(new UserBadge($username), new CustomCredentials(
+            function ($code, UserRead $user) {
+                // If this function returns anything else than `true`, the credentials are marked as invalid.
+                return $this->isDev || $this->isCodeValid($user->getSecret(), $code);
+            },
+            $code
+        ));
     }
 
     /**
      * @throws Exception
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        /**
+         * @var UserRead $user
+         */
         $user = $token->getUser();
-
         if (!is_object($user)) {
             return null;
         }
 
-        if (!$this->isDev) {
-            $userId = $user->getId();
-            $userUuid = $user->getUuid();
+        $userId = $user->getId();
+        $userUuid = $user->getUuid();
 
-            // Check if user has an aggregate.
-            if (null !== $userUuid) {
-                $onVersion = $user->getVersion();
+        // Check if user has an aggregate.
+        if (null !== $userUuid && !$this->isDev) {
+            $onVersion = $user->getVersion();
 
-                // Dispatch login event.
-                $userLoginCommand = new UserLoginCommand($userId, null, $userUuid, $onVersion, [
-                    'device' => $request->headers->get('User-Agent') ?? 'unknown',
-                    'ip' => $request->getClientIp() ?? 'unknown',
-                ]);
-                $this->commandBus->dispatch($userLoginCommand);
-            }
+            // Dispatch login event.
+            $userLoginCommand = new UserLoginCommand($userId, null, $userUuid, $onVersion, [
+                'device' => $request->headers->get('User-Agent') ?? 'unknown',
+                'ip' => $request->getClientIp() ?? 'unknown',
+            ]);
+            $this->commandBus->dispatch($userLoginCommand);
         }
 
-        // On success, let the request continue.
+        // On success, let the request continue to the dashboard.
         return null;
     }
 
@@ -156,24 +117,6 @@ class CodeAuthenticator extends AbstractGuardAuthenticator
         $flashBag->add('danger', $message);
 
         return new RedirectResponse('/code');
-    }
-
-    /**
-     * Called when authentication is needed, but it's not sent.
-     *
-     * @param Request                      $request
-     * @param AuthenticationException|null $authException
-     *
-     * @return RedirectResponse
-     */
-    public function start(Request $request, AuthenticationException $authException = null)
-    {
-        return new RedirectResponse('/code');
-    }
-
-    public function supportsRememberMe(): bool
-    {
-        return false;
     }
 
     private function isCodeValid(string $secret, string $code): bool

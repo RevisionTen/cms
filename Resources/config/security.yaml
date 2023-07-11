@@ -1,38 +1,39 @@
 security:
+    enable_authenticator_manager: true
     session_fixation_strategy: none
     erase_credentials: false
-    encoders:
-        RevisionTen\CMS\Entity\UserRead:
-            algorithm: bcrypt
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'bcrypt'
     providers:
         db_provider:
             entity:
                 class: RevisionTen\CMS\Entity\UserRead
                 property: username
+    access_control:
+        - { path: ^/admin, roles: ROLE_USER }
     firewalls:
         # Protect the Admin Area with the Code Authenticator.
         admin:
-            methods: [GET, POST, PUT, PATCH, DELETE]
-            pattern:    ^/admin
+            entry_point: RevisionTen\CMS\Security\CodeAuthenticatorEntryPoint
+            pattern: ^/admin
             stateless: false
             provider: db_provider
-            guard:
-                authenticators:
-                    - RevisionTen\CMS\Security\CodeAuthenticator
+            custom_authenticators:
+                - RevisionTen\CMS\Security\CodeAuthenticator
             logout:
                 invalidate_session: true
                 path: cms_logout
                 target: /
                 #handlers: [RevisionTen\CMS\EventListener\LogoutListener]
+
         # Protect the Code Authenticator with the Basic Authenticator.
         code:
-            methods: [GET, POST, PUT, PATCH, DELETE]
-            pattern:    ^/code
+            entry_point: RevisionTen\CMS\Security\BasicAuthenticatorEntryPoint
+            pattern: ^/code
             stateless: false
             provider: db_provider
-            guard:
-                authenticators:
-                    - RevisionTen\CMS\Security\BasicAuthenticator
+            custom_authenticators:
+                - RevisionTen\CMS\Security\BasicAuthenticator
             logout:
                 invalidate_session: true
                 path: cms_logout

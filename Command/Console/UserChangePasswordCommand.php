@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserChangePasswordCommand extends Command
 {
@@ -26,16 +26,16 @@ class UserChangePasswordCommand extends Command
 
     private MessageBus $messageBus;
 
-    private UserPasswordEncoderInterface $encoder;
+    private UserPasswordHasherInterface $passwordHasher;
 
     private AggregateFactory $aggregateFactory;
 
-    public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserPasswordEncoderInterface $encoder, AggregateFactory $aggregateFactory)
+    public function __construct(EntityManagerInterface $entityManager, CommandBus $commandBus, MessageBus $messageBus, UserPasswordHasherInterface $passwordHasher, AggregateFactory $aggregateFactory)
     {
         $this->entityManager = $entityManager;
         $this->commandBus = $commandBus;
         $this->messageBus = $messageBus;
-        $this->encoder = $encoder;
+        $this->passwordHasher = $passwordHasher;
         $this->aggregateFactory = $aggregateFactory;
 
         parent::__construct();
@@ -90,7 +90,7 @@ class UserChangePasswordCommand extends Command
         }
 
         // Encode the new password.
-        $encodedPassword = $this->encoder->encodePassword(new UserRead(), $password);
+        $encodedPassword = $this->passwordHasher->hashPassword(new UserRead(), $password);
 
         /**
          * Get the User and UserAggregate.

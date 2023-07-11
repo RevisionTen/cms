@@ -5,26 +5,24 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Serializable;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\ORM\Mapping as ORM;
 use function hash;
 use function is_array;
 use function is_string;
 use function json_decode;
 use function json_encode;
-use function serialize;
 use function sprintf;
 use function strtoupper;
 use function substr;
 use function unpack;
-use function unserialize;
 
 /**
  * @ORM\Entity
  * @ORM\Table("user")
  */
-class UserRead implements UserInterface, Serializable
+class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @ORM\Column(type="integer")
@@ -140,6 +138,9 @@ class UserRead implements UserInterface, Serializable
         return $this->getUsername();
     }
 
+    /**
+     * @deprecated This method is deprecated since Symfony 5.3 and no longer needed.
+     */
     public function getSalt(): ?string
     {
         return null;
@@ -160,51 +161,6 @@ class UserRead implements UserInterface, Serializable
         return $roles;
     }
 
-    /**
-     * @see Serializable::serialize()
-     */
-    public function serialize(): ?string
-    {
-        return serialize([
-            $this->id,
-            $this->username,
-            $this->password,
-        ]);
-    }
-
-    public function __serialize(): array
-    {
-        return [
-            $this->id,
-            $this->username,
-            $this->password,
-        ];
-    }
-
-    /**
-     * @see Serializable::unserialize()
-     *
-     * @param string $data
-     */
-    public function unserialize($data): void
-    {
-        [
-            $this->id,
-            $this->username,
-            $this->password] = unserialize($data, [
-                'allowed_classes' => false,
-        ]);
-    }
-
-    public function __unserialize($data): void
-    {
-        [
-            $this->id,
-            $this->username,
-            $this->password
-        ] = $data;
-    }
-
     public function setId(?int $id): self
     {
         $this->id = $id;
@@ -217,7 +173,7 @@ class UserRead implements UserInterface, Serializable
         return $this->id;
     }
 
-    public function getUuid(): string
+    public function getUuid(): ?string
     {
         return $this->uuid;
     }
@@ -494,7 +450,7 @@ class UserRead implements UserInterface, Serializable
 
     public function getExtra(): ?array
     {
-        return is_string($this->extra) ? json_decode($this->extra, true) : $this->extra;
+        return is_string($this->extra) ? json_decode($this->extra, true) : null;
     }
 
     public function setExtra(array $extra = null): self
