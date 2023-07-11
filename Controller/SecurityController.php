@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -70,15 +70,14 @@ class SecurityController extends AbstractController
      */
     public function code(Request $request, FormFactoryInterface $formFactory, KernelInterface $kernel): Response
     {
-        // Redirect to dashboard if environment is dev.
-        if ('dev' === $kernel->getEnvironment()) {
-            return $this->redirectToRoute('cms_dashboard');
-        }
-
         // Remove submitted login form fields from request.
         $request->request->remove('login');
 
-        $form = $this->buildCodeForm($formFactory);
+        $code = $kernel->getEnvironment() === 'dev' ? '123456' : null;
+
+        $form = $this->buildCodeForm($formFactory, [
+            'code' => $code,
+        ]);
 
         // Only handle the request if a code was submitted.
         $code = $request->get('code')['code'] ?? null;
@@ -202,13 +201,13 @@ class SecurityController extends AbstractController
      * @param FormFactoryInterface         $formFactory
      * @param EntityManagerInterface       $entityManager
      * @param CommandBus                   $commandBus
-     * @param UserPasswordEncoderInterface $encoder
+     * @param UserPasswordHasherInterface  $passwordHasher
      * @param TranslatorInterface          $translator
      *
      * @return Response
      * @throws InterfaceException
      */
-    public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordEncoderInterface $encoder, TranslatorInterface $translator): Response
+    public function resetPasswordForm(string $resetToken, string $username, Request $request, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, CommandBus $commandBus, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator): Response
     {
         $formBuilder = $formFactory->createBuilder(FormType::class, [
             'username' => $username,
@@ -264,7 +263,7 @@ class SecurityController extends AbstractController
                 $userId = $user->getId();
                 $userUuid = $user->getUuid();
                 $userToken = $user->getResetToken();
-                $encodedPassword = $encoder->encodePassword($user, $password);
+                $encodedPassword = $passwordHasher->hashPassword($user, $password);
 
                 // Check if token matches and user has an aggregate.
                 if ($userToken === $resetToken && null !== $userUuid) {
@@ -311,9 +310,9 @@ class SecurityController extends AbstractController
      *
      * @return FormInterface
      */
-    private function buildCodeForm(FormFactoryInterface $formFactory): FormInterface
+    private function buildCodeForm(FormFactoryInterface $formFactory, array $data): FormInterface
     {
-        $formBuilder = $formFactory->createNamedBuilder('code');
+        $formBuilder = $formFactory->createNamedBuilder('code', FormType::class, $data);
 
         $formBuilder->setMethod('POST');
         $formBuilder->setAction('/admin/dashboard');

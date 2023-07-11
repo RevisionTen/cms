@@ -11,22 +11,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BasicAuthenticator extends AbstractGuardAuthenticator
+class BasicAuthenticator extends AbstractAuthenticator
 {
     private MailerInterface $mailer;
-
-    private UserPasswordEncoderInterface $encoder;
 
     private SessionInterface $session;
 
@@ -34,39 +33,12 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
 
     private array $config;
 
-    private bool $isDev;
-
-    public function __construct(MailerInterface $mailer, UserPasswordEncoderInterface $encoder, RequestStack $requestStack, TranslatorInterface $translator, array $config, string $env)
+    public function __construct(MailerInterface $mailer, RequestStack $requestStack, TranslatorInterface $translator, array $config)
     {
         $this->mailer = $mailer;
-        $this->encoder = $encoder;
         $this->translator = $translator;
         $this->session = $this->getSession($requestStack);
         $this->config = $config;
-        $this->isDev = 'dev' === $env;
-    }
-
-    /**
-     * Returns the active session or starts one.
-     *
-     * @param RequestStack $requestStack
-     *
-     * @return SessionInterface
-     */
-    private function getSession(RequestStack $requestStack): SessionInterface
-    {
-        $request = $requestStack->getMainRequest();
-        $session = $request ? $request->getSession() : null;
-
-        if (null === $session) {
-            $session = new Session();
-        }
-
-        if (!$session->isStarted()) {
-            $session->start();
-        }
-
-        return $session;
     }
 
     public function supports(Request $request): bool
@@ -74,71 +46,33 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
         $username = $request->get('login')['username'] ?? null;
         $password = $request->get('login')['password'] ?? null;
 
-        return $username && $password;
+        return !empty($username) && !empty($password);
     }
 
-    /**
-     * Called on every request. Return whatever credentials you want to
-     * be passed to getUser() as $credentials.
-     *
-     * @param Request $request
-     *
-     * @return array|bool
-     */
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): Passport
     {
         $username = $request->get('login')['username'] ?? null;
         $password = $request->get('login')['password'] ?? null;
 
-        if ($username && $password) {
-            // User logs in.
-            return [
-                'username' => $username,
-                'password' => $password,
-            ];
+        if (empty($username) || empty($password)) {
+            // The login data was empty, authentication fails with HTTP Status
+            // Code 401 "Unauthorized"
+            throw new UnauthorizedHttpException('No login data provided');
         }
 
-        return [];
-    }
-
-    public function getUser($credentials, UserProviderInterface $userProvider)
-    {
-        $username = $credentials['username'];
-
-        // If it's a User object, checkCredentials() is called, otherwise authentication will fail.
-        return null !== $username ? $userProvider->loadUserByIdentifier($username) : null;
-    }
-
-    /**
-     * Return true to cause authentication success.
-     *
-     * @param array         $credentials
-     * @param UserInterface $user
-     *
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user): bool
-    {
-        return $this->encoder->isPasswordValid($user, $credentials['password']);
+        return new Passport(new UserBadge($username), new PasswordCredentials($password));
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // Remember the username in the session for the Code Authenticator.
-        $username = $request->get('login')['username'] ?? null;
-        $this->session->set('username', $username);
-
-        if ($this->isDev) {
-            // Do not send mail code mail in dev environment, let the request continue.
-            return null;
-        }
+        $this->session->set('username', $token->getUserIdentifier());
 
         // Sent a mail with the PIN code.
         $useMailCodes = $this->config['use_mail_codes'] ?? false;
-
         if ($useMailCodes) {
             /**
              * @var UserRead $user
@@ -153,8 +87,21 @@ class BasicAuthenticator extends AbstractGuardAuthenticator
             $this->sendCodeMail($user, $code);
         }
 
-        // On success, let the request continue.
-        return null;
+        // On success, redirect to code login.
+        return new RedirectResponse('/code');
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    {
+        $message = $this->translator->trans('admin.label.loginError', [], 'cms');
+        $flashBag = $this->session->getFlashBag();
+        if (!$flashBag) {
+            $flashBag = new FlashBag('login_errors');
+            $this->session->registerBag($flashBag);
+        }
+        $flashBag->add('danger', $message);
+
+        return new RedirectResponse('/login');
     }
 
     /**
@@ -207,34 +154,26 @@ EOT;
         $this->mailer->send($message);
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $message = $this->translator->trans('admin.label.loginError', [], 'cms');
-        $flashBag = $this->session->getFlashBag();
-        if (!$flashBag) {
-            $flashBag = new FlashBag('login_errors');
-            $this->session->registerBag($flashBag);
-        }
-        $flashBag->add('danger', $message);
-
-        return new RedirectResponse('/login');
-    }
-
     /**
-     * Called when authentication is needed, but it's not sent.
+     * Returns the active session or starts one.
      *
-     * @param Request                      $request
-     * @param AuthenticationException|null $authException
+     * @param RequestStack $requestStack
      *
-     * @return RedirectResponse
+     * @return SessionInterface
      */
-    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
+    private function getSession(RequestStack $requestStack): SessionInterface
     {
-        return new RedirectResponse('/login');
-    }
+        $request = $requestStack->getMainRequest();
+        $session = $request ? $request->getSession() : null;
 
-    public function supportsRememberMe(): bool
-    {
-        return false;
+        if (null === $session) {
+            $session = new Session();
+        }
+
+        if (!$session->isStarted()) {
+            $session->start();
+        }
+
+        return $session;
     }
 }

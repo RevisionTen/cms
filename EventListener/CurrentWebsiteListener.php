@@ -6,7 +6,7 @@ namespace RevisionTen\CMS\EventListener;
 
 use RevisionTen\CMS\Model\UserRead;
 use RevisionTen\CMS\Model\Website;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
@@ -16,13 +16,13 @@ use function strpos;
 
 class CurrentWebsiteListener
 {
-    private SessionInterface $session;
+    private RequestStack $requestStack;
 
     private Security $security;
 
-    public function __construct(SessionInterface $session, Security $security)
+    public function __construct(RequestStack $requestStack, Security $security)
     {
-        $this->session = $session;
+        $this->requestStack = $requestStack;
         $this->security = $security;
     }
 
@@ -67,7 +67,7 @@ class CurrentWebsiteListener
                         return $website->getId();
                     }, $websites->toArray());
 
-                    $currentWebsite = $request->cookies->get('cms_current_website') ?? $this->session->get('currentWebsite');
+                    $currentWebsite = $request->cookies->get('cms_current_website') ?? $this->requestStack->getSession()->get('currentWebsite');
 
                     if (null === $currentWebsite || !in_array($currentWebsite, $websiteIds, false)) {
                         // Current Website is null or does not exist in the users websites, set first website as current

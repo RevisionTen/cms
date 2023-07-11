@@ -22,7 +22,7 @@ class AliasRepository extends ServiceEntityRepository
     /**
      * Filter aliases by currently viewed website.
      */
-    public function findAll()
+    public function findAll(): array
     {
         if ($this->website) {
             $qb = $this->createQueryBuilder('a');
