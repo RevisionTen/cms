@@ -2,6 +2,8 @@
 cms:
     site_name: 'RevisionTen CMS'
 
+    slugger_locale: 'de'
+
     # Cache configuration.
     disable_cache_workaround: false
 

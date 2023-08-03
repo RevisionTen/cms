@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RevisionTen\CMS\Services;
 
-use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Ramsey\Uuid\Uuid;
@@ -20,6 +19,7 @@ use RevisionTen\CQRS\Services\CommandBus;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Exception;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use function getimagesize;
 use function json_decode;
 use function json_encode;
@@ -35,14 +35,17 @@ class FileService
 
     protected UserRead $user;
 
+    private AsciiSlugger $slugger;
+
     protected string $project_dir;
 
-    public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, string $project_dir)
+    public function __construct(EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, CommandBus $commandBus, TokenStorageInterface $tokenStorage, array $config, string $project_dir)
     {
         $this->entityManager = $entityManager;
         $this->aggregateFactory = $aggregateFactory;
         $this->commandBus = $commandBus;
         $this->project_dir = $project_dir;
+        $this->slugger = new AsciiSlugger($config['slugger_locale'] ?? 'de');
 
         $systemUser = new UserRead();
         $systemUser->setId(-1);
@@ -141,13 +144,9 @@ class FileService
             $fileName = $file->getClientOriginalName();
             $fileExtension = $file->getClientOriginalExtension();
             $fileName = str_replace($fileExtension, '', $fileName);
-            $slugify = new Slugify([
-                'lowercase' => false,
-            ]);
-            $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
+            $fileName = $this->slugger->slug($fileName)->toString().'.'.$fileExtension;
         } else {
-            $slugify = new Slugify();
-            $fileName = $slugify->slugify($title).'.'.$file->getClientOriginalExtension();
+            $fileName = $this->slugger->slug($title)->toString().'.'.$file->getClientOriginalExtension();
         }
         // Save files in a versioned sub folder.
         $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
@@ -226,13 +225,9 @@ class FileService
                 $fileName = $newFile->getClientOriginalName();
                 $fileExtension = $newFile->getClientOriginalExtension();
                 $fileName = str_replace($fileExtension, '', $fileName);
-                $slugify = new Slugify([
-                    'lowercase' => false,
-                ]);
-                $fileName = $slugify->slugify($fileName).'.'.$fileExtension;
+                $fileName = $this->slugger->slug($fileName).'.'.$fileExtension;
             } else {
-                $slugify = new Slugify();
-                $fileName = $slugify->slugify($title).'.'.$newFile->getClientOriginalExtension();
+                $fileName = $this->slugger->slug($title).'.'.$newFile->getClientOriginalExtension();
             }
             // Save files in a versioned sub folder.
             $fileFolder = '/'.$uuid.'/'.($version + 1).'/';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RevisionTen\CMS\Twig;
 
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -26,11 +27,14 @@ class CmsExtension extends AbstractExtension
 
     protected Security $security;
 
+    protected AsciiSlugger $slugger;
+
     public function __construct(array $config, TranslatorInterface $translator, Security $security)
     {
         $this->config = $config;
         $this->translator = $translator;
         $this->security = $security;
+        $this->slugger = new AsciiSlugger($config['slugger_locale'] ?? 'de');
     }
 
     /**
@@ -54,6 +58,7 @@ class CmsExtension extends AbstractExtension
     {
         return [
             new TwigFilter('sortWeekdays', [$this, 'sortWeekdays']),
+            new TwigFilter('slugify', [$this, 'slugify']),
         ];
     }
 
@@ -267,5 +272,10 @@ class CmsExtension extends AbstractExtension
         });
 
         return $input;
+    }
+
+    public function slugify(string $input, string $separator = '-'): string
+    {
+        return $this->slugger->slug($input, $separator)->toString();
     }
 }

@@ -136,6 +136,7 @@ services:
     RevisionTen\CMS\Services\FileService:
         autowire: true
         arguments:
+            $config: '%cms%'
             $project_dir: '%kernel.project_dir%'
     RevisionTen\CMS\Services\AliasSuggester:
         autowire: true
