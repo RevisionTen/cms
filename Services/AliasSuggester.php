@@ -24,6 +24,6 @@ class AliasSuggester implements AliasSuggesterInterface
     {
         $alias_prefix = $this->config['page_templates'][$pageStreamRead->getTemplate()]['alias_prefix'][$pageStreamRead->getLanguage()] ?? '/';
 
-        return $alias_prefix.$this->slugger->slug($pageStreamRead->getTitle())->toString();
+        return $alias_prefix.$this->slugger->slug($pageStreamRead->getTitle())->lower()->toString();
     }
 }

@@ -48,7 +48,7 @@ class Page extends Item
             'translation_domain' => 'cms',
             'choices' => $choices,
             'attr' => [
-                'class' => 'custom-select',
+                'data-widget' => 'select2',
             ],
         ]);
 
