@@ -144,9 +144,9 @@ class FileService
             $fileName = $file->getClientOriginalName();
             $fileExtension = $file->getClientOriginalExtension();
             $fileName = str_replace($fileExtension, '', $fileName);
-            $fileName = $this->slugger->slug($fileName)->toString().'.'.$fileExtension;
+            $fileName = $this->slugger->slug($fileName)->lower()->toString().'.'.$fileExtension;
         } else {
-            $fileName = $this->slugger->slug($title)->toString().'.'.$file->getClientOriginalExtension();
+            $fileName = $this->slugger->slug($title)->lower()->toString().'.'.$file->getClientOriginalExtension();
         }
         // Save files in a versioned sub folder.
         $fileFolder = '/'.$uuid.'/'.($version + 1).'/';
@@ -225,9 +225,9 @@ class FileService
                 $fileName = $newFile->getClientOriginalName();
                 $fileExtension = $newFile->getClientOriginalExtension();
                 $fileName = str_replace($fileExtension, '', $fileName);
-                $fileName = $this->slugger->slug($fileName).'.'.$fileExtension;
+                $fileName = $this->slugger->slug($fileName)->lower().'.'.$fileExtension;
             } else {
-                $fileName = $this->slugger->slug($title).'.'.$newFile->getClientOriginalExtension();
+                $fileName = $this->slugger->slug($title)->lower().'.'.$newFile->getClientOriginalExtension();
             }
             // Save files in a versioned sub folder.
             $fileFolder = '/'.$uuid.'/'.($version + 1).'/';

@@ -276,6 +276,6 @@ class CmsExtension extends AbstractExtension
 
     public function slugify(string $input, string $separator = '-'): string
     {
-        return $this->slugger->slug($input, $separator)->toString();
+        return $this->slugger->slug($input, $separator)->lower()->toString();
     }
 }
