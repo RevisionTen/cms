@@ -158,9 +158,10 @@ class EntityController extends AbstractController
                 ], 'cms')
             );
 
-            return $this->redirectToRoute('cms_edit_entity', [
+            return $this->redirectToRoute('cms_list_entity', [
                 'entity' => $entity,
-                'id' => $entityObject->getId(),
+                'sortBy' => $request->query->get('sortBy'),
+                'sortOrder' => $request->query->get('sortOrder'),
             ]);
         }
 

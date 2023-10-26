@@ -5,6 +5,7 @@
 {% block content_wrapper %}
     <form method="get" id="content" class="col flex-grow-1 overflow-auto d-flex flex-column {{ contentClass }}" style="max-height: 100vh;">
         {{ block('content_top') }}
+        {{ block('messages') }}
         {{ block('content') }}
     </form>
 {% endblock content_wrapper %}

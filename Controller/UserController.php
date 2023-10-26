@@ -225,8 +225,10 @@ class UserController extends AbstractController
                 $translator->trans('admin.label.userEditSuccess', [], 'cms')
             );
 
-            return $this->redirectToRoute('cms_user_edit', [
-                'id' => $id,
+            return $this->redirectToRoute('cms_list_entity', [
+                'entity' => 'UserRead',
+                'sortBy' => $request->query->get('sortBy'),
+                'sortOrder' => $request->query->get('sortOrder'),
             ]);
         }
 
