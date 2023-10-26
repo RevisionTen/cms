@@ -295,13 +295,18 @@ class FileController extends AbstractController
                     $translator->trans('admin.label.fileDeleteSuccess', [], 'cms')
                 );
 
-                return $this->redirect('/admin/?entity=FileRead&action=list');
+                return $this->redirectToRoute('cms_list_entity', [
+                    'entity' => 'FileRead',
+                    'sortBy' => $request->query->get('sortBy'),
+                    'sortOrder' => $request->query->get('sortOrder'),
+                ]);
             }
         }
 
         return $this->render('@CMS/Backend/File/delete.html.twig', [
             'id' => $id,
             'file' => $fileRead,
+            'request' => $request,
         ]);
     }
 

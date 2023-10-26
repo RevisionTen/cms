@@ -145,6 +145,12 @@ class RoleController extends AbstractController
                 'success',
                 $translator->trans('admin.label.roleEditSuccess', [], 'cms')
             );
+
+            return $this->redirectToRoute('cms_list_entity', [
+                'entity' => 'RoleRead',
+                'sortBy' => $request->query->get('sortBy'),
+                'sortOrder' => $request->query->get('sortOrder'),
+            ]);
         }
 
         return $this->render('@CMS/Backend/Form/form.html.twig', [

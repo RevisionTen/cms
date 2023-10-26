@@ -255,9 +255,9 @@ cms:
                 fields:
                     - { property: 'title', label: 'admin.label.title' }
                     - { property: 'defaultLanguage', label: 'admin.label.defaultLanguage' }
-                    - { property: 'users', label: 'admin.label.users', type: 'collection' }
-                    - { property: 'domains', label: 'admin.label.domains', type: 'collection' }
-                    - { property: 'aliases', label: 'admin.label.aliases', type: 'collection' }
+                    - { property: 'users', label: 'admin.label.users', type: 'collection', sortable: false }
+                    - { property: 'domains', label: 'admin.label.domains', type: 'collection', sortable: false }
+                    - { property: 'aliases', label: 'admin.label.aliases', type: 'collection', sortable: false }
             form:
                 fields:
                     - { property: 'title', label: 'admin.label.title', type: 'Symfony\Component\Form\Extension\Core\Type\TextType' }
@@ -444,7 +444,7 @@ cms:
                 fields:
                     - { property: 'id', label: 'admin.label.id' }
                     - { property: 'toEmail', label: 'admin.label.toEmail' }
-                    - { property: 'form', label: 'admin.label.form' }
+                    - { property: 'form', label: 'admin.label.form', sortable: false }
                     - { property: 'opened', label: 'admin.label.opened', template: '@forms/Admin/submission-opened.html.twig' }
                     - { property: 'created', label: 'admin.label.created', type: 'datetime' }
             show:

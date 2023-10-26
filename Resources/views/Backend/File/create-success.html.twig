@@ -14,5 +14,12 @@
         <p>
             <code>{{ file.path }}</code>
         </p>
+        <p>
+            <a href="{{ path('cms_list_entity', {
+                entity: 'FileRead'
+            }) }}" class="btn btn-primary">
+                {{ 'admin.label.backToFileList'|trans({}, 'cms') }}
+            </a>
+        </p>
     </div>
 {% endblock %}

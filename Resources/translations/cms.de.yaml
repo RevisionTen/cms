@@ -257,6 +257,7 @@ admin:
         autoWidth: "volle Breite"
         avatar: "Avatar"
         avatarUrl: "Avatar URL"
+        backToFileList: "Zur Dateiübersicht"
         bccEmail: "BCC-Email"
         ccEmail: "CC-Email"
         changePageSettings: "Seiteneinstellungen ändern"

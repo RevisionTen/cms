@@ -97,7 +97,6 @@ class ApiController extends AbstractController
         $canBeUnpublished = $page->state === Page::STATE_PUBLISHED;
 
         $canSubmitChanges = !$page->locked && $this->isGranted('page_submit_changes') && ($page->getVersion() !== $page->getStreamVersion());
-        $canToggleContrast = !$page->locked && !$previewUser;
         $canToggleTree = !$page->locked && !$previewUser;
         $canPreview = !$page->locked && !$previewUser;
         $canUseSpacingTool = !$page->locked && !$previewUser;
@@ -117,14 +116,6 @@ class ApiController extends AbstractController
         $canDeleteAggregate = !$page->locked && $this->isGranted('page_delete') && $this->isGrantedTemplatePermission('delete', $page->template) && (!$previewUser && !$pageStreamRead->getDeleted());
 
         $actions = [
-            'toggle_contrast' => [
-                'css_class' => 'toggle-contrast',
-                'icon' => 'fas fa-adjust',
-                'label' => $translator->trans('admin.btn.toggleContrast', [], 'cms'),
-                'url' => '#',
-                'display' => $canToggleContrast,
-                'type' => 'link',
-            ],
             'toggle_tree' => [
                 'css_class' => 'toggle-tree',
                 'icon' => 'fas fa-layer-group',
