@@ -77,11 +77,13 @@ class EntityController extends AbstractController
             }
         }
 
-        $form = $this->getEntityForm($entityConfig, $entityObject);
-
+        $ignore_validation = $request->get('ignore_validation');
+        $form = $this->getEntityForm($entityConfig, $entityObject, [
+            'validation_groups' => $ignore_validation ? false : null,
+        ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
             $em->persist($entityObject);
             $em->flush();
 
@@ -143,11 +145,13 @@ class EntityController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $form = $this->getEntityForm($entityConfig, $entityObject);
-
+        $ignore_validation = $request->get('ignore_validation');
+        $form = $this->getEntityForm($entityConfig, $entityObject, [
+            'validation_groups' => $ignore_validation ? false : null,
+        ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if (!$ignore_validation && $form->isSubmitted() && $form->isValid()) {
             $em->persist($entityObject);
             $em->flush();
 
@@ -181,19 +185,20 @@ class EntityController extends AbstractController
     /**
      * @param array $entityConfig
      * @param mixed|null $data
+     * @param array $options
      *
      * @return FormInterface
      * @throws Exception
      */
-    private function getEntityForm(array $entityConfig, $data): FormInterface
+    private function getEntityForm(array $entityConfig, $data, array $options = []): FormInterface
     {
         $entityType = $entityConfig['form']['type'] ?? null;
         $fields = $entityConfig['form']['fields'] ?? [];
         if ($entityType) {
-            $form = $this->createForm($entityType, $data);
+            $form = $this->createForm($entityType, $data, $options);
         } elseif (!empty($fields)) {
             // Create form from field config.
-            $builder = $this->createFormBuilder($data);
+            $builder = $this->createFormBuilder($data, $options);
 
             foreach ($fields as $field) {
                 $property = $field['property'] ?? null;
