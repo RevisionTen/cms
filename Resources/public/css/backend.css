@@ -141,3 +141,8 @@ body.dragging, body.dragging * {
 body.file-picker-open .modal {
     overflow: hidden!important;
 }
+
+/* CKEditor modal fix */
+body.cke_dialog_open .modal {
+    overflow: hidden!important;
+}
