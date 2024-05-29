@@ -19,7 +19,7 @@ use function class_alias;
 
 class CMSBundle extends Bundle
 {
-    public const VERSION = '3.3.4';
+    public const VERSION = '3.3.5';
 }
 
 class_alias(Domain::class, '\\RevisionTen\\CMS\\Model\\Domain');

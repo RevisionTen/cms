@@ -190,7 +190,10 @@ class CmsExtension extends AbstractExtension
             return '';
         }
 
-        $elementConfig = $this->config['page_elements'][$element['elementName']];
+        $elementConfig = $this->config['page_elements'][$element['elementName']] ?? null;
+        if (empty($elementConfig)) {
+            return '';
+        }
 
         $attributes = [
             'data-uuid' => $element['uuid'],
