@@ -46,8 +46,12 @@ class CurrentWebsiteListener
              */
             $user = $this->security->getUser();
 
-            if (null !== $user && null !== $request) {
+            if (null !== $user) {
                 $websites = $user->getWebsites();
+
+                if (!$user instanceof UserRead) {
+                    throw new AccessDeniedHttpException('Not a CMS user');
+                }
 
                 if (null === $websites) {
                     throw new AccessDeniedHttpException('User does not belong to any website');
