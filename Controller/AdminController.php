@@ -253,6 +253,9 @@ class AdminController extends AbstractController
             $this->denyAccessUnlessGranted('page_delete');
         }
 
+        $websiteId = $request->get('currentWebsite') ?? null;
+        $templates = $this->getPermittedListTemplates($websiteId);
+
         $defaultSortBy = 'modified';
         $defaultSortOrder = 'desc';
 
@@ -320,9 +323,9 @@ class AdminController extends AbstractController
             if (!empty($template)) {
                 $criteria->andWhere($expr->eq('template', $template));
             }
+            $criteria->andWhere($expr->in('template', array_keys($templates)));
         }
 
-        $websiteId = $request->get('currentWebsite') ?? null;
         $count = $pageRepo->countQuery($criteria, $q, $websiteId);
         $numPages = ceil($count / $limit);
 
@@ -337,8 +340,6 @@ class AdminController extends AbstractController
                 $sortBy => $sortOrder,
             ], $limit, $offset, $q, $websiteId);
         }
-
-        $templates = $this->getPermittedListTemplates($websiteId);
 
         return $this->render('@CMS/Backend/Page/list.html.twig', [
             'isArchive' => $isArchive,
