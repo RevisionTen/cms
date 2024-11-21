@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@types/jquery": "latest",
-    "axios": ">=0.21.2",
-    "bootstrap": "^5.0.1"
+    "axios": "latest",
+    "bootstrap": "5.0.1"
   }
 }
