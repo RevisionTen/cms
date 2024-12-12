@@ -1,21 +1,392 @@
-﻿(function(g){"object"==typeof exports&&"object"==typeof module?g(require("../../lib/codemirror")):"function"==typeof define&&define.amd?define(["../../lib/codemirror"],g):g(CodeMirror)})(function(g){function t(a,b){this.cm=a;this.options=b;this.widget=null;this.tick=this.debounce=0;this.startPos=this.cm.getCursor("start");this.startLen=this.cm.getLine(this.startPos.line).length-this.cm.getSelection().length;if(this.options.updateOnCursorActivity){var c=this;a.on("cursorActivity",this.activityFunc=
-function(){c.cursorActivity()})}}function D(a,b){function c(a,c){var e;e="string"!=typeof c?function(a){return c(a,b)}:d.hasOwnProperty(c)?d[c]:c;g[a]=e}var d={Up:function(){b.moveFocus(-1)},Down:function(){b.moveFocus(1)},PageUp:function(){b.moveFocus(-b.menuSize()+1,!0)},PageDown:function(){b.moveFocus(b.menuSize()-1,!0)},Home:function(){b.setFocus(0)},End:function(){b.setFocus(b.length-1)},Enter:b.pick,Tab:b.pick,Esc:b.close};/Mac/.test(navigator.platform)&&(d["Ctrl-P"]=function(){b.moveFocus(-1)},
-d["Ctrl-N"]=function(){b.moveFocus(1)});var e=a.options.customKeys,g=e?{}:d;if(e)for(var f in e)e.hasOwnProperty(f)&&c(f,e[f]);if(e=a.options.extraKeys)for(f in e)e.hasOwnProperty(f)&&c(f,e[f]);return g}function B(a,b){for(;b&&b!=a;){if("LI"===b.nodeName.toUpperCase()&&b.parentNode==a)return b;b=b.parentNode}}function u(a,b){this.id="cm-complete-"+Math.floor(Math.random(1E6));this.completion=a;this.data=b;this.picked=!1;var c=this,d=a.cm,e=d.getInputField().ownerDocument,p=e.defaultView||e.parentWindow,
-f=this.hints=e.createElement("ul");f.setAttribute("role","listbox");f.setAttribute("aria-expanded","true");f.id=this.id;f.className="CodeMirror-hints "+a.cm.options.theme;this.selectedHint=b.selectedHint||0;for(var q=b.list,h=0;h<q.length;++h){var n=f.appendChild(e.createElement("li")),k=q[h],l="CodeMirror-hint"+(h!=this.selectedHint?"":" CodeMirror-hint-active");null!=k.className&&(l=k.className+" "+l);n.className=l;h==this.selectedHint&&n.setAttribute("aria-selected","true");n.id=this.id+"-"+h;
-n.setAttribute("role","option");k.render?k.render(n,b,k):n.appendChild(e.createTextNode(k.displayText||("string"==typeof k?k:k.text)));n.hintId=h}var m=a.options.container||e.body,h=d.cursorCoords(a.options.alignWithWord?b.from:null),x=h.left,y=h.bottom,t=!0,l=n=0;if(m!==e.body)var k=-1!==["absolute","relative","fixed"].indexOf(p.getComputedStyle(m).position)?m:m.offsetParent,l=k.getBoundingClientRect(),r=e.body.getBoundingClientRect(),n=l.left-r.left-k.scrollLeft,l=l.top-r.top-k.scrollTop;f.style.left=
-x-n+"px";f.style.top=y-l+"px";k=p.innerWidth||Math.max(e.body.offsetWidth,e.documentElement.offsetWidth);r=p.innerHeight||Math.max(e.body.offsetHeight,e.documentElement.offsetHeight);m.appendChild(f);d.getInputField().setAttribute("aria-autocomplete","list");d.getInputField().setAttribute("aria-owns",this.id);d.getInputField().setAttribute("aria-activedescendant",this.id+"-"+this.selectedHint);var m=a.options.moveOnOverlap?f.getBoundingClientRect():new DOMRect,u=a.options.paddingForScrollbar?f.scrollHeight>
-f.clientHeight+1:!1,v;setTimeout(function(){v=d.getScrollInfo()});if(0<m.bottom-r){var z=m.bottom-m.top,A=m.top-(h.bottom-h.top)-2;r-m.top<A?(z>A&&(f.style.height=(z=A)+"px"),f.style.top=(y=h.top-z)+l+"px",t=!1):f.style.height=r-m.top-2+"px"}l=m.right-k;u&&(l+=d.display.nativeBarWidth);0<l&&(m.right-m.left>k&&(f.style.width=k-5+"px",l-=m.right-m.left-k),f.style.left=(x=Math.max(h.left-l-n,0))+"px");if(u)for(h=f.firstChild;h;h=h.nextSibling)h.style.paddingRight=d.display.nativeBarWidth+"px";d.addKeyMap(this.keyMap=
-D(a,{moveFocus:function(a,b){c.changeActive(c.selectedHint+a,b)},setFocus:function(a){c.changeActive(a)},menuSize:function(){return c.screenAmount()},length:q.length,close:function(){a.close()},pick:function(){c.pick()},data:b}));if(a.options.closeOnUnfocus){var w;d.on("blur",this.onBlur=function(){w=setTimeout(function(){a.close()},100)});d.on("focus",this.onFocus=function(){clearTimeout(w)})}d.on("scroll",this.onScroll=function(){var b=d.getScrollInfo(),c=d.getWrapperElement().getBoundingClientRect();
-v||(v=d.getScrollInfo());var g=y+v.top-b.top,h=g-(p.pageYOffset||(e.documentElement||e.body).scrollTop);t||(h+=f.offsetHeight);if(h<=c.top||h>=c.bottom)return a.close();f.style.top=g+"px";f.style.left=x+v.left-b.left+"px"});g.on(f,"dblclick",function(a){(a=B(f,a.target||a.srcElement))&&null!=a.hintId&&(c.changeActive(a.hintId),c.pick())});g.on(f,"click",function(b){(b=B(f,b.target||b.srcElement))&&null!=b.hintId&&(c.changeActive(b.hintId),a.options.completeOnSingleClick&&c.pick())});g.on(f,"mousedown",
-function(){setTimeout(function(){d.focus()},20)});h=this.getSelectedHintRange();0===h.from&&0===h.to||this.scrollToActive();g.signal(b,"select",q[this.selectedHint],f.childNodes[this.selectedHint]);return!0}function E(a,b){if(!a.somethingSelected())return b;for(var c=[],d=0;d<b.length;d++)b[d].supportsSelection&&c.push(b[d]);return c}function w(a,b,c,d){a.async?a(b,d,c):(a=a(b,c))&&a.then?a.then(d):d(a)}g.showHint=function(a,b,c){if(!b)return a.showHint(c);c&&c.async&&(b.async=!0);b={hint:b};if(c)for(var d in c)b[d]=
-c[d];return a.showHint(b)};g.defineExtension("showHint",function(a){var b=this.getCursor("start"),c=this.options.hintOptions,d={},e;for(e in C)d[e]=C[e];if(c)for(e in c)void 0!==c[e]&&(d[e]=c[e]);if(a)for(e in a)void 0!==a[e]&&(d[e]=a[e]);d.hint.resolve&&(d.hint=d.hint.resolve(this,b));a=d;b=this.listSelections();if(!(1<b.length)){if(this.somethingSelected()){if(!a.hint.supportsSelection)return;for(e=0;e<b.length;e++)if(b[e].head.line!=b[e].anchor.line)return}this.state.completionActive&&this.state.completionActive.close();
-b=this.state.completionActive=new t(this,a);b.options.hint&&(g.signal(this,"startCompletion",this),b.update(!0))}});g.defineExtension("closeHint",function(){this.state.completionActive&&this.state.completionActive.close()});var F=window.requestAnimationFrame||function(a){return setTimeout(a,1E3/60)},G=window.cancelAnimationFrame||clearTimeout;t.prototype={close:function(){this.active()&&(this.tick=this.cm.state.completionActive=null,this.options.updateOnCursorActivity&&this.cm.off("cursorActivity",
-this.activityFunc),this.widget&&this.data&&g.signal(this.data,"close"),this.widget&&this.widget.close(),g.signal(this.cm,"endCompletion",this.cm))},active:function(){return this.cm.state.completionActive==this},pick:function(a,b){var c=a.list[b],d=this;this.cm.operation(function(){c.hint?c.hint(d.cm,a,c):d.cm.replaceRange("string"==typeof c?c:c.text,c.from||a.from,c.to||a.to,"complete");g.signal(a,"pick",c);d.cm.scrollIntoView()});this.options.closeOnPick&&this.close()},cursorActivity:function(){this.debounce&&
-(G(this.debounce),this.debounce=0);var a=this.startPos;this.data&&(a=this.data.from);var b=this.cm.getCursor(),c=this.cm.getLine(b.line);if(b.line!=this.startPos.line||c.length-b.ch!=this.startLen-this.startPos.ch||b.ch<a.ch||this.cm.somethingSelected()||!b.ch||this.options.closeCharacters.test(c.charAt(b.ch-1)))this.close();else{var d=this;this.debounce=F(function(){d.update()});this.widget&&this.widget.disable()}},update:function(a){if(null!=this.tick){var b=this,c=++this.tick;w(this.options.hint,
-this.cm,this.options,function(d){b.tick==c&&b.finishUpdate(d,a)})}},finishUpdate:function(a,b){this.data&&g.signal(this.data,"update");var c=this.widget&&this.widget.picked||b&&this.options.completeSingle;this.widget&&this.widget.close();(this.data=a)&&a.list.length&&(c&&1==a.list.length?this.pick(a,0):(this.widget=new u(this,a),g.signal(a,"shown")))}};u.prototype={close:function(){if(this.completion.widget==this){this.completion.widget=null;this.hints.parentNode&&this.hints.parentNode.removeChild(this.hints);
-this.completion.cm.removeKeyMap(this.keyMap);var a=this.completion.cm.getInputField();a.removeAttribute("aria-activedescendant");a.removeAttribute("aria-owns");a=this.completion.cm;this.completion.options.closeOnUnfocus&&(a.off("blur",this.onBlur),a.off("focus",this.onFocus));a.off("scroll",this.onScroll)}},disable:function(){this.completion.cm.removeKeyMap(this.keyMap);var a=this;this.keyMap={Enter:function(){a.picked=!0}};this.completion.cm.addKeyMap(this.keyMap)},pick:function(){this.completion.pick(this.data,
-this.selectedHint)},changeActive:function(a,b){a>=this.data.list.length?a=b?this.data.list.length-1:0:0>a&&(a=b?0:this.data.list.length-1);if(this.selectedHint!=a){var c=this.hints.childNodes[this.selectedHint];c&&(c.className=c.className.replace(" CodeMirror-hint-active",""),c.removeAttribute("aria-selected"));c=this.hints.childNodes[this.selectedHint=a];c.className+=" CodeMirror-hint-active";c.setAttribute("aria-selected","true");this.completion.cm.getInputField().setAttribute("aria-activedescendant",
-c.id);this.scrollToActive();g.signal(this.data,"select",this.data.list[this.selectedHint],c)}},scrollToActive:function(){var a=this.getSelectedHintRange(),b=this.hints.childNodes[a.from],a=this.hints.childNodes[a.to],c=this.hints.firstChild;b.offsetTop<this.hints.scrollTop?this.hints.scrollTop=b.offsetTop-c.offsetTop:a.offsetTop+a.offsetHeight>this.hints.scrollTop+this.hints.clientHeight&&(this.hints.scrollTop=a.offsetTop+a.offsetHeight-this.hints.clientHeight+c.offsetTop)},screenAmount:function(){return Math.floor(this.hints.clientHeight/
-this.hints.firstChild.offsetHeight)||1},getSelectedHintRange:function(){var a=this.completion.options.scrollMargin||0;return{from:Math.max(0,this.selectedHint-a),to:Math.min(this.data.list.length-1,this.selectedHint+a)}}};g.registerHelper("hint","auto",{resolve:function(a,b){var c=a.getHelpers(b,"hint"),d;if(c.length){var e=function(a,b,d){function e(c){if(c==g.length)return b(null);w(g[c],a,d,function(a){a&&0<a.list.length?b(a):e(c+1)})}var g=E(a,c);e(0)};e.async=!0;e.supportsSelection=!0;return e}return(d=
-a.getHelper(a.getCursor(),"hintWords"))?function(a){return g.hint.fromList(a,{words:d})}:g.hint.anyword?function(a,b){return g.hint.anyword(a,b)}:function(){}}});g.registerHelper("hint","fromList",function(a,b){var c=a.getCursor(),d=a.getTokenAt(c),e=g.Pos(c.line,d.start);d.start<c.ch&&/\w/.test(d.string.charAt(c.ch-d.start-1))?d=d.string.substr(0,c.ch-d.start):(d="",e=c);for(var p=[],f=0;f<b.words.length;f++){var q=b.words[f];q.slice(0,d.length)==d&&p.push(q)}if(p.length)return{list:p,from:e,to:c}});
-g.commands.autocomplete=g.showHint;var C={hint:g.hint.auto,completeSingle:!0,alignWithWord:!0,closeCharacters:/[\s()\[\]{};:>,]/,closeOnPick:!0,closeOnUnfocus:!0,updateOnCursorActivity:!0,completeOnSingleClick:!0,container:null,customKeys:null,extraKeys:null,paddingForScrollbar:!0,moveOnOverlap:!0};g.defineOption("hintOptions",null)});
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+  "use strict";
+
+  var HINT_ELEMENT_CLASS        = "CodeMirror-hint";
+  var ACTIVE_HINT_ELEMENT_CLASS = "CodeMirror-hint-active";
+
+  // This is the old interface, kept around for now to stay
+  // backwards-compatible.
+  CodeMirror.showHint = function(cm, getHints, options) {
+    if (!getHints) return cm.showHint(options);
+    if (options && options.async) getHints.async = true;
+    var newOpts = {hint: getHints};
+    if (options) for (var prop in options) newOpts[prop] = options[prop];
+    return cm.showHint(newOpts);
+  };
+
+  CodeMirror.defineExtension("showHint", function(options) {
+    // We want a single cursor position.
+    if (this.listSelections().length > 1 || this.somethingSelected()) return;
+
+    if (this.state.completionActive) this.state.completionActive.close();
+    var completion = this.state.completionActive = new Completion(this, options);
+    if (!completion.options.hint) return;
+
+    CodeMirror.signal(this, "startCompletion", this);
+    completion.update();
+  });
+
+  function Completion(cm, options) {
+    this.cm = cm;
+    this.options = this.buildOptions(options);
+    this.widget = null;
+    this.debounce = 0;
+    this.tick = 0;
+    this.startPos = this.cm.getCursor();
+    this.startLen = this.cm.getLine(this.startPos.line).length;
+
+    var self = this;
+    cm.on("cursorActivity", this.activityFunc = function() { self.cursorActivity(); });
+  }
+
+  var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
+    return setTimeout(fn, 1000/60);
+  };
+  var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
+
+  Completion.prototype = {
+    close: function() {
+      if (!this.active()) return;
+      this.cm.state.completionActive = null;
+      this.tick = null;
+      this.cm.off("cursorActivity", this.activityFunc);
+
+      if (this.widget) this.widget.close();
+      CodeMirror.signal(this.cm, "endCompletion", this.cm);
+    },
+
+    active: function() {
+      return this.cm.state.completionActive == this;
+    },
+
+    pick: function(data, i) {
+      var completion = data.list[i];
+      if (completion.hint) completion.hint(this.cm, data, completion);
+      else this.cm.replaceRange(getText(completion), completion.from || data.from,
+                                completion.to || data.to, "complete");
+      CodeMirror.signal(data, "pick", completion);
+      this.close();
+    },
+
+    showHints: function(data) {
+      if (!data || !data.list.length || !this.active()) return this.close();
+
+      if (this.options.completeSingle && data.list.length == 1)
+        this.pick(data, 0);
+      else
+        this.showWidget(data);
+    },
+
+    cursorActivity: function() {
+      if (this.debounce) {
+        cancelAnimationFrame(this.debounce);
+        this.debounce = 0;
+      }
+
+      var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
+      if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
+          pos.ch < this.startPos.ch || this.cm.somethingSelected() ||
+          (pos.ch && this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
+        this.close();
+      } else {
+        var self = this;
+        this.debounce = requestAnimationFrame(function() {self.update();});
+        if (this.widget) this.widget.disable();
+      }
+    },
+
+    update: function() {
+      if (this.tick == null) return;
+      if (this.data) CodeMirror.signal(this.data, "update");
+      if (!this.options.hint.async) {
+        this.finishUpdate(this.options.hint(this.cm, this.options), myTick);
+      } else {
+        var myTick = ++this.tick, self = this;
+        this.options.hint(this.cm, function(data) {
+          if (self.tick == myTick) self.finishUpdate(data);
+        }, this.options);
+      }
+    },
+
+    finishUpdate: function(data) {
+      this.data = data;
+      var picked = this.widget && this.widget.picked;
+      if (this.widget) this.widget.close();
+      if (data && data.list.length) {
+        if (picked && data.list.length == 1) this.pick(data, 0);
+        else this.widget = new Widget(this, data);
+      }
+    },
+
+    showWidget: function(data) {
+      this.data = data;
+      this.widget = new Widget(this, data);
+      CodeMirror.signal(data, "shown");
+    },
+
+    buildOptions: function(options) {
+      var editor = this.cm.options.hintOptions;
+      var out = {};
+      for (var prop in defaultOptions) out[prop] = defaultOptions[prop];
+      if (editor) for (var prop in editor)
+        if (editor[prop] !== undefined) out[prop] = editor[prop];
+      if (options) for (var prop in options)
+        if (options[prop] !== undefined) out[prop] = options[prop];
+      return out;
+    }
+  };
+
+  function getText(completion) {
+    if (typeof completion == "string") return completion;
+    else return completion.text;
+  }
+
+  function buildKeyMap(completion, handle) {
+    var baseMap = {
+      Up: function() {handle.moveFocus(-1);},
+      Down: function() {handle.moveFocus(1);},
+      PageUp: function() {handle.moveFocus(-handle.menuSize() + 1, true);},
+      PageDown: function() {handle.moveFocus(handle.menuSize() - 1, true);},
+      Home: function() {handle.setFocus(0);},
+      End: function() {handle.setFocus(handle.length - 1);},
+      Enter: handle.pick,
+      Tab: handle.pick,
+      Esc: handle.close
+    };
+    var custom = completion.options.customKeys;
+    var ourMap = custom ? {} : baseMap;
+    function addBinding(key, val) {
+      var bound;
+      if (typeof val != "string")
+        bound = function(cm) { return val(cm, handle); };
+      // This mechanism is deprecated
+      else if (baseMap.hasOwnProperty(val))
+        bound = baseMap[val];
+      else
+        bound = val;
+      ourMap[key] = bound;
+    }
+    if (custom)
+      for (var key in custom) if (custom.hasOwnProperty(key))
+        addBinding(key, custom[key]);
+    var extra = completion.options.extraKeys;
+    if (extra)
+      for (var key in extra) if (extra.hasOwnProperty(key))
+        addBinding(key, extra[key]);
+    return ourMap;
+  }
+
+  function getHintElement(hintsElement, el) {
+    while (el && el != hintsElement) {
+      if (el.nodeName.toUpperCase() === "LI" && el.parentNode == hintsElement) return el;
+      el = el.parentNode;
+    }
+  }
+
+  function Widget(completion, data) {
+    this.completion = completion;
+    this.data = data;
+    this.picked = false;
+    var widget = this, cm = completion.cm;
+
+    var hints = this.hints = document.createElement("ul");
+    hints.className = "CodeMirror-hints";
+    this.selectedHint = data.selectedHint || 0;
+
+    var completions = data.list;
+    for (var i = 0; i < completions.length; ++i) {
+      var elt = hints.appendChild(document.createElement("li")), cur = completions[i];
+      var className = HINT_ELEMENT_CLASS + (i != this.selectedHint ? "" : " " + ACTIVE_HINT_ELEMENT_CLASS);
+      if (cur.className != null) className = cur.className + " " + className;
+      elt.className = className;
+      if (cur.render) cur.render(elt, data, cur);
+      else elt.appendChild(document.createTextNode(cur.displayText || getText(cur)));
+      elt.hintId = i;
+    }
+
+    var pos = cm.cursorCoords(completion.options.alignWithWord ? data.from : null);
+    var left = pos.left, top = pos.bottom, below = true;
+    hints.style.left = left + "px";
+    hints.style.top = top + "px";
+    // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
+    var winW = window.innerWidth || Math.max(document.body.offsetWidth, document.documentElement.offsetWidth);
+    var winH = window.innerHeight || Math.max(document.body.offsetHeight, document.documentElement.offsetHeight);
+    (completion.options.container || document.body).appendChild(hints);
+    var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
+    if (overlapY > 0) {
+      var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
+      if (curTop - height > 0) { // Fits above cursor
+        hints.style.top = (top = pos.top - height) + "px";
+        below = false;
+      } else if (height > winH) {
+        hints.style.height = (winH - 5) + "px";
+        hints.style.top = (top = pos.bottom - box.top) + "px";
+        var cursor = cm.getCursor();
+        if (data.from.ch != cursor.ch) {
+          pos = cm.cursorCoords(cursor);
+          hints.style.left = (left = pos.left) + "px";
+          box = hints.getBoundingClientRect();
+        }
+      }
+    }
+    var overlapX = box.right - winW;
+    if (overlapX > 0) {
+      if (box.right - box.left > winW) {
+        hints.style.width = (winW - 5) + "px";
+        overlapX -= (box.right - box.left) - winW;
+      }
+      hints.style.left = (left = pos.left - overlapX) + "px";
+    }
+
+    cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
+      moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
+      setFocus: function(n) { widget.changeActive(n); },
+      menuSize: function() { return widget.screenAmount(); },
+      length: completions.length,
+      close: function() { completion.close(); },
+      pick: function() { widget.pick(); },
+      data: data
+    }));
+
+    if (completion.options.closeOnUnfocus) {
+      var closingOnBlur;
+      cm.on("blur", this.onBlur = function() { closingOnBlur = setTimeout(function() { completion.close(); }, 100); });
+      cm.on("focus", this.onFocus = function() { clearTimeout(closingOnBlur); });
+    }
+
+    var startScroll = cm.getScrollInfo();
+    cm.on("scroll", this.onScroll = function() {
+      var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
+      var newTop = top + startScroll.top - curScroll.top;
+      var point = newTop - (window.pageYOffset || (document.documentElement || document.body).scrollTop);
+      if (!below) point += hints.offsetHeight;
+      if (point <= editor.top || point >= editor.bottom) return completion.close();
+      hints.style.top = newTop + "px";
+      hints.style.left = (left + startScroll.left - curScroll.left) + "px";
+    });
+
+    CodeMirror.on(hints, "dblclick", function(e) {
+      var t = getHintElement(hints, e.target || e.srcElement);
+      if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
+    });
+
+    CodeMirror.on(hints, "click", function(e) {
+      var t = getHintElement(hints, e.target || e.srcElement);
+      if (t && t.hintId != null) {
+        widget.changeActive(t.hintId);
+        if (completion.options.completeOnSingleClick) widget.pick();
+      }
+    });
+
+    CodeMirror.on(hints, "mousedown", function() {
+      setTimeout(function(){cm.focus();}, 20);
+    });
+
+    CodeMirror.signal(data, "select", completions[0], hints.firstChild);
+    return true;
+  }
+
+  Widget.prototype = {
+    close: function() {
+      if (this.completion.widget != this) return;
+      this.completion.widget = null;
+      this.hints.parentNode.removeChild(this.hints);
+      this.completion.cm.removeKeyMap(this.keyMap);
+
+      var cm = this.completion.cm;
+      if (this.completion.options.closeOnUnfocus) {
+        cm.off("blur", this.onBlur);
+        cm.off("focus", this.onFocus);
+      }
+      cm.off("scroll", this.onScroll);
+    },
+
+    disable: function() {
+      this.completion.cm.removeKeyMap(this.keyMap);
+      var widget = this;
+      this.keyMap = {Enter: function() { widget.picked = true; }};
+      this.completion.cm.addKeyMap(this.keyMap);
+    },
+
+    pick: function() {
+      this.completion.pick(this.data, this.selectedHint);
+    },
+
+    changeActive: function(i, avoidWrap) {
+      if (i >= this.data.list.length)
+        i = avoidWrap ? this.data.list.length - 1 : 0;
+      else if (i < 0)
+        i = avoidWrap ? 0  : this.data.list.length - 1;
+      if (this.selectedHint == i) return;
+      var node = this.hints.childNodes[this.selectedHint];
+      node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
+      node = this.hints.childNodes[this.selectedHint = i];
+      node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
+      if (node.offsetTop < this.hints.scrollTop)
+        this.hints.scrollTop = node.offsetTop - 3;
+      else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
+        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
+      CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
+    },
+
+    screenAmount: function() {
+      return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
+    }
+  };
+
+  CodeMirror.registerHelper("hint", "auto", function(cm, options) {
+    var helpers = cm.getHelpers(cm.getCursor(), "hint"), words;
+    if (helpers.length) {
+      for (var i = 0; i < helpers.length; i++) {
+        var cur = helpers[i](cm, options);
+        if (cur && cur.list.length) return cur;
+      }
+    } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {
+      if (words) return CodeMirror.hint.fromList(cm, {words: words});
+    } else if (CodeMirror.hint.anyword) {
+      return CodeMirror.hint.anyword(cm, options);
+    }
+  });
+
+  CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
+    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
+    var found = [];
+    for (var i = 0; i < options.words.length; i++) {
+      var word = options.words[i];
+      if (word.slice(0, token.string.length) == token.string)
+        found.push(word);
+    }
+
+    if (found.length) return {
+      list: found,
+      from: CodeMirror.Pos(cur.line, token.start),
+            to: CodeMirror.Pos(cur.line, token.end)
+    };
+  });
+
+  CodeMirror.commands.autocomplete = CodeMirror.showHint;
+
+  var defaultOptions = {
+    hint: CodeMirror.hint.auto,
+    completeSingle: true,
+    alignWithWord: true,
+    closeCharacters: /[\s()\[\]{};:>,]/,
+    closeOnUnfocus: true,
+    completeOnSingleClick: false,
+    container: null,
+    customKeys: null,
+    extraKeys: null
+  };
+
+  CodeMirror.defineOption("hintOptions", null);
+});
