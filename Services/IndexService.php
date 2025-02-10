@@ -207,6 +207,27 @@ class IndexService
         }
     }
 
+    public static function removeInactive(array $elements, int $now): array
+    {
+        $elements = array_filter($elements, static function (array $element) use ($now) {
+            $start = $element['data']['startDate'] ?? 0;
+            $end = $element['data']['endDate'] ?? 999999999999;
+            if (($now >= $start) && ($now <= $end)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        foreach ($elements as &$element) {
+            if (isset($element['elements']) && is_array($element['elements'])) {
+                $element['elements'] = self::removeInactive($element['elements'], $now);
+            }
+        }
+
+        return $elements;
+    }
+
     public static function reducePayload(array $payload, Helper $helper): array
     {
         $fulltext = [];
@@ -229,7 +250,10 @@ class IndexService
         }
 
         if (isset($payload['elements']) && is_array($payload['elements']) && !empty($payload['elements'])) {
-            $strings = self::reduceData($payload['elements']);
+            $nowDate = new \DateTime();
+            $now = $nowDate->getTimestamp();
+            $filteredElements = self::removeInactive($payload['elements'], $now);
+            $strings = self::reduceData($filteredElements);
             // Append strings.
             foreach ($strings as $string) {
                 if (is_string($string)) {
