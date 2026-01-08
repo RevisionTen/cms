@@ -11,14 +11,14 @@
         }
     ],
     "require": {
-        "php": "^7.4.0|^8.1.0",
+        "php": "^7.4.0|^8.1.0|^8.4.0",
         "ext-json": "*",
         "ext-curl": "*",
         "revision-ten/cqrs": "^3.0",
         "revision-ten/forms": "^3.0",
         "gregwar/image-bundle": "^3.0.1",
         "scienta/doctrine-json-functions": "*",
-        "solarium/solarium": "^6.1.1",
+        "solarium/solarium": "^6.4.1",
         "sonata-project/google-authenticator": "^2.3",
         "symfony/dependency-injection": "^5.4",
         "symfony/form": "^5.4",
