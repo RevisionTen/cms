@@ -238,7 +238,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->resetToken;
     }
 
-    public function setResetToken(string $resetToken = null): self
+    public function setResetToken(?string $resetToken = null): self
     {
         $this->resetToken = $resetToken;
 
@@ -254,7 +254,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->color;
     }
 
-    public function setColor(string $color = null): self
+    public function setColor(?string $color = null): self
     {
         $this->color = $color;
 
@@ -266,7 +266,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->avatarUrl;
     }
 
-    public function setAvatarUrl(string $avatarUrl = null): self
+    public function setAvatarUrl(?string $avatarUrl = null): self
     {
         $this->color = $this->getColorFromUsername();
         $this->avatarUrl = $avatarUrl;
@@ -343,7 +343,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->devices;
     }
 
-    public function setDevices(array $devices = null): self
+    public function setDevices(?array $devices = null): self
     {
         $this->devices = $devices;
 
@@ -355,7 +355,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->ips;
     }
 
-    public function setIps(array $ips = null): self
+    public function setIps(?array $ips = null): self
     {
         $this->ips = $ips;
 
@@ -453,7 +453,7 @@ class UserRead implements UserInterface, PasswordAuthenticatedUserInterface
         return is_string($this->extra) ? json_decode($this->extra, true) : null;
     }
 
-    public function setExtra(array $extra = null): self
+    public function setExtra(?array $extra = null): self
     {
         $this->extra = is_array($extra) ? json_encode($extra) : null;
 

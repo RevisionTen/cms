@@ -149,7 +149,7 @@ class ElementController extends AbstractController
      *
      * @throws InterfaceException
      */
-    public function createElementForm(Request $request, CommandBus $commandBus, TranslatorInterface $translator, string $elementName, string $pageUuid, int $onVersion, string $parent = null, array $data = [], string $form_template = null)
+    public function createElementForm(Request $request, CommandBus $commandBus, TranslatorInterface $translator, string $elementName, string $pageUuid, int $onVersion, ?string $parent = null, array $data = [], ?string $form_template = null)
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -236,7 +236,7 @@ class ElementController extends AbstractController
      * @throws InterfaceException
      * @throws Exception
      */
-    public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, string $form_template = null)
+    public function editElement(Request $request, CommandBus $commandBus, AggregateFactory $aggregateFactory, TranslatorInterface $translator, string $pageUuid, int $onVersion, string $elementUuid, ?string $form_template = null)
     {
         $this->denyAccessUnlessGranted('page_edit');
 
@@ -812,7 +812,7 @@ class ElementController extends AbstractController
      * @return bool
      * @throws Exception
      */
-    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, ?string $commandUuid = null, ?int $userId = null): bool
     {
         if (null === $userId) {
             /**

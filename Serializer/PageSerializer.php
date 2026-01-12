@@ -15,7 +15,7 @@ use function is_array;
 
 class PageSerializer implements SolrSerializerInterface
 {
-    public function serialize(Query $update, PageStreamRead $pageStreamRead, array $payload = null): array
+    public function serialize(Query $update, PageStreamRead $pageStreamRead, ?array $payload = null): array
     {
         $docs = [];
         $helper = $update->getHelper();

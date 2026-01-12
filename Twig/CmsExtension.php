@@ -184,7 +184,7 @@ class CmsExtension extends AbstractExtension
         return $disabledActions;
     }
 
-    public function editorAttr(array $element, bool $edit, string $bg = null, bool $visible = null): string
+    public function editorAttr(array $element, bool $edit, ?string $bg = null, ?bool $visible = null): string
     {
         if (!$edit) {
             return '';

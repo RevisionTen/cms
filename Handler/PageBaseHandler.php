@@ -20,7 +20,7 @@ abstract class PageBaseHandler
      *
      * @return mixed
      */
-    private static function getMatching(array &$element, string $elementUuid, callable $callable = null, array &$collection, $parent = null)
+    private static function getMatching(array &$element, string $elementUuid, ?callable $callable = null, array &$collection, $parent = null)
     {
         // Return true if this element is the one we are looking for.
         if (isset($element['uuid']) && $element['uuid'] === $elementUuid) {

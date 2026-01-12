@@ -144,7 +144,7 @@ class Website
      *
      * @return Website
      */
-    public function setSiteVerification(string $siteVerification = null): self
+    public function setSiteVerification(?string $siteVerification = null): self
     {
         $this->siteVerification = $siteVerification;
 

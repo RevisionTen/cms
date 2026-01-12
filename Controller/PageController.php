@@ -1356,7 +1356,7 @@ class PageController extends AbstractController
      * @return bool
      * @throws Exception
      */
-    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, ?string $commandUuid = null, ?int $userId = null): bool
     {
         if (null === $userId) {
             /**

@@ -68,7 +68,7 @@ class FileService
      * @return bool
      * @throws Exception
      */
-    public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    public function runCommand(string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, ?string $commandUuid = null, ?int $userId = null): bool
     {
         if (null === $userId) {
             $userId = $this->user->getId();
@@ -180,7 +180,7 @@ class FileService
         ];
     }
 
-    public function replaceFile(array $file, UploadedFile $newFile = null, string $title, string $upload_dir, string $language = null, int $website = null, bool $keepOriginalFileName = false): ?array
+    public function replaceFile(array $file, ?UploadedFile $newFile = null, string $title, string $upload_dir, ?string $language = null, ?int $website = null, bool $keepOriginalFileName = false): ?array
     {
         $uuid = $file['uuid'];
 
