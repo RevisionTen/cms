@@ -20,7 +20,7 @@ abstract class PageBaseHandler
      *
      * @return mixed
      */
-    private static function getMatching(array &$element, string $elementUuid, ?callable $callable = null, array &$collection, $parent = null)
+    private static function getMatching(array &$element, string $elementUuid, array &$collection, ?callable $callable = null, $parent = null)
     {
         // Return true if this element is the one we are looking for.
         if (isset($element['uuid']) && $element['uuid'] === $elementUuid) {
@@ -34,7 +34,7 @@ abstract class PageBaseHandler
         // Look in child elements.
         if (isset($element['elements']) && is_array($element['elements'])) {
             foreach ($element['elements'] as &$subElement) {
-                if ($c = self::getMatching($subElement, $elementUuid, $callable, $element['elements'], $element)) {
+                if ($c = self::getMatching($subElement, $elementUuid, $element['elements'], $callable, $element)) {
                     return $c;
                 }
             }
@@ -53,7 +53,7 @@ abstract class PageBaseHandler
     public static function onElement(Page $aggregate, string $elementUuid, callable $callable): void
     {
         foreach ($aggregate->elements as &$element) {
-            if ($c = self::getMatching($element, $elementUuid, $callable, $aggregate->elements, null)) {
+            if ($c = self::getMatching($element, $elementUuid, $aggregate->elements,$callable,  null)) {
                 return;
             }
         }
@@ -70,7 +70,7 @@ abstract class PageBaseHandler
     public static function getElement(Page $aggregate, string $elementUuid)
     {
         foreach ($aggregate->elements as &$element) {
-            if ($c = self::getMatching($element, $elementUuid, null, $aggregate->elements, null)) {
+            if ($c = self::getMatching($element, $elementUuid, $aggregate->elements, null, null)) {
                 return $c;
             }
         }

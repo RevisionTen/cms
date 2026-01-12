@@ -41,7 +41,7 @@ class AliasRepository extends ServiceEntityRepository
         return parent::findAll();
     }
 
-    public function findMatchingAlias(string $path, ?int $website = null, string $locale)
+    public function findMatchingAlias(string $path, ?int $website = null, ?string $locale = 'de')
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -67,7 +67,7 @@ class AliasRepository extends ServiceEntityRepository
         return $query->getOneOrNullResult();
     }
 
-    public function findAllMatchingAlias(?int $website = null, string $locale)
+    public function findAllMatchingAlias(?int $website = null, ?string $locale = 'de')
     {
         $qb = $this->createQueryBuilder('a');
 

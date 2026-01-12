@@ -245,7 +245,7 @@ class FileController extends AbstractController
 
             $data['file'] = $fileService->replaceFile([
                 'uuid' => $fileUuid,
-            ], $data['file'], $data['title'], $uploadDir, $data['language'], null, $data['keepOriginalFileName']);
+            ], $data['title'], $uploadDir, $data['language'], null, $data['keepOriginalFileName'], $data['file']);
 
             return $this->render('@CMS/Backend/File/create-success.html.twig', $data);
         }

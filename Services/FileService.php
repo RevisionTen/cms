@@ -180,7 +180,7 @@ class FileService
         ];
     }
 
-    public function replaceFile(array $file, ?UploadedFile $newFile = null, string $title, string $upload_dir, ?string $language = null, ?int $website = null, bool $keepOriginalFileName = false): ?array
+    public function replaceFile(array $file, string $title, string $upload_dir, ?string $language = null, ?int $website = null, bool $keepOriginalFileName = false, ?UploadedFile $newFile = null): ?array
     {
         $uuid = $file['uuid'];
 
