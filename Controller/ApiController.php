@@ -39,7 +39,7 @@ class ApiController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function getPageInfo(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore, string $pageUuid, int $userId = null): JsonResponse
+    public function getPageInfo(Request $request, EntityManagerInterface $entityManager, AggregateFactory $aggregateFactory, TranslatorInterface $translator, EventStore $eventStore, string $pageUuid, ?int $userId = null): JsonResponse
     {
         $this->denyAccessUnlessGranted('page_edit');
 

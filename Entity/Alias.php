@@ -193,7 +193,7 @@ class Alias
      *
      * @return Alias
      */
-    public function setPageStreamRead(PageStreamRead $pageStreamRead = null): self
+    public function setPageStreamRead(?PageStreamRead $pageStreamRead = null): self
     {
         $this->pageStreamRead = $pageStreamRead;
 
@@ -213,7 +213,7 @@ class Alias
      *
      * @return Alias
      */
-    public function setController(string $controller = null): self
+    public function setController(?string $controller = null): self
     {
         $this->controller = $controller;
 
@@ -253,7 +253,7 @@ class Alias
      *
      * @return Alias
      */
-    public function setMeta(array $meta = null): self
+    public function setMeta(?array $meta = null): self
     {
         $this->meta = json_encode($meta);
 
@@ -273,7 +273,7 @@ class Alias
      *
      * @return Alias
      */
-    public function setLanguage(string $language = null): self
+    public function setLanguage(?string $language = null): self
     {
         $this->language = $language;
 
@@ -293,7 +293,7 @@ class Alias
      *
      * @return Alias
      */
-    public function setWebsite(Website $website = null): self
+    public function setWebsite(?Website $website = null): self
     {
         $this->website = $website;
 

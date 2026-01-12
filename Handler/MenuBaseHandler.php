@@ -20,7 +20,7 @@ abstract class MenuBaseHandler
      *
      * @return mixed
      */
-    private static function getMatching(array &$item, string $itemUuid, callable $callable = null, array &$collection, $parent = null)
+    private static function getMatching(array &$item, string $itemUuid, ?callable $callable = null, array &$collection, $parent = null)
     {
         // Return true if this item is the one we are looking for.
         if (isset($item['uuid']) && $item['uuid'] === $itemUuid) {

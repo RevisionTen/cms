@@ -25,7 +25,7 @@ class Column extends Element
         return 'cms_column';
     }
 
-    private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, string $empty_data = null): void
+    private function widthForm(FormBuilderInterface $builder, string $label, $placeholder, string $key, ?string $empty_data = null): void
     {
         $builder->add($key, ChoiceType::class, [
             'label' => $label,

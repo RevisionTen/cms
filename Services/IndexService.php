@@ -116,7 +116,7 @@ class IndexService
         }
     }
 
-    public function index(OutputInterface $output, string $uuid = null): void
+    public function index(OutputInterface $output, ?string $uuid = null): void
     {
         if (null === $this->solrConfig) {
             // Do nothing if solr is not configured.

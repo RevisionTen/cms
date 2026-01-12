@@ -25,7 +25,7 @@ trait LanguageAndWebsiteTrait
         return $this->language;
     }
 
-    public function setLanguage(string $language = null): self
+    public function setLanguage(?string $language = null): self
     {
         $this->language = $language;
 
@@ -37,7 +37,7 @@ trait LanguageAndWebsiteTrait
         return $this->website;
     }
 
-    public function setWebsite(Website $website = null): self
+    public function setWebsite(?Website $website = null): self
     {
         $this->website = $website;
 

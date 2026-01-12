@@ -231,7 +231,7 @@ class MenuController extends AbstractController
      * @throws InterfaceException
      * @throws Exception
      */
-    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, string $parent = null, array $data = null, string $form_template = '@CMS/Backend/Form/form.html.twig')
+    public function addItem(Request $request, TranslatorInterface $translator, CommandBus $commandBus, MessageBus $messageBus, string $itemName, string $menuUuid, int $onVersion, ?string $parent = null, ?array $data = null, string $form_template = '@CMS/Backend/Form/form.html.twig')
     {
         $this->denyAccessUnlessGranted('menu_edit');
 
@@ -665,7 +665,7 @@ class MenuController extends AbstractController
      * @deprecated since 2.0.8, use 'cms_menu()' in your template instead.
      *
      */
-    public function renderMenu(MenuRuntime $menuRuntime, string $name, Alias $alias = null, string $template = null, string $language = null, int $website = null): Response
+    public function renderMenu(MenuRuntime $menuRuntime, string $name, ?Alias $alias = null, ?string $template = null, ?string $language = null, ?int $website = null): Response
     {
         @trigger_error(sprintf('Rendering the "MenuController::renderMenu" function in your template is deprecated since 2.0.8, use the Twig extension function "cms_menu()" in your template instead.'), E_USER_DEPRECATED);
 
@@ -743,7 +743,7 @@ class MenuController extends AbstractController
      * @return bool
      * @throws Exception
      */
-    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, string $commandUuid = null, int $userId = null): bool
+    private function runCommand(CommandBus $commandBus, string $commandClass, array $data, string $aggregateUuid, int $onVersion, bool $queue = false, ?string $commandUuid = null, ?int $userId = null): bool
     {
         if (null === $userId) {
             /**

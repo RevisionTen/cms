@@ -58,7 +58,7 @@ class Domain
      *
      * @return Domain
      */
-    public function setId(int $id = null): self
+    public function setId(?int $id = null): self
     {
         $this->id = $id;
 
@@ -78,7 +78,7 @@ class Domain
      *
      * @return Domain
      */
-    public function setDomain(string $domain = null): self
+    public function setDomain(?string $domain = null): self
     {
         $this->domain = $domain;
 
@@ -98,7 +98,7 @@ class Domain
      *
      * @return Domain
      */
-    public function setWebsite(Website $website = null): self
+    public function setWebsite(?Website $website = null): self
     {
         $this->website = $website;
 

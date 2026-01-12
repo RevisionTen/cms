@@ -9,5 +9,5 @@ use Solarium\QueryType\Update\Query\Query;
 
 interface SolrSerializerInterface
 {
-    public function serialize(Query $update, PageStreamRead $pageStreamRead, array $payload = null): array;
+    public function serialize(Query $update, PageStreamRead $pageStreamRead, ?array $payload = null): array;
 }

@@ -97,7 +97,7 @@ class FrontendController extends AbstractController
      *
      * @return Response
      */
-    public function renderPage(string $pageUuid, Alias $alias = null): Response
+    public function renderPage(string $pageUuid, ?Alias $alias = null): Response
     {
         // Get page from cache.
         $pageData = $this->cacheService->get($pageUuid);
@@ -130,7 +130,7 @@ class FrontendController extends AbstractController
      *
      * @return Response
      */
-    public function getPageResponse(array $pageData, Website $website = null, Alias $alias = null): Response
+    public function getPageResponse(array $pageData, ?Website $website = null, ?Alias $alias = null): Response
     {
         // Get the page template from the template name.
         $templateName = $pageData['template'];
